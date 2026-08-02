@@ -393,9 +393,11 @@
       <li>Win by <b>destroying every enemy building</b></li>
     </ul>
     <p style="font-size:12px;color:#9a8f7a;margin:0 0 14px">
-      You lead the <b style="color:#d9a441">Sunfolk</b> against the <b style="color:#a98fd0">Ashkin</b>.<br>Difficulty: <b id="startdiff" style="color:#d9a441">Medium</b>
+      You lead the <b style="color:#d9a441">Sunfolk</b> against the <b style="color:#a98fd0">Ashkin</b>.<br>Difficulty: <b id="startdiff" style="color:#d9a441">Medium</b><br><span id="startlayout" style="color:#b9ae95"></span>
       — change it any time from the menu button, top left.</p>
     <button class="go" id="btnstart">Begin</button>
+    <!-- the build date, so it is obvious at a glance which copy this is -->
+    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 2 July 2026</p>
   </div>
 </div>
 
@@ -425,6 +427,52 @@
    THREE AGES — single-file RTS prototype
    Canvas 2D. No external assets. Code-drawn shapes.
    ============================================================ */
+
+/* ---------- a seeded source of randomness ----------
+   Every match can be replayed exactly, given its seed. This matters far more
+   for testing than for play: without it, measuring whether a change actually
+   helped means running the same uncertain thing over and over and squinting
+   at the spread. With it, the same seed gives the same map and the same
+   opening every time, so a difference in outcome is a difference in the code.
+
+   Math.random is routed through this rather than the 347 call sites being
+   rewritten. Seeded from the clock unless someone asks for a specific run. */
+let _rngA = 0, _rngB = 0, _rngC = 0, _rngD = 0;
+
+function setSeed(seed){
+  // mix the seed so that 1, 2, 3 give genuinely unlike sequences
+  let h = 1779033703 ^ (seed >>> 0);
+  const mix = () => {
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  };
+  _rngA = mix(); _rngB = mix(); _rngC = mix(); _rngD = mix();
+  if((_rngA|_rngB|_rngC|_rngD) === 0) _rngD = 1;   // never the all-zero state
+  G_SEED = seed >>> 0;
+}
+
+let G_SEED = 0;
+/* Held outside G, because newGame builds a fresh G and would wipe it. */
+let NEXT_SEED = null;
+function replaySeed(seed){ NEXT_SEED = seed >>> 0; }
+
+/* sfc32 - small, fast, and good enough that a map generated from it does not
+   show visible banding the way a naive linear generator does */
+function seededRandom(){
+  _rngA >>>= 0; _rngB >>>= 0; _rngC >>>= 0; _rngD >>>= 0;
+  let t = (_rngA + _rngB) | 0;
+  _rngA = _rngB ^ (_rngB >>> 9);
+  _rngB = (_rngC + (_rngC << 3)) | 0;
+  _rngC = (_rngC << 21) | (_rngC >>> 11);
+  _rngD = (_rngD + 1) | 0;
+  t = (t + _rngD) | 0;
+  _rngC = (_rngC + t) | 0;
+  return (t >>> 0) / 4294967296;
+}
+
+setSeed((Date.now() ^ (Math.random()*4294967296)) >>> 0);
+Math.random = seededRandom;
 
 const TILE = 34;
 const MAPW = 58, MAPH = 58;
@@ -1040,6 +1088,31 @@ function carriesTorch(u){
   return u.cls && u.cls !== "civ";
 }
 
+/* ---------- the land recovering overnight ----------
+   Berry patches refill, ore seams are picked over again, and cut woodland
+   creeps back - a little each night, never past what the patch first held.
+   It keeps a long game from stripping the map bare, and on an island, where
+   there is very little ground to begin with, it is the difference between a
+   settlement that can grow and one that slowly starves. */
+const NIGHT_REGROW = { food:0.10, wood:0.05, stone:0.03, gold:0.025, moonstone:0.02 };
+
+function regrowOvernight(){
+  if(!G.nodes) return;
+  const isle = G.islandMap ? 1.6 : 1;    // an island needs the help more
+  let touched = 0;
+  for(const n of G.nodes){
+    const rate = NIGHT_REGROW[n.kind];
+    if(!rate || n.amt >= n.max) continue;
+    // a patch worked out entirely is gone for good - this is recovery,
+    // not resurrection
+    if(n.amt <= 0) continue;
+    const before = n.amt;
+    n.amt = Math.min(n.max, n.amt + n.max*rate*isle);
+    if(n.amt > before) touched++;
+  }
+  if(touched && G.islandMap) hint("The land has recovered a little overnight.");
+}
+
 /* ---------- things that come in the dark ----------
    They arrive out of the unlit country, go for whatever is nearest, and are
    gone by first light. You see the eyes before you see the beast. */
@@ -1050,7 +1123,12 @@ const BEASTS = {
             col:"#3b3229", eye:"#e0a050", seasons:["autumn","summer"], packs:1 },
   spider: { name:"Great Spider",hp:60,  atk:7,  spd:46, r:11, cd:1.1,
             col:"#241f2b", eye:"#c05070", seasons:["summer","spring"], packs:2 },
-  wraith: { name:"Wraith",      hp:52,  atk:9,  spd:40, r:10, cd:1.3,
+  // Harmless, and meant to stay that way. These are the things that walk like
+  // people, and a night of them wiping out a whole settlement is not eerie,
+  // it is just a loss you could do nothing about. They come, they follow you
+  // about, they stand at the edge of the lamplight, and they are gone by
+  // morning - but they never lay a hand on anyone.
+  wraith: { name:"Wraith",      hp:52,  atk:0,  spd:40, r:10, cd:1.3, harmless:true,
             col:"#2a3040", eye:"#9fd8e0", seasons:["winter","spring"], packs:2 },
   // one more per season, each exclusive to its own - every season now has
   // three things it could bring instead of two
@@ -1068,7 +1146,7 @@ const BEASTS = {
                col:"#3b3229", eye:"#e0a050" },
   // same idea - zombies have their own dedicated spawner below, not the
   // seasonal pool, and only ever want a person, never a building
-  zombie: { name:"Zombie", hp:70, atk:8, spd:30, r:10, cd:1.2,
+  zombie: { name:"Zombie", hp:70, atk:0, spd:30, r:10, cd:1.2, harmless:true,
             col:"#8fae8a", eye:"#7fd4e8" }
 };
 
@@ -1573,8 +1651,30 @@ function updateBeasts(dt){
     const t = b.target;
     if(!t) continue;
 
+    const harmless = BEASTS[b.kind] && BEASTS[b.kind].harmless;
     const reach = (t.kind==="bldg" || t.w) ? Math.max(t.w,t.h)*TILE/2 + b.r + 3 : t.r + b.r + 2;
     const d = Math.hypot(t.x-b.x, t.y-b.y);
+
+    if(harmless){
+      /* It follows, and it watches, and it will not close the last few feet.
+         Standing just outside the lamplight staring at your people is worse
+         than being mauled by it, and it costs you nothing you cannot get
+         back in the morning. */
+      const hover = reach + 26 + Math.sin(G.t*0.7 + b.id)*10;
+      if(d > hover + 8){
+        moveToward(b, t.x, t.y, b.spd, dt, hover);
+      } else if(d < hover - 8){
+        // back away if anyone comes at it
+        const ax = b.x - t.x, ay = b.y - t.y, m = Math.hypot(ax,ay)||1;
+        moveToward(b, b.x + ax/m*60, b.y + ay/m*60, b.spd*0.8, dt, 6);
+      } else {
+        b.moving = false;
+        faceToward(b, t.x-b.x, dt);
+      }
+      if(b.atkAnim>0) b.atkAnim -= dt;
+      continue;
+    }
+
     if(d > reach){
       moveToward(b, t.x, t.y, b.spd, dt, reach);
     } else {
@@ -2999,17 +3099,50 @@ function updateStorm(dt){
   if(G.storm.t >= G.storm.len){ G.storm = null; refreshUI(); }
 }
 
+/* How the weather treats a fire.
+
+   Rain and driving snow smother it: it burns down far quicker and does much
+   less damage while it lasts. A gale does the opposite - wind fans a flame,
+   so it burns hotter, though not for any longer. Lying snow damps things a
+   little even after the storm has passed.
+
+   Returns { rate, dmg } as multipliers on how fast the fire burns out and how
+   much harm it does. */
+function fireWeather(){
+  const w = G.weather && G.weatherAmt > 0.15 ? G.weather.key : null;
+  const amt = Math.min(1, (G.weatherAmt||0));
+  if(w === "downpour" || w === "blizzard"){
+    // eats through its remaining life up to 5x faster, and barely scorches
+    return { rate: 1 + 4*amt, dmg: 1 - 0.75*amt };
+  }
+  if(w === "gale"){
+    // wind fans it: hotter, but no longer-lived
+    return { rate: 1, dmg: 1 + 0.6*amt };
+  }
+  if(w === "squall"){
+    return { rate: 1 + 1.2*amt, dmg: 1 - 0.3*amt };
+  }
+  // lying snow, no storm - a mild damping
+  const snow = G.snow || 0;
+  return { rate: 1 + 0.5*snow, dmg: 1 - 0.25*snow };
+}
+
 function updateFires(dt){
+  const fw = fireWeather();
+  const doused = fw.rate > 2.5;         // properly getting rained on
   for(const b of G.bldgs){
     if(!b.burning) continue;
-    b.fireT = (b.fireT||0) + dt;
-    b.hp = Math.max(0, b.hp - b.maxhp*FIRE_BLDG_DPS_FRAC*dt);
-    if(b.fireT > b.fireOut){ b.burning=false; b.fireT=0; }
+    b.fireT = (b.fireT||0) + dt*fw.rate;
+    b.hp = Math.max(0, b.hp - b.maxhp*FIRE_BLDG_DPS_FRAC*fw.dmg*dt);
+    if(b.fireT > b.fireOut){
+      b.burning=false; b.fireT=0;
+      if(doused && b.p===P_YOU && b.hp>0) hint("The rain puts out the fire.");
+    }
   }
   for(const n of G.nodes){
     if(!n.burning) continue;
-    n.fireT = (n.fireT||0) + dt;
-    n.amt = Math.max(0, n.amt - n.max*FIRE_TREE_DPS_FRAC*dt);
+    n.fireT = (n.fireT||0) + dt*fw.rate;
+    n.amt = Math.max(0, n.amt - n.max*FIRE_TREE_DPS_FRAC*fw.dmg*dt);
     if(n.fireT > n.fireOut || n.amt<=0){ n.burning=false; n.fireT=0; }
   }
 }
@@ -3051,7 +3184,10 @@ const AGES = ["Stone Age","Bronze Age","Iron Age"];
 const AGE_COST = [
   null,
   { know:140, food:140 },
-  { know:340, food:320, gold:180 }
+  // Iron used to want 340 knowledge, 320 food and 180 gold. On a small island
+  // that is a long way past what the land will bear, and the Troop Carrier
+  // sits behind it - so an AI stuck on Bronze could never cross at all.
+  { know:260, food:210, gold:110 }
 ];
 
 /* ---------- resource kinds ---------- */
@@ -3084,9 +3220,9 @@ const UNITS = {
          build:14, r:7, pop:1, cls:"mystic", ranged:true },
   fishingboat:{ name:"Fishing Boat", age:0, hp:70, spd:64, atk:0, rng:8, cd:1, cost:{wood:63,food:27},
                 build:11, r:11, pop:1, cls:"civ", naval:true },
-  transport:{ name:"Transport", age:1, hp:150, spd:76, atk:0, rng:8, cd:1, cost:{wood:103,food:42},
+  transport:{ name:"Troop Carrier", age:2, hp:210, spd:80, atk:0, rng:8, cd:1, cost:{wood:120,food:55},
               build:14, r:13, pop:1, cls:"civ", naval:true, capacity:6 },
-  warship:{ name:"War Galley", age:1, hp:180, spd:82, atk:19, rng:118, cd:1.6,
+  warship:{ name:"Spear Ship", age:1, hp:180, spd:82, atk:19, rng:118, cd:1.6, capacity:2,
             cost:{wood:117,gold:60,food:53}, build:16, r:13, pop:2, cls:"arc",
             naval:true, ranged:true },
   druid:{ name:"Druid", age:1, hp:60, spd:64, atk:9, rng:11, cd:1.2, cost:{gold:90,food:100},
@@ -3162,6 +3298,21 @@ function extremeWeatherActive(){
 }
 function igniteBurn(t){
   if(!t || t.hp===undefined) return;
+  // A building has its own fire system - staged flames, damage scaled to its
+  // size, and its own burning-out. Route it there rather than giving it the
+  // flat per-second burn units take: updateBurns only ever walks units and
+  // beasts, so a building set alight this way took no damage at all and its
+  // burnT never counted down, leaving the flag stuck on for good.
+  if(t.kind==="bldg" || t.maxhp!==undefined && t.w!==undefined && t.h!==undefined){
+    if(!t.burning){
+      t.burning = true;
+      t.fireT = 0;
+      t.fireOut = FIREARROW_DUR;
+    } else {
+      t.fireT = Math.max(0, (t.fireT||0) - FIREARROW_DUR*0.5);  // fan the flames
+    }
+    return;
+  }
   t.burnT = FIREARROW_DUR;
   t.burnDps = FIREARROW_DPS;
 }
@@ -3266,6 +3417,14 @@ function classMult(a, d){
 let G = null;
 
 function newGame(){
+  // Seed first, before anything at all is rolled. Doing this partway through
+  // meant the AI's strategy and the opening weather were still being drawn
+  // from wherever the previous game had left the stream, so the same seed
+  // gave the same map but a different match.
+  if(NEXT_SEED !== null){ setSeed(NEXT_SEED); NEXT_SEED = null; }
+  else setSeed((Date.now() ^ (seededRandom()*4294967296)) >>> 0);
+  const _thisSeed = G_SEED;
+
   const _aiStrategyKeys = Object.keys(AI_STRATEGIES);
   const _pickedStrategy = _aiStrategyKeys[(Math.random()*_aiStrategyKeys.length)|0];
   G = {
@@ -3328,8 +3487,39 @@ function newGame(){
   const dm = G.diff.res;
   const air = G.players[P_AI].res;
   for(const k in air) air[k] = Math.round(air[k] * dm);
-  genMap();
-  spawnStart();
+  // Every match records the seed it was dealt from, so any game - a good one,
+  // or one where something went wrong - can be played again exactly.
+  G.seed = _thisSeed;
+
+  // Deal a coastline, place the towns on it, and check the two can actually
+  // reach each other on foot. The AI cannot build a boat, so a map that needs
+  // one is a map it cannot play - if a shape has cut the land in two, fall
+  // back to the plain coast, which never does.
+  let joined = false;
+  for(let attempt=0; attempt<6 && !joined; attempt++){
+    genMap(attempt >= 4 ? MAP_TYPES[0] : null);
+    spawnStart();
+    const towns = G.bldgs.filter(b=>b.type==="town");
+    if(towns.length < 2){ continue; }
+    // An island map is meant to separate them - the AI can build a dock and
+    // ferry an army across. Everything else has to be walkable, because a
+    // coastline that has accidentally cut the land in two would leave the AI
+    // stranded with no idea it should be sailing.
+    joined = G.islandMap || landConnected(
+      Math.floor(towns[0].x/TILE), Math.floor(towns[0].y/TILE),
+      Math.floor(towns[1].x/TILE), Math.floor(towns[1].y/TILE), G.terrain);
+    // and on an island map the two must not share one island
+    if(joined && G.islandMap){
+      const same = landConnected(
+        Math.floor(towns[0].x/TILE), Math.floor(towns[0].y/TILE),
+        Math.floor(towns[1].x/TILE), Math.floor(towns[1].y/TILE), G.terrain);
+      if(same) joined = false;      // re-deal: they want separate islands
+    }
+    if(!joined){
+      // wipe what that attempt built and try again
+      G.bldgs = []; G.units = []; G.nodes = []; G.sel = [];
+    }
+  }
   rebuildNav();
   spawnWildlife();
   centerOnTown();
@@ -3338,7 +3528,66 @@ function newGame(){
 /* ============================================================
    MAP GENERATION
    ============================================================ */
-function genMap(){
+/* ---------- the shape of the land ----------
+   The map used to be one shape every time: an L of sea along two edges. These
+   are the coastlines a match can be dealt instead.
+
+   Every one of them has to leave the two starting towns joined by dry land -
+   the AI has no idea how to build a boat, so a map that needs one is a map it
+   cannot play. genMap checks this after the fact and falls back to the plain
+   coast if a shape has cut the land in two. */
+const MAP_TYPES = [
+  { name:"Coastland",  weight:3, shape:"coast" },
+  { name:"Great bay",  weight:2, shape:"bay" },
+  { name:"The lakes",  weight:2, shape:"lakes" },
+  { name:"The strait", weight:2, shape:"strait" },
+  { name:"Inland sea", weight:2, shape:"inland" },
+  // Islands are built and working - the AI crosses reliably on Medium and
+  // Hard - but they are not finished: it never builds a warship, so the sea
+  // goes uncontested, and landed troops simply charge the nearest thing.
+  // Weight 0 keeps them out of normal play while the work continues. Set
+  // either weight above zero, or call genMap with the entry directly, to
+  // play one.
+  { name:"Two isles",  weight:0, shape:"twoisles",  islands:true },
+  { name:"Four isles", weight:0, shape:"fourisles", islands:true }
+];
+
+function pickMapType(){
+  let total=0; for(const m of MAP_TYPES) total+=m.weight;
+  if(total <= 0) return MAP_TYPES[0];
+  let r=Math.random()*total;
+  for(const m of MAP_TYPES){ r-=m.weight; if(r<=0) return m; }
+  return MAP_TYPES[0];
+}
+
+/* Is there a dry-land route between these two tiles? A flood fill over the
+   terrain, which is far cheaper than asking the pathfinder and does not care
+   about buildings. */
+function landConnected(ax, ay, bx, by, T){
+  const seen = new Uint8Array(MAPW*MAPH);
+  const q = [ay*MAPW+ax];
+  seen[ay*MAPW+ax] = 1;
+  const goal = by*MAPW+bx;
+  while(q.length){
+    const i = q.pop();
+    if(i === goal) return true;
+    const x = i % MAPW, y = (i / MAPW) | 0;
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+dx, ny=y+dy;
+      if(nx<0||ny<0||nx>=MAPW||ny>=MAPH) continue;
+      const j = ny*MAPW+nx;
+      if(seen[j] || T[j]===5) continue;
+      seen[j]=1; q.push(j);
+    }
+  }
+  return false;
+}
+
+function genMap(type){
+  const chosen = type || pickMapType();
+  G.mapType = chosen.name;
+  G.islandMap = false;
+  const shape = chosen.shape;
   const T = new Uint8Array(MAPW*MAPH); // 0 grass,1 grass2,2 grass3,3 dirt,4 sand,5 water
   // base noise
   for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
@@ -3348,13 +3597,109 @@ function genMap(){
     if(Math.random() < 0.04) t = 3;
     T[y*MAPW+x] = t;
   }
-  // coastline: an L-shaped sea hugging the bottom and right edges
-  for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
-    const dB = MAPH-1-y, dR = MAPW-1-x;
-    const wob = Math.sin(x*0.22)*1.6 + Math.sin(y*0.19)*1.6;
-    const depth = Math.min(dB, dR);
-    if(depth < 3.2 + wob) T[y*MAPW+x] = 5;
-    else if(depth < 4.6 + wob) T[y*MAPW+x] = 4;
+  // the coastline, whichever shape this map has been dealt
+  const spin = Math.random()*6.283;   // so a shape does not always face the same way
+
+  if(shape === "coast"){
+    // an L of sea hugging two edges - the old familiar one
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      const wob = Math.sin(x*0.22)*1.6 + Math.sin(y*0.19)*1.6;
+      const depth = Math.min(MAPH-1-y, MAPW-1-x);
+      if(depth < 3.2 + wob) T[y*MAPW+x] = 5;
+      else if(depth < 4.6 + wob) T[y*MAPW+x] = 4;
+    }
+  } else if(shape === "bay"){
+    // a broad bay biting deep into one side, land wrapping round it
+    const bx = MAPW/2 + Math.cos(spin)*MAPW*0.55;
+    const by = MAPH/2 + Math.sin(spin)*MAPH*0.55;
+    const rad = MAPW*0.58;
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      const wob = Math.sin(x*0.19)*2.0 + Math.sin(y*0.23)*2.0;
+      const d = Math.hypot(x-bx, y-by) - (rad + wob);
+      if(d < 0) T[y*MAPW+x] = 5;
+      else if(d < 1.6) T[y*MAPW+x] = 4;
+    }
+  } else if(shape === "lakes"){
+    // several large lakes scattered about, plus a thin coast on one edge
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      const wob = Math.sin(x*0.22)*1.4;
+      if(MAPH-1-y < 2.2 + wob) T[y*MAPW+x] = 5;
+      else if(MAPH-1-y < 3.4 + wob) T[y*MAPW+x] = 4;
+    }
+    const n = 5 + ((Math.random()*4)|0);
+    for(let k=0;k<n;k++){
+      const cx = 10 + Math.random()*(MAPW-20);
+      const cy = 10 + Math.random()*(MAPH-20);
+      const rr = 5.0 + Math.random()*5.5;
+      for(let y=Math.max(1,(cy-rr-3)|0); y<Math.min(MAPH-1,cy+rr+3); y++)
+        for(let x=Math.max(1,(cx-rr-3)|0); x<Math.min(MAPW-1,cx+rr+3); x++){
+          const wob = Math.sin(x*0.5+k)*1.1 + Math.sin(y*0.45+k)*1.1;
+          const d = Math.hypot(x-cx, y-cy) - (rr + wob);
+          if(d < 0) T[y*MAPW+x] = 5;
+          else if(d < 1.5 && T[y*MAPW+x]!==5) T[y*MAPW+x] = 4;
+        }
+    }
+  } else if(shape === "strait"){
+    // sea cutting most of the way across, leaving one neck of land to cross
+    const horiz = Math.random() < 0.5;
+    const gapAt = 0.25 + Math.random()*0.5;      // where along it the neck sits
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      const along = horiz ? x/MAPW : y/MAPH;
+      const across = horiz ? y : x;
+      const mid = horiz ? MAPH/2 : MAPW/2;
+      const wob = Math.sin(along*14)*2.2;
+      // the channel pinches shut where the neck is
+      const pinch = Math.max(0, 1 - Math.abs(along-gapAt)/0.14);
+      const halfW = (8.5 + wob) * (1 - pinch);
+      const d = Math.abs(across - mid) - halfW;
+      if(d < 0) T[y*MAPW+x] = 5;
+      else if(d < 1.6) T[y*MAPW+x] = 4;
+    }
+  } else if(shape === "twoisles" || shape === "fourisles"){
+    // Proper islands - everything is sea except a few landmasses. Only ever
+    // dealt when the AI is able to sail, since it has to cross to reach you.
+    for(let i=0;i<T.length;i++) T[i] = 5;
+    const n = (shape === "twoisles") ? 2 : 4;
+    const rad = (shape === "twoisles") ? MAPW*0.235 : MAPW*0.175;
+    const centres = [];
+    for(let k=0;k<n;k++){
+      const a = spin + (k/n)*6.283;
+      const orbit = (n===2) ? MAPW*0.26 : MAPW*0.28;
+      centres.push({ x: MAPW/2 + Math.cos(a)*orbit, y: MAPH/2 + Math.sin(a)*orbit, k });
+    }
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      for(const c of centres){
+        const ang = Math.atan2(y-c.y, x-c.x);
+        const wob = Math.sin(ang*3 + c.k*2.1)*2.2 + Math.sin(ang*5 - c.k)*1.3;
+        const d = Math.hypot(x-c.x, y-c.y) - (rad + wob);
+        if(d < 0){ T[y*MAPW+x] = 0; break; }
+        else if(d < 1.6 && T[y*MAPW+x]===5) T[y*MAPW+x] = 4;
+      }
+    }
+    // put the grass variation back over the new land
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      if(T[y*MAPW+x] !== 0) continue;
+      const nz = Math.sin(x*0.31)*Math.cos(y*0.27) + Math.sin((x+y)*0.19)*0.6 + Math.random()*0.5;
+      if(nz < -0.55) T[y*MAPW+x] = 2; else if(nz > 0.75) T[y*MAPW+x] = 1;
+      if(Math.random() < 0.04) T[y*MAPW+x] = 3;
+    }
+    G.islandMap = true;
+  } else {
+    // a big sea in the middle of the map, land all round the rim
+    const cx = MAPW/2 + (Math.random()-0.5)*6;
+    const cy = MAPH/2 + (Math.random()-0.5)*6;
+    const rad = MAPW*0.34;
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      const a = Math.atan2(y-cy, x-cx);
+      const wob = Math.sin(a*3+spin)*2.6 + Math.sin(a*5-spin)*1.6;
+      const d = Math.hypot(x-cx, y-cy) - (rad + wob);
+      if(d < 0) T[y*MAPW+x] = 5;
+      else if(d < 1.6) T[y*MAPW+x] = 4;
+    }
+    // and a thin coast on one edge for good measure
+    for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+      if(MAPW-1-x < 2.0 + Math.sin(y*0.2)*1.2) T[y*MAPW+x] = 5;
+    }
   }
 
   // a couple of ponds, away from the two bases
@@ -3815,16 +4160,35 @@ function vein(kind, cx, cy, minD, maxD){
 }
 
 function scatter(kind, cx, cy, spread, count, amount){
+  /* An island is a fifth of the ground a normal map gives you, so the same
+     handful of patches has to carry a whole settlement. Put more out, and
+     make each one richer. */
+  if(G.islandMap){
+    count  = Math.round(count  * 1.45);
+    amount = Math.round(amount * 1.35);
+  }
+  /* Every attempt that landed in water used to be thrown away, which was
+     harmless when the map was mostly land and quietly ruinous once it was
+     not: an island got a fifth of the resources it was supposed to, ten food
+     patches instead of fifty-six, two gold veins instead of twenty. The count
+     is what the map is meant to have, so keep looking for somewhere to put it
+     rather than dropping it in the sea. */
   for(let i=0;i<count;i++){
-    const a = Math.random()*Math.PI*2, d = Math.random()*spread;
-    const tx = Math.round(cx + Math.cos(a)*d), ty = Math.round(cy + Math.sin(a)*d);
-    if(tx<1||ty<1||tx>=MAPW-1||ty>=MAPH-1) continue;
-    if(G.terrain[ty*MAPW+tx] === 5) continue;
-    const wx = tx*TILE + TILE/2 + (Math.random()-0.5)*10;
-    const wy = ty*TILE + TILE/2 + (Math.random()-0.5)*10;
-    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 20)) continue;
-    G.nodes.push({ id:G.nextId++, isNode:true, kind, x:wx, y:wy, amt:amount, max:amount,
-                   r: kind===RES.WOOD?11:9, seed:Math.random()*6.28 });
+    let placed = false;
+    for(let tries=0; tries<40 && !placed; tries++){
+      // widen the search a little as we struggle, so a small island still fills
+      const reach = spread * (1 + tries*0.05);
+      const a = Math.random()*Math.PI*2, d = Math.random()*reach;
+      const tx = Math.round(cx + Math.cos(a)*d), ty = Math.round(cy + Math.sin(a)*d);
+      if(tx<1||ty<1||tx>=MAPW-1||ty>=MAPH-1) continue;
+      if(G.terrain[ty*MAPW+tx] === 5) continue;
+      const wx = tx*TILE + TILE/2 + (Math.random()-0.5)*10;
+      const wy = ty*TILE + TILE/2 + (Math.random()-0.5)*10;
+      if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 20)) continue;
+      G.nodes.push({ id:G.nextId++, isNode:true, kind, x:wx, y:wy, amt:amount, max:amount,
+                     r: kind===RES.WOOD?11:9, seed:Math.random()*6.28 });
+      placed = true;
+    }
   }
 }
 
@@ -4039,8 +4403,15 @@ function updateWildlife(dt){
 function dd0(c){ return c.size==="small"?74:c.size==="medium"?92:104; }
 
 function spawnStart(){
-  placeStartBase(P_YOU, 9, MAPH-10);
-  placeStartBase(P_AI,  MAPW-10, 9);
+  const starts = chooseStarts();
+  G.startLayout = starts.name;
+  G.startNote = starts.note;
+  // whichever of the two is dealt to you varies as well
+  const flip = Math.random() < 0.5;
+  const mine  = flip ? starts.b : starts.a;
+  const yours = flip ? starts.a : starts.b;
+  placeStartBase(P_YOU, mine[0],  mine[1]);
+  placeStartBase(P_AI,  yours[0], yours[1]);
 
   // With the map this heavily wooded a starting town can end up walled in by
   // its own forest with nowhere to build. Clear the trees immediately around
@@ -4066,6 +4437,82 @@ function spawnStart(){
     }
     return true;
   });
+}
+
+/* ---------- where the two sides begin ----------
+   Corner-to-corner every game made every match open the same way. These are
+   the layouts a match can be dealt instead. `d` is roughly how far apart the
+   two towns end up, which is really a difficulty knob: the closer the start,
+   the sooner the first contact.
+
+   Positions are in tiles and get validated before use - a spot that lands in
+   water or against a cliff is nudged until it holds a town, and if a layout
+   cannot be made to work the map falls back to the old corners. */
+const START_LAYOUTS = [
+  { name:"Far corners",   a:[9, MAPH-10],           b:[MAPW-10, 9],           note:"the long diagonal" },
+  { name:"Far corners",   a:[9, 9],                 b:[MAPW-10, MAPH-10],     note:"the other diagonal" },
+  { name:"East and west", a:[9, (MAPH>>1)],         b:[MAPW-10, (MAPH>>1)],   note:"facing across the middle" },
+  { name:"North and south",a:[(MAPW>>1), 9],        b:[(MAPW>>1), MAPH-10],   note:"facing along the middle" },
+  { name:"Near corners",  a:[11, MAPH-12],          b:[MAPW-12, MAPH-12],     note:"sharing a coast" },
+  { name:"Close quarters",a:[(MAPW>>1)-13, (MAPH>>1)+13], b:[(MAPW>>1)+13, (MAPH>>1)-13], note:"no time to settle in" },
+  { name:"The middle",    a:[(MAPW>>1), (MAPH>>1)], b:[MAPW-10, MAPH-10],     note:"one of you is surrounded" }
+];
+
+/* Is there room here for a town and a little settlement around it?
+
+   Two separate questions, and the second alone is not enough: scoring only the
+   surrounding area let a town whose own centre tile was water pass, because
+   the land around it made up the difference. The footprint has to be clear in
+   its own right. */
+function startSpotScore(tx, ty){
+  const d = BLDG.town;
+  // the ground the town itself will stand on, with a tile of margin
+  for(let dx=-1; dx<=d.w; dx++) for(let dy=-1; dy<=d.h; dy++){
+    const px=tx+dx, py=ty+dy;
+    if(px<1||py<1||px>=MAPW-1||py>=MAPH-1) return 0;
+    if(blocked(px*TILE+TILE/2, py*TILE+TILE/2, null, false)) return 0;
+  }
+  // and enough open ground around it to actually build a settlement
+  let free=0, checked=0;
+  for(let dx=-4; dx<=4; dx++) for(let dy=-4; dy<=4; dy++){
+    const px=tx+dx, py=ty+dy;
+    if(px<1||py<1||px>=MAPW-1||py>=MAPH-1) continue;
+    checked++;
+    if(!blocked(px*TILE+TILE/2, py*TILE+TILE/2, null, false)) free++;
+  }
+  return checked ? free/checked : 0;
+}
+
+/* Nudge a start position until it sits on ground that can actually hold a
+   town. Spirals outward from where the layout wanted it. */
+function settleStart(tx, ty){
+  if(startSpotScore(tx,ty) > 0.72) return [tx,ty];
+  for(let r=1; r<=8; r++){
+    for(let a=0; a<12; a++){
+      const ang = (a/12)*6.283;
+      const px = Math.round(tx + Math.cos(ang)*r*2);
+      const py = Math.round(ty + Math.sin(ang)*r*2);
+      if(px<6||py<6||px>MAPW-7||py>MAPH-7) continue;
+      if(startSpotScore(px,py) > 0.72) return [px,py];
+    }
+  }
+  return null;
+}
+
+/* Deal a layout for this match, checking it will actually work. */
+function chooseStarts(){
+  const order = START_LAYOUTS.map((l,i)=>({l,i,r:Math.random()}))
+                             .sort((x,y)=>x.r-y.r);
+  for(const {l} of order){
+    const a = settleStart(l.a[0], l.a[1]);
+    const b = settleStart(l.b[0], l.b[1]);
+    if(!a || !b) continue;
+    // and they must not end up on top of each other
+    if(Math.hypot(a[0]-b[0], a[1]-b[1]) < 18) continue;
+    return { name:l.name, note:l.note, a, b };
+  }
+  return { name:"Far corners", note:"the long diagonal",
+           a:[9, MAPH-10], b:[MAPW-10, 9] };
 }
 
 function placeStartBase(p, tx, ty){
@@ -5416,6 +5863,7 @@ function tick(dt){
     }
     if(ph==="dawn"){
       wakeUp();
+      regrowOvernight();
       beastsFlee();
       clearMoonstone();
       const up = G.units.filter(u=>u.p===P_YOU && u.rested>0).length;
@@ -6525,6 +6973,370 @@ function aiStrat(){
   return s;
 }
 
+/* ---------- the AI going to sea ----------
+   Its whole plan assumes it can walk to you. On a map where it cannot, it
+   used to sit on its own shore building an army it could never deliver.
+
+   This is deliberately simple: work out whether the enemy is reachable on
+   foot, and if not, put up a dock, build a transport, walk the army to the
+   shore, load, sail across, and put them down on the far side. It is not
+   clever - it will not feint or pick a weak landing - but it turns an
+   unplayable map into a playable one. */
+
+/* Can these two points be walked between? Cached per pair of towns, since
+   the answer only changes when the coastline does, which is never. */
+function aiLandRoute(from, to){
+  if(!G.aiRouteCache) G.aiRouteCache = {};
+  const key = (from.x|0)+","+(from.y|0)+"->"+(to.x|0)+","+(to.y|0);
+  if(G.aiRouteCache[key] !== undefined) return G.aiRouteCache[key];
+  const r = landConnected(
+    Math.floor(from.x/TILE), Math.floor(from.y/TILE),
+    Math.floor(to.x/TILE),   Math.floor(to.y/TILE), G.terrain);
+  G.aiRouteCache[key] = r;
+  return r;
+}
+
+/* Somewhere to put a dock.
+
+   Not simply the nearest shore: it has to be on water that actually leads to
+   the enemy, and there is a deliberate spread of choice so the AI does not
+   sail from the same quay every single game. A player who has learned where
+   the boats come from should not be able to park two spear ships there and
+   forget about the sea. */
+function aiFindShore(near, toward){
+  const cands = [];
+  for(let ty=1; ty<MAPH-2; ty++){
+    for(let tx=1; tx<MAPW-2; tx++){
+      if(!aiCanPlace(tx,ty,2,2)) continue;
+      if(!touchesWater(tx,ty,2,2)) continue;
+      const x=(tx+1)*TILE, y=(ty+1)*TILE;
+      if(!aiLandRoute(near, {x,y})) continue;         // its builders must be able to walk there
+      cands.push({tx, ty, x, y, d: Math.hypot(x-near.x, y-near.y)});
+    }
+  }
+  if(!cands.length) return null;
+
+  // prefer shores whose water leads to the enemy at all
+  const good = cands.filter(c=>{
+    const id = seaIdAt(c.x, c.y + TILE) >= 0 ? seaIdAt(c.x, c.y + TILE) : seaIdAt(c.x, c.y);
+    if(id < 0) return false;
+    return aiFindLandings(toward, id).length > 0;
+  });
+  const pool = good.length ? good : cands;
+
+  // of those, take one of the nearer half at random rather than the closest
+  pool.sort((a,b)=>a.d-b.d);
+  const take = Math.max(1, Math.ceil(pool.length*0.5));
+  return pool[(Math.random()*take)|0];
+}
+
+/* Which stretch of sea is this, and can a boat get from one place to another
+   without crossing land? Worked out once and kept, since coastlines do not
+   move. Without it the AI would happily set course for a lake on the far side
+   of an island and sit there loaded for the rest of the match. */
+function seaBody(){
+  if(G.seaMap) return G.seaMap;
+  const m = new Int16Array(MAPW*MAPH).fill(-1);
+  let id = 0;
+  for(let i=0;i<m.length;i++){
+    if(m[i] !== -1 || G.terrain[i] !== 5) continue;
+    const st = [i]; m[i] = id;
+    while(st.length){
+      const k = st.pop(), x = k%MAPW, y = (k/MAPW)|0;
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=x+dx, ny=y+dy;
+        if(nx<0||ny<0||nx>=MAPW||ny>=MAPH) continue;
+        const j = ny*MAPW+nx;
+        if(m[j] !== -1 || G.terrain[j] !== 5) continue;
+        m[j] = id; st.push(j);
+      }
+    }
+    id++;
+  }
+  G.seaMap = m;
+  return m;
+}
+
+function seaIdAt(x, y){
+  const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
+  if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return -1;
+  return seaBody()[ty*MAPW+tx];
+}
+
+/* Somewhere to put the troops down.
+
+   Returns several possibilities rather than one, all of them reachable by sea
+   from where the boat actually is, and spread around the enemy's coast. The
+   AI picks a different one each time it sails - landing at the same spot every
+   game meant a player could simply post a guard there and forget about it. */
+function aiFindLandings(target, fromSeaId){
+  const out = [];
+  const seen = new Set();
+  for(let ring = 3; ring < 17; ring++){
+    for(let k = 0; k < 32; k++){
+      const a = k/32*6.283, r = ring*TILE;
+      const x = target.x + Math.cos(a)*r, y = target.y + Math.sin(a)*r;
+      if(x < TILE || y < TILE || x > WORLD_W-TILE || y > WORLD_H-TILE) continue;
+      if(!isWater(x,y)) continue;
+      if(fromSeaId >= 0 && seaIdAt(x,y) !== fromSeaId) continue;   // a boat must be able to get there
+      // there has to be somewhere dry to step out onto
+      let beach = false;
+      for(let b = 0; b < 12 && !beach; b++){
+        const ba = b/12*6.283;
+        const bx = x + Math.cos(ba)*TILE*1.2, by = y + Math.sin(ba)*TILE*1.2;
+        if(!isWater(bx,by) && !blocked(bx,by,null,false)) beach = true;
+      }
+      if(!beach) continue;
+      // keep them apart, so the choices are genuinely different approaches
+      const key = Math.round(x/(TILE*4))+","+Math.round(y/(TILE*4));
+      if(seen.has(key)) continue;
+      seen.add(key);
+      out.push({ x, y, d: Math.hypot(x-target.x, y-target.y) });
+      if(out.length >= 12) return out;
+    }
+  }
+  return out;
+}
+
+/* Record how far along the invasion the AI has got, and what is holding it
+   up right now. Costs nothing in play and is the only way to tell which link
+   in the chain is actually the weak one. */
+const SEA_STEPS = ["none","needShore","needWood","building","needBoat","gathering",
+                   "loading","crossing","landing","landed"];
+function seaLog(step, why){
+  if(!G.sea) G.sea = { step:"none", why:"", best:0, crossings:0, landings:0, hist:{} };
+  const i = SEA_STEPS.indexOf(step);
+  if(i > G.sea.best) G.sea.best = i;
+  G.sea.step = step;
+  G.sea.why = why || "";
+  G.sea.hist[step] = (G.sea.hist[step]||0) + 1;
+}
+
+/* Does this match need a navy at all? */
+function aiNeedsSea(town){
+  const enemyTown = G.bldgs.find(b=>b.p===P_YOU && b.type==="town" && b.hp>0)
+                 || G.bldgs.find(b=>b.p===P_YOU && b.hp>0);
+  if(!enemyTown || !town) return null;
+  return aiLandRoute(town, enemyTown) ? null : enemyTown;
+}
+
+/* How determined the AI is to get across, rising with the clock. On an island
+   a crossing is the only way it can ever reach you, so the pressure builds: a
+   rival that never arrives is not an opponent. A turtle is the exception -
+   staying home is the whole point of it. */
+function seaUrgency(){
+  const strat = G.ai && G.ai.strategy;
+  if(strat === "turtle") return 0;
+  const t = G.t;
+  if(t > 900) return 3;
+  if(t > 600) return 2;
+  if(t > 360) return 1;
+  return 0;
+}
+
+/* The yard: a dock and a boat, claimed before the economy spends the wood. */
+function aiNavyYard(my, town){
+  const pl = G.players[P_AI];
+  const enemyTown = aiNeedsSea(town);
+  if(!enemyTown){
+    G.ai.seaUrge = 0; G.ai.holdExpansion = false; G.ai.holdArmy = false;
+    G.ai.saveForSea = false; G.ai.seaAge = false; G.ai.wantLodge = false;
+    return;
+  }
+
+  const docks = my.bldgs.filter(b=>b.type==="dock");
+  const going = G.bldgs.filter(b=>b.p===P_AI && b.type==="dock" && !b.done);
+
+  if(!docks.length && !going.length){
+    if(!canAfford(pl, BLDG.dock.cost)){
+      seaLog("needWood", "dock costs "+BLDG.dock.cost.wood+"w, has "+Math.round(pl.res.wood));
+      return;
+    }
+    const spot = aiFindShore(town, enemyTown);
+    if(!spot){ seaLog("needShore", "no buildable shore reachable from its town"); return; }
+    const d = makeBuilding("dock", P_AI, spot.tx, spot.ty, false);
+    pay(pl, BLDG.dock.cost);
+    const vills = my.units.filter(u=>u.type==="villager" && u.order!=="build").slice(0,3);
+    for(const v of vills){ v.order="build"; v.target=d; v.path=null; }
+    return;
+  }
+  if(!docks.length){ seaLog("building", "dock under construction"); return; }
+
+  const boats = my.units.filter(u=>UNITS[u.type].capacity > 0);
+  if(boats.length < 1){
+    const dock = docks[0];
+    const cost = UNITS.transport.cost;
+    const ageGated = pl.age < UNITS.transport.age;
+
+    if(!ageGated && canAfford(pl, cost) && !dock.queue.length){
+      tryTrain(dock, "transport");
+      seaLog("needBoat", "transport ordered");
+      G.ai.saveForSea = false; G.ai.seaAge = false;
+      return;
+    }
+
+    // Saving for a ship it is not yet allowed to build is not saving, it is
+    // paralysis: the hold blocks every wood building, so no lodges go up, no
+    // knowledge accrues, and the age that would allow the ship never arrives.
+    G.ai.saveForSea = !ageGated;
+    G.ai.seaAge = ageGated;
+    G.ai.seaUrge = seaUrgency();
+    if(G.ai.seaUrge >= 2) G.ai.holdExpansion = true;
+    if(G.ai.seaUrge >= 3) G.ai.holdArmy = true;
+
+    const need = AGE_COST[pl.age+1];
+    let short = null;
+    if(ageGated && need){
+      // Knowledge is not gathered - it accrues from lodges - so if that is
+      // what is missing the answer is another lodge, not another villager.
+      G.ai.wantLodge = pl.res.know < need.know;
+      if(pl.res.food < need.food) short = "food";
+      else if(need.gold && pl.res.gold < need.gold) short = "gold";
+    } else {
+      G.ai.wantLodge = false;
+      if(pl.res.wood < cost.wood) short = "wood";
+      else if(pl.res.food < cost.food) short = "food";
+    }
+    seaLog("needBoat", ageGated
+      ? ("age "+pl.age+", carrier needs age "+UNITS.transport.age+
+         "; short of "+(short || (G.ai.wantLodge ? "knowledge" : "nothing")))
+      : ("needs "+cost.wood+"w "+cost.food+"f, has "+
+         Math.round(pl.res.wood)+"w "+Math.round(pl.res.food)+"f"));
+
+    if(short){
+      const vills = my.units.filter(u=>u.type==="villager" && !u.indoors && u.order!=="build");
+      const on = vills.filter(u=>u.carryKind===short ||
+                                 (u.target && u.target.kind===short)).length;
+      if(on < Math.max(3, Math.ceil(vills.length*0.5))){
+        for(const v of vills){
+          if(v.target && v.target.kind===short) continue;
+          const n = nearestNode(v, short);
+          if(n){ v.order="gather"; v.target=n; v.path=null; break; }
+        }
+      }
+    }
+    return;
+  }
+  G.ai.saveForSea = false; G.ai.seaAge = false;
+  G.ai.holdExpansion = false; G.ai.holdArmy = false;
+}
+
+function aiNavy(dt, my, army, town){
+  const pl = G.players[P_AI];
+  const nav = G.ai.navy = G.ai.navy || { state:"none", t:0 };
+  nav.t -= dt;
+
+  const enemyTown = aiNeedsSea(town);
+  if(!enemyTown){ nav.state="none"; return false; }
+
+  const docks = my.bldgs.filter(b=>b.type==="dock");
+  const boats = my.units.filter(u=>UNITS[u.type].capacity > 0);
+  if(!docks.length || !boats.length) return true;   // the yard is still working
+
+  // once there is an army worth shipping, ferry it across
+  const boat = boats[0];
+  const ready = army.filter(u=>!u.indoors);
+  if(nav.state==="none" || nav.state==="gather"){
+    // Three is enough to be worth a trip. Waiting for a proper warband meant
+    // the leaner difficulties, which never field five at once, simply never
+    // sailed at all - better to land small groups repeatedly.
+    if(ready.length < 3){ seaLog("gathering", "only "+ready.length+" soldiers, wants 3"); return true; }
+    nav.state = "gather";
+    // bring the army to the dock and hold the boat there
+    const dock = docks[0];
+    boat.order="move"; boat.tx=dock.x; boat.ty=dock.y+TILE;
+    let near=0;
+    for(const u of ready){
+      if(Math.hypot(u.x-dock.x, u.y-dock.y) < 90){ near++; continue; }
+      if(u.order!=="move"){ u.order="move"; u.tx=dock.x; u.ty=dock.y+TILE*1.5; u.path=null; }
+    }
+    // and cast off once most of them are aboard-ish, rather than holding out
+    // for every last one to touch the quay
+    nav.waited = (nav.waited||0) + 1;
+    const enough = Math.max(2, Math.min(4, ready.length));
+    seaLog("loading", near+" of "+ready.length+" at the quay, needs "+enough);
+    if((near >= enough || nav.waited > 40) && Math.hypot(boat.x-dock.x, boat.y-dock.y) < 150){
+      nav.waited = 0;
+      const took = loadTransport(boat);
+      if(took > 0){
+        G.sea && G.sea.crossings++;
+        seaLog("crossing", took+" aboard");
+        nav.state="crossing";
+        // Pick a beach the boat can actually sail to, and a different one
+        // each crossing. Aiming at the nearest water to the enemy town meant
+        // it sometimes set course for a lake on the far side of the island,
+        // where it sat loaded for the rest of the match.
+        const here = seaIdAt(boat.x, boat.y);
+        const spots = aiFindLandings(enemyTown, here);
+        if(spots.length){
+          // rotate through them rather than always taking the closest
+          nav.pick = ((nav.pick|0) + 1 + ((Math.random()*3)|0)) % spots.length;
+          const landing = spots[nav.pick];
+          nav.landing = landing;
+          boat.order="move"; boat.tx=landing.x; boat.ty=landing.y; boat.path=null;
+          seaLog("crossing", took+" aboard, making for one of "+spots.length+" beaches");
+        } else {
+          seaLog("landing", "no beach it can reach by sea");
+          nav.state="none";
+        }
+      }
+    }
+    return true;
+  }
+
+  if(nav.state==="crossing"){
+    if(!boat.cargo || !boat.cargo.length){ nav.state="none"; return true; }
+    const arrived = Math.hypot(boat.x-boat.tx, boat.y-boat.ty) < 60 || !boat.order;
+    if(arrived){
+      const put = unloadTransport(boat);
+      if(put > 0){
+        // they land ready to fight
+        for(const u of G.units){
+          if(u.p!==P_AI || u.cls==="civ") continue;
+          if(Math.hypot(u.x-boat.x, u.y-boat.y) < 120){ u.order="attack"; u.target=enemyTown; }
+        }
+        G.ai.pushing = true;
+        if(G.sea){
+          G.sea.landings++;
+          // Record WHERE they were put down. A landing that happens back on
+          // the AI's own shore counts for nothing, and telling the two apart
+          // from outside the game turned out to be unreliable.
+          const home = G.bldgs.find(b=>b.p===P_AI && b.type==="town");
+          const away = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
+          if(home && away){
+            const dh = Math.hypot(boat.x-home.x, boat.y-home.y);
+            const da = Math.hypot(boat.x-away.x, boat.y-away.y);
+            if(dh < da) G.sea.dumpedHome = (G.sea.dumpedHome||0) + 1;
+            else G.sea.landedAway = (G.sea.landedAway||0) + 1;
+          }
+        }
+        seaLog("landed", put+" put ashore");
+        nav.state="none";
+        nav.tries = 0;
+      } else {
+        // No beach here. Nose along the coast and try again rather than
+        // sailing home with the troops still aboard, which is what it used
+        // to do - the crossing worked, the landing never happened.
+        nav.tries = (nav.tries||0) + 1;
+        seaLog("landing", "no beach, try "+nav.tries+" of 8");
+        if(nav.tries > 8){
+          seaLog("landing", "gave up after 8 tries, sailing home loaded");
+          nav.state="none"; nav.tries=0; return true;
+        }
+        const a = Math.random()*6.283;
+        const step = TILE*(2 + nav.tries);
+        let nx = enemyTown.x + Math.cos(a)*step;
+        let ny = enemyTown.y + Math.sin(a)*step;
+        nx = Math.max(TILE, Math.min(WORLD_W-TILE, nx));
+        ny = Math.max(TILE, Math.min(WORLD_H-TILE, ny));
+        if(isWater(nx,ny)){ boat.order="move"; boat.tx=nx; boat.ty=ny; boat.path=null; }
+      }
+    }
+    return true;
+  }
+  return true;
+}
+
 function aiThink(dt){
   const pl = G.players[P_AI];
   G.ai.think -= dt;
@@ -6549,6 +7361,10 @@ function aiThink(dt){
       if(n){ v.order="gather"; v.target=n; }
     }
   }
+
+  // 1a. If this match needs a crossing, claim the dock and the first boat
+  // before the economy spends the wood on anything else.
+  aiNavyYard(my, town);
 
   // 1b. rebalance the workforce so the AI doesn't hoard one resource and starve on another
   G.ai.rebal -= 1.1;
@@ -6657,7 +7473,12 @@ function aiThink(dt){
 
   // 4. lodges for knowledge (2-3)
   const lodges = my.all.filter(b=>b.type==="lodge").length;
-  if(lodges < 3 && vills.length >= 7) aiBuild("lodge", town);
+  // Knowledge only comes from the town centre and these, so when an age-up is
+  // waiting on knowledge the answer is more of them. On an island that is the
+  // difference between reaching Iron and sitting on Bronze for the whole game.
+  const lodgeCap = G.ai.wantLodge ? 6 : 3;
+  const lodgeVills = G.ai.wantLodge ? 5 : 7;
+  if(lodges < lodgeCap && vills.length >= lodgeVills) aiBuild("lodge", town);
 
   // 5. remaining military buildings
   if(has("barracks") && !has("range")) aiBuild("range", town, 1, true);
@@ -6688,6 +7509,18 @@ function aiThink(dt){
   const prod = my.bldgs.filter(b=>BLDG[b.type].trains && b.type!=="town");
   for(const b of prod){
     if(b.queue.length>=2) continue;
+    // The boat comes before more soldiers - but only when it is genuinely
+    // within reach. Blocking army training for the whole eleven minutes it
+    // takes to afford a transport meant the AI bought its boat and then had
+    // nobody to put in it: one or two soldiers when the crossing needs three.
+    // Hold back on soldiers only when the boat itself is nearly paid for.
+    // Holding them back for the whole age-up as well stopped the AI dead -
+    // it stopped training, which stopped it growing, and it never reached
+    // Iron at all. Measured: Age 2 at 18m before, never after.
+    if(G.ai.saveForSea && G.players[P_AI].res.wood >= UNITS.transport.cost.wood*0.6
+       && b.type!=="dock") continue;
+    // at the sharpest pressure everything goes to getting across
+    if(G.ai.holdArmy && b.type!=="dock") continue;
     const opts = BLDG[b.type].trains.filter(t=>UNITS[t].age<=pl.age && t!=="scout");
     if(!opts.length) continue;
     const pick = opts[opts.length-1];
@@ -6702,6 +7535,10 @@ function aiThink(dt){
   if(!G.ai.pushing && army.length >= threshold){
     G.ai.pushing = true; G.ai.wave++;
   }
+  // If the enemy cannot be walked to, the whole land-attack plan is useless -
+  // hand over to the navy instead of marching an army into the sea.
+  if(aiNavy(dt, my, army, town)) return;
+
   if(G.ai.pushing){
     const target = aiPickTarget();
     if(target){
@@ -6755,6 +7592,13 @@ function aiBuild(type, town, concurrent, priority){
   const pl=G.players[P_AI], d=BLDG[type];
   const max = concurrent || 1;
   if(pl.age<d.age) return;
+  // while it is saving for a dock, everything else waits - otherwise the wood
+  // is always gone before the crossing can be paid for
+  if(G.ai.saveForSea && type!=="dock" && d.cost.wood) return;
+  // while the crossing is pressing, only put up what helps it happen -
+  // lodges still count, since knowledge is what buys the age the ship needs
+  if(G.ai.holdExpansion && type!=="dock" && type!=="lodge" && type!=="mine"
+     && type!=="lumber" && type!=="farm") return;
   if(!canAfford(pl,d.cost)) return;
   if(G.bldgs.filter(b=>b.p===P_AI&&b.type===type&&!b.done).length >= max) return;
   // don't start more sites than the workforce can finish - unless this is a
@@ -11664,18 +12508,19 @@ function drawBeast(b){
 
 /* ---------- boats ---------- */
 function drawBoat(u, pl){
-  const r=u.r, L=r*1.7;
+  const r = u.r, L = r*1.7;
   const rock = Math.sin(G.t*1.9 + u.id)*0.055;
-  const naval = UNITS[u.type];
+  const kind = u.type;
+  const dark = shade(pl.col, -0.30), lit = shade(pl.col, 0.22);
 
-  // wake
-  ctx.fillStyle="rgba(200,225,235,.14)";
+  // ---- wake ----
+  ctx.fillStyle = "rgba(200,225,235,.14)";
   ctx.beginPath(); ctx.ellipse(0, r*0.25, L*0.95, r*0.5, 0,0,6.283); ctx.fill();
   if(u.moving){
-    ctx.strokeStyle="rgba(220,240,248,.22)"; ctx.lineWidth=1.2;
+    ctx.strokeStyle = "rgba(220,240,248,.22)"; ctx.lineWidth = 1.2;
     for(let i=1;i<3;i++){
       ctx.beginPath();
-      ctx.arc(-L*0.7, r*0.25, i*5+((G.t*22)%6), -0.9, 0.9);
+      ctx.arc(-L*0.7, r*0.25, i*5 + ((G.t*22)%6), -0.9, 0.9);
       ctx.stroke();
     }
   }
@@ -11683,79 +12528,176 @@ function drawBoat(u, pl){
   ctx.save();
   ctx.rotate(rock);
 
-  // hull
-  ctx.fillStyle="#77593a";
-  ctx.beginPath();
-  ctx.moveTo(-L, -r*0.10);
-  ctx.quadraticCurveTo(0, -r*0.62, L, -r*0.10);
-  ctx.quadraticCurveTo(L*0.75, r*0.48, 0, r*0.52);
-  ctx.quadraticCurveTo(-L*0.75, r*0.48, -L, -r*0.10);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle="rgba(32,26,20,.55)"; ctx.lineWidth=1; ctx.stroke();
-  // gunwale
-  ctx.strokeStyle="#a8875c"; ctx.lineWidth=1.4;
-  ctx.beginPath(); ctx.moveTo(-L*0.9,-r*0.12); ctx.quadraticCurveTo(0,-r*0.5,L*0.9,-r*0.12); ctx.stroke();
+  /* Three quite different vessels, so a glance tells you what is coming:
+     a low open fishing smack, a lean oared spear ship, and a broad
+     high-sided carrier riding heavy in the water. */
 
-  if(u.type==="fishingboat"){
-    // small mast, furled sail, net over the side
-    ctx.strokeStyle="#6b5233"; ctx.lineWidth=1.8;
-    ctx.beginPath(); ctx.moveTo(0,-r*0.3); ctx.lineTo(0,-r*1.5); ctx.stroke();
-    ctx.fillStyle="#d8cfb8";
-    ctx.beginPath(); ctx.moveTo(0,-r*1.45); ctx.lineTo(r*0.85,-r*0.75);
-    ctx.lineTo(0,-r*0.55); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle="rgba(220,225,215,.6)"; ctx.lineWidth=0.8;
-    for(let i=0;i<4;i++){
-      ctx.beginPath(); ctx.moveTo(-L*0.55+i*4, r*0.2);
-      ctx.lineTo(-L*0.62+i*4, r*0.75); ctx.stroke();
-    }
-    if(u.carry>0){
-      ctx.fillStyle="#8fb4c4";
-      ctx.beginPath(); ctx.ellipse(-L*0.3,-r*0.15,3.4,1.8,0.3,0,6.283); ctx.fill();
-    }
-  } else if(u.type==="transport"){
-    ctx.strokeStyle="#6b5233"; ctx.lineWidth=2.2;
-    ctx.beginPath(); ctx.moveTo(0,-r*0.35); ctx.lineTo(0,-r*1.85); ctx.stroke();
-    ctx.fillStyle="#cfc4a8";
-    ctx.beginPath(); ctx.moveTo(-r*0.1,-r*1.8); ctx.quadraticCurveTo(r*1.15,-r*1.1,-r*0.1,-r*0.45);
-    ctx.closePath(); ctx.fill();
-    // cargo crates, one per passenger
-    const n=Math.min(4,u.cargo?u.cargo.length:0);
-    for(let i=0;i<n;i++){
-      ctx.fillStyle=pl.dark;
-      ctx.fillRect(-L*0.55+i*7, -r*0.42, 6, 6);
-      ctx.strokeStyle="rgba(30,24,18,.5)"; ctx.lineWidth=0.8;
-      ctx.strokeRect(-L*0.55+i*7, -r*0.42, 6, 6);
-    }
-  } else {
-    // war galley: taller sail, shields on the rail, a ram at the bow
-    ctx.strokeStyle="#5b4527"; ctx.lineWidth=2.4;
-    ctx.beginPath(); ctx.moveTo(0,-r*0.4); ctx.lineTo(0,-r*2.1); ctx.stroke();
-    ctx.fillStyle=shade(pl.col,0.10);
+  if(kind === "fishingboat"){
+    // --- a small open boat, nets over the side ---
+    const hullT = "#8a6a44", hullB = "#5f472c";
+    ctx.fillStyle = hullB;
     ctx.beginPath();
-    ctx.moveTo(-r*0.05,-r*2.05);
-    ctx.quadraticCurveTo(r*1.35,-r*1.2,-r*0.05,-r*0.5);
+    ctx.moveTo(-L*0.82, -r*0.02);
+    ctx.quadraticCurveTo(0, -r*0.46, L*0.86, -r*0.06);
+    ctx.quadraticCurveTo(L*0.62, r*0.44, 0, r*0.48);
+    ctx.quadraticCurveTo(-L*0.62, r*0.42, -L*0.82, -r*0.02);
     ctx.closePath(); ctx.fill();
-    ctx.strokeStyle="rgba(40,32,24,.4)"; ctx.lineWidth=0.9; ctx.stroke();
-    for(let i=-1;i<2;i++){
-      ctx.fillStyle= i===0? shade(pl.col,-0.2) : pl.dark;
-      ctx.beginPath(); ctx.arc(i*8, -r*0.16, 3.4, 0, 6.283); ctx.fill();
-      ctx.strokeStyle="rgba(30,24,18,.55)"; ctx.lineWidth=0.8; ctx.stroke();
+    ctx.fillStyle = hullT;
+    ctx.beginPath();
+    ctx.moveTo(-L*0.78, -r*0.04);
+    ctx.quadraticCurveTo(0, -r*0.40, L*0.80, -r*0.08);
+    ctx.quadraticCurveTo(L*0.55, r*0.16, 0, r*0.20);
+    ctx.quadraticCurveTo(-L*0.55, r*0.16, -L*0.78, -r*0.04);
+    ctx.closePath(); ctx.fill();
+    // a stubby mast and a small triangular sail
+    ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.1, r*0.11);
+    ctx.beginPath(); ctx.moveTo(-r*0.1, -r*0.15); ctx.lineTo(-r*0.1, -r*1.5); ctx.stroke();
+    ctx.fillStyle = "#e6dcc4";
+    ctx.beginPath();
+    ctx.moveTo(-r*0.05, -r*1.45);
+    ctx.lineTo(r*0.95, -r*0.42);
+    ctx.lineTo(-r*0.05, -r*0.30);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = pl.col;
+    ctx.fillRect(-r*0.05, -r*1.45, r*0.75, r*0.16);
+    // nets trailing astern
+    ctx.strokeStyle = "rgba(226,222,196,.55)"; ctx.lineWidth = 0.8;
+    for(let i=0;i<3;i++){
+      ctx.beginPath();
+      ctx.moveTo(-L*0.7, r*0.05 + i*2.2);
+      ctx.lineTo(-L*1.05 - Math.sin(G.t*2+i)*2, r*0.18 + i*2.6);
+      ctx.stroke();
     }
-    ctx.fillStyle="#9aa2a8";
-    ctx.beginPath(); ctx.moveTo(L,-r*0.12); ctx.lineTo(L+r*0.6,r*0.05);
-    ctx.lineTo(L,r*0.22); ctx.closePath(); ctx.fill();
-    // oars
-    ctx.strokeStyle="#6b5233"; ctx.lineWidth=1.2;
-    const ob=Math.sin(G.t*4+u.id)*2;
-    for(let i=-2;i<3;i++){
-      ctx.beginPath(); ctx.moveTo(i*7, r*0.1);
-      ctx.lineTo(i*7-3, r*0.75+ob); ctx.stroke();
+    // one fisherman
+    ctx.fillStyle = "#c9a27a";
+    ctx.beginPath(); ctx.arc(r*0.5, -r*0.34, r*0.16, 0, 6.283); ctx.fill();
+
+  } else if(kind === "warship"){
+    // --- a lean oared ship with a ram and spear throwers ---
+    const hullT = "#7d6142", hullB = "#4e3a24";
+    // oars, sweeping
+    const sweep = Math.sin(G.t*4 + u.id)*0.30;
+    ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(0.9, r*0.075);
+    for(let i=-2;i<=2;i++){
+      const ox = i*L*0.28;
+      for(const sgn of [-1, 1]){
+        ctx.beginPath();
+        ctx.moveTo(ox, r*0.06*sgn);
+        ctx.lineTo(ox - Math.sin(sweep)*r*0.5, (r*0.95 + Math.cos(sweep)*r*0.2)*sgn);
+        ctx.stroke();
+      }
+    }
+    ctx.fillStyle = hullB;
+    ctx.beginPath();
+    ctx.moveTo(-L*0.95, -r*0.02);
+    ctx.quadraticCurveTo(0, -r*0.50, L*1.18, -r*0.16);   // long, drawn out to the ram
+    ctx.quadraticCurveTo(L*0.6, r*0.40, 0, r*0.44);
+    ctx.quadraticCurveTo(-L*0.6, r*0.40, -L*0.95, -r*0.02);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = hullT;
+    ctx.beginPath();
+    ctx.moveTo(-L*0.90, -r*0.05);
+    ctx.quadraticCurveTo(0, -r*0.44, L*1.05, -r*0.17);
+    ctx.quadraticCurveTo(L*0.55, r*0.12, 0, r*0.16);
+    ctx.quadraticCurveTo(-L*0.55, r*0.12, -L*0.90, -r*0.05);
+    ctx.closePath(); ctx.fill();
+    // bronze ram at the waterline
+    ctx.fillStyle = "#b98b3c";
+    ctx.beginPath();
+    ctx.moveTo(L*1.02, -r*0.18);
+    ctx.lineTo(L*1.42, r*0.02);
+    ctx.lineTo(L*1.00, r*0.14);
+    ctx.closePath(); ctx.fill();
+    // a shield rail down the side, in the civ's colour
+    for(let i=-2;i<=2;i++){
+      ctx.fillStyle = (i%2) ? pl.col : dark;
+      ctx.beginPath();
+      ctx.arc(i*L*0.28, -r*0.16, r*0.20, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(30,24,18,.5)"; ctx.lineWidth = 0.7; ctx.stroke();
+    }
+    // mast, square sail
+    ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.2, r*0.12);
+    ctx.beginPath(); ctx.moveTo(0, -r*0.25); ctx.lineTo(0, -r*1.85); ctx.stroke();
+    ctx.fillStyle = "#ded3b8";
+    ctx.fillRect(-L*0.42, -r*1.72, L*0.84, r*1.05);
+    ctx.fillStyle = pl.col;
+    ctx.fillRect(-L*0.42, -r*1.72, L*0.84, r*0.22);
+    ctx.strokeStyle = "rgba(30,24,18,.35)"; ctx.lineWidth = 0.7;
+    ctx.strokeRect(-L*0.42, -r*1.72, L*0.84, r*1.05);
+    // spearmen at the rail
+    for(const sx of [-L*0.45, L*0.35]){
+      ctx.fillStyle = "#c9a27a";
+      ctx.beginPath(); ctx.arc(sx, -r*0.52, r*0.15, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = "#8a7250"; ctx.lineWidth = Math.max(0.8, r*0.07);
+      ctx.beginPath();
+      ctx.moveTo(sx + r*0.1, -r*0.42);
+      ctx.lineTo(sx + r*0.85, -r*1.05);
+      ctx.stroke();
+      ctx.fillStyle = "#cbd2d8";
+      ctx.beginPath();
+      ctx.moveTo(sx + r*0.80, -r*1.02);
+      ctx.lineTo(sx + r*1.05, -r*1.22);
+      ctx.lineTo(sx + r*0.92, -r*0.92);
+      ctx.closePath(); ctx.fill();
+    }
+
+  } else {
+    // --- the troop carrier: broad, high-sided, heavy in the water ---
+    const hullT = "#8a6b45", hullB = "#59422a";
+    ctx.fillStyle = hullB;
+    ctx.beginPath();
+    ctx.moveTo(-L*0.98, r*0.02);
+    ctx.quadraticCurveTo(-L*1.06, -r*0.55, -L*0.72, -r*0.62);
+    ctx.lineTo(L*0.78, -r*0.62);
+    ctx.quadraticCurveTo(L*1.12, -r*0.50, L*1.00, r*0.06);
+    ctx.quadraticCurveTo(L*0.6, r*0.62, 0, r*0.66);
+    ctx.quadraticCurveTo(-L*0.6, r*0.62, -L*0.98, r*0.02);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = hullT;
+    ctx.fillRect(-L*0.80, -r*0.56, L*1.58, r*0.62);
+    // planking
+    ctx.strokeStyle = "rgba(40,30,20,.28)"; ctx.lineWidth = 0.7;
+    for(let i=1;i<3;i++){
+      ctx.beginPath();
+      ctx.moveTo(-L*0.80, -r*0.56 + i*r*0.21);
+      ctx.lineTo( L*0.78, -r*0.56 + i*r*0.21);
+      ctx.stroke();
+    }
+    // a shield rail along the top
+    ctx.fillStyle = dark;
+    ctx.fillRect(-L*0.82, -r*0.70, L*1.62, r*0.16);
+    ctx.fillStyle = pl.col;
+    for(let i=0;i<5;i++) ctx.fillRect(-L*0.74 + i*L*0.33, -r*0.70, L*0.16, r*0.16);
+    // two masts and a broad sail
+    ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.2, r*0.12);
+    ctx.beginPath();
+    ctx.moveTo(-L*0.3, -r*0.6); ctx.lineTo(-L*0.3, -r*2.0);
+    ctx.moveTo( L*0.4, -r*0.6); ctx.lineTo( L*0.4, -r*1.6);
+    ctx.stroke();
+    ctx.fillStyle = "#e2d8bf";
+    ctx.fillRect(-L*0.72, -r*1.90, L*0.86, r*1.20);
+    ctx.fillStyle = pl.col;
+    ctx.fillRect(-L*0.72, -r*1.90, L*0.86, r*0.26);
+    ctx.strokeStyle = "rgba(30,24,18,.35)"; ctx.lineWidth = 0.7;
+    ctx.strokeRect(-L*0.72, -r*1.90, L*0.86, r*1.20);
+    ctx.fillStyle = "#d8ceb4";
+    ctx.fillRect(L*0.12, -r*1.52, L*0.60, r*0.82);
+    ctx.strokeRect(L*0.12, -r*1.52, L*0.60, r*0.82);
+    // whoever is aboard, showing over the rail
+    const n = Math.min(4, u.cargo ? u.cargo.length : 0);
+    for(let i=0;i<n;i++){
+      const hx = -L*0.55 + i*L*0.38;
+      ctx.fillStyle = "#c9a27a";
+      ctx.beginPath(); ctx.arc(hx, -r*0.84, r*0.16, 0, 6.283); ctx.fill();
+      ctx.fillStyle = lit;
+      ctx.fillRect(hx - r*0.14, -r*0.74, r*0.28, r*0.12);
     }
   }
+
   ctx.restore();
 }
 
-/* ---------- mounted units: horse + a little rider ---------- */
 function drawRider(u, pl){
   const r=u.r, H=r*2.3;
   const gait = u.moving ? Math.sin(u.walk*1.3) : 0;
@@ -11984,6 +12926,9 @@ function refreshTop(){
   $("r_moonstone").textContent = Math.floor(pl.res.moonstone);
   $("r_iron").textContent = Math.floor(pl.res.iron);
   $("r_know").textContent = Math.floor(pl.res.know);
+  const sl=$("startlayout");
+  if(sl && G.startLayout)
+    sl.textContent = (G.mapType||"") + " · " + G.startLayout + " — " + (G.startNote||"");
   const sd=$("startdiff");
   if(sd) sd.textContent = (DIFF[DIFFICULTY]||DIFF.medium).label;
 }
