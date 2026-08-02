@@ -135,6 +135,40 @@
   }
   #btnwrap{flex:1;position:relative;min-width:0;display:flex;}
   #selinfo{width:104px;flex:none;border-right:1px solid var(--line);padding-right:8px;}
+  /* When there is something worth explaining - what a building does, before
+     you commit to putting it up - the left strip narrows and the description
+     gets a panel of its own out to the right, where there is actually room
+     for it. Squeezed into 104px it was cut off after a few words. */
+  #about{flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:3px;padding:7px 9px;display:flex;align-items:center;
+    overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
+  #about::-webkit-scrollbar{display:none;}
+  #about.hide{display:none;}
+  #aboutbody{font-size:10px;line-height:1.36;color:var(--parch-dim);max-height:100%;}
+  #aboutbody.long{font-size:9.5px;line-height:1.34;}
+  #aboutbody.xlong{font-size:9px;line-height:1.30;}
+  /* Cost sits in its own narrow column at the far right. Under the name on
+     the left it was falling off the bottom of an 84px panel - there was never
+     room for it there. */
+  #costbox{flex:none;width:56px;border-left:1px solid var(--line);padding-left:8px;
+    display:flex;flex-direction:column;justify-content:center;}
+  /* Below about 410px there is not room for four columns without squeezing
+     the description to nothing, so the cost gives up its own column and sits
+     under the name instead. */
+  @media (max-width: 410px){
+    #costbox{display:none;}
+    #cmdrow.hasabout #selinfo{width:78px;}
+    #selinfo .inlinecost{display:block;}
+  }
+  #selinfo .inlinecost{display:none;font-size:10.5px;color:var(--gold);
+    font-weight:600;margin-top:3px;}
+  #costbox.hide{display:none;}
+  .costlab{font-size:8px;letter-spacing:1.1px;text-transform:uppercase;
+    color:#7f7663;margin-bottom:3px;}
+  .costval{font-size:11px;color:var(--gold);line-height:1.3;font-weight:600;
+    word-break:break-word;}
+  #cmdrow.hasabout #selinfo{width:68px;padding-right:7px;}
+  #cmdrow.hasabout #btns{flex:none;grid-auto-columns:96px;}
   #selname{font-family:Georgia,serif;font-size:13px;color:var(--parch);margin-bottom:1px;
     line-height:1.15;}
   #selsub{font-size:8.5px;color:var(--parch-dim);text-transform:uppercase;letter-spacing:.8px;}
@@ -323,6 +357,7 @@
     <div id="selsub">—</div>
     <div id="selstats"></div>
   </div>
+  <div id="about" class="hide"><div id="aboutbody"></div></div>
   <div id="btnwrap"><div id="btns"></div>
     <div class="scrollfade" id="btn_fade"></div>
     <div class="scrollhint" id="btn_hint">
@@ -334,6 +369,7 @@
       <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
     </div>
   </div>
+  <div id="costbox" class="hide"><div class="costlab">Cost</div><div class="costval" id="costval"></div></div>
   <div id="almanac">
     <div class="alm-block alm-day-block">
       <div>
@@ -397,7 +433,7 @@
       — change it any time from the menu button, top left.</p>
     <button class="go" id="btnstart">Begin</button>
     <!-- the build date, so it is obvious at a glance which copy this is -->
-    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 2 July 2026</p>
+    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 2 August 2026</p>
   </div>
 </div>
 
@@ -936,7 +972,7 @@ function tellStory(){
    everyone born since has a house to go to. Work stops at dusk and picks up
    again at first light. */
 const HOUSE_ROOM = 4;      // how many a house will take before it is full
-const RESTED_TIME  = 45;          // half a day (DAY_LEN is 90), declared later
+const RESTED_TIME  = 56;          // half a day (DAY_LEN is 112), declared later
 const RESTED_BOOST = 1.25;        // and how much brisker it makes them
 
 function findHome(u){
@@ -1557,12 +1593,20 @@ function updateInvaders(dt){
     if(nearestVictim){
       const dx=nearestVictim.x-inv.x, dy=nearestVictim.y-inv.y, d=Math.hypot(dx,dy)||1;
       if(Math.abs(dx)>0.1) inv.face = dx<0?-1:1;
-      if(d < (nearestVictim.r||8)+4){
-        nearestVictim.hp = 0;
-        hint("One of yours is caught by something in costume - gone instantly.");
-      } else {
-        const step = Math.min(d, inv.spd*dt);
+      /* It used to reach whoever it was following and set their hp to zero
+         outright - no fight, no warning, and armour and numbers counted for
+         nothing. Six or eight of them could empty a settlement in a night.
+         Now it follows, and closes, and stops a few feet short. Something
+         that walks up out of the dark and stands there watching is unnerving
+         enough without it being able to take anybody. */
+      const hover = (nearestVictim.r||8) + 22 + Math.sin(G.t*0.8 + inv.seed)*7;
+      if(d > hover){
+        const step = Math.min(d - hover, inv.spd*dt);
         inv.x += dx/d*step; inv.y += dy/d*step;
+      } else if(d < hover - 10){
+        // and it gives ground if anyone comes at it
+        const step = inv.spd*0.7*dt;
+        inv.x -= dx/d*step; inv.y -= dy/d*step;
       }
     } else if(inv.state==="peek"){
       inv.peekT -= dt;
@@ -2054,8 +2098,13 @@ function updateDragon(dt){
     for(const u of G.units){
       if(u.hp<=0 || u.indoors) continue;
       if(Math.hypot(u.x-dr.x, u.y-dr.y) < 30 && Math.random() < 0.02*dt*60){
-        u.hp = 0;
-        hint("The "+dr.def.name.toLowerCase()+" snatches one from the ground.");
+        // It used to take them outright. Being plucked off the ground with no
+        // warning and no way to prevent it is not a fight, it is a forfeit -
+        // so it mauls them badly instead, and a healthy unit that gets clear
+        // will live.
+        u.hp = Math.max(1, u.hp - u.maxhp*0.55);
+        fxHit(u.x, u.y, "#c96b4a", 8);
+        hint("The "+dr.def.name.toLowerCase()+" catches one a glancing blow.");
       }
     }
   }
@@ -2682,7 +2731,11 @@ const CIVS = {
    A day is shorter than a season: several pass within one. Dusk and dawn are
    brief; most of a day is plain daylight and most of a night is properly dark.
    `G.dark` runs 0..1 and everything nocturnal keys off it. */
-const DAY_LEN    = 90;    // seconds for a full day and night
+/* A quarter longer than it was. The season grows with it, because the almanac
+   forecast is built on a season being exactly two days - decouple them and it
+   starts reporting tomorrow's weather for the wrong day. Longer seasons were
+   wanted anyway. */
+const DAY_LEN    = 112;   // seconds for a full day and night
 const DUSK_AT    = 0.56;  // the light starts going at this point in the day
 const NIGHT_AT    = 0.68;  // fully dark by here
 const DAWN_AT    = 0.90;  // light starts returning
@@ -2715,7 +2768,7 @@ function timeOfDay(){
    Ten minutes each, starting on a random one. Winter slows everyone down a
    little, thins the harvest, and buries the map in snow over its first two
    minutes. Summer is the baseline and changes nothing. */
-const SEASON_LEN   = 180;   // seconds per season
+const SEASON_LEN   = 224;   // seconds per season - two days, as before
 // every third winter gets it - a fixed schedule now, not a roll
 const SOLACE_EVERY = 3;
 const SEASON_ORDER = ["summer","autumn","winter","spring"];
@@ -3341,7 +3394,7 @@ const BLDG = {
   dock:{ name:"Dock", age:0, hp:230, w:2, h:2, cost:{wood:93,food:42}, hgt:9, shrinkW:0.62, shrink:0.60, roof:"lean", build:15,
          drop:true, vision:5, shore:true, trains:["fishingboat","transport","warship"] },
   house:{ name:"House", age:0, hp:200, w:1, h:1, cost:{wood:47,food:23}, hgt:7, roof:"gable", roofScale:0.5, build:11, pop:6, vision:3 },
-  lodge:{ name:"Elder's Lodge", age:0, hp:220, w:2, h:2, cost:{wood:77,stone:40,food:38}, hgt:12, shrinkW:0.62, shrink:0.58, roof:"dome", build:15,
+  lodge:{ name:"Elder's Lodge", age:0, hp:220, w:2, h:2, yard:2, cost:{wood:77,stone:40,food:38}, hgt:12, shrinkW:0.62, shrink:0.58, roof:"dome", build:15,
           vision:4, know:0.62, upgLine:"elder" },
   barracks:{ name:"Barracks", age:0, hp:340, w:2, h:2, cost:{wood:117,food:53}, hgt:12, shrinkW:0.62, shrink:0.60, roof:"gable", build:18, vision:4,
              trains:["warrior","swordsman"], mil:true },
@@ -3397,6 +3450,69 @@ const ARMOR_COST = {
   2: { iron:110, gold:95 }
 };
 const ARMOR_REDUCTION = { 1:0.15, 2:0.15 };   // each tier cuts incoming damage a further 15%
+
+/* What each building is actually for, in a line or two.
+
+   Shown while you are choosing where to put one - the panel has room for it,
+   and "Brazier" on its own tells you nothing about why you would want one. */
+const BLDG_ABOUT = {
+  town:     "The heart of it all. Trains villagers, takes any resource, and is "+
+            "where you advance an age. Lose it and you lose everything.",
+  house:    "Room for more people. Raises your population limit, and villagers "+
+            "born after the founding sleep here at night.",
+  farm:     "Worked ground that feeds you steadily. Needs reseeding with wood "+
+            "once the field is bare - bank a few spare seedings in advance.",
+  brazier:  "A fire on a stand. Lights a wide circle all night, which keeps the "+
+            "dark - and what walks about in it - back from your buildings.",
+  lumber:   "A drop-off for timber. Put it among the trees, not beside the town: "+
+            "three woodcutters stay on as its crew.",
+  mine:     "A drop-off for stone, gold and moonstone. Build it against the seam "+
+            "it serves - three miners stay on as its crew.",
+  dock:     "Boats and fish. Fishing boats bring food in from the water, and "+
+            "everything that crosses water is built here.",
+  lodge:    "Knowledge accrues here faster than anywhere else, which is what "+
+            "buys your next age. An elder comes to live among you as well.",
+  barracks: "Trains foot soldiers. Swordsmen beat spearmen, spearmen beat "+
+            "horsemen, horsemen ride down archers.",
+  range:    "Trains archers. Deadly at a distance and helpless up close - keep "+
+            "something in front of them.",
+  stable:   "Trains horsemen. Fast enough to catch archers and run down "+
+            "villagers, but they break on a wall of spears.",
+  grove:    "Trains druids, who heal your wounded and can take the shape of a "+
+            "beast. Expensive, and worth it.",
+  siege:    "Trains catapults. Slow, fragile, and the only thing that knocks "+
+            "down walls and towers quickly.",
+  wall:     "Stone across a gap. Cheap, and it buys the time your soldiers need "+
+            "to get where they are going.",
+  tower:    "Shoots at anything hostile that comes near, and sees a long way. "+
+            "Best where a wall makes attackers slow down.",
+  armoury:  "Better arms and armour. Each upgrade cuts the damage your soldiers "+
+            "take by about a sixth, and applies to every one you already have.",
+  greathall:"A seat of learning. Grants 150 knowledge outright and pours more "+
+            "in from then on - the fastest road to the Iron Age.",
+  granary:  "Stores the harvest properly, so winter no longer eats a tenth of "+
+            "your food.",
+  musiccollege: "Trains bards, who follow your people about and lift the work "+
+            "along. Choose what they play - each tune favours something "+
+            "different.",
+  warcollege:  "Drill and doctrine. Sharpens what your soldiers already do "+
+            "rather than giving you anything new to build.",
+  tradingpost: "Sends carts out to trade. Turns whatever you have too much of "+
+            "into whatever you are short of.",
+  fortress: "A stronghold. Heavy walls, a long reach, and it garrisons your "+
+            "people when something comes in the night."
+};
+
+/* Some buildings keep a stretch of open ground in front of them - the Elder's
+   Lodge has a yard, where the bonfire is lit. It is part of the plot, so
+   nothing else can be built on it, but people walk straight across it. */
+function yardOf(type){ return (BLDG[type] && BLDG[type].yard) || 0; }
+
+function yardRect(b){
+  const y = yardOf(b.type);
+  if(!y) return null;
+  return { tx: b.tx, ty: b.ty + b.h, w: b.w, h: y };
+}
 
 /* build menu order for villagers */
 const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","grove","armoury","musiccollege","warcollege","tradingpost","greathall","fortress","wall","tower","siege","town"]; // dock disabled for now
@@ -5346,9 +5462,18 @@ function touchesWater(tx,ty,w,h){
 
 function canPlace(tx,ty,w,h,type){
   if(tx<0||ty<0||tx+w>MAPW||ty+h>MAPH) return false;
-  for(let y=ty;y<ty+h;y++) for(let x=tx;x<tx+w;x++){
+  // a yard is part of the plot: it has to be clear ground too, even though
+  // anyone may walk over it once the place is built
+  const yd = yardOf(type);
+  if(yd && ty+h+yd > MAPH) return false;
+  for(let y=ty;y<ty+h+yd;y++) for(let x=tx;x<tx+w;x++){
     if(G.terrain[y*MAPW+x]===5) return false;
     if(G.fog[P_YOU][y*MAPW+x]===0) return false;
+    for(const b of G.bldgs){
+      if(x>=b.tx && x<b.tx+b.w && y>=b.ty && y<b.ty+b.h) return false;
+      const yr = yardRect(b);
+      if(yr && x>=yr.tx && x<yr.tx+yr.w && y>=yr.ty && y<yr.ty+yr.h) return false;
+    }
   }
   if(type && BLDG[type].shore && !touchesWater(tx,ty,w,h)) return false;
 
@@ -7617,7 +7742,7 @@ function aiBuild(type, town, concurrent, priority){
   for(let tries=0;tries<70;tries++){
     const a=Math.random()*Math.PI*2, r=64+Math.random()*maxR;
     const tx=Math.floor((town.x+Math.cos(a)*r)/TILE), ty=Math.floor((town.y+Math.sin(a)*r)/TILE);
-    if(aiCanPlace(tx,ty,d.w,d.h)){
+    if(aiCanPlace(tx,ty,d.w,d.h,type)){
       pay(pl,d.cost);
       const b=makeBuilding(type,P_AI,tx,ty,false);
       free.slice(0,3).forEach(v=>{ v.order="build"; v.target=b; });
@@ -7654,13 +7779,16 @@ function aiBuildNear(type, kind){
   }
 }
 
-function aiCanPlace(tx,ty,w,h){
-  if(tx<0||ty<0||tx+w>MAPW||ty+h>MAPH) return false;
-  for(let y=ty;y<ty+h;y++) for(let x=tx;x<tx+w;x++) if(G.terrain[y*MAPW+x]===5) return false;
+function aiCanPlace(tx,ty,w,h,type){
+  const yd = type ? yardOf(type) : 0;
+  if(tx<0||ty<0||tx+w>MAPW||ty+h+yd>MAPH) return false;
+  for(let y=ty;y<ty+h+yd;y++) for(let x=tx;x<tx+w;x++) if(G.terrain[y*MAPW+x]===5) return false;
   const cx=(tx+w/2)*TILE, cy=(ty+h/2)*TILE, rad=Math.max(w,h)*TILE/2;
   for(const n of G.nodes){ if(n.farmOf) continue;
     if(Math.hypot(n.x-cx,n.y-cy)<rad+12) return false; }
-  for(const b of G.bldgs) if(tx<b.tx+b.w&&tx+w>b.tx&&ty<b.ty+b.h&&ty+h>b.ty) return false;
+  for(const b of G.bldgs){
+    if(tx<b.tx+b.w&&tx+w>b.tx&&ty<b.ty+b.h+ (yardOf(b.type)) &&ty+h+yd>b.ty) return false;
+  }
   return true;
 }function aiPickTarget(){
   const cands = [...G.units.filter(u=>u.p===P_YOU), ...G.bldgs.filter(b=>b.p===P_YOU)];
@@ -7947,10 +8075,23 @@ function draw(){
     const gw = gfw*gShrinkW, gdep = gfdep*gShrink;
     const gx = tx*TILE + (gfw-gw)/2, gy = ty*TILE + (gfdep-gdep)/2;
 
-    // the tiles it will occupy, faint, so you can still see what it covers
+    // the tiles it will occupy, faint, so you can still see what it covers -
+    // including the yard, which is part of the plot even though people will
+    // walk across it once the place is standing
+    const gyd = yardOf(G.placing.type);
     ctx.globalAlpha=.20;
     ctx.fillStyle = ok?"#7fa86a":"#a8402f";
     ctx.fillRect(tx*TILE,ty*TILE,gfw,gfdep);
+    if(gyd){
+      ctx.globalAlpha=.10;
+      ctx.fillRect(tx*TILE, (ty+d.h)*TILE, gfw, gyd*TILE);
+      ctx.globalAlpha=.30;
+      ctx.strokeStyle = ok?"#cfe3bd":"#e0a598";
+      ctx.setLineDash([5,4]); ctx.lineWidth=1.2;
+      ctx.strokeRect(tx*TILE, (ty+d.h)*TILE, gfw, gyd*TILE);
+      ctx.setLineDash([]);
+      ctx.globalAlpha=.20;
+    }
 
     // and the building itself, solid
     ctx.globalAlpha=.55;
@@ -11766,10 +11907,27 @@ function drawInvader(inv){
    further at night. One per player, positioned just off their town centre
    so it reads as a proper village square rather than crowding the building. */
 function drawVillageBonfire(p){
-  const town = G.bldgs.find(b=>b.p===p.id && b.type==="town" && b.done);
-  if(!town || !p.bonfire) return;
-  const fx = town.x + Math.max(town.w,town.h)*TILE*0.9, fy = town.y + TILE*1.6;
+  if(!p.bonfire) return;
+  // It belongs to the elder, so it burns in the lodge's yard rather than
+  // beside the town centre - and at a fraction of the size it was, which was
+  // very nearly as large as the lodge itself.
+  const lodge = G.bldgs.find(b=>b.p===p.id && b.type==="lodge" && b.done);
+  const town  = G.bldgs.find(b=>b.p===p.id && b.type==="town" && b.done);
+  const home  = lodge || town;
+  if(!home) return;
+  const fx = lodge ? lodge.x : town.x + Math.max(town.w,town.h)*TILE*0.9;
+  const fy = lodge ? (lodge.ty + lodge.h + yardOf("lodge")*0.5) * TILE
+                   : town.y + TILE*1.6;
   if(!visibleTo(P_YOU, fx, fy)) return;
+
+  // Half size. The glow keeps a little more reach than the flames do, because
+  // after dark the glow is most of what you actually see of it, and shrinking
+  // the two together left the yard unlit.
+  const FIRE = 0.5, GLOW = 0.68;
+  ctx.save();
+  ctx.translate(fx, fy);
+  ctx.scale(FIRE, FIRE);
+  ctx.translate(-fx, -fy);
 
   // a slow overall sway plus a much subtler, faster wobble reads as real
   // fire far better than one fast uniform pulse does
@@ -11782,8 +11940,11 @@ function drawVillageBonfire(p){
 
   // a big soft glow that really shows once it's dark, easing in and out
   // slowly rather than visibly circling in and out
+  // the glow is drawn inside the same shrink as the flames, so it gets its
+  // extra size back here - a third-size fire with a third-size glow left the
+  // yard dark, which rather defeats the point of lighting one
   ctx.fillStyle="rgba(255,150,60,"+(0.12+0.32*night)+")";
-  ctx.beginPath(); ctx.arc(fx, fy-12, 80*glowFlick, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(fx, fy-12, 80*glowFlick*(GLOW/FIRE), 0, 6.283); ctx.fill();
 
   // a ring of stones around the pit
   ctx.strokeStyle="rgba(90,84,74,.8)"; ctx.lineWidth=6;
@@ -11822,6 +11983,7 @@ function drawVillageBonfire(p){
     ctx.fill();
   }
   ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 function drawGumby(g){
@@ -12946,6 +13108,28 @@ function releaseHeldBtn(){
   if(BTN_HELD===0 && UI_REFRESH_PENDING){ UI_REFRESH_PENDING=false; refreshUI(); }
 }
 
+/* Show the description panel, sizing the text to the length of it, or hide
+   it and give the width back to the buttons. */
+function setAbout(text, cost){
+  const box = $("about"), body = $("aboutbody"), row = $("cmdrow");
+  const cbox = $("costbox"), cval = $("costval");
+  if(!box || !body || !row) return;
+  if(!text){
+    box.classList.add("hide");
+    row.classList.remove("hasabout");
+    if(cbox) cbox.classList.add("hide");
+    return;
+  }
+  body.textContent = text;
+  body.className = text.length > 155 ? "xlong" : text.length > 125 ? "long" : "";
+  box.classList.remove("hide");
+  row.classList.add("hasabout");
+  if(cbox && cval){
+    if(cost){ cval.textContent = cost; cbox.classList.remove("hide"); }
+    else cbox.classList.add("hide");
+  }
+}
+
 function refreshUI(){
   if(BTN_HELD>0){ UI_REFRESH_PENDING=true; return; }
   requestAnimationFrame(()=>{ updateBtnScrollHint(); updateAlmScrollHint(); });
@@ -12957,6 +13141,7 @@ function refreshUI(){
   // scrolling
   const btnsSig = G.uiMode+":"+sel.map(e=>e.id!==undefined?e.id:(e.x+"_"+e.y)).join(",");
   const btns=$("btns"); btns.innerHTML="";
+  setAbout(null);            // cleared unless something below asks for it
   if(btnsSig !== G._lastBtnsSig) btns.scrollLeft = 0;
   G._lastBtnsSig = btnsSig;
 
@@ -13112,10 +13297,17 @@ function refreshUI(){
     const d = BLDG[G.placing.type];
     $("selname").textContent = d.name;
     $("selsub").textContent = "Placing";
-    $("selstats").innerHTML = G.placing.tx===undefined
+    const where = G.placing.tx===undefined
       ? "Tap the map to choose a spot."
       : (G.placing.ok ? "Looks good — confirm to build."
                       : "Can't build there — pick another spot.");
+    // the instruction and the cost stay on the left; what the building is
+    // actually for goes in the panel to the right, where it fits
+    // the cost appears on the right where there is room, and falls back to
+    // under the name on a phone too narrow for a fourth column
+    $("selstats").innerHTML = where +
+      "<div class='inlinecost'>" + costStr(d.cost) + "</div>";
+    setAbout(BLDG_ABOUT[G.placing.type], costStr(d.cost));
     addBtn("\u2713 Build here", G.placing.tx===undefined ? "pick a spot" : "confirm",
            !!G.placing.ok, confirmPlace, null, !!G.placing.ok);
     addBtn("\u2715 Cancel", "choose again", true, ()=>{
