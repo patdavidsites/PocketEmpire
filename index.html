@@ -60,6 +60,13 @@
     border:1px solid var(--line);flex:none;}
   #menupanel .diffbtn.on{color:var(--gold);}
   #menupanel .diffbtn.on::before{background:var(--gold);border-color:var(--gold);}
+  /* the island deals: a small blue mark rather than the difficulty dot, so
+     they read as a different sort of choice - a map, not a skill level */
+  #menupanel .mapbtn{display:flex;align-items:center;gap:8px;}
+  #menupanel .mapbtn::before{content:"";width:8px;height:8px;border-radius:2px;
+    background:var(--slate);border:1px solid var(--line);flex:none;}
+  #menupanel .mapbtn.on{color:var(--gold);}
+  #menupanel .mapbtn.on::before{background:var(--gold);border-color:var(--gold);}
 
   /* ---------- bottom command panel ---------- */
   #cmdbar{position:absolute;left:0;right:0;bottom:0;z-index:10;
@@ -302,6 +309,23 @@
     .alm-wcell{min-width:48px;}
     .alm-wtxt{font-size:9px;max-width:64px;}
   }
+
+  /* ---------- device-size adjustments ----------
+     resize() classifies the screen (phone / tablet / computer) from touch
+     support and the shorter viewport edge, and stamps the class on <body>.
+     Small nudges only: readable numbers and honest tap targets on a phone,
+     untouched on a computer. */
+  body.device-phone #topbar{height:64px;}
+  body.device-phone .res .val{font-size:17px;}
+  /* the numbers grow but the labels shrink - eight columns of
+     "MOONSTONE" never fit a phone, and the colour dot already names it */
+  body.device-phone .res .lbl{font-size:7px;letter-spacing:.4px;
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+  body.device-phone .gbtn{height:26px;font-size:12px;}
+  body.device-phone #menubtn{width:42px;height:42px;}
+  body.device-tablet #topbar{height:61px;}
+  body.device-tablet .res .val{font-size:16px;}
+  body.device-tablet .gbtn{height:23px;}
 </style>
 </head>
 <body>
@@ -327,6 +351,12 @@
   <button class="diffbtn" data-diff="medium">Medium</button>
   <button class="diffbtn" data-diff="hard">Hard</button>
   <div class="mnu_note" id="mnu_difftip"></div>
+  <div class="mnu_sep"></div>
+  <div class="mnu_head">Islands (in progress)</div>
+  <button class="mapbtn" data-map="Two isles" data-diff="easy">Islands &middot; Easy</button>
+  <button class="mapbtn" data-map="Two isles" data-diff="medium">Islands &middot; Medium</button>
+  <button class="mapbtn" data-map="Four isles" data-diff="medium">Four Isles &middot; Medium</button>
+  <div class="mnu_note">Both sides must build a dock and ship an army across.</div>
   <div class="mnu_sep"></div>
   <button id="mnu_restart">Restart game</button>
   <button id="mnu_close">Close</button>
@@ -491,6 +521,11 @@ function setSeed(seed){
 let G_SEED = 0;
 /* Held outside G, because newGame builds a fresh G and would wipe it. */
 let NEXT_SEED = null;
+/* Set to a MAP_TYPES entry to make the next games use that shape instead of
+   rolling for one - how the menu's island deals work. Null means the usual
+   weighted roll. Persists across restarts, like DIFFICULTY, so "Restart
+   game" keeps you on islands rather than quietly dropping you back on land. */
+let FORCED_MAP = null;
 function replaySeed(seed){ NEXT_SEED = seed >>> 0; }
 
 /* sfc32 - small, fast, and good enough that a map generated from it does not
@@ -967,186 +1002,122 @@ function tellStory(){
   }
 }
 
-/* ---------- going home for the night ----------
-   The villagers who were here when the game began sleep in the town centre;
-   everyone born since has a house to go to. Work stops at dusk and picks up
-   again at first light. */
-const HOUSE_ROOM = 4;      // how many a house will take before it is full
-const RESTED_TIME  = 56;          // half a day (DAY_LEN is 112), declared later
-const RESTED_BOOST = 1.25;        // and how much brisker it makes them
-
-function findHome(u){
-  const mine = G.bldgs.filter(b=>b.p===u.p && b.done);
-  const hall = mine.find(b=>b.type==="town");
-  if(u.founder) return hall || null;
-
-  // the nearest house with room in it
-  let best=null, bd=1e9;
-  for(const b of mine){
-    if(b.type!=="house") continue;
-    const taken = G.units.filter(w=>w.home===b).length;
-    if(taken >= HOUSE_ROOM) continue;
-    const d = Math.hypot(b.x-u.x, b.y-u.y);
-    if(d < bd){ best=b; bd=d; }
-  }
-  return best || hall || null;
-}
-
-// Old English, Swedish, and Norse names - given once, permanently, to a
-// villager the moment they're first pulled out of their house at night
-const NIGHT_NAMES = [
-  "Bjorn","Astrid","Ragnar","Freya","Sigurd","Ingrid","Leif","Solveig",
-  "Torvald","Runa","Halvar","Ylva","Eirik","Sigrun","Ulf","Gunnhild",
-  "Osric","Aelfwine","Wulfstan","Aethelred","Cynric","Godwin","Edmund","Hilda",
-  "Sten","Birgitta","Knut","Signe","Harald","Asa"
+/* ---------- paths worn by use ----------
+   Nobody lays these out. They appear because the same feet cross the same
+   ground a few hundred times, and they end up drawing a map of how the
+   settlement actually works - forest to lumber camp, quarry to town. With
+   each age the going underfoot improves: bare earth, then gravel, then
+   proper cobbles. */
+/* These took some balancing. A unit crosses a tile in ten or twenty frames
+   and comes back perhaps every twenty seconds, so the wear from one route is
+   modest; the first attempt let the ground recover faster than feet could
+   mark it and after twelve minutes exactly one tile had a track on it. */
+const PATH_MAX     = 90;     // traffic at which a track is fully worn
+const PATH_SHOW    = 12;     // and where it first starts to show
+const PATH_FADE    = 0.004;  // how fast an unused track grows over
+const PATH_LOOKS = [
+  { name:"trodden earth", col:[122, 98, 66],  edge:0.55 },
+  { name:"gravel",        col:[142,134,118],  edge:0.72 },
+  { name:"cobbles",       col:[150,146,140],  edge:0.88 }
 ];
-function pickNightName(){
-  return NIGHT_NAMES[(Math.random()*NIGHT_NAMES.length)|0];
+
+function pathAt(tx, ty){
+  if(!G.paths) return 0;
+  if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return 0;
+  return G.paths[ty*MAPW+tx];
 }
 
-function sendHome(){
-  for(const u of G.units){
-    if(u.type!=="villager" || u.hp<=0 || u.indoors) continue;
-    // pulled out of their house for the night - they keep working instead
-    // of going home, but it costs them: a little health, strength and
-    // speed, gone for good, every night they go without a real rest. Two
-    // nights running like that and it kills them outright.
-    if(u.awakeAtNight){
-      u.nightsAwake = (u.nightsAwake||0) + 1;
-      u.maxhp = Math.max(10, u.maxhp*0.95);
-      u.hp = Math.min(u.hp, u.maxhp);
-      u.buffSpd = (u.buffSpd||1) * 0.94;
-      u.buffAtk = (u.buffAtk||1) * 0.94;
-      if(u.nightsAwake >= 2){
-        u.hp = 0;
-        hint((u.nightName||"A villager")+" collapses from exhaustion, never having rested.");
-      } else {
-        hint((u.nightName||"A villager")+" grows weary from another night without rest.");
+function treadPath(u){
+  if(!G.paths) G.paths = new Float32Array(MAPW*MAPH);
+  if(u.p !== P_YOU || u.indoors) return;
+  const d = UNITS[u.type];
+  if(!d || d.naval) return;
+  const tx = (u.x/TILE)|0, ty = (u.y/TILE)|0;
+  if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return;
+  const i = ty*MAPW+tx;
+  if(G.paths[i] < PATH_MAX) G.paths[i] += 1;
+}
+
+function updatePaths(dt){
+  if(!G.paths) G.paths = new Float32Array(MAPW*MAPH);
+  // let disused tracks grow over again, a sweep at a time so it costs nothing
+  G.pathSweep = (G.pathSweep|0);
+  const chunk = 900;
+  const end = Math.min(G.paths.length, G.pathSweep + chunk);
+  for(let i=G.pathSweep; i<end; i++){
+    if(G.paths[i] > 0) G.paths[i] = Math.max(0, G.paths[i] - PATH_FADE*dt*60);
+  }
+  G.pathSweep = end >= G.paths.length ? 0 : end;
+}
+
+/* ---------- signs of life around the houses ----------
+   Children who come out to play and go back in, and the odd cat or dog on a
+   doorstep. Purely ornamental, deliberately uncommon - not every house, and
+   not all the time - so that noticing one is a small pleasure rather than
+   wallpaper. */
+const HOME_LIFE_MAX = 6;
+
+function updateHomeLife(dt){
+  if(!G.homeLife) G.homeLife = [];
+  G.homeLifeCd = (G.homeLifeCd||0) - dt;
+
+  // one wanders out now and then, if there is a house to come out of
+  if(G.homeLifeCd <= 0){
+    G.homeLifeCd = 9 + Math.random()*18;
+    const houses = G.bldgs.filter(b=>b.p===P_YOU && b.type==="house" && b.done);
+    if(houses.length && G.homeLife.length < HOME_LIFE_MAX && Math.random() < 0.7){
+      const h = houses[(Math.random()*houses.length)|0];
+      // only one to a house at a time
+      if(!G.homeLife.some(o=>o.home===h)){
+        const kind = Math.random() < 0.55 ? "child"
+                   : (Math.random() < 0.5 ? "cat" : "dog");
+        const bx = h.x + (Math.random()-0.5)*16;
+        const by = h.y + h.h*TILE/2 + 8;
+        if(!blocked(bx, by, null, false)){
+          G.homeLife.push({
+            kind, home:h, x:bx, y:by, tx:bx, ty:by,
+            t: 22 + Math.random()*40,          // how long it stays out
+            face: Math.random()<0.5?-1:1, walk:0, wait:0,
+            id: G.nextId++,
+            col: kind==="cat" ? ["#3a3a42","#c98f4a","#e8e2d4"][(Math.random()*3)|0]
+               : kind==="dog" ? ["#5b4630","#8a7250","#2e2a26"][(Math.random()*3)|0]
+               : null,
+            skin: (Math.random()*SKINS.length)|0,
+            shirt: ["#a8624a","#4a7a8a","#8a7a4a","#7a4a6a"][(Math.random()*4)|0]
+          });
+        }
       }
+    }
+  }
+
+  for(let i=G.homeLife.length-1; i>=0; i--){
+    const o = G.homeLife[i];
+    o.t -= dt;
+    // the house is gone, or it is bedtime, or they have had their run about
+    if(!o.home || o.home.hp<=0 || !G.bldgs.includes(o.home) ||
+       o.t<=0 || (G.dark||0) > 0.35){
+      G.homeLife.splice(i,1);
       continue;
     }
-    const home = findHome(u);
-    if(!home) continue;                       // nowhere to go: keep working
-    u.home = home;
-    // Everyone heading for the same doorstep jams, so each gets their own
-    // spot - but it needs to be along the front wall (the door), not
-    // scattered on a circle around the whole building. That golden-angle
-    // scatter used to send some of them walking in through the back wall,
-    // since wakeUp() always has them step out of the one door at the front.
-    const spread = G.units.filter(w=>w.home===home).length;
-    const lane = spread % 5, row = (spread/5)|0;
-    const fx = (lane - 2) * (u.r*2.2 + 3);
-    u.homeSpot = {
-      x: home.x + fx,
-      y: home.y + home.h*TILE/2 + u.r + 3 + row*(u.r*2.2)
-    };
-    // remember what they were doing so they can pick it up in the morning
-    u.dayOrder  = u.order;
-    u.dayTarget = u.target;
-    u.daySite   = u.site;
-    u.order = "home"; u.target = home; u.path = null;
-  }
-}
-
-// pull one villager out of their house at night - they get a name if this
-// is their first time, and can keep working instead of sleeping, at a cost
-function wakeVillagerForNight(u, home){
-  if(!u.indoors || u.hp<=0) return;
-  if(!u.nightName) u.nightName = pickNightName();
-  u.x = home.x + (Math.random()-0.5)*14;
-  u.y = home.y + home.h*TILE/2 + u.r + 3;
-  let guard=0;
-  while(blocked(u.x,u.y,null,false) && guard++<20){
-    const a=Math.random()*6.283, d=home.h*TILE/2 + 10 + guard*3;
-    u.x = home.x + Math.cos(a)*d; u.y = home.y + Math.sin(a)*d;
-  }
-  u.indoors = false;
-  u.awakeAtNight = true;
-  u.order = u.dayOrder || null;
-  u.target = u.dayTarget || null;
-  u.site = u.daySite || null;
-  u.dayOrder = u.dayTarget = u.daySite = null;
-  u.path = null;
-  hint(u.nightName+" is woken for the night's work.");
-  refreshUI();
-}
-
-// send an exhausted villager home to actually rest - resets the nightly
-// toll, though whatever they've already lost stays lost
-function restVillager(u){
-  if(!u.awakeAtNight) return;
-  u.awakeAtNight = false;
-  u.nightsAwake = 0;
-  const home = findHome(u);
-  if(!home){ hint("No home to send them to yet."); return; }
-  u.home = home;
-  const spread = G.units.filter(w=>w.home===home).length;
-  const lane = spread % 5, row = (spread/5)|0;
-  const fx = (lane - 2) * (u.r*2.2 + 3);
-  u.homeSpot = { x: home.x + fx, y: home.y + home.h*TILE/2 + u.r + 3 + row*(u.r*2.2) };
-  u.dayOrder = u.order; u.dayTarget = u.target; u.daySite = u.site;
-  u.order = "home"; u.target = home; u.path = null;
-  hint((u.nightName||"They")+" finally head home to rest.");
-  refreshUI();
-}
-
-function wakeUp(){
-  for(const u of G.units){
-    if(!u.indoors && u.order!=="home") continue;
-    if(u.type!=="villager") continue;
-    if(u.indoors && u.home){
-      // step out of the door
-      u.x = u.home.x + (Math.random()-0.5)*14;
-      u.y = u.home.y + u.home.h*TILE/2 + u.r + 3;
-      let guard=0;
-      while(blocked(u.x,u.y,null,false) && guard++<20){
-        const a=Math.random()*6.283, d=u.home.h*TILE/2 + 10 + guard*3;
-        u.x = u.home.x + Math.cos(a)*d; u.y = u.home.y + Math.sin(a)*d;
-      }
+    o.wait -= dt;
+    if(o.wait <= 0){
+      // pick somewhere new in the yard, never far from the door
+      const a = Math.random()*6.283, r = 10 + Math.random()*26;
+      const nx = o.home.x + Math.cos(a)*r;
+      const ny = o.home.y + o.home.h*TILE/2 + 8 + Math.abs(Math.sin(a))*r*0.6;
+      if(!blocked(nx, ny, null, false)){ o.tx = nx; o.ty = ny; }
+      o.wait = 1.5 + Math.random()*3.5;
     }
-    if(u.indoors) u.rested = RESTED_TIME;   // only those who actually slept
-    u.indoors = false;
-    u.order  = u.dayOrder  || null;
-    u.target = u.dayTarget || null;
-    u.site   = u.daySite   || null;
-    u.dayOrder = u.dayTarget = u.daySite = null;
-    u.path = null;
+    const spd = o.kind==="child" ? 26 : (o.kind==="dog" ? 34 : 18);
+    const dx = o.tx-o.x, dy = o.ty-o.y, d = Math.hypot(dx,dy);
+    if(d > 2){
+      const step = Math.min(d, spd*dt);
+      o.x += dx/d*step; o.y += dy/d*step;
+      o.walk = (o.walk||0) + step*0.16;
+      if(Math.abs(dx) > 0.4) o.face = dx<0 ? -1 : 1;
+      o.moving = true;
+    } else o.moving = false;
   }
-}
-
-/* Soldiers abroad after dark carry a torch. Villagers are indoors by then,
-   and boats are on the water. */
-function carriesTorch(u){
-  if(!u || u.indoors) return false;
-  const d = UNITS[u.type];
-  if(!d || d.naval) return false;
-  if(u.torchOut) return false;
-  return u.cls && u.cls !== "civ";
-}
-
-/* ---------- the land recovering overnight ----------
-   Berry patches refill, ore seams are picked over again, and cut woodland
-   creeps back - a little each night, never past what the patch first held.
-   It keeps a long game from stripping the map bare, and on an island, where
-   there is very little ground to begin with, it is the difference between a
-   settlement that can grow and one that slowly starves. */
-const NIGHT_REGROW = { food:0.10, wood:0.05, stone:0.03, gold:0.025, moonstone:0.02 };
-
-function regrowOvernight(){
-  if(!G.nodes) return;
-  const isle = G.islandMap ? 1.6 : 1;    // an island needs the help more
-  let touched = 0;
-  for(const n of G.nodes){
-    const rate = NIGHT_REGROW[n.kind];
-    if(!rate || n.amt >= n.max) continue;
-    // a patch worked out entirely is gone for good - this is recovery,
-    // not resurrection
-    if(n.amt <= 0) continue;
-    const before = n.amt;
-    n.amt = Math.min(n.max, n.amt + n.max*rate*isle);
-    if(n.amt > before) touched++;
-  }
-  if(touched && G.islandMap) hint("The land has recovered a little overnight.");
 }
 
 /* ---------- things that come in the dark ----------
@@ -1183,7 +1154,13 @@ const BEASTS = {
   // same idea - zombies have their own dedicated spawner below, not the
   // seasonal pool, and only ever want a person, never a building
   zombie: { name:"Zombie", hp:70, atk:0, spd:30, r:10, cd:1.2, harmless:true,
-            col:"#8fae8a", eye:"#7fd4e8" }
+            col:"#8fae8a", eye:"#7fd4e8" },
+  // blood-moon dancers - they only ever arrive with a blood moon (see
+  // updateBloodMoon), never through the seasonal pool, and they go for
+  // buildings, not people. More mischief than menace: a few of them
+  // capering into the village to batter at walls, cheap to drive off.
+  moonimp: { name:"Moon Imp", hp:55, atk:6, spd:44, r:9, cd:1.4,
+             col:"#a8556a", eye:"#ffd45e" }
 };
 
 const RAID_CHANCE = 0.30;   // down from .55 - real events shouldn't be an every-night thing
@@ -1219,13 +1196,27 @@ const NIGHT_FLAVOR_LINES = [
   "A cold wind carries a sound that isn't quite a voice."
 ];
 const NIGHT_FLAVOR_CHANCE = 0.5;
-function tryNightFlavor(){
-  if(Math.random() > NIGHT_FLAVOR_CHANCE) return;
+function tryNightFlavor(force){
+  if(!force && Math.random() > NIGHT_FLAVOR_CHANCE) return false;
   hint(NIGHT_FLAVOR_LINES[(Math.random()*NIGHT_FLAVOR_LINES.length)|0]);
+  return true;
 }
 
-function spawnRaid(){
-  if(Math.random() > RAID_CHANCE) return false;
+/* Most of the spawners below take a `force` flag.
+ *
+ * Each carries an ambient probability tuned for being rolled every minute
+ * or two all match long - a dragon at 0.25%, Hackman at 0.2%. That is the
+ * right number for "might turn up on its own". It is quite wrong when the
+ * night-events pool has deliberately chosen this event for tonight: the
+ * pool would roll 0.25%, fail, and fall through to something common, which
+ * is why the rare half of the catalogue was effectively unreachable and
+ * every match felt alike. With force, the ambient roll is skipped and only
+ * the structural preconditions still apply - no second dragon, must be
+ * night, needs a farm to raid, and so on. Ambient callers pass nothing and
+ * behave exactly as before.
+ */
+function spawnRaid(force){
+  if(!force && Math.random() > RAID_CHANCE*(G.hushedNight?0.3:1)) return false;
   const kinds = beastKindsFor(G.season);
   const kind = kinds[(Math.random()*kinds.length)|0];
   const B = BEASTS[kind];
@@ -1398,10 +1389,10 @@ function greatBearPickTarget(b){
   return best;
 }
 const GREATBEAR_CHANCE = 0.04;   // rare - not every night, and not part of the usual raid mix
-function trySpawnGreatBear(){
+function trySpawnGreatBear(force){
   if(G.phase!=="night") return false;
   if(G.beasts.some(b=>b.kind==="greatbear")) return false;
-  if(Math.random() > GREATBEAR_CHANCE) return false;
+  if(!force && Math.random() > GREATBEAR_CHANCE*(G.hushedNight?0.3:1)) return false;
   const town = pickRaidTown();
   if(!town) return false;
   const B = BEASTS.greatbear;
@@ -1440,9 +1431,9 @@ function zombiePickTarget(b){
   return best;
 }
 const ZOMBIE_CHANCE = 0.05;
-function trySpawnZombies(){
+function trySpawnZombies(force){
   if(G.phase!=="night") return false;
-  if(Math.random() > ZOMBIE_CHANCE) return false;
+  if(!force && Math.random() > ZOMBIE_CHANCE*(G.hushedNight?0.3:1)) return false;
 
   // less than half the time it's nothing more than a sighting - a line of
   // text and nothing else actually turns up
@@ -1541,11 +1532,60 @@ function updateBloodMoon(dt){
     G.lastBloodMoonSeason = G.bloodMoonSeasonCount;
     G.bloodMoon = { t:0 };
     hint("The moon rises blood red tonight...");
+    spawnMoonImps();
   }
   if(G.bloodMoon){
     G.bloodMoon.t += dt;
     if(G.phase!=="night") G.bloodMoon = null;
   }
+}
+
+/* The blood moon's own party: two to four moon imps come capering out of
+   the red dark toward the village. They use the ordinary beast machinery,
+   so first light sends them home like everything else. */
+function spawnMoonImps(){
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town" && b.done);
+  if(!town) return;
+  if(!G.beasts) G.beasts = [];
+  const B = BEASTS.moonimp;
+  const n = 2 + ((Math.random()*3)|0);
+  const baseA = Math.random()*6.283;
+  let sent = 0;
+  for(let i=0;i<n;i++){
+    // keep rolling until this imp finds dry, open ground - one throw each
+    // meant whole parties drowning unspawned on coastal maps
+    let sx=0, sy=0, found=false;
+    for(let t=0;t<40 && !found;t++){
+      const a = baseA + i*(6.283/n) + (Math.random()-0.5)*(0.4 + t*0.05);
+      const d = 260 + Math.random()*200;
+      sx = town.x + Math.cos(a)*d; sy = town.y + Math.sin(a)*d;
+      if(sx<40||sy<40||sx>WORLD_W-40||sy>WORLD_H-40) continue;
+      if(!blocked(sx,sy,null,false)) found=true;
+    }
+    if(!found) continue;
+    G.beasts.push({
+      kind:"moonimp", name:B.name, p:P_AI,
+      x:sx, y:sy, hp:B.hp, maxhp:B.hp, r:B.r, spd:B.spd, atk:B.atk,
+      cd:0, face:1, walk:0, moving:false, target:null,
+      seed:Math.random()*6.283,
+      id:G.nextId++, kindTag:"beast", fleeing:false
+    });
+    sent++;
+  }
+  if(sent) hint(sent+" small horned figures come dancing out of the red dark, clubs in hand!");
+}
+
+/* Moon imps want architecture, not blood - the nearest standing player
+   building, lit or not. beastPickTarget would have them hunting villagers,
+   which is not what these are for. */
+function moonImpPickTarget(b){
+  let best=null, bd=1e9;
+  for(const s of G.bldgs){
+    if(s.p!==P_YOU || s.hp<=0 || !s.done) continue;
+    const d = Math.hypot(s.x-b.x, s.y-b.y);
+    if(d<bd){ bd=d; best=s; }
+  }
+  return best;
 }
 
 function spawnInvasion(){
@@ -1669,7 +1709,23 @@ function updateBeasts(dt){
 
   for(let i=G.beasts.length-1; i>=0; i--){
     const b = G.beasts[i];
-    if(b.hp <= 0){ fxHit(b.x, b.y, "#8a2f2f"); G.beasts.splice(i,1); continue; }
+    if(b.hp <= 0){
+      fxHit(b.x, b.y, "#8a2f2f");
+      // anything that came out of the dark carries a little moonstone, and
+      // whoever actually brought it down keeps it - the rival earns it the
+      // same way you do (lastHitBy is set in dealDamage, so a beast that
+      // simply burns out or is seen off by the weather pays nobody)
+      const killer = b.lastHitBy;
+      if(killer === P_YOU || killer === P_AI){
+        const amt = 2 + ((Math.random()*3)|0);
+        G.players[killer].res.moonstone += amt;
+        if(killer === P_YOU)
+          hint("You picked up "+amt+" moonstone from the fallen "+(b.name||"beast").toLowerCase()+".");
+        else
+          rivalNews("The Ashkin bring down something in the dark and take the moonstone off it.");
+      }
+      G.beasts.splice(i,1); continue;
+    }
 
     b.cd -= dt;
 
@@ -1690,6 +1746,7 @@ function updateBeasts(dt){
       b.target = (b.kind==="spider") ? spiderPickTarget(b)
                : (b.kind==="greatbear") ? greatBearPickTarget(b)
                : (b.kind==="zombie") ? zombiePickTarget(b)
+               : (b.kind==="moonimp") ? moonImpPickTarget(b)
                : beastPickTarget(b);
     }
     const t = b.target;
@@ -1720,7 +1777,15 @@ function updateBeasts(dt){
     }
 
     if(d > reach){
-      moveToward(b, t.x, t.y, b.spd, dt, reach);
+      if(b.kind==="moonimp"){
+        // they dance their way in - weaving side to side across the
+        // straight line rather than marching it
+        const px=-(t.y-b.y), py=(t.x-b.x), m=Math.hypot(px,py)||1;
+        const sway = Math.sin(G.t*2.6 + b.seed)*26;
+        moveToward(b, t.x+px/m*sway, t.y+py/m*sway, b.spd, dt, reach);
+      } else {
+        moveToward(b, t.x, t.y, b.spd, dt, reach);
+      }
     } else {
       b.moving = false;
       faceToward(b, t.x-b.x, dt);
@@ -1753,10 +1818,10 @@ function beastsFlee(){
 const WANDER_CHANCE = { bat:0.16, penguin:0.10, cat:0.05 };
 const WANDER_SPD    = { bat:[95,130], penguin:[20,27], cat:[26,34] };
 
-function trySpawnWanderer(kind){
+function trySpawnWanderer(kind, force){
   if(!G.wanderers) G.wanderers = [];
-  if(G.wanderers.some(w=>w.kind===kind)) return;     // never two of the same about
-  if(Math.random() > WANDER_CHANCE[kind]) return;
+  if(G.wanderers.some(w=>w.kind===kind)) return false;     // never two of the same about
+  if(!force && Math.random() > WANDER_CHANCE[kind]) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
 
@@ -1783,6 +1848,7 @@ function trySpawnWanderer(kind){
   }
 
   spawnLineWanderer(kind, town);
+  return true;
 }
 
 /* A straight line that passes near the town rather than dead through its
@@ -1816,14 +1882,15 @@ function spawnLineWanderer(kind, town){
 // at all.
 const BAT_SWARM_CHANCE = 0.012;
 const BAT_SWARM_MIN = 5, BAT_SWARM_MAX = 9;
-function trySpawnBatSwarm(){
-  if(Math.random() > BAT_SWARM_CHANCE) return;
+function trySpawnBatSwarm(force){
+  if(!force && Math.random() > BAT_SWARM_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
   if(!G.wanderers) G.wanderers = [];
   const n = BAT_SWARM_MIN + ((Math.random()*(BAT_SWARM_MAX-BAT_SWARM_MIN+1))|0);
   for(let i=0;i<n;i++) spawnLineWanderer("bat", town);
   hint("A scattering of bats passes through tonight.");
+  return true;
 }
 
 /* ---------- the traveling bard ----------
@@ -1835,10 +1902,10 @@ const BARD_CHANCE = 0.006;
 const BARD_GIFT_RANGE = 100;
 const BARD_BOOST_TIME = 30;
 const BARD_SPEED_BOOST = 1.15;
-function trySpawnBard(){
+function trySpawnBard(force){
   if(!G.wanderers) G.wanderers = [];
-  if(G.wanderers.some(w=>w.kind==="bard")) return;
-  if(Math.random() > BARD_CHANCE) return;
+  if(G.wanderers.some(w=>w.kind==="bard")) return false;
+  if(!force && Math.random() > BARD_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
   const nearA = Math.random()*6.283, nearD = 30+Math.random()*40;
@@ -1855,6 +1922,7 @@ function trySpawnBard(){
     gifted:false
   });
   hint("A traveling bard wanders into view, lute in hand.");
+  return true;
 }
 
 /* ---------- wandering pilgrims ----------
@@ -1864,10 +1932,10 @@ function trySpawnBard(){
    of the map - rather than just clipping the edge and turning back. Very
    low chance, and they never stop to do anything once they're moving. */
 const PILGRIM_CHANCE = 0.008;
-function trySpawnPilgrims(){
+function trySpawnPilgrims(force){
   if(!G.wanderers) G.wanderers = [];
-  if(G.wanderers.some(w=>w.kind==="pilgrim")) return;
-  if(Math.random() > PILGRIM_CHANCE) return;
+  if(G.wanderers.some(w=>w.kind==="pilgrim")) return false;
+  if(!force && Math.random() > PILGRIM_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
 
@@ -1896,6 +1964,7 @@ function trySpawnPilgrims(){
     });
   }
   hint("A line of wandering pilgrims passes through, banner raised.");
+  return true;
 }
 
 
@@ -1909,10 +1978,10 @@ const CROW_CHANCE = 0.015;
 const CROW_MIN = 4, CROW_MAX = 10;
 const CROW_PECK_MIN = 18, CROW_PECK_MAX = 34;   // food lost from an unwarded farm
 
-function tryCrowRaid(){
-  if(Math.random() > CROW_CHANCE) return;
+function tryCrowRaid(force){
+  if(!force && Math.random() > CROW_CHANCE) return false;
   const farms = G.bldgs.filter(b=>b.p===P_YOU && b.type==="farm" && b.done);
-  if(!farms.length) return;
+  if(!farms.length) return false;
   const target = farms[(Math.random()*farms.length)|0];
   const pl = G.players[P_YOU];
   const warded = !!pl.scarecrow;
@@ -1938,6 +2007,7 @@ function tryCrowRaid(){
   }
   hint(warded ? "Crows come for a farm, but the scarecrows keep them off."
               : "Crows have gotten into a farm.");
+  return true;
 }
 
 function updateCrows(dt){
@@ -1987,9 +2057,9 @@ const MECH_DRAGON = { name:"Mechanical Dragon", col:"#7d828a", bellyCol:"#a7adb5
 const DRAGON_CHANCE = 0.0025;      // ultra, ultra rare
 const MECH_DRAGON_CHANCE = 0.04;   // and rarer again within that
 
-function trySpawnDragon(){
-  if(G.dragon) return;             // never more than one about
-  if(Math.random() > DRAGON_CHANCE) return;
+function trySpawnDragon(force){
+  if(G.dragon) return false;             // never more than one about
+  if(!force && Math.random() > DRAGON_CHANCE) return false;
   const D = (Math.random() < MECH_DRAGON_CHANCE) ? MECH_DRAGON : (DRAGONS[G.season] || DRAGONS.summer);
 
   // an ultra-rare visit doesn't play favourites - every player's town gets a turn
@@ -2008,6 +2078,7 @@ function trySpawnDragon(){
     spd: 130+Math.random()*40
   };
   hint("Something vast crosses the sky - a "+D.name.toLowerCase()+"!");
+  return true;
 }
 
 // one burst of breath at a spot - whatever's nearest takes it: a building,
@@ -2116,10 +2187,10 @@ function updateDragon(dt){
    Come morning it doesn't just leave: it scatters into a handful of bats
    (reusing the ordinary bat wanderer) and those fly off instead. */
 const DRACULA_CHANCE = 0.004;
-function trySpawnDracula(){
-  if(G.dracula) return;
-  if(G.phase!=="night") return;
-  if(Math.random() > DRACULA_CHANCE) return;
+function trySpawnDracula(force){
+  if(G.dracula) return false;
+  if(G.phase!=="night") return false;
+  if(!force && Math.random() > DRACULA_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
   const a = Math.random()*6.283;
@@ -2132,6 +2203,7 @@ function trySpawnDracula(){
     t:0, seed: Math.random()*6.283, face:1
   };
   hint("Something pale drifts at the edge of the light.");
+  return true;
 }
 
 function updateDracula(dt){
@@ -2166,9 +2238,9 @@ const HACKMAN_COL = "#f0b429";   // the teleport flash colour
 const HACKMAN_SUIT = "#f0b429";  // knockoff yellow bodysuit - no actual logo
 const HACKMAN_TRIM = "#26417a";  // blue trim/accents
 const HACKMAN_HAIR = "#0c0a0a";  // black hair, sideburns and beard
-function trySpawnHackman(){
-  if(G.hackman) return;
-  if(Math.random() > HACKMAN_CHANCE) return;
+function trySpawnHackman(force){
+  if(G.hackman) return false;
+  if(!force && Math.random() > HACKMAN_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
   const a = Math.random()*6.283, d = 20+Math.random()*40;
@@ -2178,6 +2250,7 @@ function trySpawnHackman(){
     tx:0, ty:0, face:1, walk:0, seed:Math.random()*6.283
   };
   hint("Reality flickers - Hugh Hackman has teleported into town!");
+  return true;
 }
 
 function pickHackmanSpot(h){
@@ -2226,9 +2299,9 @@ const MCSTAR_BLESS_RANGE = 90;
 const MCSTAR_BLESS_SPD = 1.02;
 const MCSTAR_BLESS_ATK = 1.02;
 const MCSTAR_BLESS_HP  = 0.03;
-function trySpawnMcStar(){
-  if(G.mcstar) return;
-  if(Math.random() > MCSTAR_CHANCE) return;
+function trySpawnMcStar(force){
+  if(G.mcstar) return false;
+  if(!force && Math.random() > MCSTAR_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
   const a = Math.random()*6.283, d = 300+Math.random()*80;
@@ -2241,6 +2314,7 @@ function trySpawnMcStar(){
     say:null, sayT:0, alpha:1
   };
   hint("An old traveler is approaching the village.");
+  return true;
 }
 
 function mcstarBless(){
@@ -2312,9 +2386,9 @@ function pickGumbyFarm(){
   const farms = G.bldgs.filter(b=>b.type==="farm" && b.done && b.hp>0);
   return farms.length ? farms[(Math.random()*farms.length)|0] : null;
 }
-function trySpawnGumby(){
-  if(G.gumby) return;
-  if(Math.random() > GUMBY_CHANCE) return;
+function trySpawnGumby(force){
+  if(G.gumby) return false;
+  if(!force && Math.random() > GUMBY_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
   const a = Math.random()*6.283, d = 280+Math.random()*140;
@@ -2325,6 +2399,7 @@ function trySpawnGumby(){
     barkCd: 2+Math.random()*2, say:null, sayT:0
   };
   hint("A little black dog trots into view.");
+  return true;
 }
 function updateGumby(dt){
   const g = G.gumby;
@@ -2461,14 +2536,15 @@ function updatePets(dt){
 // far rarer than anything else that happens at night - this is meant to be
 // the kind of thing you might never actually see across a whole game.
 const DREAM_CHANCE = 0.004;
-function tryVillagerDream(){
-  if(Math.random() > DREAM_CHANCE) return;
+function tryVillagerDream(force){
+  if(!force && Math.random() > DREAM_CHANCE) return false;
   const sleepers = G.units.filter(u=>u.p===P_YOU && u.type==="villager" && u.indoors && u.hp>0 && !u.say);
-  if(!sleepers.length) return;
+  if(!sleepers.length) return false;
   const u = sleepers[(Math.random()*sleepers.length)|0];
   u.say = "dream";
   u.sayHot = false;
   u.sayT = 3.5 + Math.random()*2.5;
+  return true;
 }
 
 /* ---------- moonstone ----------
@@ -2544,15 +2620,21 @@ function updateTreeRegrowth(dt){
 // They don't do anything and never approach; they're just there for a
 // little while, then gone.
 const EYES_CHANCE = 0.01;
-function trySpawnEyes(){
-  if(Math.random() > EYES_CHANCE) return;
-  if(!G.fog) return;
+function trySpawnEyes(force){
+  if(!force && Math.random() > EYES_CHANCE) return false;
+  if(!G.fog) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs.find(b=>b.p===P_YOU);
   if(!town) return;
   let bx=null, by=null;
-  for(let tries=0; tries<24 && bx===null; tries++){
+  // Eyes only show in ground you have never seen. Once a town is a few
+  // minutes old there is no unexplored black left within the usual 140-300px,
+  // so a deliberate pick from the night pool would simply fail; widen the
+  // ring on each attempt in that case until some real dark turns up.
+  const attempts = force ? 120 : 24;
+  for(let tries=0; tries<attempts && bx===null; tries++){
     const a = Math.random()*6.283;
-    const d = 140 + Math.random()*160;
+    const reach = force ? (140 + tries*8) : 140;
+    const d = reach + Math.random()*160;
     const wx = town.x + Math.cos(a)*d, wy = town.y + Math.sin(a)*d;
     if(wx<20||wy<20||wx>WORLD_W-20||wy>WORLD_H-20) continue;
     const tx = (wx/TILE)|0, ty = (wy/TILE)|0;
@@ -2570,6 +2652,7 @@ function trySpawnEyes(){
     if(G.fog[P_YOU][jty*MAPW+jtx] !== 0) continue;
     G.eyes.push({ x:jx, y:jy, t:0, life:4+Math.random()*4, seed:Math.random()*6.283 });
   }
+  return true;
 }
 
 function updateEyes(dt){
@@ -2726,43 +2809,6 @@ const CIVS = {
     traits:"Heavy infantry that hits hard, with shorter-ranged but punchier bows."
   }
 };
-
-/* ---------- day and night ----------
-   A day is shorter than a season: several pass within one. Dusk and dawn are
-   brief; most of a day is plain daylight and most of a night is properly dark.
-   `G.dark` runs 0..1 and everything nocturnal keys off it. */
-/* A quarter longer than it was. The season grows with it, because the almanac
-   forecast is built on a season being exactly two days - decouple them and it
-   starts reporting tomorrow's weather for the wrong day. Longer seasons were
-   wanted anyway. */
-const DAY_LEN    = 112;   // seconds for a full day and night
-const DUSK_AT    = 0.56;  // the light starts going at this point in the day
-const NIGHT_AT    = 0.68;  // fully dark by here
-const DAWN_AT    = 0.90;  // light starts returning
-const DAY_AT     = 0.99;  // and it is full day again
-const NIGHT_TINT = "#101a2e";
-const LAMP_SCALE = 0.90;  // trims every building's light together
-const TORCH_RADIUS = 32;  // how far a soldier's torch reaches
-const BRAZIER_RADIUS = 56;  // a brazier is built to light ground, but it's one small torch, not a beacon
-const NIGHT_MAX  = 0.93;  // how dark it actually gets - all but black
-
-/* 0 by day, 1 in the dead of night, easing through dusk and dawn */
-function darkAt(f){
-  if(f < DUSK_AT)  return 0;
-  if(f < NIGHT_AT) return (f - DUSK_AT) / (NIGHT_AT - DUSK_AT);
-  if(f < DAWN_AT)  return 1;
-  if(f < DAY_AT)   return 1 - (f - DAWN_AT) / (DAY_AT - DAWN_AT);
-  return 0;
-}
-
-function timeOfDay(){
-  const f = G.dayF;
-  if(f < DUSK_AT)  return "day";
-  if(f < NIGHT_AT) return "dusk";
-  if(f < DAWN_AT)  return "night";
-  if(f < DAY_AT)   return "dawn";
-  return "day";
-}
 
 /* ---------- seasons ----------
    Ten minutes each, starting on a random one. Winter slows everyone down a
@@ -2950,6 +2996,12 @@ const AURORA_CHANCE = 0.006, SHOOTINGSTAR_CHANCE = 0.01;
 const RAINBOW_CHANCE = 0.05, TORNADO_CHANCE = 0.012;
 
 function trySkyEvents(dt){
+  /* Called every tick with a real dt - but also, once, from the night
+     events pool with none at all. `undefined` subtracted from a cooldown
+     gives NaN, NaN compares false against everything, and the cooldown
+     never counts down again: one pool pick used to switch off the aurora
+     and the shooting stars silently for the rest of the match. */
+  if(!(dt > 0)) dt = 0;
   if(!G.aurora && G.phase==="night" && G.season==="winter" && !G.weather){
     G.auroraCd = (G.auroraCd===undefined) ? 20+Math.random()*20 : G.auroraCd-dt;
     if(G.auroraCd<=0){
@@ -2998,6 +3050,26 @@ function spawnTornado(){
   G.tornado = { x, y, t:0, life:40+Math.random()*20, hopCd:6+Math.random()*4, seed:Math.random()*6.283 };
   hint("A tornado has touched down!");
   refreshUI();
+}
+
+/* The night-events pool's version of the sky: put something up there now
+   rather than rolling the ambient per-tick odds (which, called once, come
+   to almost nothing). Winter gets the aurora; any other season gets a
+   shooting star, which needs a line of its own here because the ambient
+   one is silent - a streak you only notice if you happen to be looking. */
+function forceNightSky(){
+  if(G.phase!=="night" || G.weather) return false;
+  if(!G.aurora && G.season==="winter"){
+    G.aurora = { t:0, life:35+Math.random()*20 };
+    hint("Green lights ripple across the northern sky.");
+    return true;
+  }
+  if(!G.shootingStar){
+    G.shootingStar = { t:0, life:1.6, x0:Math.random()*0.7*VW, y0:Math.random()*0.25*VH };
+    hint("A star falls, somewhere over the hills.");
+    return true;
+  }
+  return false;
 }
 function updateTornado(dt){
   const tn = G.tornado;
@@ -3108,13 +3180,14 @@ const FIRE_BLDG_DPS_FRAC = 0.018;  // fraction of max HP lost per second while b
 const FIRE_TREE_DPS_FRAC = 0.05;   // trees are far more flammable
 const FIRE_BURN_MIN = 16, FIRE_BURN_MAX = 30;   // roughly how long the rain takes to catch up
 
-function tryLightningStorm(){
-  if(G.storm) return;            // only one going at a time
-  if(G.season==="winter") return;   // thunderstorms don't happen in the snow
-  if(Math.random() > STORM_CHANCE) return;
+function tryLightningStorm(force){
+  if(G.storm) return false;            // only one going at a time
+  if(G.season==="winter") return false;   // thunderstorms don't happen in the snow
+  if(!force && Math.random() > STORM_CHANCE) return false;
   G.storm = { t:0, len: 45+Math.random()*35, nextBolt: 4+Math.random()*7 };
   hint("Thick clouds roll in - thunder rumbles in the distance.");
   refreshUI();   // the almanac's forecast should reflect this immediately, not on the next tick
+  return true;
 }
 
 const LIGHTNING_FIRE_CAP = 2;   // no more than this many things burning from lightning at once
@@ -3578,6 +3651,8 @@ function newGame(){
     turn: 0, fall: 0,
     dayT: 0, dayF: 0, dark: 0, phase: "day",
     elder: null,
+    homeLife: [],
+    paths: null, pathSweep: 0,
     beasts: [],
     wanderers: [],
     weather: null, weatherAmt: 0, weatherAt: -1, solaceThisWinter: false, solaceFlavorShown: false, winterCount: 0
@@ -3613,7 +3688,12 @@ function newGame(){
   // back to the plain coast, which never does.
   let joined = false;
   for(let attempt=0; attempt<6 && !joined; attempt++){
-    genMap(attempt >= 4 ? MAP_TYPES[0] : null);
+    /* FORCED_MAP is the menu's island deals asking for one shape in
+       particular. It must survive the retry loop - falling back to a plain
+       Coastland on the fifth go would silently hand back a land map when
+       the whole point of the choice was the water. Island shapes deal
+       reliably now, so the retries are only there for the odd bad spawn. */
+    genMap(FORCED_MAP || (attempt >= 4 ? MAP_TYPES[0] : null));
     spawnStart();
     const towns = G.bldgs.filter(b=>b.type==="town");
     if(towns.length < 2){ continue; }
@@ -3775,18 +3855,30 @@ function genMap(type){
     // Proper islands - everything is sea except a few landmasses. Only ever
     // dealt when the AI is able to sail, since it has to cross to reach you.
     for(let i=0;i<T.length;i++) T[i] = 5;
+    /* The islands have to stay islands. These numbers are not free: an
+       island reaches rad + the wobble, so two neighbours merge into one
+       landmass unless twice that clears the gap between their centres.
+       The old four-island figures (rad .175, orbit .28) left adjacent
+       centres 23 tiles apart with islands 27 across - they fused into a
+       single continent 19 deals in 20, newGame rejected every one as "the
+       two of them share an island", and after six goes handed out a
+       Coastland instead. Widened the orbit, trimmed the radius, and damped
+       the wobble on the crowded four-island deal; both shapes now leave
+       about four tiles of open water between neighbours while still
+       fitting inside a 58-tile map. */
     const n = (shape === "twoisles") ? 2 : 4;
-    const rad = (shape === "twoisles") ? MAPW*0.235 : MAPW*0.175;
+    const rad  = (n===2) ? MAPW*0.185 : MAPW*0.150;
+    const orbit = (n===2) ? MAPW*0.265 : MAPW*0.305;
+    const wobScale = (n===2) ? 0.70 : 0.50;
     const centres = [];
     for(let k=0;k<n;k++){
       const a = spin + (k/n)*6.283;
-      const orbit = (n===2) ? MAPW*0.26 : MAPW*0.28;
       centres.push({ x: MAPW/2 + Math.cos(a)*orbit, y: MAPH/2 + Math.sin(a)*orbit, k });
     }
     for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
       for(const c of centres){
         const ang = Math.atan2(y-c.y, x-c.x);
-        const wob = Math.sin(ang*3 + c.k*2.1)*2.2 + Math.sin(ang*5 - c.k)*1.3;
+        const wob = (Math.sin(ang*3 + c.k*2.1)*2.2 + Math.sin(ang*5 - c.k)*1.3) * wobScale;
         const d = Math.hypot(x-c.x, y-c.y) - (rad + wob);
         if(d < 0){ T[y*MAPW+x] = 0; break; }
         else if(d < 1.6 && T[y*MAPW+x]===5) T[y*MAPW+x] = 4;
@@ -4616,7 +4708,68 @@ function settleStart(tx, ty){
 }
 
 /* Deal a layout for this match, checking it will actually work. */
+/* Island maps need their starts chosen from the land itself, not from the
+   fixed layouts. Those layouts are points on the map - north/south, the
+   long diagonal - and settleStart() only nudges each one to the nearest
+   decent ground, which on a ring of four islands is very often the SAME
+   island for both. newGame then rejects the deal and re-rolls, and after
+   six goes it gives up and hands out a Coastland instead: Four isles was
+   silently falling back 21 times in 25.
+
+   So: find the actual landmasses, and put the two sides on different ones. */
+function islandStarts(){
+  const seen = new Uint8Array(MAPW*MAPH);
+  const masses = [];
+  for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+    const i0 = y*MAPW+x;
+    if(seen[i0] || G.terrain[i0]===5) continue;
+    // flood fill this landmass, remembering its extent
+    const q=[i0]; seen[i0]=1;
+    const tiles=[];
+    while(q.length){
+      const i=q.pop(); tiles.push(i);
+      const cx=i%MAPW, cy=(i/MAPW)|0;
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=cx+dx, ny=cy+dy;
+        if(nx<0||ny<0||nx>=MAPW||ny>=MAPH) continue;
+        const ni=ny*MAPW+nx;
+        if(seen[ni] || G.terrain[ni]===5) continue;
+        seen[ni]=1; q.push(ni);
+      }
+    }
+    if(tiles.length >= 40) masses.push(tiles);   // ignore sandbars
+  }
+  if(masses.length < 2) return null;             // not really an island map
+  masses.sort((a,b)=>b.length-a.length);
+  // the two roomiest, so neither side is handed a scrap of rock
+  const pick = masses.slice(0, 4).sort(()=>Math.random()-0.5).slice(0, 2);
+  const spots = [];
+  for(const tiles of pick){
+    let sx=0, sy=0;
+    for(const i of tiles){ sx += i%MAPW; sy += (i/MAPW)|0; }
+    const cx = Math.round(sx/tiles.length), cy = Math.round(sy/tiles.length);
+    let spot = settleStart(cx, cy);
+    if(!spot){
+      // centre was no good - try actual tiles of this island, nearest first
+      const cand = tiles.map(i=>({x:i%MAPW, y:(i/MAPW)|0}))
+        .sort((a,b)=>Math.hypot(a.x-cx,a.y-cy)-Math.hypot(b.x-cx,b.y-cy));
+      for(const c of cand){
+        if(c.x<6||c.y<6||c.x>MAPW-7||c.y>MAPH-7) continue;
+        spot = settleStart(c.x, c.y);
+        if(spot) break;
+      }
+    }
+    if(!spot) return null;
+    spots.push(spot);
+  }
+  return { name:"Scattered isles", note:"open water between you", a:spots[0], b:spots[1] };
+}
+
 function chooseStarts(){
+  if(G.islandMap){
+    const isl = islandStarts();
+    if(isl) return isl;
+  }
   const order = START_LAYOUTS.map((l,i)=>({l,i,r:Math.random()}))
                              .sort((x,y)=>x.r-y.r);
   for(const {l} of order){
@@ -4782,10 +4935,32 @@ function viewportSize(){
   return [800,600];   // last-resort default rather than 0x0
 }
 
+/* Which kind of screen this is: a phone, a tablet, or a computer. Decided
+   from touch support plus the shorter viewport edge, and re-decided on
+   every resize so a tablet rotated or a window dragged between monitors
+   stays honest. The class ends up on <body> so the stylesheet can nudge
+   the UI, and DEVICE steers the starting zoom in centerOnTown. */
+let DEVICE = "desktop";
+function deviceClass(w,h){
+  const touch = (navigator.maxTouchPoints||0) > 0 || "ontouchstart" in window;
+  const m = Math.min(w,h);
+  // a phone-sized viewport gets the phone UI whether or not touch is
+  // detected - WKWebView wrappers and embedded previews under-report
+  // touch, and a phone-sized window benefits from the nudges regardless
+  if(m < 600)           return "phone";
+  if(touch && m < 1100) return "tablet";
+  return "desktop";
+}
+
 function resize(){
   DPR = Math.min(2, window.devicePixelRatio||1);
   const [w,h] = viewportSize();
   VW = w; VH = h;
+  DEVICE = deviceClass(VW, VH);
+  if(document.body && document.body.classList){
+    document.body.classList.remove("device-phone","device-tablet","device-desktop");
+    document.body.classList.add("device-"+DEVICE);
+  }
   cv.width = Math.round(VW*DPR); cv.height = Math.round(VH*DPR);
   cv.style.width = VW+"px"; cv.style.height = VH+"px";
   ctx.setTransform(DPR,0,0,DPR,0,0);
@@ -4823,8 +4998,10 @@ function clampCam(){
 function centerOnTown(){
   const b = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
   if(!b) return;
-  G.cam.z = 1;
-  G.cam.x = b.x - VW/2; G.cam.y = b.y - VH/2;
+  // a slightly closer starting view on small screens - the same world
+  // scale that reads fine on a monitor is squint-sized on a phone
+  G.cam.z = DEVICE==="phone" ? 1.18 : DEVICE==="tablet" ? 1.08 : 1;
+  G.cam.x = b.x - VW/G.cam.z/2; G.cam.y = b.y - VH/G.cam.z/2;
   clampCam();
 }
 function s2w(sx,sy){ return { x: G.cam.x + sx/G.cam.z, y: G.cam.y + sy/G.cam.z }; }
@@ -5804,9 +5981,12 @@ const TRADES = [
 function tryTrade(trade){
   const pl = G.players[P_YOU];
   if(pl.res[trade.give] < trade.giveAmt){ hint("Not enough "+trade.give+"."); return; }
+  const bonus = G.merchantBonus||1;
+  const got = Math.round(trade.getAmt*bonus);
   pl.res[trade.give] -= trade.giveAmt;
-  pl.res[trade.get] += trade.getAmt;
-  hint("Traded "+trade.giveAmt+" "+trade.give+" for "+trade.getAmt+" "+trade.get+".");
+  pl.res[trade.get] += got;
+  hint("Traded "+trade.giveAmt+" "+trade.give+" for "+got+" "+trade.get+
+       (bonus>1 ? " (a merchant's good rate, tonight only)." : "."));
   refreshUI();
 }
 
@@ -5968,9 +6148,17 @@ function tick(dt){
   if(ph !== G.phase){
     const was = G.phase;
     G.phase = ph;
-    if(ph==="dusk"){ hint("The light is going."); sendHome(); }
+    if(ph==="dusk"){
+      hint(pickLine(DUSK_LINES,"dusk")); sendHome();
+      // the fireside buff is meant to last "the next day" - so it comes off
+      // right as that day ends, once the next night's events get their turn
+      for(const u of G.units){
+        if(u.fireBuffed){ u.fireBuffed=false; u.buffSpd=(u.buffSpd||1)/1.15; }
+      }
+    }
     if(ph==="night" && was==="dusk"){
-      hint("Night falls."); nightfallFog();
+      hint(pickLine(NIGHT_LINES,"night")); nightfallFog();
+      somethingHappensTonight();
       if(G.season==="winter" && G.solaceThisWinter && !G.solaceFlavorShown){
         G.solaceFlavorShown = true;
         hint("Mulled wine fills the air - families air their grievances.");
@@ -5991,9 +6179,19 @@ function tick(dt){
       regrowOvernight();
       beastsFlee();
       clearMoonstone();
+      // night-only effects: the chill lifts, the woods stop being unusually
+      // quiet, and any bargain rate at the trading post goes with the cart
+      for(const u of G.units){
+        if(u.coldSnapped){ u.coldSnapped=false; u.buffSpd=(u.buffSpd||1)/0.85; }
+      }
+      G.hushedNight = false;
+      G.merchantBonus = 1;
       const up = G.units.filter(u=>u.p===P_YOU && u.rested>0).length;
-      hint(up ? "First light — "+up+" villager"+(up>1?"s":"")+" wake rested."
-              : "First light.");
+      if(up){
+        const who = up + " villager" + (up>1 ? "s" : "");
+        hint(pickLine(DAWN_LINES,"dawn") + " — " +
+             pickLine(RESTED_TAILS,"rest").replace("#", who));
+      } else hint(pickLine(DAWN_LINES,"dawn"));
     }
     if(ph==="day" && was==="dawn" && G.season==="winter"){
       trySpawnWanderer("penguin");
@@ -6087,6 +6285,8 @@ function tick(dt){
   }
   for(const u of G.units) updateUnit(u, dt);
   updateElder(dt);
+  updateHomeLife(dt);
+  updatePaths(dt);
   updateBeasts(dt);
   updateWanderers(dt);
   updateCrows(dt);
@@ -6212,8 +6412,23 @@ function updateUnit(u, dt){
     const emptyField = u.target.isNode && u.target.farmOf && u.target.farmOf.hp>0;
     if(!emptyField){
       if(u.order==="gather"){
+        // Look for more of the same, then for anything at all, and only give
+        // up if there is genuinely nothing left to work. Somebody holding an
+        // armful of berries when the last patch runs out should be walking it
+        // home, not standing in the field with it - they used to do exactly
+        // that, and the idle count never noticed because their hands were full.
+        // more of the same kind, if there is any. Deliberately not falling
+        // back to whatever else is lying about: quietly switching everyone to
+        // stone when the berries run out hides the problem, and the whole
+        // point of the idle count is to tell you that people need work.
         const n = nearestNode(u, u.carryKind);
-        if(n){ u.target=n; } else { u.order=null; u.target=null; }
+        if(n){ u.target = n; }
+        else if(u.carry > 0){
+          // hold the order and the spent node - the gather step below sees a
+          // full-handed villager at a bare patch and walks them home with it
+          u.haulHome = true;
+        }
+        else { u.order = null; u.target = null; }
       } else { u.order=null; u.target=null; }
     }
   }
@@ -6272,6 +6487,20 @@ function updateUnit(u, dt){
       const n = u.target;
       if(!n){ u.order=null; break; }
       if(!!n.water !== !!UNITS[u.type].naval){ u.order=null; u.target=null; break; }
+      // the last patch is worked out and there is nothing else of the kind
+      // left anywhere: carry what is in hand back rather than standing in an
+      // empty field holding it
+      if(u.haulHome && u.carry > 0){
+        const dp = nearestDrop(u);
+        if(!dp){ u.order=null; u.haulHome=false; break; }
+        if(moveToward(u, dp.x, dp.y, spd, dt, Math.max(dp.w,dp.h)*TILE/2 + 6)){
+          G.players[u.p].res[u.carryKind] += u.carry;
+          if(u.carryIron){ G.players[u.p].res.iron += u.carryIron; u.carryIron = 0; }
+          u.carry = 0; u.haulHome = false;
+          u.order = null; u.target = null;      // now genuinely idle, and counted
+        }
+        break;
+      }
       // bare field: stand by at the farm rather than wandering off
       if(n.farmOf && n.amt<=0 && u.carry<=0){
         moveToward(u, n.x, n.y, spd, dt, n.r*0.55);
@@ -6708,7 +6937,7 @@ function moveToward(u, tx, ty, spd, dt, stop){
   }
   if(!moved){ u.lastSteer=undefined; u.steerT=0; }
 
-  if(moved) u.walk = (u.walk||0) + step*0.13;
+  if(moved){ u.walk = (u.walk||0) + step*0.13; treadPath(u); }
   u.moving = moved;
 
   u.x = Math.max(6, Math.min(WORLD_W-6, u.x));
@@ -6860,8 +7089,14 @@ function gatherUpgLevel(u, n){
 }
 function nearestNode(u, kind){
   let best=null, bd=1e9;
+  const naval = !!UNITS[u.type].naval;
   for(const n of G.nodes){
     if(n.amt<=0) continue;
+    // fish are food a land villager cannot reach, and a boat cannot beach
+    // itself on a berry patch - the gather tick clears a mismatched order
+    // the moment it sees one, so handing such a node out here just leaves
+    // the unit idle a tick later beside perfectly good work
+    if(!!n.water !== naval) continue;
     if(kind && n.kind!==kind) continue;
     const d=Math.hypot(n.x-u.x,n.y-u.y);
     if(d<bd){bd=d;best=n;}
@@ -6944,6 +7179,9 @@ function dealDamage(src, t, dmg, cls){
   if(t.kind==="unit" && t.musicDef) m *= t.musicDef;
   const dealt = dmg*m;
   t.hp -= dealt;
+  // kill credit - night beasts drop moonstone to whichever side lands the
+  // last blow (see updateBeasts), so remember who that was
+  if(src.p!==undefined) t.lastHitBy = src.p;
   if(t.p===P_YOU && dealt>0) triggerUnderAttack(t);
   if(t.hp<=0){
     t.hp=0;
@@ -7358,8 +7596,15 @@ function aiNavy(dt, my, army, town){
   const boats = my.units.filter(u=>UNITS[u.type].capacity > 0);
   if(!docks.length || !boats.length) return true;   // the yard is still working
 
-  // once there is an army worth shipping, ferry it across
-  const boat = boats[0];
+  // once there is an army worth shipping, ferry it across.
+  // Take the roomiest hull, and never a warship while a real transport
+  // exists: warships carry two and go off looking for a fight, so using
+  // one as the ferry left the loading party waiting at a quay for a boat
+  // that was never coming back.
+  const boat = boats.slice().sort((a,b)=>
+    (b.type==="transport") - (a.type==="transport") ||
+    (UNITS[b.type].capacity||0) - (UNITS[a.type].capacity||0)
+  )[0];
   const ready = army.filter(u=>!u.indoors);
   if(nav.state==="none" || nav.state==="gather"){
     // Three is enough to be worth a trip. Waiting for a proper warband meant
@@ -7480,9 +7725,20 @@ function aiThink(dt){
 
   // 1. keep villagers busy
   for(const v of vills){
+    // The tick's own dead-target cleanup re-targets a spent node to the
+    // straight-line nearest of the same kind, with no idea whether it can
+    // be walked to - on a lake-cut map that leaves villagers standing at
+    // the water's edge staring at berries on the far shore, and the food
+    // income at zero for the rest of the match. Validate what they are
+    // actually pointed at (cached, so this is cheap) and cut loose anyone
+    // fixated on the far shore. Farm fields are their own farm's - skip.
+    if(v.order==="gather" && v.target && v.target.isNode && !v.target.farmOf
+       && !aiNodeReachable(v, v.target)){
+      v.order = null; v.target = null; v.path = null;
+    }
     if(v.order===null || (v.order==="gather" && !v.target)){
       const need = aiNeed(pl);
-      const n = nearestNodeOfKind(v, need) || nearestNode(v, null);
+      const n = aiNearestReachableNode(v, need) || aiNearestReachableNode(v, null);
       if(n){ v.order="gather"; v.target=n; }
     }
   }
@@ -7523,7 +7779,7 @@ function aiThink(dt){
       if(short && surp && sv >= 1){
         const movers = gatherers.filter(v=>v.target.kind===surp).slice(0, Math.ceil(sv));
         for(const v of movers){
-          const nn = nearestNodeOfKind(v, short);
+          const nn = aiNearestReachableNode(v, short);
           if(nn){ v.target = nn; v.carry = 0; v.carryKind = null; }
         }
       }
@@ -7531,6 +7787,22 @@ function aiThink(dt){
   }
 
   const strat = aiStrat();
+
+  // While the first barracks is owed, hold the wood for it - measured on
+  // Easy (gather 0.52), houses and farms otherwise drain the pot faster
+  // than its 117 wood can ever collect, and the barracks arrives in the
+  // last third of the match or not at all (3 of 5 seeds: never). Houses
+  // are exempt: with no pop room the town stops producing villagers and
+  // the hold starves itself. Same shape as the saveForSea hold below.
+  // The two wood holds must never both be up: the sea hold lets only a dock
+  // through, the barracks hold lets only a barracks through, and together
+  // they block each other's exception - the AI can then build neither and
+  // sits at zero army for the whole match. The crossing outranks the
+  // barracks (there is no point in troops it can never deliver), so the sea
+  // hold wins and the barracks waits its turn.
+  const has = t=>my.all.some(b=>b.type===t);
+  G.ai.saveForBarracks = !G.ai.saveForSea
+                      && vills.length >= (strat.barracksVills||6) && !has("barracks");
 
   // 2. train villagers up to ~14 (leaves pop room for an actual army) -
   // a strategy can shrink that target so more pop goes to the army instead
@@ -7540,18 +7812,22 @@ function aiThink(dt){
   // 3. houses — stay well ahead of the cap, allow two going up at once
   if(pl.pop >= pl.popcap - 7 && pl.popcap < 78) aiBuild("house", town, 2);
 
-  // 3b. farms — a renewable food supply once the wild food thins out
+  // 3b. farms — a renewable food supply once the wild food thins out.
+  // Outright starvation overrides the workforce gate: on a lake-cut map the
+  // reachable wild food can run out while the AI still has few villagers,
+  // and since more villagers cost food, waiting for six of them deadlocks
+  // the whole economy at zero (seed 7, The Lakes: food pinned at 12, three
+  // villagers idle, nothing trainable for the rest of the match).
   const farms = my.all.filter(b=>b.type==="farm").length;
   const wildFood = G.nodes.filter(n=>!n.farmOf && n.kind==="food").length;
-  if(vills.length>=6 && farms < 4 && (pl.res.food < 260 || wildFood < 12))
+  if((vills.length>=6 || pl.res.food < 60) && farms < 4 && (pl.res.food < 260 || wildFood < 12))
     aiBuild("farm", town, 2);
 
   // 3c. the FIRST barracks is the single highest priority non-economy build -
   // if it never gets a turn (which used to happen when farms/lumber camps/
   // mines kept saturating the concurrent-construction cap every tick), the
   // AI can end up with a thriving economy and literally zero army forever
-  const has = t=>my.all.some(b=>b.type===t);
-  if(vills.length>=(strat.barracksVills||6) && !has("barracks")){
+  if(G.ai.saveForBarracks){
     aiBuild("barracks", town, 1, true);   // priority: bypass the unfinished-building cap
   }
 
@@ -7631,9 +7907,33 @@ function aiThink(dt){
     const c = AGE_COST[pl.age+1];
     if(pl.res.know >= c.know*0.65) reserve = c;
   }
+  /* A crossing needs a hull, and a hull needs a population slot like
+     anything else. Fill every last slot with soldiers and the transport can
+     never be trained, so the army stands on its own shore for the whole
+     match - measured at pop 80/80 with four warships and no transport.
+     Keep a couple of slots back until there is something to sail in. */
+  const needsCrossing = !!aiNeedsSea(town);
+  const hasFerry = my.units.some(u=>u.type==="transport")
+                || my.all.some(b=>b.queue && b.queue.indexOf("transport") >= 0);
+  const popReserve = (needsCrossing && !hasFerry) ? (UNITS.transport.pop||1) + 1 : 0;
+
   const prod = my.bldgs.filter(b=>BLDG[b.type].trains && b.type!=="town");
   for(const b of prod){
     if(b.queue.length>=2) continue;
+    // hold those slots for the boat: only the dock may spend them
+    if(popReserve && b.type!=="dock"
+       && pl.pop + pendingPop(P_AI) + popReserve > pl.popcap) continue;
+    /* The dock builds nothing but the ferry until it has one. A warship
+       costs almost exactly what a transport does, so a dock left to its
+       usual "train the best thing available" rule spent its timber on
+       warships and stayed perpetually a couple of wood short of the boat
+       the invasion actually needed: four warships, no transport, and an
+       army of fifty-four that never left home. The cap is bypassed here
+       too - see aiTrain. */
+    if(popReserve && b.type==="dock"){
+      if(UNITS.transport.age<=pl.age) aiTrain(b, "transport", null, true);
+      continue;
+    }
     // The boat comes before more soldiers - but only when it is genuinely
     // within reach. Blocking army training for the whole eleven minutes it
     // takes to afford a transport meant the AI bought its boat and then had
@@ -7646,10 +7946,33 @@ function aiThink(dt){
        && b.type!=="dock") continue;
     // at the sharpest pressure everything goes to getting across
     if(G.ai.holdArmy && b.type!=="dock") continue;
-    const opts = BLDG[b.type].trains.filter(t=>UNITS[t].age<=pl.age && t!=="scout");
+    let opts = BLDG[b.type].trains.filter(t=>UNITS[t].age<=pl.age && t!=="scout");
+    // A fishing boat is food, not a fleet. Nothing capped them, so the dock
+    // - which is just another building with a `trains` list - would sit
+    // there buying one every time it could afford one: 46 of them by minute
+    // eighteen on an island, every scrap of wood gone, and no barracks.
+    if(b.type==="dock"){
+      const fishing = my.units.filter(u=>u.type==="fishingboat").length;
+      if(fishing >= AI_FISHING_BOATS) opts = opts.filter(t=>t!=="fishingboat");
+    }
     if(!opts.length) continue;
-    const pick = opts[opts.length-1];
-    aiTrain(b, pick, reserve);
+    // With almost no army, two of the usual restraints do more harm than
+    // good: the age-up reserve (which on a slow-gathering difficulty can
+    // block training forever - the age-up matters less than not being
+    // defenceless), and insisting on the best unit only (a swordsman wants
+    // gold the AI may never have spare; a plain warrior is better than
+    // nothing). So under four soldiers: no reserve, and fall back through
+    // cheaper options until something can actually be paid for.
+    //
+    // Only ever for units that can actually fight, though. Counting a
+    // civilian hull as progress toward an army meant the AI stayed
+    // "desperate" forever at a dock and spent the match fishing.
+    const combat = opts.filter(t=>UNITS[t].cls!=="civ");
+    if(army.length < 4 && combat.length){
+      for(let i=combat.length-1; i>=0; i--) if(aiTrain(b, combat[i], null)) break;
+    } else {
+      aiTrain(b, opts[opts.length-1], reserve);
+    }
   }
 
   // 8. attack waves — first push held back so the player can establish a base
@@ -7658,6 +7981,13 @@ function aiThink(dt){
   const threshold = G.diff.waveBase*wbMult + G.ai.wave*G.diff.waveStep;
   if(G.t < G.diff.firstPush*fpMult) G.ai.pushing = false; else
   if(!G.ai.pushing && army.length >= threshold){
+    G.ai.pushing = true; G.ai.wave++;
+  } else
+  // A rival that never once attacks makes the difficulty tip a lie. On a
+  // slow-gathering difficulty the full wave size can be genuinely out of
+  // reach (Easy wants 15; measured armies peak around 6-10), so well past
+  // the push timer, march with whatever modest force has actually gathered.
+  if(!G.ai.pushing && army.length >= 4 && G.t > G.diff.firstPush*fpMult + 240){
     G.ai.pushing = true; G.ai.wave++;
   }
   // If the enemy cannot be walked to, the whole land-attack plan is useless -
@@ -7685,6 +8015,9 @@ function aiThink(dt){
   }
 }
 
+// enough to work the water near home; past that it is wood thrown away
+const AI_FISHING_BOATS = 3;
+
 function aiNeed(pl){
   const r = pl.res;
   const order = [["wood",r.wood],["food",r.food],["gold",r.gold],["stone",r.stone],["moonstone",r.moonstone]];
@@ -7700,26 +8033,96 @@ function nearestNodeOfKind(u,kind){
   }
   return best;
 }
-function aiTrain(b,type,reserve){
+/* Nearest node a villager can actually walk to. Straight-line nearest is
+   how the whole AI economy starved on The Lakes: once the near berry
+   patches were eaten bare, "nearest food" was across a lake, every food
+   gatherer fixated on it, and food income stayed at zero for the rest of
+   the match with wood piling up unspent. Nodes that fail a path check go
+   in a cache so the A* cost is paid once per node, not per think tick.
+   (A node walled off by an in-progress building would be cached unfairly -
+   rare enough to accept for an opponent that mustn't lag the phone.) */
+/* Can this villager actually walk to that node? Verdicts are cached both
+   ways, so the A* cost is paid once per node ever, not per think tick.
+   One villager's verdict stands in for the whole workforce - they all live
+   on the same landmass, which is exactly the thing being tested. */
+function aiNodeReachable(u,n){
+  if(!G.ai.badNodes) G.ai.badNodes = {};
+  if(!G.ai.okNodes)  G.ai.okNodes  = {};
+  if(G.ai.okNodes[n.id])  return true;
+  if(G.ai.badNodes[n.id]) return false;
+  let ok = lineClear(u.x,u.y,n.x,n.y,null,false);
+  if(!ok){
+    // findPath quietly re-targets a blocked goal tile to the nearest open
+    // one - and across a lake that "nearest open tile" is on OUR shore, so
+    // a successful path can still end nowhere near the node. Only accept a
+    // route that actually finishes beside it.
+    const p = findPath(u.x,u.y,n.x,n.y,false,null);
+    if(p && p.length){
+      const end = p[p.length-1];
+      ok = Math.hypot(end.x-n.x, end.y-n.y) <= n.r + TILE*1.5;
+    }
+  }
+  if(ok) G.ai.okNodes[n.id] = true; else G.ai.badNodes[n.id] = true;
+  return ok;
+}
+function aiNearestReachableNode(u,kind){
+  const cands = [];
+  for(const n of G.nodes){
+    if(n.amt<=0 || (G.ai.badNodes && G.ai.badNodes[n.id])) continue;
+    // fish are food a villager cannot touch - the gather tick clears the
+    // order the moment a land unit targets a water node, so handing one
+    // out here just re-idles the villager every think tick, forever, while
+    // the AI quietly starves beside a lake full of food (seeds 7 and 99)
+    if(n.water) continue;
+    if(kind && n.kind!==kind) continue;
+    cands.push(n);
+  }
+  cands.sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
+  // only probe a handful per call - the cache means the walkable one found
+  // today is still the answer tomorrow
+  for(const n of cands.slice(0, 8)){
+    if(aiNodeReachable(u,n)) return n;
+  }
+  return null;
+}
+function aiTrain(b,type,reserve,bypassPop){
   const pl=G.players[P_AI], d=UNITS[type];
-  if(pl.age<d.age) return;
-  if(pl.pop + pendingPop(P_AI) + (d.pop||1) > pl.popcap) return;
-  if(!canAfford(pl,d.cost)) return;
+  if(pl.age<d.age) return false;
+  /* The one hull that carries the war to the enemy may exceed the cap by
+     its own single slot. Holding slots back in advance is not enough on
+     its own: an AI that filled all eighty before the crossing became
+     necessary can never free one again - nothing dies when the player
+     turtles - so it stood on its own shore with fifty-four soldiers and
+     no boat. Bounded by design, since it only ever applies while there
+     is no transport at all. */
+  if(!bypassPop && pl.pop + pendingPop(P_AI) + (d.pop||1) > pl.popcap) return false;
+  if(!canAfford(pl,d.cost)) return false;
   if(reserve){
     for(const k in reserve){
       if(k==="know") continue;
-      if((pl.res[k]||0) - (d.cost[k]||0) < reserve[k]) return;
+      if((pl.res[k]||0) - (d.cost[k]||0) < reserve[k]) return false;
     }
   }
   pay(pl,d.cost); b.queue.push(type);
+  return true;
 }
 function aiBuild(type, town, concurrent, priority){
   const pl=G.players[P_AI], d=BLDG[type];
   const max = concurrent || 1;
   if(pl.age<d.age) return;
   // while it is saving for a dock, everything else waits - otherwise the wood
-  // is always gone before the crossing can be paid for
-  if(G.ai.saveForSea && type!=="dock" && d.cost.wood) return;
+  // is always gone before the crossing can be paid for. A house is the one
+  // exception, and only once the population is actually full: the boat needs
+  // a population slot like anything else, so a hold that also blocks the
+  // house is a hold that can never be satisfied (measured: pop 50/50, no
+  // boat, no house, for a whole match).
+  const popFull = pl.pop >= pl.popcap - 1;
+  if(G.ai.saveForSea && type!=="dock" && !(type==="house" && popFull) && d.cost.wood) return;
+  // and likewise for the first barracks (houses excepted - see aiThink;
+  // so is a farm while food is critical, since without food nothing else
+  // can be trained or built either and the hold would deadlock itself)
+  if(G.ai.saveForBarracks && type!=="barracks" && type!=="house"
+     && !(type==="farm" && pl.res.food < 60) && d.cost.wood) return;
   // while the crossing is pressing, only put up what helps it happen -
   // lodges still count, since knowledge is what buys the age the ship needs
   if(G.ai.holdExpansion && type!=="dock" && type!=="lodge" && type!=="mine"
@@ -7753,6 +8156,7 @@ function aiBuild(type, town, concurrent, priority){
 /* drop a camp or mine beside the resource it serves */
 function aiBuildNear(type, kind){
   const pl=G.players[P_AI], d=BLDG[type];
+  if(G.ai.saveForBarracks) return;   // camps cost wood the barracks needs first
   if(!canAfford(pl,d.cost)) return;
   if(G.bldgs.some(b=>b.p===P_AI&&b.type===type&&!b.done)) return;
   if(G.bldgs.filter(b=>b.p===P_AI&&!b.done).length >= 3) return;
@@ -7950,6 +8354,38 @@ function draw(){
     }
   }
 
+  // Tracks worn into the ground by use, drawn over the terrain and under
+  // everything that stands on it.
+  if(G.paths && c.z > 0.55){
+    const look = PATH_LOOKS[Math.min(PATH_LOOKS.length-1, G.players[P_YOU].age)];
+    const [pr,pg,pb] = look.col;
+    for(let ty=y0; ty<y1; ty++){
+      for(let tx=x0; tx<x1; tx++){
+        const v = G.paths[ty*MAPW+tx];
+        if(v < PATH_SHOW) continue;
+        if(!exploredTo(P_YOU, tx*TILE+TILE/2, ty*TILE+TILE/2)) continue;
+        const wear = Math.min(1, (v - PATH_SHOW) / (PATH_MAX - PATH_SHOW));
+        // a track is widest and clearest where it is most walked
+        ctx.globalAlpha = 0.10 + wear*look.edge;
+        ctx.fillStyle = "rgb("+pr+","+pg+","+pb+")";
+        const inset = (1 - wear) * TILE * 0.22;
+        ctx.fillRect(tx*TILE + inset, ty*TILE + inset,
+                     TILE - inset*2, TILE - inset*2);
+        // once it is properly made up, show the joints between the stones
+        if(G.players[P_YOU].age >= 1 && wear > 0.55 && c.z > 1.5){
+          ctx.globalAlpha = 0.16*wear;
+          ctx.fillStyle = "rgba(40,36,30,1)";
+          const n = G.players[P_YOU].age >= 2 ? 3 : 2;
+          for(let k=1;k<n;k++){
+            ctx.fillRect(tx*TILE, ty*TILE + k*TILE/n, TILE, 1);
+            ctx.fillRect(tx*TILE + k*TILE/n, ty*TILE, 1, TILE);
+          }
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
   // Everything standing on the ground goes through one depth-sorted pass -
   // trees, rocks, animals, buildings, units and the elder alike - so a deer
   // behind a tree is behind it, rather than pasted over the top.
@@ -7982,6 +8418,11 @@ function draw(){
   }
   if(G.elder && G.elder.state!=="inside" && visibleTo(P_YOU,G.elder.x,G.elder.y))
     drawList.push({ e:G.elder, y:G.elder.y, kind:5 });
+  for(const o of G.homeLife||[]){
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:7 });
+  }
   for(const bs of G.beasts||[]){
     if(bs.x<c0x||bs.y<c0y||bs.x>c1x||bs.y>c1y) continue;
     if(!visibleTo(P_YOU,bs.x,bs.y)) continue;
@@ -8041,6 +8482,7 @@ function draw(){
       case 4: drawCritter(it.e); break;
       case 5: drawElder(); break;
       case 6: drawBeast(it.e); break;
+      case 7: drawHomeLife(it.e); break;
       case 7: drawWanderer(it.e); break;
       case 8: drawCrow(it.e); break;
       case 9: drawPet(it.e); break;
@@ -9592,16 +10034,50 @@ function drawBuilding(b){
     }
     // crops, greener and taller the riper the field. once harvested out it is
     // just stubble until somebody sows it again.
-    const cropCol = bare ? "#7d6a44" : shade("#8fae4a", -0.30 + ripe*0.35);
+    /* A field ought to look like the time of year. Every farm used to be the
+       same green rows whatever the season - the same in deep snow as in high
+       summer. Now the crop colours with the year, and winter buries it. */
+    const SEASON_CROP = {
+      spring: { col:"#7fae52", tall:0.75, note:"new shoots"    },
+      summer: { col:"#8fae4a", tall:1.00, note:"full growth"   },
+      autumn: { col:"#c9a047", tall:0.92, note:"turned golden" },
+      winter: { col:"#8a8470", tall:0.42, note:"cut back"      }
+    };
+    const sc = SEASON_CROP[G.season] || SEASON_CROP.summer;
+    const cropCol = bare ? "#7d6a44" : shade(sc.col, -0.30 + ripe*0.35);
     ctx.strokeStyle = cropCol; ctx.lineWidth = 1.6; ctx.lineCap="round";
+    const sway = (G.season==="winter") ? 0.3 : 1;
     for(let ry=0; ry<5; ry++){
       for(let rx=0; rx<7; rx++){
         const px = x+5 + rx*(w-10)/6;
         const py = y+5 + ry*(dep-10)/4;
-        const hgt = bare ? 1.6 : (3 + ripe*5) + Math.sin(G.t*1.6 + rx*0.7 + ry)*0.8;
-        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.sin(G.t*1.2+rx)*1.2, py-hgt);
+        const hgt = bare ? 1.6
+                  : ((3 + ripe*5) * sc.tall) + Math.sin(G.t*1.6 + rx*0.7 + ry)*0.8*sway;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.sin(G.t*1.2+rx)*1.2*sway, py-hgt);
         ctx.stroke();
       }
+    }
+    // heads of grain once it is well grown, and not in winter
+    if(!bare && ripe > 0.55 && G.season !== "winter" && G.cam.z > 1.1){
+      ctx.fillStyle = shade(sc.col, 0.30);
+      for(let ry=0; ry<5; ry++) for(let rx=0; rx<7; rx++){
+        if((rx+ry) % 2) continue;
+        const px = x+5 + rx*(w-10)/6;
+        const py = y+5 + ry*(dep-10)/4 - ((3+ripe*5)*sc.tall);
+        ctx.fillRect(px-0.9, py-1.4, 1.8, 2.2);
+      }
+    }
+    // snow lying over the furrows
+    if(G.snow > 0.05){
+      ctx.globalAlpha = 0.55*G.snow;
+      ctx.fillStyle = "#eef2f6";
+      for(let ry=0; ry<6; ry++){
+        const py = y + 3 + ry*(dep-6)/5;
+        ctx.fillRect(x+3, py, w-6, 2.4);
+      }
+      ctx.globalAlpha = 0.30*G.snow;
+      ctx.fillRect(x+2, y+2, w-4, dep-4);
+      ctx.globalAlpha = 1;
     }
     // fence posts round the edge
     ctx.fillStyle = "#6b5233";
@@ -12591,6 +13067,46 @@ function drawBeast(b){
     ctx.beginPath(); ctx.arc(-r*0.05,-r*0.7,r*0.28,0,6.283); ctx.fill();
     ctx.fillStyle = "#3a4a2e";
     ctx.beginPath(); ctx.ellipse(-r*0.18,-r*0.85,r*0.1,r*0.16,-0.3,0,6.283); ctx.fill();
+  } else if(b.kind==="moonimp"){
+    // a small horned dancer with a club - it hops even while it advances,
+    // because it came here to make a night of it
+    const hop = Math.abs(Math.sin(b.walk*2.2))*r*0.22;
+    ctx.translate(0, -hop);
+    // legs mid-caper
+    ctx.strokeStyle = shade(B.col,-0.35); ctx.lineWidth = Math.max(1.1,r*0.13); ctx.lineCap="round";
+    const kick = Math.sin(b.walk*2.2)*r*0.4;
+    ctx.beginPath(); ctx.moveTo(-r*0.18,r*0.3); ctx.lineTo(-r*0.22+kick, r*0.95+hop); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r*0.18,r*0.3); ctx.lineTo(r*0.24-kick, r*0.95+hop); ctx.stroke();
+    // pot-bellied little body
+    ctx.fillStyle = B.col;
+    ctx.beginPath(); ctx.ellipse(0,-r*0.05,r*0.5,r*0.48,0,0,6.283); ctx.fill();
+    ctx.fillStyle = shade(B.col,0.25);
+    ctx.beginPath(); ctx.ellipse(r*0.05,r*0.08,r*0.3,r*0.26,0,0,6.283); ctx.fill();
+    // free arm flung up in the dance; the club arm swings out the other side
+    ctx.strokeStyle = shade(B.col,-0.25); ctx.lineWidth = Math.max(1.1,r*0.12);
+    ctx.beginPath(); ctx.moveTo(-r*0.35,-r*0.2);
+    ctx.lineTo(-r*0.6,-r*0.75+Math.sin(b.walk*2.2+1)*r*0.15); ctx.stroke();
+    const swing = (b.atkAnim>0) ? (1-b.atkAnim/0.2) : 0;
+    const cx0=r*0.4, cy0=-r*0.1;
+    const ca = -0.7 + swing*1.6 + Math.sin(b.walk*2.2)*0.12;
+    const cx1=cx0+Math.cos(ca)*r*0.85, cy1=cy0+Math.sin(ca)*r*0.85;
+    ctx.beginPath(); ctx.moveTo(cx0,cy0); ctx.lineTo(cx1,cy1); ctx.stroke();
+    // the club - a fat wooden knot on the end of it
+    ctx.fillStyle = "#6b5334";
+    ctx.beginPath(); ctx.ellipse(cx1,cy1,r*0.24,r*0.17,ca,0,6.283); ctx.fill();
+    ctx.fillStyle = "#57422a";
+    ctx.beginPath(); ctx.arc(cx1+Math.cos(ca)*r*0.12,cy1+Math.sin(ca)*r*0.12,r*0.07,0,6.283); ctx.fill();
+    // big head, wide ears, stubby pale horns
+    ctx.fillStyle = shade(B.col,0.1);
+    ctx.beginPath(); ctx.arc(0,-r*0.75,r*0.42,0,6.283); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-r*0.38,-r*0.8); ctx.lineTo(-r*0.75,-r*0.7); ctx.lineTo(-r*0.4,-r*0.6); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(r*0.38,-r*0.8); ctx.lineTo(r*0.75,-r*0.7); ctx.lineTo(r*0.4,-r*0.6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#d8cfc0";
+    ctx.beginPath(); ctx.moveTo(-r*0.2,-r*1.1); ctx.lineTo(-r*0.14,-r*1.35); ctx.lineTo(-r*0.05,-r*1.08); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(r*0.2,-r*1.1); ctx.lineTo(r*0.14,-r*1.35); ctx.lineTo(r*0.05,-r*1.08); ctx.closePath(); ctx.fill();
+    // a wide grin under the eyes
+    ctx.strokeStyle = "#3a2028"; ctx.lineWidth = Math.max(1,r*0.08);
+    ctx.beginPath(); ctx.arc(0,-r*0.66,r*0.2,0.25,2.9); ctx.stroke();
   } else {
     // wolf and bear: four legs, heavy shoulders
     ctx.strokeStyle = shade(B.col,-0.2); ctx.lineWidth = Math.max(1.4,r*0.22); ctx.lineCap="round";
@@ -12640,12 +13156,13 @@ function drawBeast(b){
 
   // the eyes, which catch the light
   const ex = (b.kind==="spider") ? r*0.55
-           : (b.kind==="wraith"||b.kind==="zombie") ? 0
+           : (b.kind==="wraith"||b.kind==="zombie"||b.kind==="moonimp") ? 0
            : (b.kind==="scorpion") ? r*0.75
            : (b.kind==="bogwight") ? -r*0.05
            : r*1.02;
   const ey = (b.kind==="wraith") ? -r*0.95
            : (b.kind==="zombie") ? -r*0.85
+           : (b.kind==="moonimp") ? -r*0.8
            : (b.kind==="scorpion") ? 0
            : (b.kind==="bogwight") ? -r*0.7
            : -r*0.34;
@@ -12667,6 +13184,724 @@ function drawBeast(b){
     ctx.fillRect(b.x-w/2, b.y-r*2.0, w*Math.max(0,b.hp/b.maxhp), 2.6);
   }
 }
+
+/* A child, a cat or a dog on the doorstep. Small, and drawn small - they
+   should read as a detail you notice, not as another unit on the board. */
+function drawHomeLife(o){
+  const bob = o.moving ? Math.abs(Math.sin(o.walk))*1.1 : 0;
+  ctx.save();
+  ctx.translate(o.x, o.y - bob);
+  ctx.scale(o.face<0 ? -1 : 1, 1);
+
+  ctx.fillStyle = "rgba(0,0,0,.22)";
+  ctx.beginPath(); ctx.ellipse(0, 1, 4.2, 1.6, 0, 0, 6.283); ctx.fill();
+
+  if(o.kind === "child"){
+    // half the height of a grown villager, and rounder with it
+    const skin = SKINS[o.skin % SKINS.length];
+    const swing = o.moving ? Math.sin(o.walk)*1.6 : 0;
+    ctx.strokeStyle = "#4a3a26"; ctx.lineWidth = 1.4; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-0.8, -3); ctx.lineTo(-0.8 + swing*0.5, 0);
+    ctx.moveTo( 0.8, -3); ctx.lineTo( 0.8 - swing*0.5, 0);
+    ctx.stroke();
+    ctx.fillStyle = o.shirt;
+    ctx.beginPath();
+    ctx.moveTo(-2.4, -3); ctx.lineTo(2.4, -3); ctx.lineTo(2.0, -8.5); ctx.lineTo(-2.0, -8.5);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = shade(o.shirt,-0.3); ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(-2.0, -7.6); ctx.lineTo(-3.4, -5.2 + swing*0.6);
+    ctx.moveTo( 2.0, -7.6); ctx.lineTo( 3.4, -5.2 - swing*0.6);
+    ctx.stroke();
+    ctx.fillStyle = skin;
+    ctx.beginPath(); ctx.arc(0, -10.4, 2.9, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#3a2b1c";
+    ctx.beginPath(); ctx.arc(0, -11.4, 2.9, Math.PI*1.02, Math.PI*2.02); ctx.fill();
+    ctx.fillStyle = "#2b2119";
+    ctx.beginPath(); ctx.arc(1.5, -10.3, 0.5, 0, 6.283); ctx.fill();
+  } else {
+    // a cat sits low with a curled tail; a dog stands taller and wags
+    const dog = o.kind === "dog";
+    // a child carries no coat colour, and shade() on undefined threw
+    const coat = o.col || "#5b4630";
+    const L = dog ? 7 : 5.6, Hh = dog ? 4.2 : 3.4;
+    const gait = o.moving ? Math.sin(o.walk*1.5)*0.9 : 0;
+    ctx.strokeStyle = shade(coat,-0.3); ctx.lineWidth = 1.1; ctx.lineCap="round";
+    ctx.beginPath();
+    ctx.moveTo(-L*0.4, -1.6); ctx.lineTo(-L*0.4 + gait, 0.2);
+    ctx.moveTo( L*0.4, -1.6); ctx.lineTo( L*0.4 - gait, 0.2);
+    ctx.stroke();
+    ctx.fillStyle = coat;
+    ctx.beginPath(); ctx.ellipse(0, -3.2, L*0.55, Hh*0.5, 0, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(L*0.5, -4.6, dog?2.4:2.1, 0, 6.283); ctx.fill();
+    // ears
+    ctx.beginPath();
+    if(dog){
+      ctx.moveTo(L*0.34,-5.6); ctx.lineTo(L*0.30,-7.4); ctx.lineTo(L*0.62,-6.0);
+    } else {
+      ctx.moveTo(L*0.32,-5.8); ctx.lineTo(L*0.38,-8.0); ctx.lineTo(L*0.66,-6.0);
+    }
+    ctx.closePath(); ctx.fill();
+    // tail
+    ctx.strokeStyle = coat; ctx.lineWidth = dog?1.5:1.2;
+    ctx.beginPath();
+    const wag = Math.sin(G.t*(dog?7:2.2) + o.id)*(dog?2.2:1.2);
+    ctx.moveTo(-L*0.55, -3.6);
+    ctx.quadraticCurveTo(-L*0.95, -5.2 + wag, -L*0.75, -7.4 + wag);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+/* ============================================================
+   NIGHT CYCLE
+   Pulled out of 01-constants-and-helpers.js as a pilot for the module split
+   described in PROJECT_NOTES.md. Covers: the day/night clock itself, the
+   phase-transition flavour lines, villagers going home (and being pulled
+   back out) at night, overnight resource regrowth, and the "something
+   happens most nights" event pool (both the original danger/atmosphere
+   entries and the good/bad/neutral batch added later).
+
+   Same rules as everywhere else in src/: no imports, no exports, one flat
+   scope - this file only exists so the concern is easier to find and edit.
+
+   Placement is NOT free, though. The original split cut the script at line
+   numbers, so most src/ files start or end mid-construct - a function can
+   open at the bottom of one file and close at the top of the next. A file
+   inserted at such a boundary lands inside that construct and everything in
+   it silently becomes local instead of global (this actually happened: this
+   module first went between 01 and 02, and DAY_LEN ended up scoped inside a
+   half-open function - the game built fine and then died at boot). The only
+   interior boundary that sits at true top level is after 05-wildlife.js,
+   which is why this file is numbered 05b. Before moving it, prove the new
+   spot is top-level: the concatenation of every file before it must parse
+   on its own (new Function(...) with no error).
+   ============================================================ */
+
+/* ---------- day and night ----------
+   A day is shorter than a season: several pass within one. Dusk and dawn are
+   brief; most of a day is plain daylight and most of a night is properly dark.
+   `G.dark` runs 0..1 and everything nocturnal keys off it. */
+/* A quarter longer than it was. The season grows with it, because the almanac
+   forecast is built on a season being exactly two days - decouple them and it
+   starts reporting tomorrow's weather for the wrong day. Longer seasons were
+   wanted anyway. */
+const DAY_LEN    = 112;   // seconds for a full day and night
+const DUSK_AT    = 0.56;  // the light starts going at this point in the day
+const NIGHT_AT    = 0.68;  // fully dark by here
+const DAWN_AT    = 0.90;  // light starts returning
+const DAY_AT     = 0.99;  // and it is full day again
+const NIGHT_TINT = "#101a2e";
+const LAMP_SCALE = 0.90;  // trims every building's light together
+const TORCH_RADIUS = 32;  // how far a soldier's torch reaches
+const BRAZIER_RADIUS = 56;  // a brazier is built to light ground, but it's one small torch, not a beacon
+const NIGHT_MAX  = 0.93;  // how dark it actually gets - all but black
+
+/* 0 by day, 1 in the dead of night, easing through dusk and dawn */
+function darkAt(f){
+  if(f < DUSK_AT)  return 0;
+  if(f < NIGHT_AT) return (f - DUSK_AT) / (NIGHT_AT - DUSK_AT);
+  if(f < DAWN_AT)  return 1;
+  if(f < DAY_AT)   return 1 - (f - DAWN_AT) / (DAY_AT - DAWN_AT);
+  return 0;
+}
+
+function timeOfDay(){
+  const f = G.dayF;
+  if(f < DUSK_AT)  return "day";
+  if(f < NIGHT_AT) return "dusk";
+  if(f < DAWN_AT)  return "night";
+  if(f < DAY_AT)   return "dawn";
+  return "day";
+}
+
+/* The same three lines bracketed every night of every match - eighteen
+   "The light is going" in a single game. Same event, so say it differently. */
+const DUSK_LINES = [
+  "The light is going.",
+  "The sun is getting low.",
+  "Shadows are stretching out across the ground.",
+  "The day is nearly done.",
+  "The light is thinning.",
+  "Long shadows now — it will be dark soon.",
+  "The sun sits low over the trees.",
+  "Evening is coming on.",
+  "The last of the light.",
+  "The colour is going out of the day.",
+  "Dusk is settling in.",
+  "The sky has gone the colour of embers."
+];
+const NIGHT_LINES = [
+  "Night falls.",
+  "Full dark now.",
+  "The dark has closed in.",
+  "Night has come.",
+  "The last light is gone.",
+  "It is properly dark.",
+  "Night, and the fires are lit.",
+  "Dark, and quiet with it.",
+  "The night has settled over everything.",
+  "Nothing but firelight now."
+];
+const DAWN_LINES = [
+  "First light.",
+  "The sky is greying in the east.",
+  "Dawn.",
+  "Light again, at last.",
+  "The night is over.",
+  "First light creeps in.",
+  "Morning.",
+  "The dark is lifting.",
+  "A new day.",
+  "The sun is coming up.",
+  "Daybreak.",
+  "Light returns."
+];
+const RESTED_TAILS = [
+  "# wake rested.",
+  "# slept well and rise the better for it.",
+  "# are up early and eager.",
+  "# come out rested.",
+  "# have had a good night and it shows.",
+  "# rise with the light, well rested.",
+  "# are ready for the day."
+];
+
+/* Pick a line, but never the one used last time - repeating immediately is
+   what makes a rotation feel like no rotation at all. */
+function pickLine(list, key){
+  if(!G.lastLine) G.lastLine = {};
+  let i = (Math.random()*list.length)|0;
+  if(list.length > 1 && i === G.lastLine[key]) i = (i + 1) % list.length;
+  G.lastLine[key] = i;
+  return list[i];
+}
+
+/* ---------- going home for the night ----------
+   The villagers who were here when the game began sleep in the town centre;
+   everyone born since has a house to go to. Work stops at dusk and picks up
+   again at first light. */
+const HOUSE_ROOM = 4;      // how many a house will take before it is full
+const RESTED_TIME  = 56;          // half a day (DAY_LEN is 112, above)
+const RESTED_BOOST = 1.25;        // and how much brisker it makes them
+
+function findHome(u){
+  const mine = G.bldgs.filter(b=>b.p===u.p && b.done);
+  const hall = mine.find(b=>b.type==="town");
+  if(u.founder) return hall || null;
+
+  // the nearest house with room in it
+  let best=null, bd=1e9;
+  for(const b of mine){
+    if(b.type!=="house") continue;
+    const taken = G.units.filter(w=>w.home===b).length;
+    if(taken >= HOUSE_ROOM) continue;
+    const d = Math.hypot(b.x-u.x, b.y-u.y);
+    if(d < bd){ best=b; bd=d; }
+  }
+  return best || hall || null;
+}
+
+// Old English, Swedish, and Norse names - given once, permanently, to a
+// villager the moment they're first pulled out of their house at night
+const NIGHT_NAMES = [
+  "Bjorn","Astrid","Ragnar","Freya","Sigurd","Ingrid","Leif","Solveig",
+  "Torvald","Runa","Halvar","Ylva","Eirik","Sigrun","Ulf","Gunnhild",
+  "Osric","Aelfwine","Wulfstan","Aethelred","Cynric","Godwin","Edmund","Hilda",
+  "Sten","Birgitta","Knut","Signe","Harald","Asa"
+];
+function pickNightName(){
+  return NIGHT_NAMES[(Math.random()*NIGHT_NAMES.length)|0];
+}
+
+function sendHome(){
+  for(const u of G.units){
+    if(u.type!=="villager" || u.hp<=0 || u.indoors) continue;
+    // pulled out of their house for the night - they keep working instead
+    // of going home, but it costs them: a little health, strength and
+    // speed, gone for good, every night they go without a real rest. Two
+    // nights running like that and it kills them outright.
+    if(u.awakeAtNight){
+      u.nightsAwake = (u.nightsAwake||0) + 1;
+      u.maxhp = Math.max(10, u.maxhp*0.95);
+      u.hp = Math.min(u.hp, u.maxhp);
+      u.buffSpd = (u.buffSpd||1) * 0.94;
+      u.buffAtk = (u.buffAtk||1) * 0.94;
+      if(u.nightsAwake >= 2){
+        u.hp = 0;
+        hint((u.nightName||"A villager")+" collapses from exhaustion, never having rested.");
+      } else {
+        hint((u.nightName||"A villager")+" grows weary from another night without rest.");
+      }
+      continue;
+    }
+    const home = findHome(u);
+    if(!home) continue;                       // nowhere to go: keep working
+    u.home = home;
+    // Everyone heading for the same doorstep jams, so each gets their own
+    // spot - but it needs to be along the front wall (the door), not
+    // scattered on a circle around the whole building. That golden-angle
+    // scatter used to send some of them walking in through the back wall,
+    // since wakeUp() always has them step out of the one door at the front.
+    const spread = G.units.filter(w=>w.home===home).length;
+    const lane = spread % 5, row = (spread/5)|0;
+    const fx = (lane - 2) * (u.r*2.2 + 3);
+    u.homeSpot = {
+      x: home.x + fx,
+      y: home.y + home.h*TILE/2 + u.r + 3 + row*(u.r*2.2)
+    };
+    // remember what they were doing so they can pick it up in the morning
+    u.dayOrder  = u.order;
+    u.dayTarget = u.target;
+    u.daySite   = u.site;
+    u.order = "home"; u.target = home; u.path = null;
+  }
+}
+
+// pull one villager out of their house at night - they get a name if this
+// is their first time, and can keep working instead of sleeping, at a cost
+function wakeVillagerForNight(u, home){
+  if(!u.indoors || u.hp<=0) return;
+  if(!u.nightName) u.nightName = pickNightName();
+  u.x = home.x + (Math.random()-0.5)*14;
+  u.y = home.y + home.h*TILE/2 + u.r + 3;
+  let guard=0;
+  while(blocked(u.x,u.y,null,false) && guard++<20){
+    const a=Math.random()*6.283, d=home.h*TILE/2 + 10 + guard*3;
+    u.x = home.x + Math.cos(a)*d; u.y = home.y + Math.sin(a)*d;
+  }
+  u.indoors = false;
+  u.awakeAtNight = true;
+  u.order = u.dayOrder || null;
+  u.target = u.dayTarget || null;
+  u.site = u.daySite || null;
+  u.dayOrder = u.dayTarget = u.daySite = null;
+  u.path = null;
+  hint(u.nightName+" is woken for the night's work.");
+  refreshUI();
+}
+
+// send an exhausted villager home to actually rest - resets the nightly
+// toll, though whatever they've already lost stays lost
+function restVillager(u){
+  if(!u.awakeAtNight) return;
+  u.awakeAtNight = false;
+  u.nightsAwake = 0;
+  const home = findHome(u);
+  if(!home){ hint("No home to send them to yet."); return; }
+  u.home = home;
+  const spread = G.units.filter(w=>w.home===home).length;
+  const lane = spread % 5, row = (spread/5)|0;
+  const fx = (lane - 2) * (u.r*2.2 + 3);
+  u.homeSpot = { x: home.x + fx, y: home.y + home.h*TILE/2 + u.r + 3 + row*(u.r*2.2) };
+  u.dayOrder = u.order; u.dayTarget = u.target; u.daySite = u.site;
+  u.order = "home"; u.target = home; u.path = null;
+  hint((u.nightName||"They")+" finally head home to rest.");
+  refreshUI();
+}
+
+function wakeUp(){
+  for(const u of G.units){
+    if(!u.indoors && u.order!=="home") continue;
+    if(u.type!=="villager") continue;
+    if(u.indoors && u.home){
+      // step out of the door
+      u.x = u.home.x + (Math.random()-0.5)*14;
+      u.y = u.home.y + u.home.h*TILE/2 + u.r + 3;
+      let guard=0;
+      while(blocked(u.x,u.y,null,false) && guard++<20){
+        const a=Math.random()*6.283, d=u.home.h*TILE/2 + 10 + guard*3;
+        u.x = u.home.x + Math.cos(a)*d; u.y = u.home.y + Math.sin(a)*d;
+      }
+    }
+    if(u.indoors) u.rested = RESTED_TIME;   // only those who actually slept
+    u.indoors = false;
+    u.order  = u.dayOrder  || null;
+    u.target = u.dayTarget || null;
+    u.site   = u.daySite   || null;
+    u.dayOrder = u.dayTarget = u.daySite = null;
+    u.path = null;
+  }
+}
+
+/* Soldiers abroad after dark carry a torch. Villagers are indoors by then,
+   and boats are on the water. */
+function carriesTorch(u){
+  if(!u || u.indoors) return false;
+  const d = UNITS[u.type];
+  if(!d || d.naval) return false;
+  if(u.torchOut) return false;
+  return u.cls && u.cls !== "civ";
+}
+
+/* ---------- the land recovering overnight ----------
+   Berry patches refill, ore seams are picked over again, and cut woodland
+   creeps back - a little each night, never past what the patch first held.
+   It keeps a long game from stripping the map bare, and on an island, where
+   there is very little ground to begin with, it is the difference between a
+   settlement that can grow and one that slowly starves. */
+const NIGHT_REGROW = { food:0.10, wood:0.05, stone:0.03, gold:0.025, moonstone:0.02 };
+
+function regrowOvernight(){
+  if(!G.nodes) return;
+  const isle = G.islandMap ? 1.6 : 1;    // an island needs the help more
+  let touched = 0;
+  for(const n of G.nodes){
+    const rate = NIGHT_REGROW[n.kind];
+    if(!rate || n.amt >= n.max) continue;
+    // a patch worked out entirely is gone for good - this is recovery,
+    // not resurrection
+    if(n.amt <= 0) continue;
+    const before = n.amt;
+    n.amt = Math.min(n.max, n.amt + n.max*rate*isle);
+    if(n.amt > before) touched++;
+  }
+  if(touched && G.islandMap) hint("The land has recovered a little overnight.");
+}
+
+/* Something ought to happen most nights.
+
+   Measured over three matches, a player was told the same four things over
+   and over - dusk, moonstone, dawn - while dragons, Dracula, tornadoes and
+   the crow raids never fired once in four full games. There is a great deal
+   built that nobody ever sees.
+
+   So: every second night, if nothing has turned up of its own accord, reach
+   into the box and pull something out. It keeps a short memory so the same
+   thing does not come twice running. */
+/* ---------- a second batch of night events ----------
+   The pool above skewed heavily toward danger and toward pure atmosphere -
+   almost nothing in it was a small, plain good for the player to notice
+   and enjoy. These fill that gap (plus a few more of each of the other
+   two kinds), in the same "small and quiet" register as everything else
+   here - nothing that needs its own art or a new UI to explain itself. */
+
+/* Which settlement tonight's small fortune or misfortune lands on.
+   The night is weather, not a plot against the player: the same owl, the
+   same prowler, the same frost visits the Ashkin too. Weighted toward the
+   player the way pickRaidTown() is, so most of what happens still happens
+   where you can see it, and the rival's turn gets a brief line of its own
+   so the world reads as even-handed rather than silent. */
+function nightSide(){
+  const youAlive = G.bldgs.some(b=>b.p===P_YOU && b.done);
+  const aiAlive  = G.bldgs.some(b=>b.p===P_AI  && b.done);
+  if(youAlive && aiAlive) return Math.random() < 0.72 ? P_YOU : P_AI;
+  return youAlive ? P_YOU : (aiAlive ? P_AI : P_YOU);
+}
+// the rival's news only gets a line some of the time - every single one
+// reported would crowd out what is happening in your own village
+const RIVAL_NEWS_CHANCE = 0.5;
+function rivalNews(msg){
+  if(Math.random() < RIVAL_NEWS_CHANCE) hint(msg);
+}
+
+const WINDFALL_KINDS = ["food","wood"];
+function tryWindfall(){
+  const side = nightSide();
+  const pl = G.players[side];
+  const kind = WINDFALL_KINDS[(Math.random()*WINDFALL_KINDS.length)|0];
+  const amt = 40 + Math.random()*35;
+  pl.res[kind] = (pl.res[kind]||0) + amt;
+  if(side===P_YOU){
+    hint("A sleepwalking villager stumbles onto a buried stash - "+Math.round(amt)+" "+kind+" turns up at the town centre.");
+    refreshUI();
+  } else {
+    rivalNews("Word is the Ashkin turned up a buried stash overnight.");
+  }
+  return true;
+}
+
+// which resource an owl's chosen building is themed around - only counts
+// buildings that actually produce or store something worth finding more of
+const OWL_KIND_BY_BLDG = { farm:"food", lumber:"wood", mine:"stone", tradingpost:"gold" };
+function tryOwlsBlessing(){
+  const side = nightSide();
+  const pl = G.players[side];
+  const candidates = G.bldgs.filter(b=>b.p===side && b.done && OWL_KIND_BY_BLDG[b.type]);
+  if(!candidates.length) return false;
+  const b = candidates[(Math.random()*candidates.length)|0];
+  const kind = OWL_KIND_BY_BLDG[b.type];
+  const amt = 25 + Math.random()*20;
+  pl.res[kind] = (pl.res[kind]||0) + amt;
+  const nm = (BLDG[b.type] && BLDG[b.type].name || b.type).toLowerCase();
+  if(side===P_YOU){
+    hint("An owl perches on the "+nm+" all night - come morning its stores are a little fuller.");
+    refreshUI();
+  } else {
+    rivalNews("An owl sits the night out over the Ashkin "+nm+".");
+  }
+  return true;
+}
+
+// a better-than-normal trading post rate, on offer only until the sun's up
+const MERCHANT_BONUS = 1.4;
+function tryStrayMerchant(){
+  if(G.merchantBonus && G.merchantBonus>1) return false;   // already out tonight
+  G.merchantBonus = MERCHANT_BONUS;
+  hint("A lone cart passes through - the trading post will give an unusually good rate until sunrise.");
+  return true;
+}
+
+// spares one exhausted night-worker the usual toll entirely - the one
+// that would otherwise be their first step toward collapsing outright
+function trySecondWind(){
+  const groggy = G.units.filter(u=>u.p===P_YOU && u.type==="villager" && u.hp>0 &&
+                                    u.awakeAtNight && (u.nightsAwake||0)>=1);
+  if(!groggy.length) return false;
+  const u = groggy[(Math.random()*groggy.length)|0];
+  u.nightsAwake = 0;
+  hint((u.nightName||"A villager")+" gets a sudden burst of energy, working through the night unscathed.");
+  return true;
+}
+
+// unlike Second Wind above, this one actually mends some of what's already
+// been lost, rather than just forgiving the next night's toll
+function tryTravelingHealer(){
+  const weary = G.units.filter(u=>u.p===P_YOU && u.type==="villager" && u.hp>0 &&
+                                   u.awakeAtNight && (u.nightsAwake||0)>=1);
+  if(!weary.length) return false;
+  const u = weary[(Math.random()*weary.length)|0];
+  u.nightsAwake = Math.max(0, (u.nightsAwake||0)-1);
+  u.maxhp = u.maxhp + 3;
+  u.hp = Math.min(u.hp+3, u.maxhp);
+  hint("A traveling healer stops just long enough to tend to "+(u.nightName||"a weary villager")+".");
+  return true;
+}
+
+// the night's moonstone vein, only richer than usual
+function tryBumperVein(){
+  if(G.phase!=="night") return false;
+  spawnMoonstone();
+  const v = G.nodes.find(n=>n.kind===RES.MOONSTONE);
+  if(!v) return false;
+  v.max = v.amt = v.max*1.7;
+  hint("Tonight's moonstone vein runs unusually deep.");
+  return true;
+}
+
+// same idea as the ordinary stray pet, but it just turns up rather than
+// waiting on that event's own (daytime-only) odds
+function tryStrayCompanion(){
+  if(!G.pets) G.pets = [];
+  const side = nightSide();
+  const houses = G.bldgs.filter(b=>b.p===side && b.type==="house" && b.done);
+  if(!houses.length) return false;
+  const busy = new Set(G.pets.map(p=>p.houseId));
+  const free = houses.filter(h=>!busy.has(h.id));
+  if(!free.length) return false;
+  const h = free[(Math.random()*free.length)|0];
+  const kind = housePet(h);
+  const doorX = h.x, doorY = h.y + h.h*TILE/2 + 4;
+  G.pets.push({
+    houseId:h.id, species:kind.species, col:kind.col,
+    x:doorX, y:doorY, doorX, doorY, tx:doorX, ty:doorY,
+    state:"linger", t:0, actT: 6+Math.random()*4,
+    walk:Math.random()*6, face:1, seed:Math.random()*6.283,
+    spd: 14+Math.random()*8
+  });
+  if(side===P_YOU) hint("Something small and stray turns up on a doorstep overnight and decides to stay.");
+  else rivalNews("Something stray has taken up on an Ashkin doorstep.");
+  return true;
+}
+
+// a calmer night than usual - lowers the raid/bear/zombie odds for just
+// this one night (see the *_CHANCE checks, which read G.hushedNight)
+function tryHushedWoods(){
+  if(G.hushedNight) return false;
+  G.hushedNight = true;
+  hint("The woods feel unusually still tonight.");
+  return true;
+}
+
+// only fires if there's a lit brazier for people to actually gather round -
+// otherwise there's nothing for the event to be about, so it just declines
+function tryFiresideGathering(){
+  const side = nightSide();
+  const braziers = G.bldgs.filter(b=>b.p===side && b.type==="brazier" && b.done && b.hp>b.maxhp*0.5);
+  if(!braziers.length) return false;
+  const near = [];
+  for(const u of G.units){
+    if(u.p!==side || u.type!=="villager" || u.hp<=0 || u.fireBuffed) continue;
+    for(const b of braziers){
+      if(Math.hypot(u.x-b.x,u.y-b.y) <= BRAZIER_RADIUS){ near.push(u); break; }
+    }
+  }
+  if(!near.length) return false;
+  for(const u of near){ u.fireBuffed=true; u.buffSpd=(u.buffSpd||1)*1.15; }
+  if(side===P_YOU) hint("A cluster of villagers linger by the brazier's warmth - they'll work a little brisker tomorrow.");
+  else rivalNews("Firelight and voices carry from the Ashkin camp well into the night.");
+  return true;
+}
+
+// a plain bad night for everyone at once, rather than singling anyone out -
+// reverses itself automatically come dawn (see the dawn branch below)
+function tryColdSnap(){
+  // weather does not pick sides: the frost settles over both settlements
+  const vills = G.units.filter(u=>u.type==="villager" && u.hp>0 && !u.coldSnapped);
+  if(!vills.length) return false;
+  for(const u of vills){ u.coldSnapped=true; u.buffSpd=(u.buffSpd||1)*0.85; }
+  hint("A sudden chill settles over the whole valley - everyone moves a little slower until the sun's fully up.");
+  return true;
+}
+
+function trySpoilage(){
+  const side = nightSide();
+  const pl = G.players[side];
+  if((pl.res.food||0) < 20) return false;
+  const lost = Math.min(pl.res.food*0.08+5, pl.res.food);
+  pl.res.food -= lost;
+  if(side===P_YOU){
+    hint(Math.round(lost)+" food spoils overnight before anyone notices.");
+    refreshUI();
+  } else {
+    rivalNews("Some of the Ashkin stores have gone over.");
+  }
+  return true;
+}
+
+const PROWLER_KINDS = ["wood","stone","gold"];
+function tryProwler(){
+  const side = nightSide();
+  const pl = G.players[side];
+  const kinds = PROWLER_KINDS.filter(k=>(pl.res[k]||0) >= 15);
+  if(!kinds.length) return false;
+  const kind = kinds[(Math.random()*kinds.length)|0];
+  const lost = 8 + Math.random()*12;
+  pl.res[kind] = Math.max(0, pl.res[kind]-lost);
+  if(side===P_YOU){
+    hint("Someone goes through the stores overnight - a bit of "+kind+" turns up missing come morning.");
+    refreshUI();
+  } else {
+    rivalNews("Something went through the Ashkin stores in the night.");
+  }
+  return true;
+}
+
+function tryRestlessPet(){
+  if(!G.pets || !G.pets.length) return false;
+  const i = (Math.random()*G.pets.length)|0;
+  G.pets.splice(i,1);
+  hint("Something startles one of the pets - it bolts off into the dark and doesn't come home.");
+  return true;
+}
+
+// the rest below are pure atmosphere, same as the existing "flavour" line -
+// nothing to track, just a little more texture on a quiet night
+function tryFireflySwarm(){
+  hint("A scattering of fireflies drifts low over the fields, blinking in and out.");
+  return true;
+}
+function tryDistantHowl(){
+  hint("A long howl rolls out over the hills and slowly fades.");
+  return true;
+}
+function tryMoonHalo(){
+  hint("A faint ring of light forms around the moon.");
+  return true;
+}
+function trySleepwalkerFlavor(){
+  hint("A door creaks open somewhere, then quietly shuts again.");
+  return true;
+}
+function tryWindChime(){
+  hint("Something out past the walls catches the wind and rings, faint and metallic.");
+  return true;
+}
+
+/* Everything the night can turn up, and the one place to add more.
+ *
+ * Every entry passes force - see the note above spawnRaid. Without it the
+ * pool re-rolled each event's ambient odds (a dragon at 0.25%), so a
+ * deliberate pick almost always failed and fell through to whatever was
+ * cheap, and the rare half of this list was decoration. `pet` used to sit
+ * here too and could never once fire: it is daytime-only, and strayfriend
+ * below is its night counterpart. */
+const NIGHT_EVENTS = [
+  { name:"raid",       go:()=>spawnRaid(true) },
+  { name:"bear",       go:()=>trySpawnGreatBear(true) },
+  { name:"zombies",    go:()=>trySpawnZombies(true) },
+  { name:"bats",       go:()=>trySpawnBatSwarm(true) },
+  { name:"eyes",       go:()=>trySpawnEyes(true) },
+  { name:"dracula",    go:()=>trySpawnDracula(true) },
+  { name:"dragon",     go:()=>trySpawnDragon(true) },
+  { name:"crows",      go:()=>tryCrowRaid(true) },
+  { name:"visitor",    go:()=>trySpawnWanderer(["bat","penguin","cat"][(Math.random()*3)|0], true) },
+  { name:"pilgrims",   go:()=>trySpawnPilgrims(true) },
+  { name:"bard",       go:()=>trySpawnBard(true) },
+  { name:"storm",      go:()=>tryLightningStorm(true) },
+  { name:"flavour",    go:()=>tryNightFlavor(true) },
+  { name:"dream",      go:()=>tryVillagerDream(true) },
+  { name:"sky",        go:()=>forceNightSky() },
+  // the wandering characters. They have always had ambient odds of their
+  // own (Hackman at 0.2% a minute), which works out at roughly one sighting
+  // every twenty-odd matches - so most players never met them at all.
+  // Through the pool they are merely rare rather than theoretical.
+  { name:"mcstar",     go:()=>trySpawnMcStar(true) },
+  { name:"hackman",    go:()=>trySpawnHackman(true) },
+  { name:"gumby",      go:()=>trySpawnGumby(true) },
+  { name:"tornado",    go:()=>{ if(G.tornado) return false; spawnTornado(); return true; } },
+  { name:"costumes",   go:()=>{ if(G.invaders&&G.invaders.length) return false; spawnInvasion(); return true; } },
+  // good
+  { name:"windfall",   go:()=>tryWindfall() },
+  { name:"owl",        go:()=>tryOwlsBlessing() },
+  { name:"merchant",   go:()=>tryStrayMerchant() },
+  { name:"2ndwind",    go:()=>trySecondWind() },
+  { name:"healer",     go:()=>tryTravelingHealer() },
+  { name:"bumpervein", go:()=>tryBumperVein() },
+  { name:"strayfriend",go:()=>tryStrayCompanion() },
+  { name:"hushed",     go:()=>tryHushedWoods() },
+  { name:"fireside",   go:()=>tryFiresideGathering() },
+  // bad
+  { name:"coldsnap",   go:()=>tryColdSnap() },
+  { name:"spoilage",   go:()=>trySpoilage() },
+  { name:"prowler",    go:()=>tryProwler() },
+  { name:"restlesspet",go:()=>tryRestlessPet() },
+  // neutral / flavour only
+  { name:"fireflies",  go:()=>tryFireflySwarm() },
+  { name:"howl",       go:()=>tryDistantHowl() },
+  { name:"halo",       go:()=>tryMoonHalo() },
+  { name:"sleepwalker",go:()=>trySleepwalkerFlavor() },
+  { name:"windchime",  go:()=>tryWindChime() }
+];
+
+function somethingHappensTonight(){
+  G.nightNo = (G.nightNo||0) + 1;
+  if(G.nightNo % 2) return;                 // every second night
+
+  // did anything turn up on its own? then leave well alone
+  const already = (G.beasts&&G.beasts.length) || (G.invaders&&G.invaders.length) ||
+                  (G.wanderers&&G.wanderers.length) || (G.crows&&G.crows.length) ||
+                  G.dragon || G.dracula || G.storm;
+  if(already) return;
+
+  if(!G.recentNights) G.recentNights = [];
+  const pool = NIGHT_EVENTS.filter(e=>!G.recentNights.includes(e.name));
+  const list = pool.length ? pool : NIGHT_EVENTS;
+
+  // try a few, since some need conditions we cannot meet tonight
+  for(let attempt=0; attempt<6; attempt++){
+    const e = list[(Math.random()*list.length)|0];
+    const before = JSON.stringify([
+      (G.beasts||[]).length, (G.invaders||[]).length, (G.wanderers||[]).length,
+      (G.crows||[]).length, !!G.dragon, !!G.dracula, !!G.storm, (G.pets||[]).length
+    ]);
+    // most of the old events only ever signalled success through one of the
+    // arrays above changing shape; the new ones mostly touch resources or
+    // buffs instead, so their own true/false return counts too
+    let ret;
+    try { ret = e.go(); } catch(err) {}
+    const after = JSON.stringify([
+      (G.beasts||[]).length, (G.invaders||[]).length, (G.wanderers||[]).length,
+      (G.crows||[]).length, !!G.dragon, !!G.dracula, !!G.storm, (G.pets||[]).length
+    ]);
+    if(before !== after || ret === true){
+      G.recentNights.push(e.name);
+      if(G.recentNights.length > 5) G.recentNights.shift();
+      return;
+    }
+  }
+}
+
 
 /* ---------- boats ---------- */
 function drawBoat(u, pl){
@@ -13065,8 +14300,12 @@ function hint(msg){
 }
 
 function idleUnits(){
+  // Someone with no orders is idle whether or not their hands are full. The
+  // carry check used to hide anyone who had finished a load and been given
+  // nothing else to do - they stood in the field holding it, and the counter
+  // cheerfully reported nobody idle.
   return G.units.filter(u=>u.p===P_YOU && u.type==="villager" &&
-                           !u.order && u.carry===0);
+                           !u.order && !u.indoors);
 }
 function jumpToIdle(){
   const idle = idleUnits();
@@ -13827,36 +15066,13 @@ function reportError(e, where){
   }
 }
 
-let lastFrameWall = Date.now();
-window.__stalled = false;
-
-function watchdog(){
-  const gap = Date.now() - lastFrameWall;
-  if(gap > 2500 && !window.__stalled && G){
-    window.__stalled = true;
-    const box = $("errbox");
-    if(box){
-      box.innerHTML = "The game stopped updating. <button id=\"__reload\" "
-        + "style=\"margin-left:8px;background:#a8402f;color:#fff;border:none;"
-        + "padding:4px 10px;border-radius:3px;cursor:pointer;font:inherit;\">Restart</button>";
-      box.classList.remove("hide");
-      const btn = document.getElementById("__reload");
-      if(btn) btn.addEventListener("click", ()=>{
-        try{
-          $("endscreen").classList.add("hide");
-          newGame(); resize(); G.running=true; errShown=false; window.__stalled=false;
-          box.classList.add("hide");
-          lastFrameWall = Date.now();
-          hint("Restarted.");
-        }catch(e){ location.reload(); }
-      });
-    }
-  }
-}
-setInterval(watchdog, 1000);
+/* There used to be a wall-clock watchdog here that put up "The game stopped
+   updating - Restart" if no frame ran for 2.5 seconds. Browsers pause
+   requestAnimationFrame in background tabs, so anyone who switched away and
+   came back was greeted by that message over a perfectly healthy game.
+   Real exceptions still surface through reportError above. */
 
 function frame(ts){
-  lastFrameWall = Date.now();
   const dt = Math.min(0.05, (ts-lastT)/1000 || 0);
   lastT = ts;
   // Each stage is isolated. A single bad frame must never be able to stop the
@@ -13885,8 +15101,16 @@ function syncDiffButtons(){
   const list = document.querySelectorAll ? document.querySelectorAll(".diffbtn") : [];
   for(const b of list){
     if(!b.classList) continue;
-    if(b.getAttribute && b.getAttribute("data-diff")===DIFFICULTY) b.classList.add("on");
+    // a difficulty only reads as chosen when no island deal is overriding it
+    if(!FORCED_MAP && b.getAttribute && b.getAttribute("data-diff")===DIFFICULTY) b.classList.add("on");
     else b.classList.remove("on");
+  }
+  const maps = document.querySelectorAll ? document.querySelectorAll(".mapbtn") : [];
+  for(const b of maps){
+    if(!b.classList || !b.getAttribute) continue;
+    const on = FORCED_MAP && b.getAttribute("data-map")===FORCED_MAP.name
+                          && b.getAttribute("data-diff")===DIFFICULTY;
+    if(on) b.classList.add("on"); else b.classList.remove("on");
   }
 }
 
@@ -13898,9 +15122,10 @@ function setDifficulty(d){
   $("menupanel").classList.add("hide");
   $("endscreen").classList.add("hide");
   $("startscreen").classList.add("hide");
-  newGame(); resize(); G.running=true; errShown=false; window.__stalled=false;
+  newGame(); resize(); G.running=true; errShown=false;
   refreshUI();
-  hint(DIFF[d].label + " — new game started.");
+  hint(FORCED_MAP ? (FORCED_MAP.name + " · " + DIFF[d].label + " — you will need boats.")
+                  : (DIFF[d].label + " — new game started."));
 }
 
 // A soft edge fade plus a small cascading chevron cluster, letting the
@@ -13947,7 +15172,17 @@ $("menubtn").addEventListener("click", ()=>{
 
 if(document.querySelectorAll){
   for(const b of document.querySelectorAll(".diffbtn")){
-    b.addEventListener("click", ()=>setDifficulty(b.getAttribute("data-diff")));
+    // picking a plain difficulty also means "off the islands, back to the
+    // usual mix of maps" - otherwise choosing Hard while on an island deal
+    // would silently keep the water and look like the button did nothing
+    b.addEventListener("click", ()=>{ FORCED_MAP = null; setDifficulty(b.getAttribute("data-diff")); });
+  }
+  for(const b of document.querySelectorAll(".mapbtn")){
+    b.addEventListener("click", ()=>{
+      const want = b.getAttribute("data-map");
+      FORCED_MAP = MAP_TYPES.find(m=>m.name===want) || null;
+      setDifficulty(b.getAttribute("data-diff"));   // starts the fresh game
+    });
   }
 }
 $("mnu_close").addEventListener("click", ()=>$("menupanel").classList.add("hide"));
