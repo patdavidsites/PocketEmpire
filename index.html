@@ -927,6 +927,20 @@ function elderQuirk(){
    heard enough stories to max out, they'll earn a uniform and abilities of
    their own to show for it - this is just the groundwork for that. Deliberately
    uncapped for now, so it's ready to plug that ceiling in later. */
+/* What the settlement is told when the elder tells a story. #name is the
+   elder, #who is "4 gather" / "1 gathers" - each line has to read with
+   both. They should convey that this is a lasting lift, not a nicety. */
+const STORY_LINES = [
+  "#name tells a story — #who round to listen, and are the better for it from here on.",
+  "#name tells of the old days — #who to hear it, and carry something of it for good.",
+  "#name speaks by the fire — #who close, heartened, and quicker to their work.",
+  "#name tells a story — #who round, and the telling leaves its mark on every one of them.",
+  "#name recounts how it was done before — #who to listen, and take strength from it.",
+  "#name holds forth — #who in, stirred, and steadier for the rest of their days.",
+  "#name tells of those who came first — #who round the fire, lifted by it.",
+  "#name gives the settlement a story — #who to hear, and none of them quite the same after."
+];
+
 const STORY_BUFF_SPD = 1.05;
 const STORY_BUFF_ATK = 1.05;
 const STORY_BUFF_HP  = 0.06;
@@ -997,8 +1011,16 @@ function tellStory(){
   }
   if(heard){
     fxPing(e.x, e.y);
-    hint(e.name + " tells a story — " + heard + " "
-       + (heard>1 ? "listeners carry a little more of it now." : "listener carries a little more of it now."));
+    /* The old line - "N listeners carry a little more of it now" - said
+       nothing about what a story is actually for. It is the settlement's
+       only permanent buff: everyone in earshot keeps a share of it for the
+       rest of the match, and the villagers work faster for a while on top.
+       Say so, and vary the telling so a long game does not print the same
+       sentence twenty times. */
+    const who = heard + (heard>1 ? " gather" : " gathers");
+    hint(pickLine(STORY_LINES,"story")
+           .replace("#name", e.name)
+           .replace("#who", who));
   }
 }
 
@@ -1055,7 +1077,28 @@ function updatePaths(dt){
    doorstep. Purely ornamental, deliberately uncommon - not every house, and
    not all the time - so that noticing one is a small pleasure rather than
    wallpaper. */
-const HOME_LIFE_MAX = 6;
+const HOME_LIFE_MAX = 4;   // room for one household of two, plus another
+
+/* Who lives in this house.
+ *
+ * Worked out from the building's own id, so it never changes: the same
+ * family is always in the same house, and the same dog or cat belongs to
+ * it. Before this, every appearance rolled fresh - so one house would send
+ * out children of four different complexions over a match, and a cat one
+ * minute and a dog the next, which read as a bus stop rather than a home. */
+const CHILD_SHIRTS = ["#a8624a","#4a7a8a","#8a7a4a","#7a4a6a","#5a7a4a","#8a5a3a"];
+const CAT_COLS = ["#3a3a42","#c98f4a","#e8e2d4"];
+const DOG_COLS = ["#5b4630","#8a7250","#2e2a26"];
+function homeFamily(h){
+  const seed = (h.id*2654435761)>>>0;
+  const dog = ((seed>>>7) & 1) === 1;
+  return {
+    skin:  seed % SKINS.length,
+    shirt: CHILD_SHIRTS[(seed>>>3) % CHILD_SHIRTS.length],
+    petKind: dog ? "dog" : "cat",
+    petCol: (dog ? DOG_COLS : CAT_COLS)[(seed>>>11) % 3]
+  };
+}
 
 function updateHomeLife(dt){
   if(!G.homeLife) G.homeLife = [];
@@ -1063,28 +1106,43 @@ function updateHomeLife(dt){
 
   // one wanders out now and then, if there is a house to come out of
   if(G.homeLifeCd <= 0){
-    G.homeLifeCd = 9 + Math.random()*18;
+    // A good deal rarer than it was (9-18s at 70%, up to six at once): a
+    // doorstep with somebody on it every few seconds is wallpaper, and the
+    // whole point of these is that noticing one is a small pleasure.
+    G.homeLifeCd = 20 + Math.random()*26;
     const houses = G.bldgs.filter(b=>b.p===P_YOU && b.type==="house" && b.done);
-    if(houses.length && G.homeLife.length < HOME_LIFE_MAX && Math.random() < 0.7){
+    if(houses.length && G.homeLife.length < HOME_LIFE_MAX && Math.random() < 0.55){
       const h = houses[(Math.random()*houses.length)|0];
-      // only one to a house at a time
-      if(!G.homeLife.some(o=>o.home===h)){
-        const kind = Math.random() < 0.55 ? "child"
-                   : (Math.random() < 0.5 ? "cat" : "dog");
+      if(!G.homeLife.some(o=>o.home===h)){        // one household at a time
+        const fam = homeFamily(h);
+        /* What comes out of the door. Often the child and the animal
+           together - that pairing is the whole reason they are here, since
+           on their own each is just a shape wandering a yard, and together
+           they play. Picking one kind at a time meant the child usually won
+           the slot and the pet was never seen at all. */
+        const roll = Math.random();
+        const kinds = roll < 0.28 ? ["child"]
+                    : roll < 0.50 ? [fam.petKind]
+                    : ["child", fam.petKind];   // half the time, both
         const bx = h.x + (Math.random()-0.5)*16;
         const by = h.y + h.h*TILE/2 + 8;
-        if(!blocked(bx, by, null, false)){
-          G.homeLife.push({
-            kind, home:h, x:bx, y:by, tx:bx, ty:by,
-            t: 22 + Math.random()*40,          // how long it stays out
-            face: Math.random()<0.5?-1:1, walk:0, wait:0,
-            id: G.nextId++,
-            col: kind==="cat" ? ["#3a3a42","#c98f4a","#e8e2d4"][(Math.random()*3)|0]
-               : kind==="dog" ? ["#5b4630","#8a7250","#2e2a26"][(Math.random()*3)|0]
-               : null,
-            skin: (Math.random()*SKINS.length)|0,
-            shirt: ["#a8624a","#4a7a8a","#8a7a4a","#7a4a6a"][(Math.random()*4)|0]
-          });
+        // room for the whole household or none of it - letting the child
+        // take the last slot and dropping the animal is how a pair that
+        // was supposed to play together came out alone
+        if(!blocked(bx, by, null, false) &&
+           G.homeLife.length + kinds.length <= HOME_LIFE_MAX){
+          for(const kind of kinds){
+            G.homeLife.push({
+              kind, home:h,
+              x: bx + (kind==="child"?0:9), y: by, tx:bx, ty:by,
+              t: 22 + Math.random()*40,          // how long it stays out
+              face: Math.random()<0.5?-1:1, walk:0, wait:0,
+              id: G.nextId++,
+              col: kind==="child" ? null : fam.petCol,
+              skin: fam.skin,
+              shirt: fam.shirt
+            });
+          }
         }
       }
     }
@@ -1099,14 +1157,108 @@ function updateHomeLife(dt){
       G.homeLife.splice(i,1);
       continue;
     }
+    /* If this house has both its child and its pet outside, they play:
+       the animal keeps coming back to the child, and the child chases it
+       about half the time. They are never given the same spot, so they
+       circle each other in the yard instead of standing in one place. */
+    const mate = G.homeLife.find(m=>m!==o && m.home===o.home &&
+                                    (m.kind==="child") !== (o.kind==="child"));
+    /* ---- patting, and a ball to fetch ----
+       The two things a child and an animal actually do together. Both live
+       on the CHILD (o.patT, o.ball) so they are cleaned up with it and a
+       stray pet can never be left holding a ball nobody threw. */
+    const child = o.kind==="child" ? o : mate;
+    const pet   = o.kind==="child" ? mate : o;
+
+    if(o.kind==="child" && mate){
+      o.playCd = (o.playCd===undefined) ? 3+Math.random()*5 : o.playCd - dt;
+      if(o.patT > 0) o.patT -= dt;
+      const near = Math.hypot(mate.x-o.x, mate.y-o.y) < 20;
+      // (o.patT||0): patT starts undefined, and undefined<=0 is false, so
+      // comparing it bare meant the child never once played
+      if(o.playCd <= 0 && (o.patT||0) <= 0 && !o.ball){
+        o.playCd = 6 + Math.random()*10;
+        if(near && Math.random() < 0.5){
+          // a pat: both of them stop for a moment
+          o.patT = 1.8;
+          o.wait = 1.9;
+          o.tx = o.x; o.ty = o.y;
+          mate.wait = 1.9; mate.tx = mate.x; mate.ty = mate.y;
+          mate.patted = 1.8;
+          o.face = mate.x < o.x ? -1 : 1;
+        } else {
+          // or a ball, thrown out into the yard for the animal to fetch
+          const a = Math.random()*6.283, r = 34 + Math.random()*30;
+          let bx = o.home.x + Math.cos(a)*r;
+          let by = o.home.y + o.home.h*TILE/2 + 10 + Math.abs(Math.sin(a))*r*0.5;
+          if(!blocked(bx, by, null, false)){
+            o.ball = { x:o.x, y:o.y-6, sx:o.x, sy:o.y-6, tx:bx, ty:by,
+                       t:0, fly:0.55, state:"flying" };
+            o.face = bx < o.x ? -1 : 1;
+          }
+        }
+      }
+      // the ball in flight
+      const b = o.ball;
+      if(b && b.state==="flying"){
+        b.t += dt;
+        const k = Math.min(1, b.t/b.fly);
+        b.x = b.sx + (b.tx-b.sx)*k;
+        b.y = b.sy + (b.ty-b.sy)*k - Math.sin(k*Math.PI)*16;   // the arc
+        if(k >= 1){ b.state = "down"; b.x = b.tx; b.y = b.ty; }
+      } else if(b && b.state==="carried"){
+        b.x = mate.x + mate.face*5; b.y = mate.y - 2;
+        // brought back: the child takes it, and may throw again
+        if(Math.hypot(mate.x-o.x, mate.y-o.y) < 16){
+          o.ball = null;
+          mate.fetching = false;
+          o.playCd = 1.5 + Math.random()*3;
+        }
+      }
+    }
+    if(o.kind!=="child" && o.patted > 0) o.patted -= dt;
+
     o.wait -= dt;
+    // an animal with a ball to chase ignores everything else
+    if(pet === o && child && child.ball){
+      const b = child.ball;
+      if(b.state==="down"){
+        o.tx = b.x; o.ty = b.y; o.wait = 0.2; o.fetching = true;
+        if(Math.hypot(b.x-o.x, b.y-o.y) < 7){
+          b.state = "carried";
+          // near the end of its time out it takes the ball indoors instead
+          if(o.t < 12){ b.state = "indoors"; o.takingIn = true; }
+        }
+      } else if(b.state==="carried"){
+        o.tx = child.x; o.ty = child.y; o.wait = 0.2;
+      } else if(b.state==="indoors"){
+        // to the door, and in - ball and all
+        o.tx = o.home.x; o.ty = o.home.y + o.home.h*TILE/2 + 4; o.wait = 0.2;
+        b.x = o.x + o.face*5; b.y = o.y - 2;
+        if(Math.hypot(o.tx-o.x, o.ty-o.y) < 6){
+          if(child) child.ball = null;
+          o.t = 0;                     // and it is gone for the night
+        }
+      }
+    } else
+    if(o.patT > 0 || o.patted > 0){
+      o.moving = false;               // hold still for the pat
+    } else
     if(o.wait <= 0){
-      // pick somewhere new in the yard, never far from the door
-      const a = Math.random()*6.283, r = 10 + Math.random()*26;
-      const nx = o.home.x + Math.cos(a)*r;
-      const ny = o.home.y + o.home.h*TILE/2 + 8 + Math.abs(Math.sin(a))*r*0.6;
-      if(!blocked(nx, ny, null, false)){ o.tx = nx; o.ty = ny; }
-      o.wait = 1.5 + Math.random()*3.5;
+      let nx=null, ny=null;
+      const playing = mate && (o.kind!=="child" ? Math.random()<0.75 : Math.random()<0.5);
+      if(playing){
+        const a = Math.random()*6.283, r = 9 + Math.random()*7;
+        nx = mate.x + Math.cos(a)*r;
+        ny = mate.y + Math.sin(a)*r*0.6;
+        o.wait = 0.7 + Math.random()*1.4;      // and they keep at it
+      } else {
+        const a = Math.random()*6.283, r = 10 + Math.random()*26;
+        nx = o.home.x + Math.cos(a)*r;
+        ny = o.home.y + o.home.h*TILE/2 + 8 + Math.abs(Math.sin(a))*r*0.6;
+        o.wait = 1.5 + Math.random()*3.5;
+      }
+      if(nx!==null && !blocked(nx, ny, null, false)){ o.tx = nx; o.ty = ny; }
     }
     const spd = o.kind==="child" ? 26 : (o.kind==="dog" ? 34 : 18);
     const dx = o.tx-o.x, dy = o.ty-o.y, d = Math.hypot(dx,dy);
@@ -1599,7 +1751,12 @@ function spawnInvasion(){
     G.invaders.push({
       x: town.x+Math.cos(a)*d, y: town.y+Math.sin(a)*d,
       kind, state:"peek", peekT: 3+Math.random()*4, target:null,
-      face:1, walk:Math.random()*6, seed:Math.random()*6.283, spd: 8+Math.random()*2,
+      face:1, walk:Math.random()*6, seed:Math.random()*6.283,
+      // half the old pace: they are a procession, not a charge
+      spd: 4+Math.random()*1.5,
+      ringR: 190 + Math.random()*130,          // its own distance out
+      ringDir: Math.random()<0.5 ? 1 : -1,     // and its own way round
+      ringSpd: 0.055 + Math.random()*0.045,
       t:0, life: 90+Math.random()*40
     });
   }
@@ -1650,18 +1807,34 @@ function updateInvaders(dt){
       }
     } else if(inv.state==="peek"){
       inv.peekT -= dt;
-      if(inv.peekT<=0){ inv.target = pickPeekTarget(); inv.state="walk"; }
+      if(inv.peekT<=0) inv.state="walk";
     } else {
-      const t = inv.target;
-      if(!t){ inv.state="peek"; inv.peekT=3; continue; }
-      const dx=t.x-inv.x, dy=t.y-inv.y, d=Math.hypot(dx,dy)||1;
-      if(Math.abs(dx)>0.1) inv.face = dx<0?-1:1;
-      if(d < Math.max(t.w,t.h)*TILE/2+16){
-        inv.state="peek"; inv.peekT=3+Math.random()*4;
-      } else {
-        const step = Math.min(d, inv.spd*dt);
-        inv.x += dx/d*step; inv.y += dy/d*step;
+      /* With nobody to follow they process slowly around the outside of the
+         village rather than making straight for a building. A ring of
+         figures pacing the edge of the lamplight all night is the point of
+         them; walking up to a wall and stopping was over in seconds. Each
+         keeps its own radius and its own direction, so the group drifts
+         apart into a loose procession instead of a marching column. */
+      const home = pickRaidTown();
+      if(!home){ inv.state="peek"; inv.peekT=3; continue; }
+      // the swarm-ring figures (spawnSwarmRing) are made without these, so
+      // fill them in rather than pacing a circle of radius NaN
+      if(inv.ringR===undefined){
+        inv.ringR = 190 + Math.random()*130;
+        inv.ringDir = Math.random()<0.5 ? 1 : -1;
+        inv.ringSpd = 0.055 + Math.random()*0.045;
       }
+      inv.ringA = (inv.ringA===undefined)
+        ? Math.atan2(inv.y-home.y, inv.x-home.x) : inv.ringA + inv.ringDir*inv.ringSpd*dt;
+      const tx = home.x + Math.cos(inv.ringA)*inv.ringR;
+      const ty = home.y + Math.sin(inv.ringA)*inv.ringR;
+      const dx=tx-inv.x, dy=ty-inv.y, d=Math.hypot(dx,dy)||1;
+      if(Math.abs(dx)>0.1) inv.face = dx<0?-1:1;
+      const step = Math.min(d, inv.spd*dt);
+      inv.x += dx/d*step; inv.y += dy/d*step;
+      // every so often one stops and stares at the village for a moment
+      inv.pauseCd = (inv.pauseCd===undefined ? 6+Math.random()*8 : inv.pauseCd-dt);
+      if(inv.pauseCd<=0){ inv.pauseCd = 8+Math.random()*10; inv.state="peek"; inv.peekT=2+Math.random()*3; }
     }
   }
 }
@@ -1880,6 +2053,8 @@ function spawnLineWanderer(kind, town){
 // as a coordinated group, just several of them happening to be about the
 // same night. Kept very low on purpose - most nights, none of this happens
 // at all.
+// how often a sea sighting actually happens when its timer comes round
+const SEALIFE_SIGHT_CHANCE = 0.22;
 const BAT_SWARM_CHANCE = 0.012;
 const BAT_SWARM_MIN = 5, BAT_SWARM_MAX = 9;
 function trySpawnBatSwarm(force){
@@ -2296,9 +2471,9 @@ function updateHackman(dt){
    to every stat - once each, not stacking the longer they linger. */
 const MCSTAR_CHANCE = 0.0025;
 const MCSTAR_BLESS_RANGE = 90;
-const MCSTAR_BLESS_SPD = 1.02;
-const MCSTAR_BLESS_ATK = 1.02;
-const MCSTAR_BLESS_HP  = 0.03;
+const MCSTAR_BLESS_SPD = 1.06;
+const MCSTAR_BLESS_ATK = 1.06;
+const MCSTAR_BLESS_HP  = 0.06;
 function trySpawnMcStar(force){
   if(G.mcstar) return false;
   if(!force && Math.random() > MCSTAR_CHANCE) return false;
@@ -2317,8 +2492,12 @@ function trySpawnMcStar(force){
   return true;
 }
 
+/* Returns how many were newly blessed, so the greeting can say so. It used
+   to bless in complete silence: the numbers went up, nothing appeared on
+   screen, and the whole visit read as a man walking past saying hello. */
 function mcstarBless(){
   const m = G.mcstar;
+  let n = 0;
   for(const u of G.units){
     if(u.p!==P_YOU || u.hp<=0 || u.indoors || u.mcstarBlessed) continue;
     if(Math.hypot(u.x-m.x, u.y-m.y) > MCSTAR_BLESS_RANGE) continue;
@@ -2327,7 +2506,10 @@ function mcstarBless(){
     u.buffAtk = (u.buffAtk||1) * MCSTAR_BLESS_ATK;
     const inc = Math.max(1, Math.round(u.maxhp*MCSTAR_BLESS_HP));
     u.maxhp += inc; u.hp += inc;
+    fxWork(u.x, u.y-8, "#e8c23a");     // a small gold lift, so you can see it land
+    n++;
   }
+  return n;
 }
 
 function updateMcStar(dt){
@@ -2335,7 +2517,8 @@ function updateMcStar(dt){
   if(!m) return;
   m.t += dt; m.walk += dt;
   if(m.say){ m.sayT -= dt; if(m.sayT<=0) m.say=null; }
-  mcstarBless();
+  const blessed = mcstarBless();
+  if(blessed) m.blessedTotal = (m.blessedTotal||0) + blessed;
 
   if(m.state==="in"){
     const dx=m.tx-m.x, dy=m.ty-m.y, d=Math.hypot(dx,dy)||1;
@@ -2349,7 +2532,11 @@ function updateMcStar(dt){
       m.greets++;
       m.say = "Why hello there."; m.sayT = 2.2;
       hint("Euan McStar: \"Why hello there.\"");
-      if(m.greets>=5){
+      // twice is the joke; five times was him standing there repeating himself
+      if(m.greets>=2){
+        if(m.blessedTotal){
+          hint(m.blessedTotal+" of your people were near enough to hear him, and are the better for it.");
+        }
         const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
         const a = Math.random()*6.283, d = 420+Math.random()*160;
         m.ex = (town?town.x:m.x)+Math.cos(a)*d;
@@ -2992,6 +3179,7 @@ function scorchAlpha(s){
    rain clears in daylight, and a tornado during the worst of a storm, which
    doesn't sit still: it hops to a new spot on the map every so often so it
    isn't just something that happens in one corner nobody's looking at. */
+const AURORA_OFF_SEASON = 0.18;   // the lights out of season, but only just
 const AURORA_CHANCE = 0.006, SHOOTINGSTAR_CHANCE = 0.01;
 const RAINBOW_CHANCE = 0.05, TORNADO_CHANCE = 0.012;
 
@@ -3002,13 +3190,19 @@ function trySkyEvents(dt){
      never counts down again: one pool pick used to switch off the aurora
      and the shooting stars silently for the rest of the match. */
   if(!(dt > 0)) dt = 0;
-  if(!G.aurora && G.phase==="night" && G.season==="winter" && !G.weather){
+  /* The lights belong to winter, but they are not unheard of the rest of the
+     year - just rare enough that seeing them out of season is worth the
+     look. AURORA_OFF_SEASON is the share of the winter odds they get. */
+  const auroraSeason = (G.season==="winter") ? 1 : AURORA_OFF_SEASON;
+  if(!G.aurora && G.phase==="night" && !G.weather){
     G.auroraCd = (G.auroraCd===undefined) ? 20+Math.random()*20 : G.auroraCd-dt;
     if(G.auroraCd<=0){
       G.auroraCd = 20+Math.random()*20;
-      if(Math.random()<AURORA_CHANCE){
+      if(Math.random() < AURORA_CHANCE*auroraSeason){
         G.aurora = { t:0, life:35+Math.random()*20 };
-        hint("Green lights ripple across the northern sky.");
+        hint(G.season==="winter"
+          ? "Green lights ripple across the northern sky."
+          : "Green lights ripple across the sky - unheard of, this time of year.");
       }
     }
   }
@@ -3481,8 +3675,19 @@ const BLDG = {
           vision:4, trains:["catapult"], mil:true },
   wall:{ name:"Wall", age:1, hp:420, w:1, h:1, cost:{stone:22}, hgt:13, roof:"none",
          build:5, vision:2 },
-  tower:{ name:"Watchtower", age:1, hp:300, w:1, h:1, cost:{wood:40,stone:110,food:15}, hgt:27, roof:"cone", build:16,
-          vision:8, atk:12, rng:112, cd:1.5, ranged:true, mil:true },
+  /* A watchtower starts as a timber lookout - quick and cheap to throw up in
+     the Bronze Age - and is rebuilt in stone through TOWER_UPGRADES, one
+     tier per age. Its own numbers here are the timber ones; the upgrades
+     carry it the rest of the way. Up to four archers can be posted inside
+     (see the garrison action), and every one of them adds to its shooting. */
+  tower:{ name:"Watchtower", age:1, hp:230, w:1, h:1, cost:{wood:95,stone:25,food:15}, hgt:27, roof:"cone", build:16,
+          vision:8, atk:10, rng:112, cd:1.5, ranged:true, mil:true,
+          towerLine:true, garrisonCap:4, garrisonCls:"arc" },
+  /* All eyes and no teeth. It sees a great deal further than a watchtower
+     and cannot shoot at all, which makes it the cheap way to watch a flank
+     or a shoreline rather than a second line of defence. */
+  scouttower:{ name:"Scout Tower", age:1, hp:170, w:1, h:1, cost:{wood:70,food:20}, hgt:30, roof:"cone", build:12,
+               vision:15 },
   brazier:{ name:"Brazier", age:0, hp:70, w:1, h:1, cost:{wood:16,stone:15,food:6}, hgt:9, roof:"none",
             build:5, vision:3, brazier:true },
   armoury:{ name:"Armoury", age:1, hp:260, w:2, h:2, cost:{wood:110,stone:90,food:50}, hgt:11, shrinkW:0.62, shrink:0.58, roof:"lean", build:18,
@@ -3509,6 +3714,39 @@ const BARD_BUFF_SPD = 1.18;
 const BARD_BUFF_ATK = 1.20;
 const BARD_BUFF_DEF = 0.82;     // multiplies incoming damage - lower is tougher
 const BARD_HEAL_RATE = 2.2;     // hp/sec within a drummer's range
+
+/* Rebuilding a watchtower, one tier per age. Bought at the tower itself and
+   applied to that tower alone, exactly as the gathering research works on a
+   single mine. Timber becomes banded timber becomes stone, and each tier is
+   tougher and hits harder. `age` is the age you must have reached to buy it. */
+const TOWER_UPGRADES = [
+  { name:"Banded Timber", age:1, cost:{wood:70,stone:40,know:40},
+    hp:130, atk:4, look:"banded" },
+  { name:"Stone Rebuild", age:2, cost:{stone:150,wood:40,know:90},
+    hp:240, atk:7, look:"stone" }
+];
+// every archer posted inside adds this much to what the tower throws
+const TOWER_GARRISON_ATK = 5;
+
+/* What a tower actually throws: its own figure, the tiers it has been
+   rebuilt through, and a bonus for each archer posted inside. */
+function towerAtk(b){
+  const d = BLDG[b.type];
+  let atk = d.atk || 0;
+  const lvl = b.towerLvl || 0;
+  for(let i=0;i<lvl && i<TOWER_UPGRADES.length;i++) atk += TOWER_UPGRADES[i].atk;
+  if(b.garrison && b.garrison.length) atk += b.garrison.length * TOWER_GARRISON_ATK;
+  return atk;
+}
+/* The next rebuild available to this tower, or null if it is finished or
+   the age for it has not come round yet. */
+function towerNextUpgrade(b){
+  if(!BLDG[b.type] || !BLDG[b.type].towerLine) return null;
+  const lvl = b.towerLvl || 0;
+  if(lvl >= TOWER_UPGRADES.length) return null;
+  const nxt = TOWER_UPGRADES[lvl];
+  return (G.players[b.p].age >= nxt.age) ? nxt : null;
+}
 
 /* which unit each armour upgrade line covers, and what it costs at each
    tier - tier 1 unlocks with the Armoury in the Bronze Age, tier 2 only
@@ -3557,8 +3795,12 @@ const BLDG_ABOUT = {
             "down walls and towers quickly.",
   wall:     "Stone across a gap. Cheap, and it buys the time your soldiers need "+
             "to get where they are going.",
-  tower:    "Shoots at anything hostile that comes near, and sees a long way. "+
-            "Best where a wall makes attackers slow down.",
+  tower:    "A timber lookout that shoots at anything hostile that comes near. "+
+            "Rebuild it stronger at the tower itself, once an age. Up to four "+
+            "archers can be posted inside, and each one adds to its shooting.",
+  scouttower: "Eyes only - it sees half again as far as a watchtower and cannot "+
+            "shoot at all. Cheap, and the sensible way to watch a flank or a "+
+            "shoreline you cannot spare soldiers for.",
   armoury:  "Better arms and armour. Each upgrade cuts the damage your soldiers "+
             "take by about a sixth, and applies to every one you already have.",
   greathall:"A seat of learning. Grants 150 knowledge outright and pours more "+
@@ -3588,7 +3830,7 @@ function yardRect(b){
 }
 
 /* build menu order for villagers */
-const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","grove","armoury","musiccollege","warcollege","tradingpost","greathall","fortress","wall","tower","siege","town"]; // dock disabled for now
+const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","grove","armoury","musiccollege","warcollege","tradingpost","greathall","fortress","wall","tower","scouttower","siege","dock","town"];
 
 /* ---------- combat multipliers: attacker cls vs target cls ---------- */
 function classMult(a, d){
@@ -3716,6 +3958,7 @@ function newGame(){
       G.bldgs = []; G.units = []; G.nodes = []; G.sel = [];
     }
   }
+  if(G.islandMap){ clearIslandTowns(); stockIslands(); }
   rebuildNav();
   spawnWildlife();
   centerOnTown();
@@ -4425,7 +4668,11 @@ const SPECIES = {
   snowfox:  { size:"medium", col:"#eef1f6", seasons:["winter"], brush:true },
   boar:     { size:"large",  col:"#5f4a35", seasons:["summer","winter","autumn"], tusks:true },
   bear:     { size:"large",  col:"#5a4634", seasons:["summer","spring","autumn"] },
-  snowbear: { size:"large",  col:"#e8ecf2", seasons:["winter"] }
+  snowbear: { size:"large",  col:"#e8ecf2", seasons:["winter"] },
+  // Snakes. No legs, so they are drawn quite differently (see drawCritter),
+  // and they keep to the warm months - nothing is basking in the snow.
+  grasssnake: { size:"small", col:"#6a7a45", seasons:["summer","spring"], snake:true },
+  adder:      { size:"small", col:"#9a8355", seasons:["summer","autumn"], snake:true, zigzag:true }
 };
 
 function speciesFor(season, size){
@@ -4508,9 +4755,14 @@ function spawnBugs(){
       if(G.terrain[ty*MAPW+tx]!==5) ok=true;
     }
     if(!ok) continue;
-    const bee = Math.random()<0.45;
+    const roll = Math.random();
+    const bee = roll < 0.40;
+    // and a few grasshoppers in the long grass - tiny, and they only ever
+    // move by springing somewhere else and going still again
+    const hopper = !bee && roll < 0.68;
     G.bugs.push({
-      bee,
+      bee, hopper,
+      hopCd: Math.random()*2.5,
       x:tx*TILE+TILE/2, y:ty*TILE+TILE/2,
       hx:tx*TILE+TILE/2, hy:ty*TILE+TILE/2,   // the patch it stays near
       a:Math.random()*6.283, seed:Math.random()*6.283,
@@ -4523,6 +4775,21 @@ function spawnBugs(){
 function updateBugs(dt){
   if(!G.bugs) return;
   for(const b of G.bugs){
+    // a grasshopper sits perfectly still, then springs, then sits again
+    if(b.hopper){
+      b.hopCd -= dt;
+      if(b.hopT > 0){
+        b.hopT -= dt;
+        const nx = b.x + Math.cos(b.a)*90*dt, ny = b.y + Math.sin(b.a)*90*dt;
+        if(!isWater(nx,ny) && Math.hypot(nx-b.hx,ny-b.hy) < 60){ b.x = nx; b.y = ny; }
+        else b.hopT = 0;
+      } else if(b.hopCd <= 0){
+        b.hopCd = 1.6 + Math.random()*4.5;
+        b.hopT = 0.28;
+        b.a = Math.random()*6.283;
+      }
+      continue;
+    }
     // bees dart in short bursts, butterflies wander in loops
     if(b.bee){
       b.wait -= dt;
@@ -4542,6 +4809,23 @@ function updateBugs(dt){
       else b.a = Math.atan2(b.hy-b.y, b.hx-b.x) + (Math.random()-0.5);
     }
   }
+}
+
+/* Gulls keep to the sea. They come in off one edge, cross whatever water
+   there is, and go - so a landlocked map never sees one. */
+function spawnGulls(){
+  let sx=null, sy=null;
+  for(let t=0;t<50 && sx===null;t++){
+    const tx=rnd(3,MAPW-4), ty=rnd(3,MAPH-4);
+    if(G.terrain[ty*MAPW+tx]!==5) continue;
+    sx=(tx+0.5)*TILE; sy=(ty+0.5)*TILE;
+  }
+  if(sx===null) return false;
+  const a = Math.random()*6.283;
+  G.birds.push({ x:sx-Math.cos(a)*300, y:sy-Math.sin(a)*300, a,
+                 seed:Math.random()*6.28, spd:60+Math.random()*30,
+                 alt:8+Math.random()*8, n:3+((Math.random()*4)|0), gull:true });
+  return true;
 }
 
 function spawnBird(kind){
@@ -4625,16 +4909,42 @@ function spawnStart(){
   // its own forest with nowhere to build. Clear the trees immediately around
   // each town and thin the ring beyond it, leaving the woodland close enough
   // to work but far enough back to leave room for a settlement.
+  /* The old figures (clear to 150, half-thin to 215) left barely room for
+     a couple of huts before the woods started. A settlement wants space for
+     a house, a farm, a lodge, a lumber camp, a mine and a tower without
+     having to fell its way out first, so the clearing is wider now.
+
+     The felled trees are MOVED, not deleted - the map keeps exactly the
+     timber it was generated with, it is just no longer stacked on top of
+     the town. Anything with nowhere to go stays where it is rather than
+     vanishing. */
   const towns = G.bldgs.filter(b=>b.type==="town");
-  G.nodes = G.nodes.filter(n=>{
-    if(n.kind !== RES.WOOD) return true;       // only thin the trees
+  const CLEAR = 210, THIN = 300;
+  const inTheWay = n => {
     for(const t of towns){
       const d = Math.hypot(n.x-t.x, n.y-t.y);
-      if(d < 150) return false;                          // clear
-      if(d < 215 && ((n.id*13) % 10) < 5) return false;  // thin the ring beyond
+      if(d < CLEAR) return true;
+      if(d < THIN && ((n.id*13) % 10) < 4) return true;   // thin, not clear
     }
+    return false;
+  };
+  const displaced = G.nodes.filter(n=>n.kind===RES.WOOD && inTheWay(n));
+  const farEnough = (x,y) => {
+    for(const t of towns) if(Math.hypot(x-t.x, y-t.y) < THIN + 20) return false;
     return true;
-  });
+  };
+  for(const n of displaced){
+    for(let tries=0; tries<50; tries++){
+      const tx = rnd(2, MAPW-3), ty = rnd(2, MAPH-3);
+      const x = (tx+0.5)*TILE, y = (ty+0.5)*TILE;
+      if(isWater(x,y) || blocked(x,y,null,false)) continue;
+      if(!farEnough(x,y)) continue;
+      // not on top of another node, or the woods just pile up somewhere else
+      if(G.nodes.some(o=>o!==n && Math.hypot(o.x-x,o.y-y) < 18)) continue;
+      n.x = x; n.y = y;
+      break;
+    }
+  }
 
   // resources are scattered before buildings exist, so clear any node that
   // ended up trapped under a starting building (it would be unreachable)
@@ -4813,6 +5123,21 @@ function makeUnit(type, p, x, y){
 function attachFarm(b){
   const d = BLDG[b.type];
   if(!d.farm || b.node) return;
+  /* Clear the wild berries the field is being sown over. The map scatters
+     food bushes thickly, so a farm very often went up straddling two or
+     three of them - which read as though every farm came with berries in
+     the middle of it, and hid the seasonal crop behind them. The ground is
+     a field now; whatever was growing there wild is part of it.
+
+     Their amount goes to zero before they leave G.nodes, so anyone who was
+     working one sees a spent patch through the tick's usual dead-target
+     check and goes looking for another, rather than holding a reference to
+     something that no longer exists. */
+  const hw = b.w*TILE/2 + 6, hh = b.h*TILE/2 + 6;
+  const sownOver = n => !n.farmOf && n.kind===RES.FOOD && !n.water &&
+                        Math.abs(n.x-b.x) < hw && Math.abs(n.y-b.y) < hh;
+  for(const n of G.nodes) if(sownOver(n)) n.amt = 0;
+  G.nodes = G.nodes.filter(n=>!sownOver(n));
   b.reseeds = 0;
   b.node = { id:G.nextId++, isNode:true, kind:RES.FOOD, x:b.x, y:b.y,
              amt:d.farmMax, max:d.farmMax, r:15, seed:Math.random()*6.28, farmOf:b };
@@ -4908,6 +5233,113 @@ function recalcPop(p){
   pl.pop = pop;
   pl.popcap = Math.min(80, G.bldgs.filter(b=>b.p===p&&b.done&&BLDG[b.type].pop)
                             .reduce((s,b)=>s+BLDG[b.type].pop,0) + 8);
+}
+
+
+/* Every island has to be worth living on.
+ *
+ * The scatter that seeds resources knows nothing about landmasses, so on an
+ * island map it would leave one isle with a single stone outcrop and no gold
+ * at all - measured, two islands in twenty-three had none of one or the
+ * other, and plenty more had exactly one. A side that lands there has
+ * nothing to build with and no way to know before it sails. This walks each
+ * island and tops it up to a workable minimum. */
+/* Raised again once clearIslandTowns() started keeping the building room
+   free on its own - these no longer have to be kept scarce to leave space,
+   and an island economy that cannot afford a 93-wood dock in twenty minutes
+   is not an economy. Food comes from farms, so it is not listed. */
+const ISLAND_MIN = { wood: 20, stone: 4, gold: 3 };
+// nothing gets stocked this close to a town - that ground is for building on
+const ISLAND_KEEP_CLEAR = 190;
+function nearWater(x,y){
+  const tx=(x/TILE)|0, ty=(y/TILE)|0;
+  for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++){
+    const nx=tx+dx, ny=ty+dy;
+    if(nx<0||ny<0||nx>=MAPW||ny>=MAPH) continue;
+    if(G.terrain[ny*MAPW+nx]===5) return true;
+  }
+  return false;
+}
+
+/* An island is a fifth of the ground a normal map gives you, and the usual
+   starting clearing RELOCATES the trees it lifts - which on an island means
+   putting them straight back down a few tiles away, because there is nowhere
+   far enough to send them. The result measured at zero free 2x2 spots within
+   fourteen tiles of the town: a player with three thousand food banked and
+   nowhere to build. On an island the excess is removed outright. Fewer trees
+   on a small island is the correct trade; an unbuildable island is not. */
+function clearIslandTowns(){
+  const CLEAR = 165, THIN = 240;
+  for(const t of G.bldgs.filter(b=>b.type==="town")){
+    G.nodes = G.nodes.filter(n=>{
+      if(n.farmOf) return true;
+      const d = Math.hypot(n.x-t.x, n.y-t.y);
+      if(d < CLEAR) return false;
+      if(d < THIN && n.kind===RES.WOOD && ((n.id*13)%10) < 6) return false;
+      return true;
+    });
+  }
+}
+
+function stockIslands(){
+  const seen = new Uint8Array(MAPW*MAPH);
+  for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+    const i0 = y*MAPW+x;
+    if(seen[i0] || G.terrain[i0]===5) continue;
+    const q=[i0]; seen[i0]=1; const tiles=[];
+    while(q.length){
+      const j=q.pop(); tiles.push(j);
+      const cx=j%MAPW, cy=(j/MAPW)|0;
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=cx+dx, ny=cy+dy;
+        if(nx<0||ny<0||nx>=MAPW||ny>=MAPH) continue;
+        const nj=ny*MAPW+nx;
+        if(seen[nj] || G.terrain[nj]===5) continue;
+        seen[nj]=1; q.push(nj);
+      }
+    }
+    if(tiles.length < 40) continue;             // a sandbar, not an island
+    const here = new Set(tiles);
+    const have = { wood:0, stone:0, gold:0 };
+    for(const n of G.nodes){
+      const k = ((n.y/TILE)|0)*MAPW + ((n.x/TILE)|0);
+      if(here.has(k) && have[n.kind] !== undefined) have[n.kind]++;
+    }
+    for(const kind in ISLAND_MIN){
+      for(let need = ISLAND_MIN[kind] - have[kind]; need > 0; need--){
+        let placed = false;
+        for(let t=0; t<80 && !placed; t++){
+          const j = tiles[(Math.random()*tiles.length)|0];
+          const tx = j%MAPW, ty = (j/MAPW)|0;
+          const x = (tx+0.5)*TILE, y = (ty+0.5)*TILE;
+          if(blocked(x,y,null,false)) continue;
+          if(G.nodes.some(o=>Math.hypot(o.x-x,o.y-y) < 20)) continue;
+          // keep the town's building room clear, and leave the shore free so
+          // a dock still has somewhere to go
+          if(G.bldgs.some(b=>b.type==="town" && Math.hypot(b.x-x,b.y-y) < ISLAND_KEEP_CLEAR)) continue;
+          if(nearWater(x,y)) continue;
+          const vein = (kind!=="wood");
+          const amt = vein ? 900+Math.random()*500 : 90+Math.random()*50;
+          const node = { id:G.nextId++, isNode:true, kind:RES[kind.toUpperCase()],
+                         x, y, amt, max:amt, r: vein?23:9,
+                         seed:Math.random()*6.283, vein };
+          /* A vein is drawn as a scatter of individual rocks, and the
+             renderer walks n.rocks without checking it exists - so a vein
+             made without one crashes the whole draw ("undefined is not an
+             object") and the game freezes with the map still on screen.
+             Build them the same way mapgen does. */
+          if(vein){
+            node.rocks = Array.from({length:9}, ()=>({
+              a: Math.random()*6.28, d: Math.random()*16,
+              s: 0.55+Math.random()*0.75, rot: Math.random()*6.28 }));
+          }
+          G.nodes.push(node);
+          placed = true;
+        }
+        if(!placed) break;                      // nowhere left to put one
+      }
+    }
+  }
 }
 
 /* ============================================================
@@ -5318,15 +5750,20 @@ function tapAt(sx, sy){
         }
       }
     } else if(a==="garrison"){
-      const GARRISON_CAP = 10;
       const target = pickAt(w.x, w.y);
       const ok = target && target.kind==="bldg" && target.p===P_YOU && target.done &&
-                 (target.type==="barracks" || target.type==="range" || target.type==="fortress");
+                 (target.type==="barracks" || target.type==="range" ||
+                  target.type==="fortress" || target.type==="tower");
       if(!ok){
-        hint("Tap your barracks (soldiers), archery range (archers), or fortress (either).");
+        hint("Tap your barracks (soldiers), archery range or watchtower (archers), or fortress (either).");
       } else {
         target.garrison = target.garrison || [];
-        const wantCls = target.type==="barracks" ? "inf" : target.type==="range" ? "arc" : "any";
+        // a watchtower holds four, and only archers; everything else keeps
+        // the old blanket ten. Both now come off the building's own def.
+        const bd = BLDG[target.type];
+        const GARRISON_CAP = bd.garrisonCap || 10;
+        const wantCls = bd.garrisonCls
+                     || (target.type==="barracks" ? "inf" : target.type==="range" ? "arc" : "any");
         const eligible = own.filter(u=>u.kind==="unit" && !u.indoors &&
                           (wantCls==="any" ? (u.cls==="inf"||u.cls==="arc") : u.cls===wantCls));
         if(target.garrison.length >= GARRISON_CAP){
@@ -5790,24 +6227,58 @@ function toggleBell(b){
   for(const u of G.units){
     if(u.p!==b.p || u.type!=="villager") continue;
     if(on){
-      // remember the job so it can be resumed exactly
-      u.preBell = { order:u.order, target:u.target, workplace:u.workplace,
-                    tx:u.tx, ty:u.ty };
+      /* The bell is an alarm, so it outranks bedtime: anyone asleep comes
+         out and walks to the Town Centre with everybody else. The job to
+         come back to is whatever they were doing before dusk - taking
+         their current order would stash "walking home to bed" as the job
+         and send them all indoors when it was rung off. */
+      const abed = u.indoors || u.order==="home";
+      u.preBell = {
+        order:  abed ? (u.dayOrder||null)  : u.order,
+        target: abed ? (u.dayTarget||null) : u.target,
+        workplace: u.workplace, tx:u.tx, ty:u.ty
+      };
+      if(u.indoors){
+        // out of the door, and not counted as working the night - that
+        // toll belongs to villagers deliberately kept at their jobs
+        const h = u.home;
+        if(h){
+          u.x = h.x + (Math.random()-0.5)*14;
+          u.y = h.y + h.h*TILE/2 + u.r + 3;
+          let guard=0;
+          while(blocked(u.x,u.y,null,false) && guard++<20){
+            const a=Math.random()*6.283, d=h.h*TILE/2 + 10 + guard*3;
+            u.x = h.x + Math.cos(a)*d; u.y = h.y + Math.sin(a)*d;
+          }
+        }
+        u.indoors = false;
+      }
+      u.dayOrder = u.dayTarget = u.daySite = null;
       u.workplace = null;
       u.order = "move"; u.target = null; u.path = null;
       const a = Math.random()*Math.PI*2, r = 26+Math.random()*30;
       u.tx = b.x + Math.cos(a)*r; u.ty = b.y + Math.sin(a)*r;
       n++;
     } else if(u.preBell){
-      u.order = u.preBell.order; u.target = u.preBell.target;
-      u.workplace = u.preBell.workplace;
-      u.tx = u.preBell.tx; u.ty = u.preBell.ty;
-      u.preBell = null; u.path = null;
+      const job = u.preBell;
+      u.workplace = job.workplace;
+      u.preBell = null;
+      // Rung off after dark and everyone goes to bed instead of back to
+      // work, with the job kept for the morning. Rung off in daylight and
+      // they pick up exactly where they left off.
+      if((G.dark||0) > 0.35 && sendOneHome(u)){
+        u.dayOrder = job.order; u.dayTarget = job.target; u.daySite = null;
+      } else {
+        u.order = job.order; u.target = job.target;
+        u.tx = job.tx; u.ty = job.ty; u.path = null;
+      }
       n++;
     }
   }
   if(b.p===P_YOU)
-    hint(on ? n+" villagers taking shelter." : n+" villagers back to work.");
+    hint(on ? n+" villagers called to the town centre."
+           : ((G.dark||0) > 0.35 ? n+" villagers head back to their beds."
+                                 : n+" villagers back to work."));
   fxBell(b);
   refreshUI();
 }
@@ -5880,6 +6351,27 @@ function tryResearch(b, line){
   pay(pl,nxt.cost);
   b.upgLvl = (b.upgLvl||0) + 1;
   hint(nxt.name+" researched here — this "+BLDG[b.type].name.toLowerCase()+" works faster, but only this one.");
+  refreshUI();
+}
+
+/* Rebuild this one watchtower a tier stronger. Per tower, like the gather
+   research is per mine - a settlement with four towers pays four times. */
+function tryTowerUpgrade(b){
+  const pl = G.players[P_YOU];
+  if(!b || b.p!==P_YOU || !b.done) return;
+  const d = BLDG[b.type];
+  if(!d || !d.towerLine) return;
+  const lvl = b.towerLvl || 0;
+  if(lvl >= TOWER_UPGRADES.length){ hint("This tower is already stone."); return; }
+  const nxt = TOWER_UPGRADES[lvl];
+  if(pl.age < nxt.age){ hint("Requires the "+AGES[nxt.age]+"."); return; }
+  if(!canAfford(pl,nxt.cost)){ hint("Need "+costStr(nxt.cost)+"."); return; }
+  pay(pl,nxt.cost);
+  b.towerLvl = lvl + 1;
+  // a rebuilt tower is a tougher tower, and the work mends it as it goes
+  b.maxhp += nxt.hp;
+  b.hp = b.maxhp;
+  hint(nxt.name+" — this watchtower stands stronger, but only this one.");
   refreshUI();
 }
 
@@ -6111,12 +6603,13 @@ function tick(dt){
         if(b.rally){ u.order="move"; u.tx=b.rally.x; u.ty=b.rally.y; }
       }
     }
-    // tower attack
+    // tower attack - its own bite, plus whatever it has been rebuilt into,
+    // plus every archer posted inside it
     if(d.atk){
       b.cd -= dt;
       if(b.cd<=0){
         const t = nearestEnemy(b, d.rng);
-        if(t){ b.cd = d.cd; shoot(b, t, d.atk, "bldg"); }
+        if(t){ b.cd = d.cd; shoot(b, t, towerAtk(b), "bldg"); }
       }
     }
     // archers garrisoned in a range loose a volley together, the same way a
@@ -6158,17 +6651,26 @@ function tick(dt){
     }
     if(ph==="night" && was==="dusk"){
       hint(pickLine(NIGHT_LINES,"night")); nightfallFog();
-      somethingHappensTonight();
+      /* One night, one thing. The pool goes first; if it turned something
+         up, the ambient rolls below stand down for the night. They used to
+         run regardless, which is how a night could deliver a windfall AND
+         a wolf pack AND a flavour line - measured at 104% of nights having
+         at least one event, some having three. */
+      const poolFired = somethingHappensTonight();
       if(G.season==="winter" && G.solaceThisWinter && !G.solaceFlavorShown){
         G.solaceFlavorShown = true;
         hint("Mulled wine fills the air - families air their grievances.");
       }
-      const hadRaid = spawnRaid();
-      const hadBear = trySpawnGreatBear();
-      const hadZombies = trySpawnZombies();
-      if(!hadRaid && !hadBear && !hadZombies) tryNightFlavor();
-      trySpawnWanderer("bat");
-      trySpawnBatSwarm();
+      if(!poolFired){
+        const hadRaid = spawnRaid();
+        const hadBear = trySpawnGreatBear();
+        const hadZombies = trySpawnZombies();
+        // the safety net: if nothing at all came of tonight, the village
+        // still hears something. Forced, so no night is completely silent.
+        if(!hadRaid && !hadBear && !hadZombies) tryNightFlavor(true);
+        trySpawnWanderer("bat");
+        trySpawnBatSwarm();
+      }
       spawnMoonstone();
       if(!G.weather || !TORCH_OUT_WEATHER.includes(G.weather.key)){
         for(const u of G.units) u.torchOut = false;
@@ -6301,6 +6803,20 @@ function tick(dt){
   updatePets(dt);
   updateWildlife(dt);
   updateBugs(dt);
+  updateSealife(dt);
+  G.gullCd = (G.gullCd===undefined) ? 20+Math.random()*40 : G.gullCd-dt;
+  if(G.gullCd<=0){ G.gullCd = 35+Math.random()*55; spawnGulls(); }
+  updateOwl(dt);
+  // an owl on the roof, now and again, and only after dark
+  G.owlCd = (G.owlCd===undefined) ? 40+Math.random()*60 : G.owlCd-dt;
+  if(G.owlCd<=0){ G.owlCd = 60+Math.random()*90; trySpawnOwl(); }
+  // a sighting out at sea now and then - rare on purpose, and only on a map
+  // with real water for them to be in
+  G.seaCd = (G.seaCd===undefined) ? 50+Math.random()*70 : G.seaCd-dt;
+  if(G.seaCd<=0){
+    G.seaCd = 70+Math.random()*110;
+    if(Math.random() < SEALIFE_SIGHT_CHANCE) trySpawnSealife();
+  }
   updateChatter(dt);
   updateEyes(dt);
   G.dragonCd = (G.dragonCd===undefined) ? 60+Math.random()*60 : G.dragonCd-dt;
@@ -7511,8 +8027,24 @@ function aiNavyYard(my, town){
   const going = G.bldgs.filter(b=>b.p===P_AI && b.type==="dock" && !b.done);
 
   if(!docks.length && !going.length){
+    /* Save for the dock from the moment a crossing is known to be needed.
+       saveForSea was only ever switched on in the branch BELOW, which runs
+       once a dock already exists and it is saving for the transport - so
+       while there was no dock, nothing held anything back for one. Measured
+       on Two isles seed 11: twenty-one buildings up, including three lodges,
+       two mines and a grove, and seven wood in the bank. It was never short
+       of income; it simply spent the dock on other things, every time. */
+    G.ai.saveForSea = true;
     if(!canAfford(pl, BLDG.dock.cost)){
-      seaLog("needWood", "dock costs "+BLDG.dock.cost.wood+"w, has "+Math.round(pl.res.wood));
+      /* Name whatever is actually missing. This used to report only wood,
+         so an AI sitting on 170 wood and 37 food announced "dock costs 93w,
+         has 170" - which reads as a contradiction and sends anyone reading
+         it hunting the wrong thing entirely. It cost a whole investigation. */
+      const short = Object.keys(BLDG.dock.cost)
+        .filter(k => (pl.res[k]||0) < BLDG.dock.cost[k])
+        .map(k => k+" "+Math.round(pl.res[k]||0)+"/"+BLDG.dock.cost[k])
+        .join(", ");
+      seaLog("needWood", "dock: short of "+short);
       return;
     }
     const spot = aiFindShore(town, enemyTown);
@@ -7942,8 +8474,29 @@ function aiThink(dt){
     // Holding them back for the whole age-up as well stopped the AI dead -
     // it stopped training, which stopped it growing, and it never reached
     // Iron at all. Measured: Age 2 at 18m before, never after.
-    if(G.ai.saveForSea && G.players[P_AI].res.wood >= UNITS.transport.cost.wood*0.6
-       && b.type!=="dock") continue;
+    /* Hold wood for whatever the crossing actually needs next - the dock if
+       there is not one yet, otherwise the transport. The threshold used to
+       be 60% of the transport's cost (72) regardless, which is BELOW a
+       dock's 93: the AI was free to spend any time it held less than 72, an
+       archer costs 47, so it sawtoothed between about 30 and 78 and could
+       never climb to 93. Measured stalling at 78 with an army of 25 bought
+       out of the dock's timber. The 0.6 stays for the transport, where the
+       original reason for it holds - blocking army training for the whole
+       eleven minutes a transport takes stopped the AI growing at all. */
+    if(G.ai.saveForSea && b.type!=="dock"){
+      const haveDock = my.all.some(x=>x.type==="dock");
+      if(haveDock){
+        if(pl.res.wood < UNITS.transport.cost.wood*0.6) continue;
+      } else {
+        /* A dock costs food as well as timber, and holding only the timber
+           left the AI with 170 wood and 37 food - unable to build the thing
+           it had been saving for all match. Hold every resource it needs. */
+        let shortOfDock = false;
+        for(const k in BLDG.dock.cost)
+          if((pl.res[k]||0) < BLDG.dock.cost[k]) shortOfDock = true;
+        if(shortOfDock) continue;
+      }
+    }
     // at the sharpest pressure everything goes to getting across
     if(G.ai.holdArmy && b.type!=="dock") continue;
     let opts = BLDG[b.type].trains.filter(t=>UNITS[t].age<=pl.age && t!=="scout");
@@ -8431,7 +8984,7 @@ function draw(){
   for(const w of G.wanderers||[]){
     if(w.x<c0x||w.y<c0y||w.x>c1x||w.y>c1y) continue;
     if(!visibleTo(P_YOU,w.x,w.y)) continue;
-    drawList.push({ e:w, y:w.y, kind:7 });
+    drawList.push({ e:w, y:w.y, kind:15 });
   }
   for(const c of G.crows||[]){
     if(c.x<c0x||c.y<c0y||c.x>c1x||c.y>c1y) continue;
@@ -8473,6 +9026,9 @@ function draw(){
     }
   }
 
+  // sea life swims under everything - it is in the water, not on the ground
+  if(G.sealife) for(const s of G.sealife) drawSealife(s);
+
   drawList.sort((a,b)=>a.y-b.y);
   for(const it of drawList){
     switch(it.kind){
@@ -8483,7 +9039,10 @@ function draw(){
       case 5: drawElder(); break;
       case 6: drawBeast(it.e); break;
       case 7: drawHomeLife(it.e); break;
-      case 7: drawWanderer(it.e); break;
+      // 15, not a second 7: wanderers used to share home-life's number, so
+      // this arm was unreachable and every bard, pilgrim, bat, penguin and
+      // cat was drawn as a doorstep child instead of itself
+      case 15: drawWanderer(it.e); break;
       case 8: drawCrow(it.e); break;
       case 9: drawPet(it.e); break;
       case 10: drawDracula(it.e); break;
@@ -8493,6 +9052,7 @@ function draw(){
       case 14: drawGumby(it.e); break;
     }
   }
+  drawOwl();         // on the roof, above everything it is sitting on
   flushBranches();   // autumn branches, batched by opacity
 
   for(const p of G.players) drawVillageBonfire(p);
@@ -8545,6 +9105,15 @@ function draw(){
   }
 
   // leaf piles on the ground, building through autumn and gone by winter
+  // does a building sit on top of this pile?
+  const pileCovered = (pile) => {
+    for(const b of G.bldgs){
+      if(BLDG[b.type].farm) continue;              // a field may have leaves on it
+      const hw = b.w*TILE/2 + pile.r*0.6, hh = b.h*TILE/2 + pile.r*0.6;
+      if(Math.abs(pile.x-b.x) < hw && Math.abs(pile.y-b.y) < hh) return true;
+    }
+    return false;
+  };
   if((G.fall||0) > 0.05 && G.piles && c.z > 0.8){
     const PCOL = ["#c9973f","#b9873a","#a86a30","#c07a35"];
     for(const pl2 of G.piles){
@@ -8552,6 +9121,11 @@ function draw(){
       const grow = Math.min(1, (G.fall - pl2.at) / 0.35);
       if(pl2.x<c0x||pl2.y<c0y||pl2.x>c1x||pl2.y>c1y) continue;
       if(!exploredTo(P_YOU,pl2.x,pl2.y)) continue;
+      /* Leaves are seeded once per map, before anything is built, so a
+         house raised later would have a drift lying across its roof. Skip
+         any pile the buildings have since covered - checked here rather
+         than at spawn because the buildings do not exist yet then. */
+      if(pileCovered(pl2)) continue;
       ctx.globalAlpha = 0.85*grow;
       for(let k=0;k<4;k++){
         const a = pl2.seed + k*1.571;
@@ -8561,6 +9135,28 @@ function draw(){
         ctx.ellipse(pl2.x + Math.cos(a)*pl2.r*0.42*grow,
                     pl2.y + Math.sin(a)*pl2.r*0.26*grow,
                     rr, rr*0.55, a*0.3, 0, 6.283);
+        ctx.fill();
+      }
+      // a few individual leaves scattered off the edge of the drift, and a
+      // couple of darker ones caught underneath - a pile of leaves rather
+      // than four brown ellipses
+      ctx.fillStyle = "#8a5726";
+      for(let k=0;k<3;k++){
+        const a = pl2.seed*1.7 + k*2.094;
+        ctx.beginPath();
+        ctx.ellipse(pl2.x + Math.cos(a)*pl2.r*0.30*grow,
+                    pl2.y + Math.sin(a)*pl2.r*0.20*grow,
+                    pl2.r*0.20*grow, pl2.r*0.11*grow, a, 0, 6.283);
+        ctx.fill();
+      }
+      for(let k=0;k<5;k++){
+        const a = pl2.seed*2.3 + k*1.257;
+        const rr2 = pl2.r*(0.95 + ((k*29)%4)/8)*grow;
+        ctx.fillStyle = PCOL[(k+2) % PCOL.length];
+        ctx.beginPath();
+        ctx.ellipse(pl2.x + Math.cos(a)*rr2,
+                    pl2.y + Math.sin(a)*rr2*0.55,
+                    1.7*grow, 0.9*grow, a*1.4, 0, 6.283);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
@@ -8618,7 +9214,19 @@ function draw(){
       if(bg.x<c0x||bg.y<c0y||bg.x>c1x||bg.y>c1y) continue;
       if(!visibleTo(P_YOU,bg.x,bg.y)) continue;
       ctx.globalAlpha = vis;
-      if(bg.bee){
+      if(bg.hopper){
+        // a grass-green speck, with its back legs cocked under it, and a
+        // little arc of motion while it is actually in the air
+        const air = bg.hopT > 0 ? Math.sin((1 - bg.hopT/0.28)*Math.PI) : 0;
+        const gy = bg.y - air*5;
+        ctx.fillStyle = "#6f9440";
+        ctx.beginPath(); ctx.ellipse(bg.x, gy, 1.9, 1.1, bg.a, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = "#557a30"; ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(bg.x-0.6, gy+0.4);
+        ctx.lineTo(bg.x-2.0, gy - (air?1.6:0.6));
+        ctx.stroke();
+      } else if(bg.bee){
         const buzz = Math.sin(G.t*30+bg.seed)*0.7;
         ctx.fillStyle = "#3a2f1e";
         ctx.beginPath(); ctx.ellipse(bg.x, bg.y+buzz, 1.9, 1.3, bg.a, 0, 6.283); ctx.fill();
@@ -8791,21 +9399,66 @@ function draw(){
       const back = rank*14, lat = side*rank*11;
       const bx = b.x - Math.cos(b.a)*back + Math.sin(b.a)*lat;
       const by = b.y - Math.sin(b.a)*back - Math.cos(b.a)*lat;
-      const flap = Math.sin(G.t*(b.hawk?4.5:13) + b.seed + rank*0.55);
-      const sc = b.hawk ? 1.7 : 1;
+      const flap = Math.sin(G.t*(b.hawk?4.5:b.gull?9:13) + b.seed + rank*0.55);
+      const sc = b.hawk ? 1.7 : b.gull ? 0.8 : 1;
       ctx.fillStyle="rgba(0,0,0,.10)";
       ctx.beginPath(); ctx.ellipse(bx,by+b.alt,3.4*sc,1.4*sc,0,0,6.283); ctx.fill();
-      ctx.strokeStyle = b.hawk ? "rgba(58,44,32,.85)" : "rgba(46,42,38,.78)";
-      ctx.lineWidth = 1.5*sc; ctx.lineCap="round";
-      ctx.beginPath();
-      ctx.moveTo(bx-5*sc, by-flap*3.2*sc);
-      ctx.quadraticCurveTo(bx-2*sc, by+1.4*sc, bx, by);
-      ctx.quadraticCurveTo(bx+2*sc, by+1.4*sc, bx+5*sc, by-flap*3.2*sc);
-      ctx.stroke();
+
       if(b.hawk){
+        /* The lone raptor was the flock's two-stroke chevron at 1.7x, which
+           at that size read as a pair of brown sticks. It gets a real bird:
+           a solid body along its line of flight, a small head out front, a
+           fanned tail behind, and broad filled wings that flex rather than
+           two lines meeting at a point. */
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(b.a);
+        const BODY = "rgba(74,56,38,.95)", WING = "rgba(96,74,50,.95)";
+        // wings: swept back, each a filled shape, rising and falling
+        ctx.fillStyle = WING;
+        for(const sgn of [-1, 1]){
+          ctx.beginPath();
+          ctx.moveTo(-1, 0);
+          ctx.quadraticCurveTo(-3, sgn*(6 + flap*3), 2, sgn*(13 + flap*5));
+          ctx.quadraticCurveTo(4, sgn*(7 + flap*3), 3, 0);
+          ctx.closePath();
+          ctx.fill();
+        }
+        // fanned tail
+        ctx.fillStyle = "rgba(84,64,44,.95)";
         ctx.beginPath();
-        ctx.moveTo(bx, by);
-        ctx.lineTo(bx-Math.cos(b.a)*6, by-Math.sin(b.a)*6);
+        ctx.moveTo(-3, 0); ctx.lineTo(-10, -3.4); ctx.lineTo(-9, 0); ctx.lineTo(-10, 3.4);
+        ctx.closePath(); ctx.fill();
+        // body, then the head out in front of it
+        ctx.fillStyle = BODY;
+        ctx.beginPath(); ctx.ellipse(-1, 0, 7, 2.6, 0, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(6.4, 0, 2.1, 0, 6.283); ctx.fill();
+        ctx.fillStyle = "#d8b24a";
+        ctx.beginPath();
+        ctx.moveTo(8.2, -0.5); ctx.lineTo(10.4, 0); ctx.lineTo(8.2, 0.8);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      } else if(b.gull){
+        // white, with dark tips - the shape you see over water
+        ctx.strokeStyle = "rgba(244,246,248,.95)";
+        ctx.lineWidth = 1.6*sc; ctx.lineCap="round";
+        ctx.beginPath();
+        ctx.moveTo(bx-5*sc, by-flap*3.0*sc);
+        ctx.quadraticCurveTo(bx-2*sc, by+1.6*sc, bx, by);
+        ctx.quadraticCurveTo(bx+2*sc, by+1.6*sc, bx+5*sc, by-flap*3.0*sc);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(70,78,86,.9)"; ctx.lineWidth = 1.4*sc;
+        ctx.beginPath();
+        ctx.moveTo(bx-5*sc, by-flap*3.0*sc); ctx.lineTo(bx-3.4*sc, by-flap*2.0*sc);
+        ctx.moveTo(bx+5*sc, by-flap*3.0*sc); ctx.lineTo(bx+3.4*sc, by-flap*2.0*sc);
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = "rgba(46,42,38,.78)";
+        ctx.lineWidth = 1.5*sc; ctx.lineCap="round";
+        ctx.beginPath();
+        ctx.moveTo(bx-5*sc, by-flap*3.2*sc);
+        ctx.quadraticCurveTo(bx-2*sc, by+1.4*sc, bx, by);
+        ctx.quadraticCurveTo(bx+2*sc, by+1.4*sc, bx+5*sc, by-flap*3.2*sc);
         ctx.stroke();
       }
     }
@@ -9222,13 +9875,41 @@ function draw(){
     const t = G.t;
     const hash1 = (i) => { const s = Math.sin(i*127.1)*43758.5453; return s - Math.floor(s); };
     if(G.weather.key === "downpour"){
-      ctx.strokeStyle = "rgba(190,214,232,.5)"; ctx.lineWidth = 1;
+      /* Every drop used to be the same length, the same weight and very
+         nearly the same angle, which read as wallpaper rather than rain.
+         Each one now has its own length, its own lean and its own opacity,
+         and the whole squall leans slightly as the gust comes and goes -
+         so the field breaks up instead of marching in step. */
+      ctx.lineWidth = 1;
+      const gust = Math.sin(t*0.6) * 1.6 + Math.sin(t*1.7+1.1) * 0.7;
       for(let i=0;i<n;i++){
         const speedMul = 0.7 + hash1(i)*0.7;
-        const drift = (hash1(i*3.1+2)-0.5)*3;
+        const near = hash1(i*2.3+9);            // how close this drop is
+        const len = 8 + near*13;                 // near drops are longer
+        const lean = -4 + (hash1(i*3.1+2)-0.5)*5 + gust*(0.6+near*0.8);
         const x = ((i*137.5 + hash1(i*5.7)*300 + t*820*speedMul) % (VW+80)) - 40;
         const y = ((i*91.3  + hash1(i*8.3)*300 + t*1500*speedMul) % (VH+80)) - 40;
-        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x-4+drift, y+13); ctx.stroke();
+        ctx.strokeStyle = "rgba(190,214,232," + (0.24 + near*0.34).toFixed(2) + ")";
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+lean, y+len); ctx.stroke();
+      }
+      /* And the odd flicker of sheet lightning behind the cloud.
+         Deliberately gentle: a low-contrast wash over the whole screen, no
+         more than about 9% opacity, easing in and out over a third of a
+         second rather than switching on and off. Photosensitive seizures
+         are triggered by bright, high-contrast flashes repeating at around
+         3Hz and up; this is dim, slow, and comes at most once every several
+         seconds, so it stays well clear of that. Do not be tempted to make
+         it snappier or brighter. */
+      if(G.storm){
+        const FLASH = 0.34;                      // seconds, ease in and out
+        if(G.sheetAt === undefined || G.sheetAt > G.t + 30) G.sheetAt = G.t + 4 + Math.random()*7;
+        const since = G.t - G.sheetAt;
+        if(since >= FLASH) G.sheetAt = G.t + 5 + Math.random()*9;   // never rapid-fire
+        else if(since >= 0){
+          const ease = Math.sin((since/FLASH) * Math.PI);   // up and back down, no snap
+          ctx.fillStyle = "rgba(214,228,244," + (0.09*ease*amt).toFixed(3) + ")";
+          ctx.fillRect(0, 0, VW, VH);
+        }
       }
     } else if(G.weather.key === "blizzard"){
       ctx.fillStyle = "rgba(255,255,255,.85)";
@@ -9678,6 +10359,13 @@ function drawNode(n){
       ctx.globalAlpha = 1;
     }
     drawTreeFire(n);
+  } else if(n.farmOf){
+    /* A field's crop is drawn by the farm building itself, in the colours of
+       the season. This branch used to sit BELOW the food one - and a farm's
+       node is a food node, so it never got here: every farm was drawn with a
+       wild berry bush sitting in the middle of it, over the top of its own
+       crop. Checked first now. */
+    return;
   } else if(n.kind===RES.FOOD){
     ctx.fillStyle="#3f5a34";
     ctx.beginPath(); ctx.ellipse(n.x,n.y+2,10,7,0,0,6.283); ctx.fill();
@@ -9686,8 +10374,6 @@ function drawNode(n){
       const a=n.seed+i*1.7;
       ctx.beginPath(); ctx.arc(n.x+Math.cos(a)*5, n.y+Math.sin(a)*3.4, 2.3*frac+0.9,0,6.283); ctx.fill();
     }
-  } else if(n.farmOf){
-    return;                                   // the farm building draws its own crop
   } else if(n.water){
     const frac=Math.max(0.3,n.amt/n.max);
     ctx.fillStyle="rgba(120,175,200,.20)";
@@ -9714,7 +10400,10 @@ function drawNode(n){
     // exposed earth around the deposit
     ctx.fillStyle = n.kind===RES.GOLD ? "rgba(96,80,48,.42)" : "rgba(84,82,78,.42)";
     ctx.beginPath(); ctx.ellipse(n.x,n.y+3,n.r*1.15,n.r*0.66,0,0,6.283); ctx.fill();
-    for(const rk of n.rocks){
+    // a vein with no rocks would take the whole draw down with it, and a
+    // frozen map is the worst failure this game has - so tolerate it here
+    // as well as fixing the thing that made one
+    for(const rk of (n.rocks || [])){
       const px=n.x+Math.cos(rk.a)*rk.d*frac, py=n.y+Math.sin(rk.a)*rk.d*0.55*frac;
       const sz=(4.5+rk.s*4)*frac;
       ctx.save(); ctx.translate(px,py); ctx.rotate(rk.rot);
@@ -9836,21 +10525,26 @@ function drawBrazier(b){
 }
 
 /* Ten slight variations on a house's small details - which side the chimney
-   is on, how tall it is, which way its smoke leans, where the window sits,
-   how wide the door is. Picked deterministically from the building's id so
-   a given house always looks the same, but the settlement as a whole reads
-   as less like one house copy-pasted many times. */
+   is on, which way its smoke leans, where the window sits, how wide the
+   door is. Picked deterministically from the building's id so a given
+   house always looks the same, but the settlement as a whole reads as less
+   like one house copy-pasted many times.
+
+   Chimney HEIGHT is deliberately not among them: a row of houses with
+   chimneys at nine different heights read as wonky rather than varied, so
+   they all stand at CHIM_H and the variety comes from everything else. */
+const CHIM_H = 13;
 const HOUSE_VARIANTS = [
-  { chimX:0.72, chimH:13, smokeDir: 1, winX:0.14, doorScale:1.00, barrel:true,  barrelX:0.92 },
-  { chimX:0.24, chimH:12, smokeDir:-1, winX:0.68, doorScale:1.00, barrel:false, barrelX:0 },
-  { chimX:0.50, chimH:15, smokeDir: 1, winX:0.16, doorScale:0.95, barrel:true,  barrelX:0.90 },
-  { chimX:0.80, chimH:11, smokeDir:-1, winX:0.14, doorScale:1.05, barrel:false, barrelX:0 },
-  { chimX:0.18, chimH:14, smokeDir: 1, winX:0.66, doorScale:1.00, barrel:true,  barrelX:0.06 },
-  { chimX:0.62, chimH:12, smokeDir:-1, winX:0.20, doorScale:0.97, barrel:true,  barrelX:0.94 },
-  { chimX:0.30, chimH:16, smokeDir: 1, winX:0.70, doorScale:1.02, barrel:false, barrelX:0 },
-  { chimX:0.85, chimH:13, smokeDir:-1, winX:0.15, doorScale:0.98, barrel:true,  barrelX:0.06 },
-  { chimX:0.40, chimH:12, smokeDir: 1, winX:0.68, doorScale:1.04, barrel:false, barrelX:0 },
-  { chimX:0.68, chimH:14, smokeDir:-1, winX:0.18, doorScale:0.96, barrel:true,  barrelX:0.92 }
+  { chimX:0.72, smokeDir: 1, winX:0.14, doorScale:1.00, barrel:true,  barrelX:0.92 },
+  { chimX:0.24, smokeDir:-1, winX:0.68, doorScale:1.00, barrel:false, barrelX:0 },
+  { chimX:0.50, smokeDir: 1, winX:0.16, doorScale:0.95, barrel:true,  barrelX:0.90 },
+  { chimX:0.80, smokeDir:-1, winX:0.14, doorScale:1.05, barrel:false, barrelX:0 },
+  { chimX:0.18, smokeDir: 1, winX:0.66, doorScale:1.00, barrel:true,  barrelX:0.06 },
+  { chimX:0.62, smokeDir:-1, winX:0.20, doorScale:0.97, barrel:true,  barrelX:0.94 },
+  { chimX:0.30, smokeDir: 1, winX:0.70, doorScale:1.02, barrel:false, barrelX:0 },
+  { chimX:0.85, smokeDir:-1, winX:0.15, doorScale:0.98, barrel:true,  barrelX:0.06 },
+  { chimX:0.40, smokeDir: 1, winX:0.68, doorScale:1.04, barrel:false, barrelX:0 },
+  { chimX:0.68, smokeDir:-1, winX:0.18, doorScale:0.96, barrel:true,  barrelX:0.92 }
 ];
 function houseVariant(b){
   return HOUSE_VARIANTS[((b.id*2654435761)>>>0) % HOUSE_VARIANTS.length];
@@ -10378,9 +11072,9 @@ function drawBuilding(b){
       ctx.fillStyle="rgba(240,214,150,.7)";
       ctx.fillRect(x+w*hv.winX, y+dep-H*0.70, 5, 6);
       // chimney with a wisp of smoke - side, height and drift vary per house
-      const chimEmbed = 5, chimTop = roofTop - (hv.chimH - chimEmbed);
+      const chimEmbed = 5, chimTop = roofTop - (CHIM_H - chimEmbed);
       ctx.fillStyle=shade(wallBase,-0.2);
-      ctx.fillRect(x+w*hv.chimX, chimTop, 6, hv.chimH);
+      ctx.fillRect(x+w*hv.chimX, chimTop, 6, CHIM_H);
       ctx.fillStyle=shade(wallBase,-0.42);
       ctx.fillRect(x+w*hv.chimX, chimTop-1, 6, 2.5);
       ctx.fillStyle="rgba(210,205,195,.16)";
@@ -12396,10 +13090,17 @@ function drawVillageBonfire(p){
                    : town.y + TILE*1.6;
   if(!visibleTo(P_YOU, fx, fy)) return;
 
-  // Half size. The glow keeps a little more reach than the flames do, because
-  // after dark the glow is most of what you actually see of it, and shrinking
-  // the two together left the yard unlit.
-  const FIRE = 0.5, GLOW = 0.68;
+  /* Only alight after dark. It is the elder's fire, something the village
+     gathers round when the light goes - burning through the middle of a
+     summer afternoon made it scenery rather than an occasion. It comes up
+     with the dusk and dies back at dawn rather than snapping on. */
+  const lit = Math.max(0, Math.min(1, ((G.dark||0) - 0.22) / 0.35));
+  if(lit <= 0.02) return;
+
+  // Half the size again. The glow keeps a little more reach than the flames
+  // do, because after dark the glow is most of what you actually see of it,
+  // and shrinking the two together left the yard unlit.
+  const FIRE = 0.26 * (0.85 + 0.15*lit), GLOW = 0.40 * lit;
   ctx.save();
   ctx.translate(fx, fy);
   ctx.scale(FIRE, FIRE);
@@ -12410,6 +13111,7 @@ function drawVillageBonfire(p){
   const flick = 0.88 + 0.12*Math.sin(G.t*1.3) + 0.04*Math.sin(G.t*4.6+1.7);
   const glowFlick = 0.9 + 0.1*Math.sin(G.t*0.7+0.6);
   const night = Math.max(0, (G.dark||0));
+  ctx.globalAlpha = lit;
 
   ctx.fillStyle="rgba(0,0,0,.25)";
   ctx.beginPath(); ctx.ellipse(fx, fy+6, 44, 16, 0, 0, 6.283); ctx.fill();
@@ -12522,6 +13224,46 @@ function drawCritter(c){
   const moving = Math.hypot(c.tx-c.x, c.ty-c.y) > 5;
   const gait = moving ? Math.sin(c.walk*(d.hop?1.6:1.2)) : 0;
   const hop  = (d.hop && moving) ? Math.abs(gait)*r*0.55 : 0;
+
+  if(sp.snake){
+    /* A body drawn as one wave along its direction of travel, so it reads as
+       a thing that moves by bending rather than a thing with legs. It sits
+       low and casts almost no shadow. */
+    const a = Math.atan2(c.ty-c.y, c.tx-c.x);
+    const L = r*3.4, wig = moving ? 1 : 0.35;
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.rotate(a);
+    ctx.strokeStyle = col;
+    ctx.lineWidth = Math.max(1.3, r*0.62);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    for(let i=0;i<=8;i++){
+      const t = i/8;
+      const px = -L*0.5 + L*t;
+      const py = Math.sin(c.walk*2.2 + t*5.6)*r*0.55*wig;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    if(sp.zigzag){
+      // an adder's dark back-stripe, the thing you actually recognise
+      ctx.strokeStyle = "#3a2f22";
+      ctx.lineWidth = Math.max(0.6, r*0.22);
+      ctx.beginPath();
+      for(let i=0;i<=8;i++){
+        const t=i/8, px=-L*0.5+L*t;
+        const py=Math.sin(c.walk*2.2 + t*5.6)*r*0.55*wig + (i%2?r*0.12:-r*0.12);
+        if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+    }
+    // a blunt head at the leading end
+    ctx.fillStyle = shade(col,-0.12);
+    const hy = Math.sin(c.walk*2.2 + 5.6)*r*0.55*wig;
+    ctx.beginPath(); ctx.ellipse(L*0.5, hy, r*0.42, r*0.30, 0,0,6.283); ctx.fill();
+    ctx.restore();
+    return;
+  }
 
   ctx.fillStyle="rgba(0,0,0,.20)";
   ctx.beginPath(); ctx.ellipse(c.x, c.y+r*0.35, r*0.85, r*0.32, 0,0,6.283); ctx.fill();
@@ -12899,6 +13641,16 @@ function drawBeast(b){
   const r = b.r;
   const gait = b.moving ? Math.sin(b.walk*1.3) : 0;
   const lunge = (b.atkAnim>0) ? (1 - b.atkAnim/0.2)*3 : 0;
+  /* Bears carry their head differently from the wolves they used to share
+     a drawing with, and the Elderbear rears as it swings. Both shift the
+     skull, so the offsets live out here where the eyes can find them. */
+  const isBear = (b.kind==="bear" || b.kind==="greatbear");
+  const rear = (isBear && b.atkAnim>0) ? (1 - b.atkAnim/0.2) : 0;
+  // a slow roll of the shoulders walking, and a breath while standing
+  const bob = isBear ? (b.moving ? Math.sin(b.walk*1.3 + 1.1)*r*0.06
+                                 : Math.sin(G.t*1.05 + b.id)*r*0.035) : 0;
+  const headDX = isBear ? -rear*r*0.28 : 0;
+  const headDY = isBear ? (bob - rear*r*0.55) : 0;
 
   ctx.fillStyle = "rgba(0,0,0,.30)";
   ctx.beginPath(); ctx.ellipse(b.x, b.y+r*0.45, r*0.95, r*0.34, 0,0,6.283); ctx.fill();
@@ -13115,9 +13867,14 @@ function drawBeast(b){
     ctx.moveTo( r*0.5, r*0.15); ctx.lineTo( r*0.5-gait*r*0.4, r*0.85);
     ctx.stroke();
     ctx.fillStyle = B.col;
-    ctx.beginPath(); ctx.ellipse(0, -r*0.10, r*1.05, r*0.55, 0,0,6.283); ctx.fill();
-    if(b.kind==="bear" || b.kind==="greatbear"){
-      ctx.beginPath(); ctx.ellipse(-r*0.42,-r*0.45, r*0.60, r*0.40, 0,0,6.283); ctx.fill();
+    // the front of it lifts as it rears; the haunches stay put
+    ctx.beginPath();
+    ctx.ellipse(rear*r*0.10, -r*0.10 - rear*r*0.16 + bob*0.5, r*1.05, r*0.55, -rear*0.16, 0, 6.283);
+    ctx.fill();
+    if(isBear){
+      ctx.beginPath();
+      ctx.ellipse(-r*0.42, -r*0.45 + bob*0.7, r*0.60, r*0.40, 0,0,6.283);
+      ctx.fill();
       // the markings
       ctx.strokeStyle = (b.kind==="greatbear") ? "#8fd6ec" : shade(B.col,0.42);
       ctx.lineWidth = Math.max(1,r*0.10);
@@ -13143,24 +13900,55 @@ function drawBeast(b){
         ctx.closePath(); ctx.fill();
       }
     }
-    // head
-    ctx.fillStyle = B.col;
-    ctx.beginPath(); ctx.ellipse(r*0.95, -r*0.30, r*0.46, r*0.36, 0,0,6.283); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(r*1.20,-r*0.42); ctx.lineTo(r*1.72,-r*0.20);
-    ctx.lineTo(r*1.16, r*0.02); ctx.closePath(); ctx.fill();
-    // ears
-    ctx.beginPath(); ctx.moveTo(r*0.72,-r*0.62); ctx.lineTo(r*0.86,-r*1.02);
-    ctx.lineTo(r*1.02,-r*0.60); ctx.closePath(); ctx.fill();
+    if(isBear){
+      /* A bear's head, not a wolf's: a broad round skull, small rounded
+         ears set well back on it, a short blunt muzzle rather than a long
+         triangular snout, and a dark nose pad on the end of it. */
+      const hx = r*0.92 + headDX, hy = -r*0.34 + headDY;
+      ctx.fillStyle = B.col;
+      // ears first, so the skull overlaps their base
+      ctx.beginPath(); ctx.arc(hx-r*0.30, hy-r*0.40, r*0.19, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx+r*0.16, hy-r*0.46, r*0.17, 0, 6.283); ctx.fill();
+      ctx.fillStyle = shade(B.col,-0.18);
+      ctx.beginPath(); ctx.arc(hx-r*0.30, hy-r*0.40, r*0.10, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx+r*0.16, hy-r*0.46, r*0.09, 0, 6.283); ctx.fill();
+      // the skull
+      ctx.fillStyle = B.col;
+      ctx.beginPath(); ctx.ellipse(hx, hy, r*0.50, r*0.44, 0,0,6.283); ctx.fill();
+      // short blunt muzzle, a shade lighter the way a bear's is
+      ctx.fillStyle = shade(B.col, 0.14);
+      ctx.beginPath(); ctx.ellipse(hx+r*0.44, hy+r*0.12, r*0.30, r*0.22, 0,0,6.283); ctx.fill();
+      // nose pad
+      ctx.fillStyle = "#241a16";
+      ctx.beginPath(); ctx.ellipse(hx+r*0.68, hy+r*0.08, r*0.11, r*0.09, 0,0,6.283); ctx.fill();
+      // and the jaw comes open as it swings
+      if(rear > 0.05){
+        ctx.fillStyle = "#3a2018";
+        ctx.beginPath();
+        ctx.ellipse(hx+r*0.46, hy+r*0.28, r*0.20*rear, r*0.13*rear, 0,0,6.283);
+        ctx.fill();
+      }
+    } else {
+      // wolf: long triangular snout and pointed ears
+      ctx.fillStyle = B.col;
+      ctx.beginPath(); ctx.ellipse(r*0.95, -r*0.30, r*0.46, r*0.36, 0,0,6.283); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(r*1.20,-r*0.42); ctx.lineTo(r*1.72,-r*0.20);
+      ctx.lineTo(r*1.16, r*0.02); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(r*0.72,-r*0.62); ctx.lineTo(r*0.86,-r*1.02);
+      ctx.lineTo(r*1.02,-r*0.60); ctx.closePath(); ctx.fill();
+    }
   }
 
   // the eyes, which catch the light
-  const ex = (b.kind==="spider") ? r*0.55
+  const ex = isBear ? r*0.92 + headDX + r*0.20
+           : (b.kind==="spider") ? r*0.55
            : (b.kind==="wraith"||b.kind==="zombie"||b.kind==="moonimp") ? 0
            : (b.kind==="scorpion") ? r*0.75
            : (b.kind==="bogwight") ? -r*0.05
            : r*1.02;
-  const ey = (b.kind==="wraith") ? -r*0.95
+  const ey = isBear ? -r*0.34 + headDY - r*0.06
+           : (b.kind==="wraith") ? -r*0.95
            : (b.kind==="zombie") ? -r*0.85
            : (b.kind==="moonimp") ? -r*0.8
            : (b.kind==="scorpion") ? 0
@@ -13188,6 +13976,17 @@ function drawBeast(b){
 /* A child, a cat or a dog on the doorstep. Small, and drawn small - they
    should read as a detail you notice, not as another unit on the board. */
 function drawHomeLife(o){
+  // the ball belongs to the child, and is drawn in world space whether it
+  // is in the air, on the grass, or in the animal's mouth
+  if(o.ball && o.ball.state!=="indoors"){
+    const b = o.ball;
+    ctx.fillStyle = "rgba(0,0,0,.18)";
+    ctx.beginPath(); ctx.ellipse(b.x, (b.state==="flying"?b.sy+(b.ty-b.sy)*Math.min(1,b.t/b.fly):b.y)+2, 2.2, 0.9, 0,0,6.283); ctx.fill();
+    ctx.fillStyle = "#c96b4a";
+    ctx.beginPath(); ctx.arc(b.x, b.y, 2.1, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.45)"; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 2.1, 2.4, 4.6); ctx.stroke();
+  }
   const bob = o.moving ? Math.abs(Math.sin(o.walk))*1.1 : 0;
   ctx.save();
   ctx.translate(o.x, o.y - bob);
@@ -13197,7 +13996,10 @@ function drawHomeLife(o){
   ctx.beginPath(); ctx.ellipse(0, 1, 4.2, 1.6, 0, 0, 6.283); ctx.fill();
 
   if(o.kind === "child"){
-    // half the height of a grown villager, and rounder with it
+    // half the height of a grown villager, and rounder with it - and
+    // smaller again than that, since they were reading as short adults
+    ctx.save();
+    ctx.scale(0.82, 0.82);
     const skin = SKINS[o.skin % SKINS.length];
     const swing = o.moving ? Math.sin(o.walk)*1.6 : 0;
     ctx.strokeStyle = "#4a3a26"; ctx.lineWidth = 1.4; ctx.lineCap = "round";
@@ -13211,15 +14013,24 @@ function drawHomeLife(o){
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = shade(o.shirt,-0.3); ctx.lineWidth = 1.2;
     ctx.beginPath();
-    ctx.moveTo(-2.0, -7.6); ctx.lineTo(-3.4, -5.2 + swing*0.6);
-    ctx.moveTo( 2.0, -7.6); ctx.lineTo( 3.4, -5.2 - swing*0.6);
+    if(o.patT > 0){
+      // one arm reaches down and rocks - patting the animal beside them
+      const pat = Math.sin(G.t*7)*1.1;
+      ctx.moveTo(-2.0, -7.6); ctx.lineTo(-3.2, -5.4);
+      ctx.moveTo( 2.0, -7.6); ctx.lineTo( 4.0, -2.4 + pat);
+    } else {
+      ctx.moveTo(-2.0, -7.6); ctx.lineTo(-3.4, -5.2 + swing*0.6);
+      ctx.moveTo( 2.0, -7.6); ctx.lineTo( 3.4, -5.2 - swing*0.6);
+    }
     ctx.stroke();
     ctx.fillStyle = skin;
     ctx.beginPath(); ctx.arc(0, -10.4, 2.9, 0, 6.283); ctx.fill();
     ctx.fillStyle = "#3a2b1c";
     ctx.beginPath(); ctx.arc(0, -11.4, 2.9, Math.PI*1.02, Math.PI*2.02); ctx.fill();
-    ctx.fillStyle = "#2b2119";
-    ctx.beginPath(); ctx.arc(1.5, -10.3, 0.5, 0, 6.283); ctx.fill();
+    // no eye. A single dot on a head this small read as a wink or a squint
+    // rather than a face, and two at this size is a smudge - the hair and
+    // the turn of the head carry it.
+    ctx.restore();
   } else {
     // a cat sits low with a curled tail; a dog stands taller and wags
     const dog = o.kind === "dog";
@@ -13253,6 +14064,300 @@ function drawHomeLife(o){
   }
   ctx.restore();
 }
+/* ---------- what lives in the water ----------
+   Whales, orca and the odd shark fin. They only ever cross open sea, they
+   never interact with anything, and they are deliberately uncommon - the
+   point is that you look up one day and there is a whale, not that the sea
+   is busy. A map with no real water simply never sees them.
+
+   Each one picks a straight course across a body of water and swims it. A
+   whale surfaces to blow every so often and now and then breaches
+   completely; an orca travels in twos and threes; a shark shows nothing but
+   the fin. All of them are gone once they reach the far side. */
+const SEALIFE = {
+  whale: { len:26, col:"#3f4a58", belly:"#6b7684", spd:16, pod:[1,1], blow:true,  breach:true },
+  orca:  { len:17, col:"#1e2228", belly:"#e8eef4", spd:24, pod:[2,3], blow:true,  breach:false },
+  shark: { len:13, col:"#4a5560", belly:"#4a5560", spd:28, pod:[1,1], finOnly:true }
+};
+const SEALIFE_CHANCE = { whale:0.20, orca:0.30, shark:0.50 };   // shares of one sighting
+
+/* Is there enough open water here to be worth swimming through? Counts the
+   sea tiles in a small block so a puddle or a river bend does not qualify. */
+function openWaterAt(tx, ty){
+  let n = 0;
+  for(let y=ty-2; y<=ty+2; y++) for(let x=tx-2; x<=tx+2; x++){
+    if(x<0||y<0||x>=MAPW||y>=MAPH) continue;
+    if(G.terrain[y*MAPW+x]===5) n++;
+  }
+  return n >= 18;      // most of the block, not a corner of a lake
+}
+
+function trySpawnSealife(force){
+  if(!G.sealife) G.sealife = [];
+  if(G.sealife.length) return false;          // one sighting at a time
+  // find open water to start from, and give up quickly on a dry map
+  let sx=null, sy=null;
+  for(let t=0; t<60 && sx===null; t++){
+    const tx = rnd(3, MAPW-4), ty = rnd(3, MAPH-4);
+    if(!openWaterAt(tx,ty)) continue;
+    sx = (tx+0.5)*TILE; sy = (ty+0.5)*TILE;
+  }
+  if(sx===null) return false;
+
+  let roll = Math.random(), kind = "shark";
+  for(const k in SEALIFE_CHANCE){ roll -= SEALIFE_CHANCE[k]; if(roll <= 0){ kind = k; break; } }
+  const S = SEALIFE[kind];
+  const a = Math.random()*6.283;
+  const n = S.pod[0] + ((Math.random()*(S.pod[1]-S.pod[0]+1))|0);
+  for(let i=0;i<n;i++){
+    G.sealife.push({
+      kind, x: sx + Math.cos(a+1.6)*i*22, y: sy + Math.sin(a+1.6)*i*22,
+      a, spd: S.spd*(0.85+Math.random()*0.3),
+      t:0, seed: Math.random()*6.283,
+      blowCd: 2+Math.random()*5, blowT: 0,
+      breachCd: 6+Math.random()*14, breachT: 0
+    });
+  }
+  if(kind==="whale") hint(n>1 ? "Whales are moving through the deep water." : "A whale is out there in the deep water.");
+  else if(kind==="orca") hint(n>1 ? n+" killer whales cut through the water." : "A killer whale cuts through the water.");
+  else hint("A fin breaks the surface, circles once, and is gone.");
+  return true;
+}
+
+function updateSealife(dt){
+  if(!G.sealife || !G.sealife.length) return;
+  for(let i=G.sealife.length-1; i>=0; i--){
+    const s = G.sealife[i];
+    const S = SEALIFE[s.kind];
+    s.t += dt;
+    // a breach lifts it clear of the water for a moment, and it swims on
+    if(S.breach){
+      s.breachCd -= dt;
+      if(s.breachCd <= 0 && s.breachT <= 0){ s.breachT = 1.6; s.breachCd = 20+Math.random()*40; }
+      if(s.breachT > 0) s.breachT -= dt;
+    }
+    if(S.blow){
+      s.blowCd -= dt;
+      if(s.blowCd <= 0 && s.blowT <= 0){ s.blowT = 1.2; s.blowCd = 5+Math.random()*9; }
+      if(s.blowT > 0) s.blowT -= dt;
+    }
+    // a slow wander off the straight line, so a pod does not look ruled
+    s.a += Math.sin(G.t*0.25 + s.seed)*0.22*dt;
+    const nx = s.x + Math.cos(s.a)*s.spd*dt;
+    const ny = s.y + Math.sin(s.a)*s.spd*dt;
+    // it must stay in the water; a nose against the shore turns it away
+    if(isWater(nx,ny)){ s.x = nx; s.y = ny; }
+    else s.a += 1.1;
+    if(s.x<-60 || s.y<-60 || s.x>WORLD_W+60 || s.y>WORLD_H+60 || s.t>200) G.sealife.splice(i,1);
+  }
+}
+
+function drawSealife(s){
+  const S = SEALIFE[s.kind];
+  const L = S.len;
+  const breach = s.breachT > 0 ? Math.sin((1 - s.breachT/1.6)*Math.PI) : 0;   // 0..1..0
+  ctx.save();
+  ctx.translate(s.x, s.y - breach*L*0.9);
+  ctx.rotate(s.a + (s.a > 1.57 && s.a < 4.71 ? Math.PI : 0));
+  if(s.a > 1.57 && s.a < 4.71) ctx.scale(1,-1);
+  ctx.rotate(-breach*0.5);
+
+  if(S.finOnly){
+    // nothing but the dorsal fin, and the wake behind it
+    ctx.fillStyle = "rgba(228,240,248,.22)";
+    ctx.beginPath(); ctx.ellipse(-L*0.5, 0, L*0.7, L*0.16, 0,0,6.283); ctx.fill();
+    ctx.fillStyle = S.col;
+    ctx.beginPath();
+    ctx.moveTo(-L*0.18, L*0.10); ctx.lineTo(L*0.10, -L*0.42); ctx.lineTo(L*0.20, L*0.10);
+    ctx.closePath(); ctx.fill();
+  } else {
+    // the body, mostly under water unless it is breaching
+    const sunk = 1 - breach*0.85;
+    ctx.globalAlpha = 0.45 + breach*0.55;
+    ctx.fillStyle = S.col;
+    ctx.beginPath(); ctx.ellipse(0, 0, L, L*0.34*sunk + L*0.10, 0,0,6.283); ctx.fill();
+    // pale underside, only visible as it comes over
+    if(breach > 0.15){
+      ctx.fillStyle = S.belly;
+      ctx.beginPath(); ctx.ellipse(L*0.12, L*0.10, L*0.72, L*0.20, 0,0,6.283); ctx.fill();
+    }
+    if(s.kind==="orca"){
+      // the saddle patch, and a tall straight dorsal
+      ctx.fillStyle = S.belly;
+      ctx.beginPath(); ctx.ellipse(-L*0.18, -L*0.10, L*0.22, L*0.11, 0,0,6.283); ctx.fill();
+      ctx.fillStyle = S.col;
+      ctx.beginPath();
+      ctx.moveTo(-L*0.10, -L*0.12); ctx.lineTo(L*0.02, -L*0.72); ctx.lineTo(L*0.14, -L*0.12);
+      ctx.closePath(); ctx.fill();
+    }
+    // tail flukes, kicked up as it dives or breaches
+    const kick = Math.sin(G.t*2.2 + s.seed)*0.25 + breach*0.7;
+    ctx.fillStyle = S.col;
+    ctx.beginPath();
+    ctx.moveTo(-L*0.92, 0);
+    ctx.lineTo(-L*1.35, -L*0.30 - kick*L*0.25);
+    ctx.lineTo(-L*1.12, 0);
+    ctx.lineTo(-L*1.35, L*0.30 + kick*L*0.25);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+    // the blow - a little plume of spray off the back
+    if(s.blowT > 0){
+      const p = 1 - s.blowT/1.2;
+      ctx.fillStyle = "rgba(232,242,248,"+(0.55*(1-p))+")";
+      for(let i=0;i<3;i++){
+        const h = L*(0.5 + p*1.1) * (1 - i*0.18);
+        ctx.beginPath();
+        ctx.ellipse(L*0.30 + (i-1)*L*0.10, -h, L*0.10, L*0.20*(1-p*0.4), 0,0,6.283);
+        ctx.fill();
+      }
+    }
+  }
+  ctx.restore();
+
+  // the water it has pushed aside
+  if(!S.finOnly){
+    ctx.strokeStyle = "rgba(228,240,248,.18)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y, L*1.25, L*0.5, s.a, 0, 6.283);
+    ctx.stroke();
+  }
+}
+
+/* ---------- owls ----------
+   One owl per season, each a different bird. It comes in out of the dark,
+   settles on the roof of the town centre, sits there turning its head for a
+   minute or two, and goes. It does nothing at all - it is something you
+   notice, look at, and remember, which is the whole point.
+
+   Deliberately uncommon, and only ever at night. */
+const OWLS = {
+  summer: { name:"Little Owl",  body:"#9a7d55", face:"#d8c6a4", eye:"#e8c23a", r:6.5, tufts:false },
+  autumn: { name:"Tawny Owl",   body:"#7d5f42", face:"#c9ac86", eye:"#3a2f22", r:7.5, tufts:false },
+  winter: { name:"Snowy Owl",   body:"#eef2f6", face:"#ffffff", eye:"#e8c23a", r:8.5, tufts:false },
+  spring: { name:"Long-eared Owl", body:"#8a7350", face:"#c4ab86", eye:"#e07a2a", r:7,  tufts:true }
+};
+const OWL_CHANCE = 0.035;      // rolled on its own slow timer, at night only
+
+function owlPerch(){
+  // the town centre first - it is the tallest thing you own - then any
+  // building at all, so a settlement that has lost its hall still gets one
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town" && b.done);
+  if(town) return town;
+  const mine = G.bldgs.filter(b=>b.p===P_YOU && b.done);
+  return mine.length ? mine[(Math.random()*mine.length)|0] : null;
+}
+
+function trySpawnOwl(force){
+  if(G.owl) return false;                 // one at a time
+  if(G.phase!=="night") return false;
+  if(!force && Math.random() > OWL_CHANCE) return false;
+  const perch = owlPerch();
+  if(!perch) return false;
+  const def = OWLS[G.season] || OWLS.summer;
+  // it comes in from off to one side and settles on the ridge of the roof
+  const a = Math.random()*6.283;
+  G.owl = {
+    def, perch,
+    px: perch.x, py: perch.y - BLDG[perch.type].hgt - 6,
+    x: perch.x + Math.cos(a)*260, y: perch.y + Math.sin(a)*260,
+    state:"in", t:0, sit: 45+Math.random()*45,
+    face: Math.random()<0.5 ? -1 : 1, turnCd: 2+Math.random()*3,
+    blink: 3+Math.random()*4, blinkT: 0, seed: Math.random()*6.283
+  };
+  hint("A "+def.name.toLowerCase()+" settles on the roof and watches the village.");
+  return true;
+}
+
+function updateOwl(dt){
+  const o = G.owl;
+  if(!o) return;
+  o.t += dt;
+  // gone at first light whatever it was doing
+  if(G.phase!=="night" && o.state!=="out"){ o.state = "out"; o.t = 0; }
+
+  if(o.state==="in"){
+    const dx = o.px-o.x, dy = o.py-o.y, d = Math.hypot(dx,dy)||1;
+    if(d < 4){ o.state="sit"; o.t=0; }
+    else {
+      const step = Math.min(d, 120*dt);
+      o.x += dx/d*step; o.y += dy/d*step;
+      if(Math.abs(dx) > 0.5) o.face = dx<0 ? -1 : 1;
+    }
+  } else if(o.state==="sit"){
+    // the perch may be destroyed under it
+    if(!o.perch || o.perch.hp<=0){ o.state="out"; o.t=0; }
+    o.x = o.px; o.y = o.py;
+    o.turnCd -= dt;
+    if(o.turnCd<=0){ o.turnCd = 2.5+Math.random()*4.5; o.face = -o.face; }
+    o.blink -= dt;
+    if(o.blink<=0 && o.blinkT<=0){ o.blinkT = 0.16; o.blink = 3+Math.random()*5; }
+    if(o.blinkT>0) o.blinkT -= dt;
+    if(o.t > o.sit){ o.state="out"; o.t=0; o.outA = Math.random()*6.283; }
+  } else {
+    const step = 130*dt;
+    o.x += Math.cos(o.outA||0)*step; o.y += Math.sin(o.outA||0)*step - 14*dt;
+    if(o.t > 4) G.owl = null;
+  }
+}
+
+function drawOwl(){
+  const o = G.owl;
+  if(!o) return;
+  const D = o.def, r = D.r;
+  const flying = o.state!=="sit";
+  const flap = flying ? Math.sin(G.t*11 + o.seed) : 0;
+  ctx.save();
+  ctx.translate(o.x, o.y);
+  ctx.scale(o.face<0 ? -1 : 1, 1);
+
+  // wings, only while it is on the move
+  if(flying){
+    ctx.fillStyle = shade(D.body,-0.15);
+    for(const sgn of [-1,1]){
+      ctx.beginPath();
+      ctx.ellipse(sgn*r*0.75, -r*0.1 + flap*r*0.45, r*0.85, r*0.30, sgn*flap*0.5, 0, 6.283);
+      ctx.fill();
+    }
+  }
+  // a rounded, upright body
+  ctx.fillStyle = D.body;
+  ctx.beginPath(); ctx.ellipse(0, 0, r*0.72, r*0.92, 0,0,6.283); ctx.fill();
+  // the pale face disc
+  ctx.fillStyle = D.face;
+  ctx.beginPath(); ctx.ellipse(0, -r*0.42, r*0.56, r*0.50, 0,0,6.283); ctx.fill();
+  // ear tufts, on the ones that have them
+  if(D.tufts){
+    ctx.fillStyle = D.body;
+    ctx.beginPath();
+    ctx.moveTo(-r*0.42,-r*0.78); ctx.lineTo(-r*0.30,-r*1.30); ctx.lineTo(-r*0.14,-r*0.76);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(r*0.42,-r*0.78); ctx.lineTo(r*0.30,-r*1.30); ctx.lineTo(r*0.14,-r*0.76);
+    ctx.closePath(); ctx.fill();
+  }
+  // the eyes, which is what you actually see of an owl at night
+  const shut = o.blinkT > 0;
+  if(shut){
+    ctx.strokeStyle = "#2a2118"; ctx.lineWidth = Math.max(0.8, r*0.10);
+    ctx.beginPath(); ctx.moveTo(-r*0.34,-r*0.44); ctx.lineTo(-r*0.08,-r*0.44);
+    ctx.moveTo(r*0.08,-r*0.44); ctx.lineTo(r*0.34,-r*0.44); ctx.stroke();
+  } else {
+    ctx.fillStyle = D.eye;
+    ctx.beginPath(); ctx.arc(-r*0.21,-r*0.44, r*0.20, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc( r*0.21,-r*0.44, r*0.20, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#1a150f";
+    ctx.beginPath(); ctx.arc(-r*0.21,-r*0.44, r*0.10, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc( r*0.21,-r*0.44, r*0.10, 0, 6.283); ctx.fill();
+  }
+  // a small hooked beak between them
+  ctx.fillStyle = "#c9a24a";
+  ctx.beginPath();
+  ctx.moveTo(0,-r*0.34); ctx.lineTo(r*0.10,-r*0.18); ctx.lineTo(-r*0.10,-r*0.18);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
 /* ============================================================
    NIGHT CYCLE
    Pulled out of 01-constants-and-helpers.js as a pilot for the module split
@@ -13414,7 +14519,29 @@ function pickNightName(){
   return NIGHT_NAMES[(Math.random()*NIGHT_NAMES.length)|0];
 }
 
+/* Put one villager to bed: find them a house, give them their own spot at
+   the door so a crowd does not jam on one step, and remember the job they
+   were doing so the morning can hand it back. Shared with the bell, which
+   needs exactly this when it is rung off after dark. */
+function sendOneHome(u){
+  const home = findHome(u);
+  if(!home) return false;
+  u.home = home;
+  const spread = G.units.filter(w=>w.home===home).length;
+  const lane = spread % 5, row = (spread/5)|0;
+  const fx = (lane - 2) * (u.r*2.2 + 3);
+  u.homeSpot = {
+    x: home.x + fx,
+    y: home.y + home.h*TILE/2 + u.r + 3 + row*(u.r*2.2)
+  };
+  u.order = "home"; u.target = home; u.path = null;
+  return true;
+}
+
 function sendHome(){
+  // a ringing bell outranks bedtime: everyone stays at the Town Centre
+  // until it is rung off, which is the whole point of ringing it
+  if(G.bell && G.bell[P_YOU]) return;
   for(const u of G.units){
     if(u.type!=="villager" || u.hp<=0 || u.indoors) continue;
     // pulled out of their house for the night - they keep working instead
@@ -13435,26 +14562,13 @@ function sendHome(){
       }
       continue;
     }
-    const home = findHome(u);
-    if(!home) continue;                       // nowhere to go: keep working
-    u.home = home;
-    // Everyone heading for the same doorstep jams, so each gets their own
-    // spot - but it needs to be along the front wall (the door), not
-    // scattered on a circle around the whole building. That golden-angle
-    // scatter used to send some of them walking in through the back wall,
-    // since wakeUp() always has them step out of the one door at the front.
-    const spread = G.units.filter(w=>w.home===home).length;
-    const lane = spread % 5, row = (spread/5)|0;
-    const fx = (lane - 2) * (u.r*2.2 + 3);
-    u.homeSpot = {
-      x: home.x + fx,
-      y: home.y + home.h*TILE/2 + u.r + 3 + row*(u.r*2.2)
-    };
-    // remember what they were doing so they can pick it up in the morning
-    u.dayOrder  = u.order;
-    u.dayTarget = u.target;
-    u.daySite   = u.site;
-    u.order = "home"; u.target = home; u.path = null;
+    // remember what they were doing so they can pick it up in the morning.
+    // Everyone heading for the same doorstep jams, so sendOneHome gives each
+    // their own spot along the front wall - not a scatter round the whole
+    // building, which used to walk some of them in through the back.
+    const order = u.order, target = u.target, site = u.site;
+    if(!sendOneHome(u)) continue;             // nowhere to go: keep working
+    u.dayOrder = order; u.dayTarget = target; u.daySite = site;
   }
 }
 
@@ -13516,8 +14630,28 @@ function wakeUp(){
     }
     if(u.indoors) u.rested = RESTED_TIME;   // only those who actually slept
     u.indoors = false;
-    u.order  = u.dayOrder  || null;
-    u.target = u.dayTarget || null;
+    /* If the bell is still ringing, morning does not send anyone back to
+       work - it sends them to the Town Centre, which is what the bell means.
+       Dawn used to restore the pre-dusk job regardless, so a bell rung in
+       the evening quietly stopped mattering at first light while still
+       showing as rung: villagers wandering out to stand about, neither
+       sheltering nor working. Their real job stays in preBell either way,
+       and comes back when the bell is rung off. */
+    const belled = G.bell && G.bell[u.p];
+    const hall = belled && G.bldgs.find(x=>x.p===u.p && x.type==="town" && x.done);
+    if(hall){
+      if(!u.preBell){
+        u.preBell = { order:u.dayOrder, target:u.dayTarget, workplace:u.workplace,
+                      tx:u.tx, ty:u.ty };
+      }
+      u.workplace = null;
+      u.order = "move"; u.target = null;
+      const a = Math.random()*Math.PI*2, r = 26+Math.random()*30;
+      u.tx = hall.x + Math.cos(a)*r; u.ty = hall.y + Math.sin(a)*r;
+    } else {
+      u.order  = u.dayOrder  || null;
+      u.target = u.dayTarget || null;
+    }
     u.site   = u.daySite   || null;
     u.dayOrder = u.dayTarget = u.daySite = null;
     u.path = null;
@@ -13839,6 +14973,8 @@ const NIGHT_EVENTS = [
   { name:"mcstar",     go:()=>trySpawnMcStar(true) },
   { name:"hackman",    go:()=>trySpawnHackman(true) },
   { name:"gumby",      go:()=>trySpawnGumby(true) },
+  { name:"sealife",    go:()=>trySpawnSealife(true) },
+  { name:"owl_perch",  go:()=>trySpawnOwl(true) },
   { name:"tornado",    go:()=>{ if(G.tornado) return false; spawnTornado(); return true; } },
   { name:"costumes",   go:()=>{ if(G.invaders&&G.invaders.length) return false; spawnInvasion(); return true; } },
   // good
@@ -13864,15 +15000,59 @@ const NIGHT_EVENTS = [
   { name:"windchime",  go:()=>tryWindChime() }
 ];
 
+/* How often the box gets opened at all. It used to be every second night
+   flat, which sounds generous until you count: a match runs about fifteen
+   minutes, a day is under two, so there are only eight nights in a whole
+   game and the pool got four turns. Spread across a catalogue of nearly
+   forty, that meant a player saw roughly ONE small good-or-bad event per
+   match and often none - which is exactly what it felt like.
+
+   A chance per night rather than a strict every-other keeps it from being
+   metronomic while giving the pool enough turns for its own variety to
+   show. Plenty of nights still pass with nothing but the moon. */
+/* Not every entry should come up as often as every other. Picked flat, the
+   catalogue is nearly forty deep and only a dozen of them are the small
+   quiet goods and ills - so those turned up about once a match, while a
+   dragon had the same odds as a wind chime. Weighting keeps the spectacle
+   rare (which is what makes it spectacle) and lets the quiet things be the
+   texture they were written to be. Anything unlisted is 1. */
+const NIGHT_EVENT_WEIGHT = {
+  // the small goods and ills - what a night is usually made of
+  windfall:6, owl:6, merchant:6, "2ndwind":6, healer:6, bumpervein:6,
+  strayfriend:6, hushed:6, fireside:6,
+  coldsnap:6, spoilage:6, prowler:6, restlesspet:6,
+  // a quiet line and nothing more
+  fireflies:3, howl:3, halo:3, sleepwalker:3, windchime:3, flavour:3,
+  // ordinary night traffic - something is about, but it is not an occasion
+  owl_perch:3, raid:2, bats:2, crows:2, visitor:2, pilgrims:2, bard:2, eyes:2, dream:2, sky:2,
+  // and the occasions themselves stay rare, which is what makes them occasions
+  bear:1, zombies:1, dracula:1, dragon:1, storm:1,
+  mcstar:1, hackman:1, gumby:1, tornado:1, costumes:1, sealife:1
+};
+function pickNightEvent(list){
+  let total = 0;
+  for(const e of list) total += NIGHT_EVENT_WEIGHT[e.name] || 1;
+  let r = Math.random()*total;
+  for(const e of list){
+    r -= NIGHT_EVENT_WEIGHT[e.name] || 1;
+    if(r <= 0) return e;
+  }
+  return list[list.length-1];
+}
+
+const NIGHT_EVENT_CHANCE = 0.95;
 function somethingHappensTonight(){
   G.nightNo = (G.nightNo||0) + 1;
-  if(G.nightNo % 2) return;                 // every second night
+  if(Math.random() > NIGHT_EVENT_CHANCE) return false;
 
-  // did anything turn up on its own? then leave well alone
+  /* Did something big already turn up of its own accord? Then leave well
+     alone. Wanderers and crows are deliberately NOT in this list: a bat
+     crossing the map or a few crows at a field are passers-by, and letting
+     them veto the whole night's event was throwing away turns the pool
+     could not spare - one is spawned ambiently at nightfall most nights. */
   const already = (G.beasts&&G.beasts.length) || (G.invaders&&G.invaders.length) ||
-                  (G.wanderers&&G.wanderers.length) || (G.crows&&G.crows.length) ||
                   G.dragon || G.dracula || G.storm;
-  if(already) return;
+  if(already) return true;      // the night is already spoken for
 
   if(!G.recentNights) G.recentNights = [];
   const pool = NIGHT_EVENTS.filter(e=>!G.recentNights.includes(e.name));
@@ -13880,7 +15060,7 @@ function somethingHappensTonight(){
 
   // try a few, since some need conditions we cannot meet tonight
   for(let attempt=0; attempt<6; attempt++){
-    const e = list[(Math.random()*list.length)|0];
+    const e = pickNightEvent(list);
     const before = JSON.stringify([
       (G.beasts||[]).length, (G.invaders||[]).length, (G.wanderers||[]).length,
       (G.crows||[]).length, !!G.dragon, !!G.dracula, !!G.storm, (G.pets||[]).length
@@ -13897,10 +15077,24 @@ function somethingHappensTonight(){
     if(before !== after || ret === true){
       G.recentNights.push(e.name);
       if(G.recentNights.length > 5) G.recentNights.shift();
-      return;
+      return true;
     }
   }
+  return false;
 }
+
+/* One night, one thing.
+
+   This used to be two independent rolls - the main pool, and a second roll
+   just for the small stuff - which was a way of forcing the frequency up
+   and had the side effect of some nights delivering two events at once.
+   A single weighted roll at a high chance gives the same "almost every
+   night, something" without ever doubling up. The list below is kept
+   because the weights above are easier to read against it. */
+const SMALL_NIGHT_EVENTS = ["windfall","owl","merchant","2ndwind","healer","bumpervein",
+                            "strayfriend","hushed","fireside","coldsnap","spoilage",
+                            "prowler","restlesspet","fireflies","howl","halo",
+                            "sleepwalker","windchime"];
 
 
 /* ---------- boats ---------- */
@@ -14831,6 +16025,26 @@ function refreshUI(){
                  ()=>tryResearch(b,d.upgLine), null, true);
         }
       }
+    }
+    // ---- rebuilding a watchtower, one tier per age, this tower only
+    if(d.towerLine){
+      const lvl = b.towerLvl || 0;
+      if(lvl >= TOWER_UPGRADES.length){
+        addBtn("Stone tower", "rebuilt as far as it goes", false, null, "Fully rebuilt");
+      } else {
+        const nxt = TOWER_UPGRADES[lvl];
+        if(pl.age < nxt.age){
+          addBtn("? ? ?", "Rebuild unlocks in the "+AGES[nxt.age], false, null,
+                 "Rebuild unlocks in the "+AGES[nxt.age]);
+        } else {
+          addBtn(nxt.name, costStr(nxt.cost), canAfford(pl,nxt.cost),
+                 ()=>tryTowerUpgrade(b), null, true);
+        }
+      }
+      const g = (b.garrison||[]).length;
+      addBtn("Archers inside: "+g+"/"+(d.garrisonCap||4),
+             g ? ("+"+(g*TOWER_GARRISON_ATK)+" to its shooting") : "post archers here with Garrison",
+             false, null, "Archers posted in this tower");
     }
     // ---- the Lodge's last-age Bonfire - every story becomes the all-stats
     // kind, and carries further, no matter which elder happens to be around
