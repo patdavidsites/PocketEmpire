@@ -265,10 +265,14 @@
   #hint.show{opacity:1;}
 
   /* ---------- overlay screens ---------- */
-  .screen{position:absolute;inset:0;z-index:30;display:flex;align-items:center;
-    justify-content:center;background:rgba(12,10,8,.93);padding:20px;}
+  /* align-items:flex-start with margin:auto on the card, rather than
+     align-items:center - a centred flex child that outgrows its container is
+     clipped at the TOP with no way to scroll to it, which on a phone hid the
+     first half of the instructions */
+  .screen{position:absolute;inset:0;z-index:30;display:flex;align-items:flex-start;
+    justify-content:center;background:rgba(12,10,8,.93);padding:20px;overflow-y:auto;}
   .screen.hide{display:none;}
-  .card{max-width:520px;width:100%;background:var(--panel);border:1px solid var(--line);
+  .card{max-width:520px;width:100%;margin:auto;background:var(--panel);border:1px solid var(--line);
     border-radius:4px;padding:26px 28px;}
   .card h1{font-family:Georgia,serif;font-size:27px;margin:0 0 4px;color:var(--gold);
     letter-spacing:.5px;font-weight:normal;}
@@ -276,6 +280,10 @@
     color:var(--parch-dim);margin-bottom:14px;}
   .card p{font-size:13px;line-height:1.65;color:#cfc4ab;margin:0 0 12px;}
   .card ul{font-size:12.5px;line-height:1.75;color:#cfc4ab;padding-left:17px;margin:0 0 14px;}
+  /* section labels, so the start screen reads as three short lists rather
+     than one long one - same treatment as the kicker above the title */
+  .card .sec{font-size:10px;text-transform:uppercase;letter-spacing:2px;
+    color:var(--gold);margin:0 0 6px;}
   .card b{color:var(--parch);}
   .go{background:var(--gold);color:#221b10;border:none;border-radius:3px;padding:11px 24px;
     font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px;}
@@ -448,22 +456,46 @@
   <div class="card">
     <div class="kicker">A Real-Time Strategy</div>
     <h1>Cosy Empires</h1>
-    <p>Gather materials, build an empire... and beware the night. Matches run about <b>10–15 minutes</b>.</p>
+    <p>You are running a village. Feed it, build it up, and see it safely through
+       the night. A match runs about <b>10–15 minutes</b>.</p>
+
+    <div class="sec">Keeping the village fed and stocked</div>
     <ul>
-      <li><b>Drag</b> to pan · <b>pinch or scroll</b> to zoom · <b>Apple Pencil</b> drags a selection box directly</li>
-      <li>On a computer: <b>↑ / ↓</b> zoom, <b>WASD</b> or <b>← / →</b> pan, <b>.</b> jumps to an idle villager</li>
-      <li><b>Tap</b> a unit to select · <b>press and hold</b> a moment, then drag, to box-select</li>
+      <li><b>Food</b> — send villagers to the berry bushes, then build a <b>Farm</b> so it keeps coming</li>
+      <li><b>Wood</b> — chop the trees, and build a <b>Lumber Camp</b> to keep a crew at it</li>
+      <li><b>Stone and gold</b> — build a <b>Mine</b> on the rocks and the gold seams</li>
+      <li>Whoever builds a Farm, Lumber Camp or Mine <b>stays on as its crew</b> — three each</li>
+      <li><b>Knowledge</b> accrues on its own — <b>Elder's Lodges</b> speed it up, and it is what buys your next age</li>
+    </ul>
+
+    <div class="sec">Giving orders</div>
+    <ul>
+      <li><b>Tap</b> a unit to select it · <b>press and hold</b> a moment, then drag, to box-select</li>
       <li>With units selected, tap <b>Gather</b>, <b>Build</b>, <b>Attack</b> or <b>Move</b> in the bar below, <b>then tap the target</b></li>
-      <li>Villagers who build a <b>Farm</b>, <b>Mine</b> or <b>Lumber Camp</b> stay on as its crew — three each</li>
-      <li><b>Knowledge</b> accrues on its own — build <b>Elder's Lodges</b> to speed it up. It gates your ages.</li>
+      <li><b>Groups</b> — select some units, tap <b>Join group</b>, then tap a number <b>1–10</b> along the bottom.
+          Tap that number any time to call them up; tap it <b>twice</b> to bring the camera to them.
+          New units of the same kind join on their own.</li>
+      <li><b>Waking someone at night</b> — your villagers go to bed at dusk. Tap a <b>house</b> after dark
+          and tap a sleeper to put them back to work. It costs them health and speed for good,
+          and <b>two nights running will kill them</b>, so send them to rest after one.</li>
+      <li><b>Drag</b> to pan · <b>pinch or scroll</b> to zoom · <b>Apple Pencil</b> drags a selection box directly.
+          On a computer: <b>↑ / ↓</b> zoom, <b>WASD</b> or <b>← / →</b> pan, <b>.</b> jumps to an idle villager</li>
+    </ul>
+
+    <div class="sec">Picking your match</div>
+    <ul>
+      <li>The <b>☰ menu, top left</b>, changes difficulty at any time — it starts a fresh map</li>
+      <li><b>Peaceful</b> to build a town uninterrupted · <b>Easy</b> for a slight challenge ·
+          <b>Medium</b> for a real one · <b>Hard</b> if you want to be hunted</li>
+      <li>The <b>island deals</b> in that menu are still a work in progress</li>
       <li>Win by <b>destroying every enemy building</b></li>
     </ul>
+
     <p style="font-size:12px;color:#9a8f7a;margin:0 0 14px">
-      You lead the <b style="color:#d9a441">Sunfolk</b> against the <b style="color:#a98fd0">Ashkin</b>.<br>Difficulty: <b id="startdiff" style="color:#d9a441">Medium</b><br><span id="startlayout" style="color:#b9ae95"></span>
-      — change it any time from the menu button, top left.</p>
+      You lead the <b style="color:#d9a441">Sunfolk</b> against the <b style="color:#a98fd0">Ashkin</b>.<br>Difficulty: <b id="startdiff" style="color:#d9a441">Medium</b><br><span id="startlayout" style="color:#b9ae95"></span></p>
     <button class="go" id="btnstart">Begin</button>
     <!-- the build date, so it is obvious at a glance which copy this is -->
-    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 2 August 2026</p>
+    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 4 August 2026</p>
   </div>
 </div>
 
@@ -3906,6 +3938,9 @@ function newGame(){
     cam:{ x:0, y:0, z:1 },
     // beachSince/beachPush/waveNeed drive the beachhead: troops put ashore
     // gather before they attack instead of charging a town three at a time
+    // what the night pool turned up tonight, so the tick can tell a quiet
+    // event from an occasion (see quietNight)
+    nightEventName: null,
     ai:{ think:0, attackAt:70, wave:0, pushing:false, rebal:4, strategy:_pickedStrategy,
          beachSince:0, beachPush:false, waveNeed:0 },
     diff: DIFF[DIFFICULTY] || DIFF.medium,
@@ -5786,11 +5821,30 @@ function tapAt(sx, sy){
       }
     } else if(a==="garrison"){
       const target = pickAt(w.x, w.y);
+      /* A boat is somewhere to put troops as much as a barracks is, and
+         "garrison" is the order people reach for when they mean get in the
+         boat. Same button, either kind of target. */
+      const isBoat = target && target.kind==="unit" && target.p===P_YOU &&
+                     UNITS[target.type] && UNITS[target.type].capacity > 0;
       const ok = target && target.kind==="bldg" && target.p===P_YOU && target.done &&
                  (target.type==="barracks" || target.type==="range" ||
                   target.type==="fortress" || target.type==="tower");
-      if(!ok){
-        hint("Tap your barracks (soldiers), archery range or watchtower (archers), or fortress (either).");
+      if(isBoat){
+        const cap = UNITS[target.type].capacity;
+        const room = cap - (target.cargo ? target.cargo.length : 0);
+        const crew = own.filter(u=>u!==target && !UNITS[u.type].naval);
+        if(!crew.length){
+          hint("Only land units can board a boat.");
+        } else if(room <= 0){
+          hint("The "+UNITS[target.type].name.toLowerCase()+" is full.");
+        } else {
+          const going = crew.slice(0, room);
+          going.forEach(u=>{ u.order="board"; u.target=target; u.site=null; u.path=null; });
+          hint(going.length+" heading for the "+UNITS[target.type].name.toLowerCase()+".");
+          fxPing(target.x, target.y);
+        }
+      } else if(!ok){
+        hint("Tap your barracks (soldiers), archery range or watchtower (archers), a fortress, or a boat.");
       } else {
         target.garrison = target.garrison || [];
         // a watchtower holds four, and only archers; everything else keeps
@@ -6744,6 +6798,16 @@ function tick(dt){
         if(!hadRaid && !hadBear && !hadZombies) tryNightFlavor(true);
         trySpawnWanderer("bat");
         trySpawnBatSwarm();
+      } else if(quietNight() && Math.random() < NIGHT_PROWL_CHANCE){
+        /* A windfall or a wind chime does not fill a night the way a dragon
+           does. When the pool turned up something quiet, something with teeth
+           still gets ONE roll - not the whole ambient set, and not every time,
+           so the night keeps its single occasion. Measured before this: 0.66
+           lines a night mentioning a creature, against 1.06 before the pool
+           began standing the ambient rolls down. No forced flavour here - a
+           line has already been printed tonight. */
+        if(!spawnRaid() && !trySpawnGreatBear()) trySpawnZombies();
+        trySpawnWanderer("bat");
       }
       spawnMoonstone();
       if(!G.weather || !TORCH_OUT_WEATHER.includes(G.weather.key)){
@@ -6860,6 +6924,20 @@ function tick(dt){
     }
   }
   for(const u of G.units) updateUnit(u, dt);
+  /* Anyone who reached the boat they were sent to steps aboard here, once the
+     walk over G.units has finished - see the "board" case for why. */
+  for(const u of G.units.slice()){
+    const b = u.wantsBoard;
+    if(!b) continue;
+    u.wantsBoard = null;
+    u.order = null; u.target = null;
+    const cap = (UNITS[b.type] && UNITS[b.type].capacity) || 0;
+    if(b.hp<=0 || (b.cargo||[]).length >= cap) continue;
+    b.cargo.push(u);
+    G.units.splice(G.units.indexOf(u), 1);
+    G.sel = G.sel.filter(e=>e!==u);
+    if(u.p===P_YOU) hint("Aboard: "+b.cargo.length+"/"+cap+".");
+  }
   updateElder(dt);
   updateHomeLife(dt);
   updatePaths(dt);
@@ -7270,6 +7348,20 @@ function updateUnit(u, dt){
           else dealDamage(u, t, atk, u.cls);
         }
       }
+      break;
+    }
+    case "board": {
+      // walk to the boat and step aboard. The boarding itself is deferred to
+      // after the unit loop: taking someone out of G.units in the middle of
+      // walking it makes the loop skip whoever was next.
+      const b = u.target;
+      const cap = (b && UNITS[b.type] && UNITS[b.type].capacity) || 0;
+      if(!b || b.hp<=0 || !cap){ u.order=null; u.target=null; break; }
+      if((b.cargo||[]).length >= cap){
+        if(u.p===P_YOU) hint("The "+UNITS[b.type].name.toLowerCase()+" is full.");
+        u.order=null; u.target=null; break;
+      }
+      if(moveToward(u, b.x, b.y, spd, dt, b.r + u.r + 8)) u.wantsBoard = b;
       break;
     }
     case "hold": {
@@ -10665,6 +10757,76 @@ function drawNode(n){
        wild berry bush sitting in the middle of it, over the top of its own
        crop. Checked first now. */
     return;
+  } else if(n.water){
+    /* A shoal is a food node that happens to be wet, so this branch has to
+       come BEFORE the berry one below - exactly the same way round as the
+       farm's crop above it. Sitting underneath, it never ran once: every
+       school of fish in the sea was drawn as a bush of berries floating on
+       the water, and this code had never been seen at all.
+
+       Three ways a shoal behaves, picked per node so the sea is not all one
+       motion: a slow circling ring, a tight school that darts as one, and a
+       lazy mill that now and then throws a fish clear of the water. */
+    const wet = Math.max(0.3, n.amt/n.max);
+    const style = ((n.id*7)|0) % 3;
+    // the darker water the shoal churns up
+    ctx.fillStyle = "rgba(24,60,80,.22)";
+    ctx.beginPath(); ctx.ellipse(n.x, n.y, n.r*1.15, n.r*0.72, 0, 0, 6.283); ctx.fill();
+
+    const cnt = Math.max(3, Math.round(7*wet));
+    const drawFish = (fx, fy, dir, s, col) => {
+      ctx.save(); ctx.translate(fx, fy); ctx.scale(dir*s, s);
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.ellipse(0, 0, 4.2, 1.9, 0, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-3.4, 0); ctx.lineTo(-6.0, -2.0); ctx.lineTo(-6.0, 2.0);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "rgba(232,244,250,.55)";           // a scale catching the light
+      ctx.beginPath(); ctx.ellipse(0.6, -0.5, 1.6, 0.7, 0, 0, 6.283); ctx.fill();
+      ctx.restore();
+    };
+
+    if(style === 0){
+      // a slow ring, each fish a little ahead of the last
+      for(let i=0;i<cnt;i++){
+        const a = n.seed + i*(6.283/cnt) + G.t*0.5;
+        drawFish(n.x + Math.cos(a)*n.r*0.62, n.y + Math.sin(a)*n.r*0.40,
+                 -Math.sin(a) > 0 ? 1 : -1, 1, "#7fa9bd");
+      }
+    } else if(style === 1){
+      // a tight school, all one way, changing its mind every few seconds
+      const leg = Math.floor(G.t/3.2 + n.seed);
+      const ang = Math.sin(leg*12.9898 + n.seed)*3.14;
+      const sway = Math.sin(G.t*1.6 + n.seed)*0.35;
+      const dir = Math.cos(ang) > 0 ? 1 : -1;
+      for(let i=0;i<cnt;i++){
+        const row = (i%3) - 1, col2 = ((i/3)|0);
+        const off = col2*5.2 + Math.sin(G.t*4 + i)*0.6;
+        const px = n.x + Math.cos(ang+sway)*(n.r*0.35 - off) + row*2.2;
+        const py = n.y + Math.sin(ang+sway)*(n.r*0.24 - off*0.5) + row*3.4;
+        drawFish(px, py, dir, 0.95, "#86b3c6");
+      }
+    } else {
+      // milling about, and every so often one clears the water
+      for(let i=0;i<cnt;i++){
+        const a = n.seed + i*2.1 + Math.sin(G.t*0.7 + i)*0.8;
+        drawFish(n.x + Math.cos(a)*n.r*0.55, n.y + Math.sin(a*1.4)*n.r*0.38,
+                 Math.cos(a) > 0 ? 1 : -1, 0.9, "#7aa6bb");
+      }
+      const jumpT = (G.t*0.55 + n.seed) % 4;        // one jump every four seconds
+      if(jumpT < 0.6){
+        const k = jumpT/0.6;
+        const jx = n.x + Math.cos(n.seed*3.1)*n.r*0.5;
+        const jy = n.y + Math.sin(n.seed*3.1)*n.r*0.3 - Math.sin(k*Math.PI)*7;
+        drawFish(jx, jy, 1, 0.85, "#a9cede");
+        ctx.strokeStyle = "rgba(220,240,248,.35)"; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.ellipse(jx, n.y + Math.sin(n.seed*3.1)*n.r*0.3, 3+k*5, 1.2+k*2, 0, 0, 6.283);
+        ctx.stroke();
+      }
+    }
+    // and the ring of disturbed water over the top of it
+    ctx.strokeStyle = "rgba(200,225,235,.16)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r*0.5 + Math.sin(G.t*1.5+n.seed)*3, 0, 6.283); ctx.stroke();
   } else if(n.kind===RES.FOOD){
     ctx.fillStyle="#3f5a34";
     ctx.beginPath(); ctx.ellipse(n.x,n.y+2,10,7,0,0,6.283); ctx.fill();
@@ -10673,25 +10835,6 @@ function drawNode(n){
       const a=n.seed+i*1.7;
       ctx.beginPath(); ctx.arc(n.x+Math.cos(a)*5, n.y+Math.sin(a)*3.4, 2.3*frac+0.9,0,6.283); ctx.fill();
     }
-  } else if(n.water){
-    const frac=Math.max(0.3,n.amt/n.max);
-    ctx.fillStyle="rgba(120,175,200,.20)";
-    ctx.beginPath(); ctx.ellipse(n.x,n.y,n.r*1.1,n.r*0.7,0,0,6.283); ctx.fill();
-    const cnt=Math.max(2,Math.round(6*frac));
-    for(let i=0;i<cnt;i++){
-      const a=n.seed+i*1.9+G.t*0.55;
-      const fx=n.x+Math.cos(a)*n.r*0.62, fy=n.y+Math.sin(a*1.3)*n.r*0.42;
-      const dir=Math.cos(a)>0?1:-1;
-      ctx.save(); ctx.translate(fx,fy); ctx.scale(dir,1);
-      ctx.fillStyle="#8fb4c4";
-      ctx.beginPath(); ctx.ellipse(0,0,4.2,2.1,0,0,6.283); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-3.6,0); ctx.lineTo(-6.2,-2.1); ctx.lineTo(-6.2,2.1);
-      ctx.closePath(); ctx.fill();
-      ctx.restore();
-    }
-    // ripples
-    ctx.strokeStyle="rgba(200,225,235,.18)"; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.arc(n.x,n.y,n.r*0.5+Math.sin(G.t*1.5+n.seed)*3,0,6.283); ctx.stroke();
   } else if(n.vein){
     const frac = Math.max(0.28, n.amt/n.max);
     const ore  = n.kind===RES.GOLD ? "#d9a441" : "#a9a7a0";
@@ -12184,22 +12327,39 @@ function drawPerson(u, pl, yOff){
 
 /* a proper trumpet: cylindrical body, a flared bell, three valve buttons -
    ctx is assumed already translated/rotated to wherever it's held */
-function drawTrumpetShape(playing, bt){
-  ctx.fillStyle="#e8c23a";
-  ctx.beginPath(); ctx.moveTo(0,-2.4); ctx.lineTo(11,-2.0); ctx.lineTo(11,2.0); ctx.lineTo(0,2.4); ctx.closePath(); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(11,-2.0); ctx.quadraticCurveTo(15,-2.6,17,-5.5);
-  ctx.lineTo(17,5.5); ctx.quadraticCurveTo(15,2.6,11,2.0); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle="rgba(0,0,0,.3)"; ctx.lineWidth=0.6;
-  ctx.beginPath(); ctx.arc(14.5,0,2.3,0,6.283); ctx.stroke();
+/* A trumpet, drawn from the mouthpiece at the origin out along +x.
+   Sized off the body holding it. It used to be drawn in raw pixels - 17 long
+   with a bell 11 across - on a bard whose whole body is 16.5 tall, so the
+   man was carrying a trumpet bigger than himself. Everything else in
+   drawBard scales off H; this is the one shape that did not. */
+function drawTrumpetShape(playing, bt, S){
+  const bore  = Math.max(1.0, S*0.11);
+  const bellX = S*0.60, bellR = S*0.26;
+
+  ctx.fillStyle="#d9b437";                                   // mouthpiece
+  ctx.beginPath(); ctx.ellipse(0, 0, S*0.06, bore*0.8, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle="#e8c23a";                                   // the tube
+  ctx.fillRect(S*0.04, -bore/2, bellX-S*0.04, bore);
+  ctx.beginPath();                                           // and the flare
+  ctx.moveTo(bellX, -bore/2);
+  ctx.quadraticCurveTo(S*0.86, -bore*0.75, S, -bellR);
+  ctx.lineTo(S, bellR);
+  ctx.quadraticCurveTo(S*0.86, bore*0.75, bellX, bore/2);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle="rgba(62,44,12,.45)";                        // the dark inside the bell
+  ctx.beginPath(); ctx.ellipse(S*0.97, 0, S*0.045, bellR*0.9, 0, 0, 6.283); ctx.fill();
+
+  /* Three valves standing proud of the tube. They only pump while he is
+     playing - stood still, they sit up. */
   ctx.fillStyle="#c9973f";
   for(let i=0;i<3;i++){
-    const vx = 3.6+i*2.6;
-    const pressed = playing && (Math.floor(bt*8+i*1.7)%3===i);
-    ctx.fillRect(vx-0.9, -2.0-(pressed?0.3:1.9), 1.8, pressed?1.1:2.3);
+    const vx = S*0.20 + i*S*0.13;
+    const down = playing && (Math.floor(bt*7 + i*1.9) % 3 === i);
+    const h = down ? bore*0.5 : bore*1.15;
+    ctx.fillRect(vx - bore*0.28, -bore/2 - h, bore*0.56, h);
   }
-  ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.lineWidth=0.5;
-  ctx.beginPath(); ctx.moveTo(0,-2.4); ctx.lineTo(11,-2.0); ctx.stroke();
+  ctx.strokeStyle="rgba(255,246,205,.45)"; ctx.lineWidth=Math.max(0.4, S*0.035);
+  ctx.beginPath(); ctx.moveTo(S*0.08,-bore*0.2); ctx.lineTo(bellX,-bore*0.2); ctx.stroke();
 }
 
 /* ---------- Music College bards ----------
@@ -12274,7 +12434,11 @@ function drawBard(u, pl){
     ctx.fillRect(-headR*0.75,-2,headR*0.6,headR*0.45);
     ctx.fillRect(headR*0.15,-2,headR*0.6,headR*0.45);
   } else if(u.type==="bardtrumpet"){
-    ctx.fillStyle="#241f1a"; ctx.beginPath(); ctx.arc(0,-3,headR*1.0,Math.PI*1.15,Math.PI*1.95,false); ctx.fill();
+    /* The cap sits ON his head. It was centred a flat 3px above the head -
+       and headR is only about 3.4 - so it hovered a hat's width clear of the
+       skull. Proportional, and barely lifted, like the lute player's. */
+    ctx.fillStyle="#241f1a";
+    ctx.beginPath(); ctx.arc(0,-headR*0.22,headR*1.04,Math.PI*1.12,Math.PI*1.98,false); ctx.fill();
     // cheeks only actually puff while playing
     const puff = playing ? (0.5+0.5*Math.sin(bt*10)) : 0;
     ctx.fillStyle = skin;
@@ -12311,25 +12475,28 @@ function drawBard(u, pl){
       ctx.restore();
     }
   } else if(u.type==="bardtrumpet"){
+    const S = H*0.50;
     if(!playing){
-      // idle: held down at the side, not raised
-      ctx.beginPath(); ctx.moveTo(-tw*0.6, shldY+H*0.05); ctx.lineTo(-tw*0.5, hipY+H*0.1); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(tw*0.6, shldY+H*0.05); ctx.lineTo(tw*0.65, hipY+H*0.15); ctx.stroke();
-      ctx.save(); ctx.translate(tw*0.7, hipY+H*0.08); ctx.rotate(1.3);
-      drawTrumpetShape(false, bt);
+      // stopped: both arms down, the trumpet carried at his side, bell low
+      ctx.beginPath(); ctx.moveTo(-tw*0.6, shldY+H*0.05); ctx.lineTo(-tw*0.5, hipY+H*0.10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo( tw*0.6, shldY+H*0.05); ctx.lineTo( tw*0.62, hipY+H*0.12); ctx.stroke();
+      ctx.save(); ctx.translate(tw*0.62, hipY+H*0.14); ctx.rotate(1.15);
+      drawTrumpetShape(false, bt, S);
       ctx.restore();
     } else {
-      // one arm just hangs at the side; the other bends at the elbow -
-      // a backwards L - to hold the trumpet up behind it
-      ctx.beginPath(); ctx.moveTo(-tw*0.6, shldY+H*0.05); ctx.lineTo(-tw*0.55, hipY+H*0.15); ctx.stroke();
-      ctx.lineJoin="round";
-      ctx.beginPath();
-      ctx.moveTo(tw*0.6, shldY+H*0.05);
-      ctx.lineTo(tw*0.55, shldY+H*0.32);
-      ctx.lineTo(headR*0.75+5.5, headY+headR*0.15);
-      ctx.stroke();
-      ctx.save(); ctx.translate(headR*0.75, headY+headR*0.15);
-      drawTrumpetShape(true, bt);
+      /* Playing: up to his lips and raised, one hand on the valves and the
+         other arm hanging at his side. Both arms up read as a bar across his
+         chest at this size. The valves pump inside drawTrumpetShape. */
+      const mx = headR*0.55, my = headY + headR*0.20;      // the mouthpiece, at his lips
+      const ang = -0.55;                                   // and the bell up in front of him
+      const along = d => ({ x: mx + Math.cos(ang)*d, y: my + Math.sin(ang)*d });
+      const nearHand = along(S*0.30);
+      ctx.beginPath(); ctx.moveTo(-tw*0.6, shldY+H*0.05);
+      ctx.lineTo(-tw*0.55, hipY+H*0.15); ctx.stroke();     // the other arm, down
+      ctx.beginPath(); ctx.moveTo( tw*0.6, shldY+H*0.05);
+      ctx.lineTo(nearHand.x, nearHand.y + H*0.07); ctx.stroke();
+      ctx.save(); ctx.translate(mx, my); ctx.rotate(ang);
+      drawTrumpetShape(true, bt, S);
       ctx.restore();
     }
   } else if(u.type==="barddrum"){
@@ -12843,28 +13010,54 @@ function drawWanderer(w){
     ctx.fillStyle = "#d9a441";   // a bright sash, foreign-looking against the coat
     ctx.fillRect(-tw*0.9, shldY+H*0.1, tw*1.8, H*0.05);
 
-    // head, hood down, a scarf instead of any local headwear
+    /* KG. Round face, a beard, and hair that has given up on the top of his
+       head but not at the sides - which is most of what makes him him at
+       twenty pixels tall. */
     ctx.fillStyle = "#e0c6a0";
-    ctx.beginPath(); ctx.arc(0, headY, headR, 0, 6.283); ctx.fill();
-    ctx.fillStyle = "#3a3550";
-    ctx.beginPath(); ctx.arc(0, headY, headR*1.02, Math.PI*1.05, Math.PI*2.05); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, headY, headR*1.06, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#6b4a30";                       // beard, jaw and chin
+    ctx.beginPath();
+    ctx.arc(0, headY+headR*0.34, headR*0.80, 0.10, Math.PI-0.10);
+    ctx.fill();
+    ctx.fillStyle = "#c9a882";                       // a bare crown
+    ctx.beginPath(); ctx.arc(0, headY-headR*0.18, headR*0.78, Math.PI*1.08, Math.PI*1.92); ctx.fill();
+    ctx.fillStyle = "#6b4a30";                       // and the long hair either side of it
+    for(const sgn of [-1, 1]){
+      ctx.beginPath();
+      ctx.ellipse(sgn*headR*0.88, headY+headR*0.12, headR*0.34, headR*0.78, sgn*0.25, 0, 6.283);
+      ctx.fill();
+    }
 
-    // the lute, held and strummed in front
+    /* The guitar is held HORIZONTAL across him, the way an acoustic sits when
+       it is actually being played, rather than hanging off a strap at an
+       angle. Body to the strumming side, neck out across the front. */
     const strum = Math.sin(G.t*10+w.seed)*1.4;
     ctx.save();
-    ctx.translate(tw*0.5, shldY+H*0.28);
-    ctx.rotate(-0.35);
-    ctx.strokeStyle = "#6b4a2e"; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-H*0.5); ctx.stroke();
-    ctx.fillStyle = "#8a5c34";
-    ctx.beginPath(); ctx.ellipse(0, H*0.12, H*0.16, H*0.22, 0, 0, 6.283); ctx.fill();
-    ctx.strokeStyle = "#e8dcc0"; ctx.lineWidth = 0.7;
+    ctx.translate(-tw*0.10, shldY + H*0.22);
+    const bodyR = H*0.24;
+    // neck and head, straight out in front
+    ctx.strokeStyle = "#5c3f27"; ctx.lineWidth = Math.max(1.1, H*0.055);
+    ctx.beginPath(); ctx.moveTo(bodyR*0.6, 0); ctx.lineTo(bodyR*2.6, -H*0.02); ctx.stroke();
+    ctx.fillStyle = "#4a3220";
+    ctx.fillRect(bodyR*2.5, -H*0.05, H*0.09, H*0.07);
+    // the body: two rounded bouts, so it reads as an acoustic and not a plank
+    ctx.fillStyle = "#a9702f";
+    ctx.beginPath(); ctx.ellipse(-bodyR*0.42, 0, bodyR*0.72, bodyR*0.80, 0, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( bodyR*0.30, 0, bodyR*0.62, bodyR*0.66, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#7d4f20";                       // the sound hole
+    ctx.beginPath(); ctx.arc(bodyR*0.34, 0, bodyR*0.24, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "#e8dcc0"; ctx.lineWidth = 0.55;   // strings, running the length of it
     for(let i=-1;i<2;i++){
       ctx.beginPath();
-      ctx.moveTo(-H*0.1, -H*0.42); ctx.lineTo(i*1.2, H*0.2+strum*0.15);
+      ctx.moveTo(-bodyR*0.7, i*0.9 + strum*0.10);
+      ctx.lineTo(bodyR*2.5, i*0.5);
       ctx.stroke();
     }
     ctx.restore();
+    // the strumming hand, over the body
+    ctx.fillStyle = "#e0c6a0";
+    ctx.beginPath();
+    ctx.arc(-tw*0.35, shldY + H*0.22 + strum*0.5, H*0.055, 0, 6.283); ctx.fill();
 
     ctx.restore();
 
@@ -15345,8 +15538,25 @@ function pickNightEvent(list){
 }
 
 const NIGHT_EVENT_CHANCE = 0.95;
+
+/* How often a night whose event was a QUIET one still gets something with
+   teeth prowling about. Deliberately not certain: the point of "one night,
+   one thing" was that a night has a single occasion, and this only says that
+   a bumper vein is not an occasion. */
+const NIGHT_PROWL_CHANCE = 0.45;
+
+/* Was tonight's event one of the quiet ones? Read off the same weight table
+   that decides how often each is picked - the small goods and ills (6) and
+   the flavour lines (3) are texture, while night traffic (2) and the
+   spectacles (1) are the night's business on their own. */
+function quietNight(){
+  if(!G.nightEventName) return false;
+  return (NIGHT_EVENT_WEIGHT[G.nightEventName] || 1) >= 3;
+}
+
 function somethingHappensTonight(){
   G.nightNo = (G.nightNo||0) + 1;
+  G.nightEventName = null;
   if(Math.random() > NIGHT_EVENT_CHANCE) return false;
 
   /* Did something big already turn up of its own accord? Then leave well
@@ -15379,6 +15589,7 @@ function somethingHappensTonight(){
       (G.crows||[]).length, !!G.dragon, !!G.dracula, !!G.storm, (G.pets||[]).length
     ]);
     if(before !== after || ret === true){
+      G.nightEventName = e.name;
       G.recentNights.push(e.name);
       if(G.recentNights.length > 5) G.recentNights.shift();
       return true;
@@ -15473,13 +15684,41 @@ function drawBoat(u, pl){
       ctx.fillStyle = pl.col;
       ctx.fillRect(-r*0.05, -r*1.45, r*0.75, r*0.16);
     });
-    // nets trailing astern
+    /* Nets trailing astern - and once the hold is full they trail a full net
+       with it, so a boat on its way back to the quay reads as one that has
+       caught something rather than one that is simply going the other way.
+       Ten is the cap: gatherUpgLevel comes off the drop-off building, and a
+       dock has no gathering upgrade line to research. */
+    const haul = Math.min(1, (u.carry||0)/10);
     ctx.strokeStyle = "rgba(226,222,196,.55)"; ctx.lineWidth = 0.8;
     for(let i=0;i<3;i++){
       ctx.beginPath();
       ctx.moveTo(-L*0.7, r*0.05 + i*2.2);
       ctx.lineTo(-L*1.05 - Math.sin(G.t*2+i)*2, r*0.18 + i*2.6);
       ctx.stroke();
+    }
+    if(haul > 0.35){
+      const bx = -L*1.10 - Math.sin(G.t*2)*1.5, by = r*0.28;
+      const bw = r*0.22 + r*0.20*haul, bh = r*0.17 + r*0.16*haul;
+      ctx.fillStyle = "rgba(150,178,190,.50)";               // the catch, seen through the mesh
+      ctx.beginPath(); ctx.ellipse(bx, by, bw, bh, 0.2, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = "rgba(232,228,204,.55)"; ctx.lineWidth = 0.6;
+      ctx.beginPath(); ctx.ellipse(bx, by, bw, bh, 0.2, 0, 6.283); ctx.stroke();
+      for(let i=-1;i<=1;i++){                                 // a suggestion of mesh
+        ctx.beginPath();
+        ctx.moveTo(bx + i*bw*0.5, by - bh*0.85);
+        ctx.lineTo(bx + i*bw*0.5, by + bh*0.85);
+        ctx.stroke();
+      }
+      ctx.beginPath(); ctx.moveTo(bx-bw, by); ctx.lineTo(bx+bw, by); ctx.stroke();
+      if(haul >= 1){                                          // a tail poking out of a full one
+        ctx.fillStyle = "#8fb4c4";
+        ctx.beginPath();
+        ctx.moveTo(bx - bw*0.2, by - bh*0.9);
+        ctx.lineTo(bx - bw*0.8, by - bh*1.6);
+        ctx.lineTo(bx + bw*0.1, by - bh*1.35);
+        ctx.closePath(); ctx.fill();
+      }
     }
     // one fisherman
     ctx.fillStyle = "#c9a27a";
@@ -16113,7 +16352,7 @@ function refreshUI(){
                                       : "Tap a shoal of fish.") :
         id==="attack" ? "Tap an enemy unit or building." :
         id==="follow" ? "Tap a villager, one of your military, or the elder to follow." :
-        id==="garrison" ? "Tap your barracks (soldiers) or archery range (archers)." :
+        id==="garrison" ? "Tap your barracks (soldiers), archery range (archers), or a boat to board it." :
                         "Tap where you want them to go.");
       refreshUI();
     }, null, G.action===id);
@@ -16155,7 +16394,14 @@ function refreshUI(){
         refreshUI();
       }, null, allHolding);
     }
-    if(garrisonables.length) act("garrison","Garrison","tap barracks or range");
+    /* Garrison covers a boat as well as a building - a troop carrier is
+       somewhere to put troops, and it is the order people go looking for when
+       they want to load one. So the button also shows for anything that could
+       board, as long as there is something afloat to board. */
+    const canBoard = ownUnits.some(u=>UNITS[u.type] && !UNITS[u.type].naval);
+    const haveHull = G.units.some(u=>u.p===P_YOU && UNITS[u.type] && UNITS[u.type].capacity>0);
+    if(garrisonables.length || (canBoard && haveHull))
+      act("garrison","Garrison", haveHull ? "tap a building or a boat" : "tap barracks or range");
 
     // a villager kept up working through the night gets this instead of
     // (or alongside) their usual options - the only way to actually stop
