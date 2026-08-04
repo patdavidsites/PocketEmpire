@@ -622,6 +622,22 @@ function faceToward(u, dx, dt){
   u.faceCd = 0.28;
 }
 
+/* Boats are drawn from above, so they turn instead of flipping: order one
+   south and its bow should come round to the south, not simply mirror. Kept
+   to a turn rate rather than snapping, so a ship swings round the way a hull
+   does. Land units keep faceToward - a person drawn from the side cannot be
+   shown stern-on. */
+const BOAT_TURN = 2.4;                    // radians a second
+function steerBoat(u, dx, dy, dt){
+  const want = Math.atan2(dy, dx);
+  if(u.head === undefined){ u.head = want; return; }
+  let d = want - u.head;
+  while(d >  Math.PI) d -= 6.283185307;
+  while(d < -Math.PI) d += 6.283185307;
+  const turn = BOAT_TURN * (dt || 0.016);
+  u.head += Math.abs(d) < turn ? d : (d < 0 ? -turn : turn);
+}
+
 function roundRectPath(cx2, x, y, w, h, r){
   r = Math.max(0, Math.min(r, w/2, h/2));
   cx2.beginPath();
@@ -3538,9 +3554,13 @@ const UNITS = {
              ranged:true, siege:8 },
   mage:{ name:"Mage", age:1, hp:44, spd:52, atk:22, rng:88, cd:1.9, cost:{know:60,gold:50},
          build:14, r:7, pop:1, cls:"mystic", ranged:true },
+  // `fisher` is what lets it be given a gather order, the way `villager` is
+  // for everything on land - the gather tick itself has never cared which
+  // kind of unit is working, only that a wet node gets a boat and a dry one
+  // does not
   fishingboat:{ name:"Fishing Boat", age:0, hp:70, spd:64, atk:0, rng:8, cd:1, cost:{wood:63,food:27},
-                build:11, r:11, pop:1, cls:"civ", naval:true },
-  transport:{ name:"Troop Carrier", age:2, hp:210, spd:80, atk:0, rng:8, cd:1, cost:{wood:120,food:55},
+                build:11, r:11, pop:1, cls:"civ", naval:true, fisher:true },
+  transport:{ name:"Troop Carrier", age:1, hp:210, spd:80, atk:0, rng:8, cd:1, cost:{wood:120,food:55},
               build:14, r:13, pop:1, cls:"civ", naval:true, capacity:6 },
   warship:{ name:"Spear Ship", age:1, hp:180, spd:82, atk:19, rng:118, cd:1.6, capacity:2,
             cost:{wood:117,gold:60,food:53}, build:16, r:13, pop:2, cls:"arc",
@@ -3572,6 +3592,7 @@ const GROUP_ICONS = {
   warrior: "🔨", swordsman: "🗡️", archer: "🏹",
   scout: "🔭", horsescout: "🐴", horsewarrior: "🏇",
   catapult: "🪨", mage: "🔮", druid: "🐻", warship: "🚢",
+  fishingboat: "🎣", transport: "⛴️",
   legionary: "🛡️",
   bardlute: "🎸", bardtrumpet: "🎺", barddrum: "🥁", bardrock: "🎤"
 };
@@ -3883,7 +3904,10 @@ function newGame(){
     groupTypes:{1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[]},
     groupMode:false,
     cam:{ x:0, y:0, z:1 },
-    ai:{ think:0, attackAt:70, wave:0, pushing:false, rebal:4, strategy:_pickedStrategy },
+    // beachSince/beachPush/waveNeed drive the beachhead: troops put ashore
+    // gather before they attack instead of charging a town three at a time
+    ai:{ think:0, attackAt:70, wave:0, pushing:false, rebal:4, strategy:_pickedStrategy,
+         beachSince:0, beachPush:false, waveNeed:0 },
     diff: DIFF[DIFFICULTY] || DIFF.medium,
     season: SEASON_ORDER[(Math.random()*SEASON_ORDER.length)|0],
     seasonT: 0,
@@ -5111,7 +5135,7 @@ function makeUnit(type, p, x, y){
     hp:civStat(p,type,"hp",d.hp), maxhp:civStat(p,type,"hp",d.hp),
     tx:x, ty:y, order:null, target:null, cd:0, carry:0, carryKind:null,
     r:d.r, cls:d.cls, form:null, gatherT:0, buildT:0, site:null, atkAnim:0,
-    walk:Math.random()*6, face:1, moving:false, working:0, cargo:[], skin:Math.floor(Math.random()*SKINS.length),
+    walk:Math.random()*6, face:1, head:0, row:0, moving:false, working:0, cargo:[], skin:Math.floor(Math.random()*SKINS.length),
     look:Math.floor(Math.random()*VILLAGER_LOOKS.length)
   };
   if(d.shift) u.form = "bear";
@@ -5691,11 +5715,22 @@ function tapAt(sx, sy){
     if(a==="gather"){
       const n = pickAt(w.x, w.y, "node", tol);
       if(n && n.isNode){
-        const vs = own.filter(u=>u.type==="villager");
-        if(!vs.length){ hint("Only villagers can gather."); }
-        else { vs.forEach(u=>{ u.order="gather"; u.target=n; u.site=null; });
-               hint("Gathering "+n.kind+"."); fxPing(n.x,n.y); }
-      } else hint("No resource there — tap a tree, bush, rock or gold.");
+        /* A shoal is worked from a boat and a berry patch on foot, so the
+           order goes to whichever of the selected units can actually reach
+           the thing tapped - the gather tick drops any order where the two
+           do not match, which would otherwise look like the tap did nothing. */
+        const wet = !!n.water;
+        const crew = own.filter(u => wet ? (UNITS[u.type] && UNITS[u.type].fisher)
+                                         : u.type==="villager");
+        if(!crew.length){
+          hint(wet ? "Only a fishing boat can work a shoal of fish."
+                   : "Only villagers can gather.");
+        } else {
+          crew.forEach(u=>{ u.order="gather"; u.target=n; u.site=null; });
+          hint(wet ? "Fishing the shoal." : "Gathering "+n.kind+".");
+          fxPing(n.x,n.y);
+        }
+      } else hint("No resource there — tap a tree, bush, rock, gold or a shoal of fish.");
     } else if(a==="attack"){
       const t = pickAt(w.x, w.y, "enemy", tol);
       if(t && t.p!==undefined && t.p!==P_YOU){
@@ -6041,7 +6076,9 @@ function spreadOffset(i, n){
    ============================================================ */
 function startPlacing(type){
   G.placing = { type };
-  hint("Tap the ground to place your " + BLDG[type].name.toLowerCase() + ".");
+  hint(BLDG[type].shore
+    ? "Tap the water's edge — a dock stands half in the water."
+    : "Tap the ground to place your " + BLDG[type].name.toLowerCase() + ".");
   refreshUI();
 }
 
@@ -6050,7 +6087,8 @@ function confirmPlace(){
   const type = G.placing.type, d = BLDG[type];
   const tx = G.placing.tx, ty = G.placing.ty;
   if(!canPlace(tx,ty,d.w,d.h,type)){
-    hint(d.shore ? "A dock must be built on the shoreline." : "Can't build there."); return; }
+    hint(d.shore ? "A dock must sit half in the water, half on the bank."
+                 : "Can't build there."); return; }
   const pl = G.players[P_YOU];
   if(!canAfford(pl, d.cost)){ hint("Not enough resources."); return; }
   pay(pl, d.cost);
@@ -6074,14 +6112,29 @@ function touchesWater(tx,ty,w,h){
   return false;
 }
 
+/* A shore building stands with its feet in the water: part of the plot is wet
+   and part of it dry, so a dock reads as a quay reaching out from the bank
+   rather than a shed that happens to be near it. The dry part is what the
+   builders stand on and what keeps it reachable on foot, so both halves are
+   required - a plot entirely in the water would be a raft. */
+function straddlesShore(tx,ty,w,h){
+  let wet=0, dry=0;
+  for(let y=ty;y<ty+h;y++) for(let x=tx;x<tx+w;x++){
+    if(x<0||y<0||x>=MAPW||y>=MAPH) return false;
+    if(G.terrain[y*MAPW+x]===5) wet++; else dry++;
+  }
+  return wet>0 && dry>0;
+}
+
 function canPlace(tx,ty,w,h,type){
   if(tx<0||ty<0||tx+w>MAPW||ty+h>MAPH) return false;
   // a yard is part of the plot: it has to be clear ground too, even though
   // anyone may walk over it once the place is built
   const yd = yardOf(type);
   if(yd && ty+h+yd > MAPH) return false;
+  const shore = !!(type && BLDG[type].shore);
   for(let y=ty;y<ty+h+yd;y++) for(let x=tx;x<tx+w;x++){
-    if(G.terrain[y*MAPW+x]===5) return false;
+    if(G.terrain[y*MAPW+x]===5 && !shore) return false;
     if(G.fog[P_YOU][y*MAPW+x]===0) return false;
     for(const b of G.bldgs){
       if(x>=b.tx && x<b.tx+b.w && y>=b.ty && y<b.ty+b.h) return false;
@@ -6089,7 +6142,7 @@ function canPlace(tx,ty,w,h,type){
       if(yr && x>=yr.tx && x<yr.tx+yr.w && y>=yr.ty && y<yr.ty+yr.h) return false;
     }
   }
-  if(type && BLDG[type].shore && !touchesWater(tx,ty,w,h)) return false;
+  if(shore && !straddlesShore(tx,ty,w,h)) return false;
 
   // Doors are on the south face, so leave the tiles directly in front of an
   // existing building clear - otherwise you can seal your own units indoors.
@@ -6112,12 +6165,33 @@ function canPlace(tx,ty,w,h,type){
          b.tx < tx+w && b.tx+b.w > tx) return false;
     }
   }
-  const cx=(tx+w/2)*TILE, cy=(ty+h/2)*TILE, rad=Math.max(w,h)*TILE/2;
-  for(const n of G.nodes){ if(n.farmOf) continue;
-    if(Math.hypot(n.x-cx,n.y-cy) < rad+10) return false; }
+  if(!nodesClear(tx,ty,w,h,shore)) return false;
   for(const b of G.bldgs){
     if(tx < b.tx+b.w && tx+w > b.tx && ty < b.ty+b.h && ty+h > b.ty) return false;
   }
+  return true;
+}
+
+/* Ordinary buildings keep a ring of clearance around them, so a town does not
+   grow up wedged between two trees. A quay cannot afford that: an island coast
+   is wooded right down to the waterline, and measured across twelve island
+   seeds the clearance ring - not the water - was what left whole coastlines
+   with nowhere to put a dock. A shore building may therefore stand among the
+   trees, so long as it is not built straight on top of one. */
+function nodesClear(tx,ty,w,h,shore,pad){
+  if(shore){
+    for(const n of G.nodes){
+      if(n.farmOf) continue;
+      const ntx = Math.floor(n.x/TILE), nty = Math.floor(n.y/TILE);
+      if(ntx>=tx && ntx<tx+w && nty>=ty && nty<ty+h) return false;
+    }
+    return true;
+  }
+  // the AI has always kept a slightly wider berth than the player's own
+  // placement check - keep it that way rather than quietly retuning it here
+  const cx=(tx+w/2)*TILE, cy=(ty+h/2)*TILE, rad=Math.max(w,h)*TILE/2;
+  for(const n of G.nodes){ if(n.farmOf) continue;
+    if(Math.hypot(n.x-cx,n.y-cy) < rad+(pad||10)) return false; }
   return true;
 }
 
@@ -7264,6 +7338,69 @@ function lineClear(x0,y0,x1,y1,self,naval){
 
 const NAV_DIRS = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 
+/* ---------- keeping boats off the rocks ----------
+
+   A* costs every water tile the same, so the cheapest way anywhere is the
+   shortest one, which by definition shaves every headland - and the
+   string-pull below then drags the track tighter against the shore than A*
+   drew it. Boats ended up scraping the coast the whole way to a shoal.
+
+   So: how many tiles of clear water is this, measured out from the nearest
+   land? One flood outward from every land tile at once, cached for the match
+   the way G.seaMap is - a coastline never moves. The map edge counts as shore
+   too, or a boat will happily grind along the border instead. */
+const KEEP_OFF   = 3;     // tiles of clearance a boat would like under it
+const SHORE_TOLL = 0.7;   // extra cost per tile of clearance it goes short
+const SHORTCUT_CLEAR = 2; // clearance a string-pulled shortcut has to keep
+
+function seaDepth(){
+  if(G.seaDeep) return G.seaDeep;
+  const n = MAPW*MAPH;
+  const d = new Int16Array(n).fill(-1);
+  let q = [];
+  for(let y=0;y<MAPH;y++) for(let x=0;x<MAPW;x++){
+    const i = y*MAPW+x;
+    if(G.terrain[i] !== 5){ d[i] = 0; q.push(i); }
+    else if(x===0 || y===0 || x===MAPW-1 || y===MAPH-1){ d[i] = 1; q.push(i); }
+  }
+  while(q.length){
+    const next = [];
+    for(const i of q){
+      const x = i%MAPW, y = (i/MAPW)|0;
+      for(const [dx,dy] of NAV_DIRS){
+        const nx=x+dx, ny=y+dy;
+        if(nx<0||ny<0||nx>=MAPW||ny>=MAPH) continue;
+        const j = ny*MAPW+nx;
+        if(d[j] !== -1 || G.terrain[j] !== 5) continue;
+        d[j] = d[i] + 1;
+        next.push(j);
+      }
+    }
+    q = next;
+  }
+  G.seaDeep = d;
+  return d;
+}
+
+function depthAt(wx, wy){
+  const tx = Math.floor(wx/TILE), ty = Math.floor(wy/TILE);
+  if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return 0;
+  return seaDepth()[ty*MAPW+tx];
+}
+
+/* Does this straight run stay out in open water? The plain lineClear only
+   asks whether anything is in the way, which is how a shortcut ends up
+   hugging the very headland the path was drawn to avoid. */
+function lineDeep(x0,y0,x1,y1,clear){
+  const need = clear === undefined ? SHORTCUT_CLEAR : clear;
+  const steps = Math.ceil(Math.hypot(x1-x0,y1-y0)/10);
+  for(let i=0;i<=steps;i++){
+    const t = steps ? i/steps : 0;
+    if(depthAt(x0+(x1-x0)*t, y0+(y1-y0)*t) < need) return false;
+  }
+  return true;
+}
+
 function findPath(wx, wy, gx, gy, naval, self){
   if(!naval && (G.navDirty || !G.navLand)) rebuildNav();
   const sx = Math.floor(wx/TILE), sy = Math.floor(wy/TILE);
@@ -7285,6 +7422,7 @@ function findPath(wx, wy, gx, gy, naval, self){
     ex=best[0]; ey=best[1];
   }
 
+  const deep = naval ? seaDepth() : null;
   const n = MAPW*MAPH;
   const openList = [sy*MAPW+sx];
   const came = new Int32Array(n).fill(-1);
@@ -7329,7 +7467,18 @@ function findPath(wx, wy, gx, gy, naval, self){
       const ni=ny*MAPW+nx;
       if(closed[ni]) continue;
       const step = (dx&&dy) ? Math.SQRT2 : 1;
-      const tentative = gScore[cur]+step;
+      /* A boat pays a toll for shallow water rather than being barred from
+         it: a dock, a shoal and a landing beach are all up against the shore
+         by definition, and a one-tile strait is sometimes the only way
+         through. It buys a wider berth where one exists and nothing else.
+         The last couple of tiles are exempt, so a boat coming in to its own
+         quay does not dither over the last stretch it has no choice about. */
+      let toll = 0;
+      if(deep){
+        const near = Math.abs(nx-ex) <= 2 && Math.abs(ny-ey) <= 2;
+        if(!near) toll = SHORE_TOLL * Math.max(0, KEEP_OFF - deep[ni]);
+      }
+      const tentative = gScore[cur]+step+toll;
       if(tentative < gScore[ni]){
         gScore[ni]=tentative; came[ni]=cur;
         if(openList.indexOf(ni)===-1) openList.push(ni);
@@ -7386,7 +7535,10 @@ function moveToward(u, tx, ty, spd, dt, stop){
 
   let aimX = tx, aimY = ty;
 
-  if(lineClear(u.x, u.y, tx, ty, self, nav)){
+  /* A boat only takes the straight shot if that line stays out in open water.
+     Otherwise both of the shortcuts below - this one and the string-pull -
+     quietly hand back every yard of clearance the path was drawn to gain. */
+  if(lineClear(u.x, u.y, tx, ty, self, nav) && (!nav || lineDeep(u.x, u.y, tx, ty))){
     u.path = null;                       // straight shot, no need to path
   } else {
     u.pathCd = (u.pathCd||0) - dt;
@@ -7399,7 +7551,8 @@ function moveToward(u, tx, ty, spd, dt, stop){
     }
     if(u.path && u.path.length){
       // string-pull: skip ahead to the furthest waypoint we can see
-      while(u.path.length>1 && lineClear(u.x,u.y,u.path[1].x,u.path[1].y,self,nav))
+      while(u.path.length>1 && lineClear(u.x,u.y,u.path[1].x,u.path[1].y,self,nav)
+            && (!nav || lineDeep(u.x,u.y,u.path[1].x,u.path[1].y)))
         u.path.shift();
 
       const wd = Math.hypot(u.path[0].x-u.x, u.path[0].y-u.y);
@@ -7445,6 +7598,7 @@ function moveToward(u, tx, ty, spd, dt, stop){
     if(!blocked(nx,ny,self,nav)){
       u.x=nx; u.y=ny;
       faceToward(u, Math.cos(a), dt);
+      if(nav) steerBoat(u, Math.cos(a), Math.sin(a), dt);
       u.lastSteer = off;
       if(u.steerT <= 0) u.steerT = 0.4;   // lock this choice in briefly
       moved=true; break;
@@ -7882,31 +8036,75 @@ function aiLandRoute(from, to){
    sail from the same quay every single game. A player who has learned where
    the boats come from should not be able to park two spear ships there and
    forget about the sea. */
-function aiFindShore(near, toward){
+function aiShoreCandidates(near){
   const cands = [];
   for(let ty=1; ty<MAPH-2; ty++){
     for(let tx=1; tx<MAPW-2; tx++){
-      if(!aiCanPlace(tx,ty,2,2)) continue;
-      if(!touchesWater(tx,ty,2,2)) continue;
+      // a dock plot is half wet by definition now, so straddling IS the shore
+      // test - there is no separate "is it near water" question to ask
+      if(!aiCanPlace(tx,ty,2,2,"dock")) continue;
+      /* Walk to the DRY half. The plot centre now sits on the waterline and is
+         as likely as not a wet tile, and landConnected to open water is false
+         by definition - checking the centre would throw away every quay on the
+         map, which is exactly the sort of silent nothing this file has been
+         bitten by before. */
+      let ax=-1, ay=-1;
+      for(let y=ty; y<ty+2 && ax<0; y++) for(let x=tx; x<tx+2; x++)
+        if(G.terrain[y*MAPW+x]!==5){ ax=x; ay=y; break; }
+      if(ax<0) continue;
+      if(!aiLandRoute(near, {x:(ax+0.5)*TILE, y:(ay+0.5)*TILE})) continue;
       const x=(tx+1)*TILE, y=(ty+1)*TILE;
-      if(!aiLandRoute(near, {x,y})) continue;         // its builders must be able to walk there
       cands.push({tx, ty, x, y, d: Math.hypot(x-near.x, y-near.y)});
     }
   }
+  return cands;
+}
+
+/* Every stretch of water a plot on these tiles would actually touch - the same
+   ring touchesWater looks at, so the two agree about what counts as a shore.
+
+   This used to be one lookup, at the tile directly below the plot. Every plot
+   aiCanPlace accepts is dry, so that only ever saw water on a south-facing
+   shore: a perfectly good quay facing north, east or west scored -1 and was
+   thrown out. On seven of sixteen island seeds it threw out every candidate,
+   the pool fell back to "any shore at all", and the AI put its dock on a lake.
+   The transport then loads, finds no beach it can sail to, and the invasion
+   sits at the quay with the troops still in the hold for the rest of the
+   match. */
+function shoreSeaIds(tx, ty, w, h){
+  const ids = new Set();
+  const m = seaBody();
+  for(let y=ty-1; y<=ty+h; y++) for(let x=tx-1; x<=tx+w; x++){
+    if(x<0||y<0||x>=MAPW||y>=MAPH) continue;
+    if(G.terrain[y*MAPW+x] !== 5) continue;
+    const id = m[y*MAPW+x];
+    if(id >= 0) ids.add(id);
+  }
+  return ids;
+}
+
+function aiFindShore(near, toward){
+  const cands = aiShoreCandidates(near);
   if(!cands.length) return null;
 
-  // prefer shores whose water leads to the enemy at all
+  // only shores whose water leads to the enemy. A quay on water that goes
+  // nowhere is worse than no quay: it costs the wood, it reads as progress,
+  // and the crossing can never happen from it.
+  const reaches = new Map();
+  const leadsToEnemy = id => {
+    if(!reaches.has(id)) reaches.set(id, aiFindLandings(toward, id).length > 0);
+    return reaches.get(id);
+  };
   const good = cands.filter(c=>{
-    const id = seaIdAt(c.x, c.y + TILE) >= 0 ? seaIdAt(c.x, c.y + TILE) : seaIdAt(c.x, c.y);
-    if(id < 0) return false;
-    return aiFindLandings(toward, id).length > 0;
+    for(const id of shoreSeaIds(c.tx, c.ty, 2, 2)) if(leadsToEnemy(id)) return true;
+    return false;
   });
-  const pool = good.length ? good : cands;
+  if(!good.length) return null;
 
   // of those, take one of the nearer half at random rather than the closest
-  pool.sort((a,b)=>a.d-b.d);
-  const take = Math.max(1, Math.ceil(pool.length*0.5));
-  return pool[(Math.random()*take)|0];
+  good.sort((a,b)=>a.d-b.d);
+  const take = Math.max(1, Math.ceil(good.length*0.5));
+  return good[(Math.random()*take)|0];
 }
 
 /* Which stretch of sea is this, and can a boat get from one place to another
@@ -7940,6 +8138,39 @@ function seaIdAt(x, y){
   const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
   if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return -1;
   return seaBody()[ty*MAPW+tx];
+}
+
+/* The same flood, inverted: which island is this? Needed for two questions
+   that used to be answered by measuring distances, badly - is this soldier
+   on the enemy's island (so he is a beachhead, not a straggler), and is he
+   on ours (so he can be marched to the quay at all). */
+function landBody(){
+  if(G.landMap) return G.landMap;
+  const m = new Int16Array(MAPW*MAPH).fill(-1);
+  let id = 0;
+  for(let i=0;i<m.length;i++){
+    if(m[i] !== -1 || G.terrain[i] === 5) continue;
+    const st = [i]; m[i] = id;
+    while(st.length){
+      const k = st.pop(), x = k%MAPW, y = (k/MAPW)|0;
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const nx=x+dx, ny=y+dy;
+        if(nx<0||ny<0||nx>=MAPW||ny>=MAPH) continue;
+        const j = ny*MAPW+nx;
+        if(m[j] !== -1 || G.terrain[j] === 5) continue;
+        m[j] = id; st.push(j);
+      }
+    }
+    id++;
+  }
+  G.landMap = m;
+  return m;
+}
+
+function landIdAt(x, y){
+  const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
+  if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return -1;
+  return landBody()[ty*MAPW+tx];
 }
 
 /* Somewhere to put the troops down.
@@ -8048,7 +8279,17 @@ function aiNavyYard(my, town){
       return;
     }
     const spot = aiFindShore(town, enemyTown);
-    if(!spot){ seaLog("needShore", "no buildable shore reachable from its town"); return; }
+    if(!spot){
+      /* Two quite different maps, and the difference matters: a coast with no
+         room on it at all is a spawning problem, while a coast with room on
+         the wrong water is a geometry one. Reported as one line, they look
+         like the same bug. */
+      const any = aiShoreCandidates(town).length;
+      seaLog("needShore", any
+        ? ("no shore whose water reaches you - "+any+" buildable quays, all on water that leads nowhere")
+        : "no buildable shore reachable from its town");
+      return;
+    }
     const d = makeBuilding("dock", P_AI, spot.tx, spot.ty, false);
     pay(pl, BLDG.dock.cost);
     const vills = my.units.filter(u=>u.type==="villager" && u.order!=="build").slice(0,3);
@@ -8116,6 +8357,52 @@ function aiNavyYard(my, town){
   G.ai.holdExpansion = false; G.ai.holdArmy = false;
 }
 
+/* What the troops do once they are ashore.
+
+   They used to attack the moment their feet touched the sand, which means a
+   party of three walking into a whole town, one boatload at a time, and dying
+   there - measured, the rival's army peak FELL by two thirds once it started
+   crossing more often. The carrier holds six, so a wave worth the name has to
+   be assembled on the beach over several trips.
+
+   A landed soldier is therefore left idle, which is already the behaviour we
+   want: an idle military unit auto-acquires anything within 132px, so a
+   waiting beachhead defends itself without standing there being shot. It goes
+   forward when enough of them are ashore - the same wave threshold the land
+   AI uses, capped by what the rival actually owns, so Easy (whose army peaks
+   around nine) gathers nine rather than holding out forever for fifteen - or
+   when patience runs out. Then the whole beach moves together. */
+const BEACH_PATIENCE = 100;                 // seconds before it goes with what it has
+
+function aiBeachhead(enemyTown){
+  const there = landIdAt(enemyTown.x, enemyTown.y);
+  if(there < 0) return;
+  const ashore = [];
+  let athome = 0;
+  for(const u of G.units){
+    if(u.p!==P_AI || u.indoors || u.cls==="civ" || u.cls==="scout") continue;
+    if(landIdAt(u.x,u.y) === there) ashore.push(u); else athome++;
+  }
+  if(!ashore.length){ G.ai.beachSince = 0; G.ai.beachPush = false; return; }
+  if(!G.ai.beachSince) G.ai.beachSince = G.t;
+
+  // never hold out for more than it owns, and never march with one straggler
+  const want = Math.max(3, Math.min(G.ai.waveNeed || 6, ashore.length + athome));
+  if(!G.ai.beachPush &&
+     (ashore.length >= want || G.t - G.ai.beachSince > BEACH_PATIENCE)){
+    G.ai.beachPush = true;
+    G.ai.pushing = true;
+  }
+  if(G.ai.beachPush){
+    for(const u of ashore){
+      if(u.order!=="attack" || !u.target || u.target.hp<=0){
+        u.order="attack"; u.target=enemyTown;
+      }
+    }
+  }
+  if(G.sea){ G.sea.ashore = ashore.length; G.sea.beachWant = want; }
+}
+
 function aiNavy(dt, my, army, town){
   const pl = G.players[P_AI];
   const nav = G.ai.navy = G.ai.navy || { state:"none", t:0 };
@@ -8123,6 +8410,7 @@ function aiNavy(dt, my, army, town){
 
   const enemyTown = aiNeedsSea(town);
   if(!enemyTown){ nav.state="none"; return false; }
+  aiBeachhead(enemyTown);
 
   const docks = my.bldgs.filter(b=>b.type==="dock");
   const boats = my.units.filter(u=>UNITS[u.type].capacity > 0);
@@ -8137,7 +8425,13 @@ function aiNavy(dt, my, army, town){
     (b.type==="transport") - (a.type==="transport") ||
     (UNITS[b.type].capacity||0) - (UNITS[a.type].capacity||0)
   )[0];
-  const ready = army.filter(u=>!u.indoors);
+  /* Only the ones standing on our own island can be marched to the quay.
+     Without this the loading party included everyone already put ashore on
+     the far side, and the order to walk to a dock they cannot reach pulled
+     the beachhead straight back off its objective and left it milling on the
+     enemy's beach - which is where the landings were quietly going. */
+  const homeIsle = landIdAt(town.x, town.y);
+  const ready = army.filter(u=>!u.indoors && landIdAt(u.x,u.y) === homeIsle);
   if(nav.state==="none" || nav.state==="gather"){
     // Three is enough to be worth a trip. Waiting for a proper warband meant
     // the leaner difficulties, which never field five at once, simply never
@@ -8192,12 +8486,9 @@ function aiNavy(dt, my, army, town){
     if(arrived){
       const put = unloadTransport(boat);
       if(put > 0){
-        // they land ready to fight
-        for(const u of G.units){
-          if(u.p!==P_AI || u.cls==="civ") continue;
-          if(Math.hypot(u.x-boat.x, u.y-boat.y) < 120){ u.order="attack"; u.target=enemyTown; }
-        }
-        G.ai.pushing = true;
+        // they land and hold the beach - aiBeachhead decides when they go
+        // forward, and until then being idle is what keeps them fighting
+        // whatever comes to them
         if(G.sea){
           G.sea.landings++;
           // Record WHERE they were put down. A landing that happens back on
@@ -8532,6 +8823,9 @@ function aiThink(dt){
   const fpMult = (strat.firstPushMultByDiff && strat.firstPushMultByDiff[DIFFICULTY]) || 1;
   const wbMult = (strat.waveBaseMultByDiff && strat.waveBaseMultByDiff[DIFFICULTY]) || 1;
   const threshold = G.diff.waveBase*wbMult + G.ai.wave*G.diff.waveStep;
+  // the beachhead gathers to the same size as a land wave, so a crossing
+  // inherits the difficulty and strategy tuning rather than inventing its own
+  G.ai.waveNeed = threshold;
   if(G.t < G.diff.firstPush*fpMult) G.ai.pushing = false; else
   if(!G.ai.pushing && army.length >= threshold){
     G.ai.pushing = true; G.ai.wave++;
@@ -8739,10 +9033,15 @@ function aiBuildNear(type, kind){
 function aiCanPlace(tx,ty,w,h,type){
   const yd = type ? yardOf(type) : 0;
   if(tx<0||ty<0||tx+w>MAPW||ty+h+yd>MAPH) return false;
-  for(let y=ty;y<ty+h+yd;y++) for(let x=tx;x<tx+w;x++) if(G.terrain[y*MAPW+x]===5) return false;
-  const cx=(tx+w/2)*TILE, cy=(ty+h/2)*TILE, rad=Math.max(w,h)*TILE/2;
-  for(const n of G.nodes){ if(n.farmOf) continue;
-    if(Math.hypot(n.x-cx,n.y-cy)<rad+12) return false; }
+  // a shore building wants water under half of itself; everything else wants
+  // none at all under any of it
+  const shore = !!(type && BLDG[type] && BLDG[type].shore);
+  if(shore){
+    if(!straddlesShore(tx,ty,w,h)) return false;
+  } else {
+    for(let y=ty;y<ty+h+yd;y++) for(let x=tx;x<tx+w;x++) if(G.terrain[y*MAPW+x]===5) return false;
+  }
+  if(!nodesClear(tx,ty,w,h,shore,12)) return false;
   for(const b of G.bldgs){
     if(tx<b.tx+b.w&&tx+w>b.tx&&ty<b.ty+b.h+ (yardOf(b.type)) &&ty+h+yd>b.ty) return false;
   }
@@ -11517,7 +11816,12 @@ function drawUnit(u){
 
   ctx.save();
   ctx.translate(x, y + u.r*0.55);          // origin = the ground under their feet
-  ctx.scale(u.face<0 ? -1 : 1, 1);         // flip to face travel direction
+  if(d.naval){
+    // a hull is drawn bow-first along +x, so its heading IS the rotation
+    ctx.rotate(u.head || 0);
+  } else {
+    ctx.scale(u.face<0 ? -1 : 1, 1);       // flip to face travel direction
+  }
 
   if(u.type==="druid" && u.form){
     drawDruidForm(u, FORMS[u.form].col, pl);
@@ -15119,6 +15423,22 @@ function drawBoat(u, pl){
   ctx.save();
   ctx.rotate(rock);
 
+  /* The hull is drawn from above and turns with the heading, but a mast, a
+     sail and the crew are drawn from the SIDE. Turning those with the hull
+     lays the sail flat on the water heading north, and stands it on its head
+     heading west. So anything that rises off the deck pivots back to upright
+     about its own footing: the ship turns underneath its rig, and the sail is
+     always on top. The anchor point is in hull coordinates, so the mast still
+     steps from the right plank whichever way she is pointing. */
+  const upright = (ax, ay, parts) => {
+    ctx.save();
+    ctx.translate(ax, ay);
+    ctx.rotate(-(u.head || 0));
+    ctx.translate(-ax, -ay);
+    parts();
+    ctx.restore();
+  };
+
   /* Three quite different vessels, so a glance tells you what is coming:
      a low open fishing smack, a lean oared spear ship, and a broad
      high-sided carrier riding heavy in the water. */
@@ -15140,17 +15460,19 @@ function drawBoat(u, pl){
     ctx.quadraticCurveTo(L*0.55, r*0.16, 0, r*0.20);
     ctx.quadraticCurveTo(-L*0.55, r*0.16, -L*0.78, -r*0.04);
     ctx.closePath(); ctx.fill();
-    // a stubby mast and a small triangular sail
-    ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.1, r*0.11);
-    ctx.beginPath(); ctx.moveTo(-r*0.1, -r*0.15); ctx.lineTo(-r*0.1, -r*1.5); ctx.stroke();
-    ctx.fillStyle = "#e6dcc4";
-    ctx.beginPath();
-    ctx.moveTo(-r*0.05, -r*1.45);
-    ctx.lineTo(r*0.95, -r*0.42);
-    ctx.lineTo(-r*0.05, -r*0.30);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = pl.col;
-    ctx.fillRect(-r*0.05, -r*1.45, r*0.75, r*0.16);
+    // a stubby mast and a small triangular sail, stepped just aft of centre
+    upright(-r*0.1, -r*0.15, ()=>{
+      ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.1, r*0.11);
+      ctx.beginPath(); ctx.moveTo(-r*0.1, -r*0.15); ctx.lineTo(-r*0.1, -r*1.5); ctx.stroke();
+      ctx.fillStyle = "#e6dcc4";
+      ctx.beginPath();
+      ctx.moveTo(-r*0.05, -r*1.45);
+      ctx.lineTo(r*0.95, -r*0.42);
+      ctx.lineTo(-r*0.05, -r*0.30);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = pl.col;
+      ctx.fillRect(-r*0.05, -r*1.45, r*0.75, r*0.16);
+    });
     // nets trailing astern
     ctx.strokeStyle = "rgba(226,222,196,.55)"; ctx.lineWidth = 0.8;
     for(let i=0;i<3;i++){
@@ -15166,8 +15488,13 @@ function drawBoat(u, pl){
   } else if(kind === "warship"){
     // --- a lean oared ship with a ram and spear throwers ---
     const hullT = "#7d6142", hullB = "#4e3a24";
-    // oars, sweeping
-    const sweep = Math.sin(G.t*4 + u.id)*0.30;
+    /* Oars only pull when she is under way - a moored ship rowing on the spot
+       read as a treadmill. The stroke keeps time with u.walk, which moveToward
+       advances only on a frame the boat actually moved, so the blades stop
+       dead the moment she does; the amplitude then eases off rather than
+       snapping, and they settle square to the hull. */
+    u.row = (u.row||0) + ((u.moving ? 1 : 0) - (u.row||0)) * 0.10;
+    const sweep = Math.sin((u.walk||0)*0.5 + u.id) * 0.30 * u.row;
     ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(0.9, r*0.075);
     for(let i=-2;i<=2;i++){
       const ox = i*L*0.28;
@@ -15208,29 +15535,33 @@ function drawBoat(u, pl){
       ctx.strokeStyle = "rgba(30,24,18,.5)"; ctx.lineWidth = 0.7; ctx.stroke();
     }
     // mast, square sail
-    ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.2, r*0.12);
-    ctx.beginPath(); ctx.moveTo(0, -r*0.25); ctx.lineTo(0, -r*1.85); ctx.stroke();
-    ctx.fillStyle = "#ded3b8";
-    ctx.fillRect(-L*0.42, -r*1.72, L*0.84, r*1.05);
-    ctx.fillStyle = pl.col;
-    ctx.fillRect(-L*0.42, -r*1.72, L*0.84, r*0.22);
-    ctx.strokeStyle = "rgba(30,24,18,.35)"; ctx.lineWidth = 0.7;
-    ctx.strokeRect(-L*0.42, -r*1.72, L*0.84, r*1.05);
-    // spearmen at the rail
+    upright(0, -r*0.25, ()=>{
+      ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.2, r*0.12);
+      ctx.beginPath(); ctx.moveTo(0, -r*0.25); ctx.lineTo(0, -r*1.85); ctx.stroke();
+      ctx.fillStyle = "#ded3b8";
+      ctx.fillRect(-L*0.42, -r*1.72, L*0.84, r*1.05);
+      ctx.fillStyle = pl.col;
+      ctx.fillRect(-L*0.42, -r*1.72, L*0.84, r*0.22);
+      ctx.strokeStyle = "rgba(30,24,18,.35)"; ctx.lineWidth = 0.7;
+      ctx.strokeRect(-L*0.42, -r*1.72, L*0.84, r*1.05);
+    });
+    // spearmen at the rail - they stand up too, so they keep their feet
     for(const sx of [-L*0.45, L*0.35]){
-      ctx.fillStyle = "#c9a27a";
-      ctx.beginPath(); ctx.arc(sx, -r*0.52, r*0.15, 0, 6.283); ctx.fill();
-      ctx.strokeStyle = "#8a7250"; ctx.lineWidth = Math.max(0.8, r*0.07);
-      ctx.beginPath();
-      ctx.moveTo(sx + r*0.1, -r*0.42);
-      ctx.lineTo(sx + r*0.85, -r*1.05);
-      ctx.stroke();
-      ctx.fillStyle = "#cbd2d8";
-      ctx.beginPath();
-      ctx.moveTo(sx + r*0.80, -r*1.02);
-      ctx.lineTo(sx + r*1.05, -r*1.22);
-      ctx.lineTo(sx + r*0.92, -r*0.92);
-      ctx.closePath(); ctx.fill();
+      upright(sx, -r*0.42, ()=>{
+        ctx.fillStyle = "#c9a27a";
+        ctx.beginPath(); ctx.arc(sx, -r*0.52, r*0.15, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = "#8a7250"; ctx.lineWidth = Math.max(0.8, r*0.07);
+        ctx.beginPath();
+        ctx.moveTo(sx + r*0.1, -r*0.42);
+        ctx.lineTo(sx + r*0.85, -r*1.05);
+        ctx.stroke();
+        ctx.fillStyle = "#cbd2d8";
+        ctx.beginPath();
+        ctx.moveTo(sx + r*0.80, -r*1.02);
+        ctx.lineTo(sx + r*1.05, -r*1.22);
+        ctx.lineTo(sx + r*0.92, -r*0.92);
+        ctx.closePath(); ctx.fill();
+      });
     }
 
   } else {
@@ -15261,28 +15592,32 @@ function drawBoat(u, pl){
     ctx.fillStyle = pl.col;
     for(let i=0;i<5;i++) ctx.fillRect(-L*0.74 + i*L*0.33, -r*0.70, L*0.16, r*0.16);
     // two masts and a broad sail
-    ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.2, r*0.12);
-    ctx.beginPath();
-    ctx.moveTo(-L*0.3, -r*0.6); ctx.lineTo(-L*0.3, -r*2.0);
-    ctx.moveTo( L*0.4, -r*0.6); ctx.lineTo( L*0.4, -r*1.6);
-    ctx.stroke();
-    ctx.fillStyle = "#e2d8bf";
-    ctx.fillRect(-L*0.72, -r*1.90, L*0.86, r*1.20);
-    ctx.fillStyle = pl.col;
-    ctx.fillRect(-L*0.72, -r*1.90, L*0.86, r*0.26);
-    ctx.strokeStyle = "rgba(30,24,18,.35)"; ctx.lineWidth = 0.7;
-    ctx.strokeRect(-L*0.72, -r*1.90, L*0.86, r*1.20);
-    ctx.fillStyle = "#d8ceb4";
-    ctx.fillRect(L*0.12, -r*1.52, L*0.60, r*0.82);
-    ctx.strokeRect(L*0.12, -r*1.52, L*0.60, r*0.82);
+    upright(-L*0.3, -r*0.6, ()=>{
+      ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.2, r*0.12);
+      ctx.beginPath();
+      ctx.moveTo(-L*0.3, -r*0.6); ctx.lineTo(-L*0.3, -r*2.0);
+      ctx.moveTo( L*0.4, -r*0.6); ctx.lineTo( L*0.4, -r*1.6);
+      ctx.stroke();
+      ctx.fillStyle = "#e2d8bf";
+      ctx.fillRect(-L*0.72, -r*1.90, L*0.86, r*1.20);
+      ctx.fillStyle = pl.col;
+      ctx.fillRect(-L*0.72, -r*1.90, L*0.86, r*0.26);
+      ctx.strokeStyle = "rgba(30,24,18,.35)"; ctx.lineWidth = 0.7;
+      ctx.strokeRect(-L*0.72, -r*1.90, L*0.86, r*1.20);
+      ctx.fillStyle = "#d8ceb4";
+      ctx.fillRect(L*0.12, -r*1.52, L*0.60, r*0.82);
+      ctx.strokeRect(L*0.12, -r*1.52, L*0.60, r*0.82);
+    });
     // whoever is aboard, showing over the rail
     const n = Math.min(4, u.cargo ? u.cargo.length : 0);
     for(let i=0;i<n;i++){
       const hx = -L*0.55 + i*L*0.38;
-      ctx.fillStyle = "#c9a27a";
-      ctx.beginPath(); ctx.arc(hx, -r*0.84, r*0.16, 0, 6.283); ctx.fill();
-      ctx.fillStyle = lit;
-      ctx.fillRect(hx - r*0.14, -r*0.74, r*0.28, r*0.12);
+      upright(hx, -r*0.70, ()=>{
+        ctx.fillStyle = "#c9a27a";
+        ctx.beginPath(); ctx.arc(hx, -r*0.84, r*0.16, 0, 6.283); ctx.fill();
+        ctx.fillStyle = lit;
+        ctx.fillRect(hx - r*0.14, -r*0.74, r*0.28, r*0.12);
+      });
     }
   }
 
@@ -15721,6 +16056,7 @@ function refreshUI(){
 
   const ownUnits = own.filter(e=>e.kind==="unit");
   const vills = ownUnits.filter(u=>u.type==="villager");
+  const fishers = ownUnits.filter(u=>UNITS[u.type] && UNITS[u.type].fisher);
   const druids = ownUnits.filter(u=>u.type==="druid");
   const military = ownUnits.filter(u=>u.cls && u.cls!=="civ");
   const garrisonables = ownUnits.filter(u=>u.cls==="inf" || u.cls==="arc");
@@ -15773,7 +16109,8 @@ function refreshUI(){
       G.action = (G.action===id ? null : id);
       G.placing = null;
       if(G.action) hint(
-        id==="gather" ? "Tap a tree, bush, rock or gold." :
+        id==="gather" ? (vills.length ? "Tap a tree, bush, rock or gold."
+                                      : "Tap a shoal of fish.") :
         id==="attack" ? "Tap an enemy unit or building." :
         id==="follow" ? "Tap a villager, one of your military, or the elder to follow." :
         id==="garrison" ? "Tap your barracks (soldiers) or archery range (archers)." :
@@ -15781,7 +16118,9 @@ function refreshUI(){
       refreshUI();
     }, null, G.action===id);
 
-    if(vills.length) act("gather","Gather","tap a resource");
+    // a fishing boat gathers too - it just works shoals instead of bushes
+    if(vills.length || fishers.length)
+      act("gather","Gather", vills.length ? "tap a resource" : "tap a shoal");
     act("move","Move","tap the ground");
     act("attack","Attack","tap a target");
     const bards = ownUnits.filter(u=>UNITS[u.type] && UNITS[u.type].buffKind);
