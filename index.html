@@ -1199,11 +1199,30 @@ function updateHomeLife(dt){
   for(let i=G.homeLife.length-1; i>=0; i--){
     const o = G.homeLife[i];
     o.t -= dt;
-    // the house is gone, or it is bedtime, or they have had their run about
-    if(!o.home || o.home.hp<=0 || !G.bldgs.includes(o.home) ||
-       o.t<=0 || (G.dark||0) > 0.35){
+    // the house is gone - nothing to walk back to, so it just goes
+    if(!o.home || o.home.hp<=0 || !G.bldgs.includes(o.home)){
       G.homeLife.splice(i,1);
       continue;
+    }
+    /* Bedtime, or they've had their run about: walk back to the door
+       instead of vanishing on the spot mid-yard. This used to be an
+       instant despawn the moment (G.dark||0) > 0.35 - the same door walk
+       the ball-fetching pet already did below, just made everyone's rule
+       rather than one kind's special case. A stuck doorway (blocked tile,
+       house moved) shouldn't strand them outside until dawn, so a few
+       seconds of no progress forces it same as a stalled leg elsewhere. */
+    if(!o.leaving && (o.t<=0 || (G.dark||0) > 0.35)){
+      o.leaving = true; o.leaveT = 0;
+      o.ball = null; o.patT = 0; o.patted = 0; o.wait = 0;
+    }
+    if(o.leaving){
+      o.leaveT += dt;
+      o.tx = o.home.x; o.ty = o.home.y + o.home.h*TILE/2 + 4;
+      const dHome = Math.hypot(o.tx-o.x, o.ty-o.y);
+      if(dHome < 6 || o.leaveT > 8){
+        G.homeLife.splice(i,1);
+        continue;
+      }
     }
     /* If this house has both its child and its pet outside, they play:
        the animal keeps coming back to the child, and the child chases it
@@ -1214,11 +1233,13 @@ function updateHomeLife(dt){
     /* ---- patting, and a ball to fetch ----
        The two things a child and an animal actually do together. Both live
        on the CHILD (o.patT, o.ball) so they are cleaned up with it and a
-       stray pet can never be left holding a ball nobody threw. */
+       stray pet can never be left holding a ball nobody threw. None of
+       this applies once either half of the pair is headed for the door. */
     const child = o.kind==="child" ? o : mate;
     const pet   = o.kind==="child" ? mate : o;
+    const settling = o.leaving || (mate && mate.leaving);
 
-    if(o.kind==="child" && mate){
+    if(o.kind==="child" && mate && !settling){
       o.playCd = (o.playCd===undefined) ? 3+Math.random()*5 : o.playCd - dt;
       if(o.patT > 0) o.patT -= dt;
       const near = Math.hypot(mate.x-o.x, mate.y-o.y) < 20;
@@ -1267,6 +1288,10 @@ function updateHomeLife(dt){
     if(o.kind!=="child" && o.patted > 0) o.patted -= dt;
 
     o.wait -= dt;
+    if(o.leaving){
+      // the door is already where the shared movement step below is
+      // heading (o.tx/o.ty set above) - nothing more to decide
+    } else
     // an animal with a ball to chase ignores everything else
     if(pet === o && child && child.ball){
       const b = child.ball;
@@ -1670,16 +1695,25 @@ function trySpawnZombies(force){
 }
 
 /* ---------- the costume invasion ----------
-   Once a season, at a random point in it, a handful of figures in ordinary
-   (if oddly assorted) fancy dress turn up at the edge of the village at
-   night - a nurse, a policeman, a cheerleader, whatever the roll gives.
-   Mostly they just walk from building to building and stand looking in the
-   windows a while. If one of your military gets close, though, it drops
-   whatever it was doing and comes for them instead - slow, but relentless,
-   and an instant kill on touch. Move a unit too far from every town of
-   yours at night and a ring of them will close in around it specifically -
-   the real point of all this, so an army can't just be marched off into
-   the far dark and forgotten about until morning. */
+   Once a year (every four seasons), at a random point in the eligible
+   season, a handful of figures in ordinary (if oddly assorted) fancy dress
+   turn up at the edge of the village at night - a nurse, a policeman, a
+   cheerleader, whatever the roll gives. Mostly they just walk from building
+   to building and stand looking in the windows a while. If one of your
+   military gets close, though, it drops whatever it was doing and comes for
+   them instead - slow, but relentless, and an instant kill on touch. Move a
+   unit too far from every town of yours at night and a ring of them will
+   close in around it specifically - the real point of all this, so an army
+   can't just be marched off into the far dark and forgotten about until
+   morning.
+
+   Used to be a straight once-a-season deal, gated only by G.invasionDone -
+   but the NIGHT_EVENTS pool also has its own "costumes" entry that calls
+   spawnInvasion() directly, bypassing that gate entirely, so a season could
+   get two or three on top of each other. The gap counter below (same shape
+   as the blood moon's) is now the single source of truth for "is this
+   season the one" - the pool entry reads it rather than sidestepping it. */
+const INVASION_MIN_GAP = 4;   // seasons between invasions - one year
 const COSTUME_KINDS = [
   { name:"Nurse",       col:"#e8e4de", trim:"#c0302f", hair:"#c9a441" },
   { name:"Policeman",   col:"#26417a", trim:"#c9a441", hair:"#241f1a" },
@@ -1692,17 +1726,22 @@ const INVASION_SWARM_DIST = 380;   // how far from every town of yours counts as
 
 function updateSeasonInvasion(dt){
   if(G.invasionSeasonKey !== G.season){
-    // a new season - schedule the one visit somewhere in the middle of it,
-    // not right at the very start or end
+    // a new season - count it, and only schedule an actual visit if enough
+    // seasons have passed since the last one (once a year, not once a
+    // season). When it is due, aim somewhere in the middle of the season,
+    // not right at the very start or end.
     G.invasionSeasonKey = G.season;
+    G.invasionSeasonCount = (G.invasionSeasonCount||0) + 1;
+    G.invasionDue = (G.invasionSeasonCount - (G.lastInvasionSeason||0)) >= INVASION_MIN_GAP;
     G.invasionAt = 30 + Math.random()*(SEASON_LEN-60);
     G.invasionDone = false;
   }
   // these don't show up at all until the final age - a late-game thing,
   // not something to worry about from the very first winter
   const finalAge = G.players[P_YOU].age >= 2;
-  if(finalAge && !G.invasionDone && G.seasonT >= G.invasionAt && G.phase==="night"){
+  if(finalAge && G.invasionDue && !G.invasionDone && G.seasonT >= G.invasionAt && G.phase==="night"){
     G.invasionDone = true;
+    G.lastInvasionSeason = G.invasionSeasonCount;
     spawnInvasion();
   }
   updateInvaders(dt);
@@ -2196,7 +2235,8 @@ function trySpawnPilgrims(force){
       ex: fx+px, ey: fy+py,
       leg:1, t:0,
       face:1, walk:Math.random()*6, seed:Math.random()*6.283,
-      spd: 20 + Math.random()*4
+      spd: 20 + Math.random()*4,
+      clicks: 0, rewarded: false
     });
   }
   hint("A line of wandering pilgrims passes through, banner raised.");
@@ -2649,6 +2689,39 @@ function trySpawnGumby(force){
   hint("A little black dog trots into view.");
   return true;
 }
+/* Steps g toward (tx,ty), kept out of every building except a farm - the
+   same "fields are walkable" rule blocked() already uses for everyone else.
+   Gumby has no path of his own (he's a decoration, not a pathed unit), so a
+   straight line that finds a wall slides along whichever single axis is
+   still clear instead, the simplest way to go round a corner rather than
+   stopping dead against it. Returns the remaining distance to the target,
+   which every caller already wants for its own "have I arrived" check. */
+const GUMBY_PAD = 5;
+function gumbyStep(g, tx, ty, dt){
+  const dx=tx-g.x, dy=ty-g.y, d=Math.hypot(dx,dy)||1;
+  if(Math.abs(dx)>0.1) g.face = dx<0?-1:1;
+  const step = Math.min(d, g.spd*dt);
+  const nx = g.x+dx/d*step, ny = g.y+dy/d*step;
+  let moved = true;
+  if(!blocked(nx, ny, null, false, GUMBY_PAD)){
+    g.x = nx; g.y = ny;
+  } else if(!blocked(nx, g.y, null, false, GUMBY_PAD)){
+    g.x = nx;
+  } else if(!blocked(g.x, ny, null, false, GUMBY_PAD)){
+    g.y = ny;
+  } else moved = false;
+
+  // A wander spot or a line to a farm is never checked against buildings
+  // when it's picked, only walked toward - so this is the one place that
+  // can actually notice a target that turned out to be behind a wall on
+  // every side. Wall-sliding gets round a corner; it can't get round being
+  // fully boxed in, and nothing here should stand there barking forever.
+  g.stuckT = moved ? 0 : (g.stuckT||0) + dt;
+  if(g.stuckT > 1.2 && g.state !== "out"){
+    g.stuckT = 0; g.state = "wander"; pickGumbySpot(g);
+  }
+  return d;
+}
 function updateGumby(dt){
   const g = G.gumby;
   if(!g) return;
@@ -2656,13 +2729,10 @@ function updateGumby(dt){
   if(g.say){ g.sayT -= dt; if(g.sayT<=0) g.say=null; }
 
   if(g.state==="in"){
-    const dx=g.tx-g.x, dy=g.ty-g.y, d=Math.hypot(dx,dy)||1;
-    if(Math.abs(dx)>0.1) g.face = dx<0?-1:1;
+    const d = gumbyStep(g, g.tx, g.ty, dt);
     if(d<40){ g.state="wander"; pickGumbySpot(g); }
-    else { const step=Math.min(d,g.spd*dt); g.x+=dx/d*step; g.y+=dy/d*step; }
   } else if(g.state==="wander"){
-    const dx=g.tx-g.x, dy=g.ty-g.y, d=Math.hypot(dx,dy)||1;
-    if(Math.abs(dx)>0.1) g.face = dx<0?-1:1;
+    const d = gumbyStep(g, g.tx, g.ty, dt);
     if(d<6){
       g.wanders++;
       if(g.wanders>=5){
@@ -2673,8 +2743,6 @@ function updateGumby(dt){
         const farm = pickGumbyFarm();
         if(farm){ g.state="toFarm"; g.farm=farm; } else pickGumbySpot(g);
       } else pickGumbySpot(g);
-    } else {
-      const step=Math.min(d,g.spd*dt); g.x+=dx/d*step; g.y+=dy/d*step;
     }
     g.barkCd -= dt;
     if(g.barkCd<=0){
@@ -2686,8 +2754,7 @@ function updateGumby(dt){
   } else if(g.state==="toFarm"){
     const farm = g.farm;
     if(!farm || farm.hp<=0){ g.state="wander"; pickGumbySpot(g); return; }
-    const dx=farm.x-g.x, dy=farm.y-g.y, d=Math.hypot(dx,dy)||1;
-    if(Math.abs(dx)>0.1) g.face = dx<0?-1:1;
+    const d = gumbyStep(g, farm.x, farm.y, dt);
     if(d < Math.max(farm.w,farm.h)*TILE/2+14){
       const pl = G.players[farm.p];
       const steal = Math.min(pl.res.food, 6+Math.random()*10);
@@ -2696,14 +2763,10 @@ function updateGumby(dt){
       g.say = "Woof!"; g.sayT = 1.6;
       if(farm.p===P_YOU) hint("Gumby steals a bite from the farm, knocking it about a little.");
       g.state="wander"; pickGumbySpot(g);
-    } else {
-      const step=Math.min(d,g.spd*dt); g.x+=dx/d*step; g.y+=dy/d*step;
     }
   } else {
-    const dx=g.ex-g.x, dy=g.ey-g.y, d=Math.hypot(dx,dy)||1;
-    if(Math.abs(dx)>0.1) g.face = dx<0?-1:1;
+    const d = gumbyStep(g, g.ex, g.ey, dt);
     if(d<10 || g.t>200){ G.gumby=null; return; }
-    const step=Math.min(d,g.spd*dt); g.x+=dx/d*step; g.y+=dy/d*step;
   }
 }
 
@@ -3987,6 +4050,7 @@ function newGame(){
     aurora:null, shootingStar:null, rainbow:null, tornado:null, scorches:[],
     underAttackCd:0, underAttackFlashT:0,
     invaders:[], invasionSeasonKey:null, invasionAt:0, invasionDone:false,
+    invasionSeasonCount:0, invasionDue:false, lastInvasionSeason:0,
     bloodMoon:null, bloodMoonSeasonKey:null, bloodMoonAt:0, bloodMoonDone:false,
     sel:[], placing:null, action:null, uiMode:"main", selectMode:false,
     groups:{1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[]},
@@ -5950,6 +6014,25 @@ function tapAt(sx, sy){
     return;
   }
 
+  // ---- the owl, if it's landed and in reach of the tap: five taps gets a
+  //      curious head-tilt and a small reward, rather than being selected
+  //      like a unit (it has none of the fields the info panel expects) ----
+  if(G.owl && G.owl.state==="sit" &&
+     Math.hypot(G.owl.x-w.x, G.owl.y-w.y) < G.owl.def.r+13){
+    tapOwl(G.owl);
+    return;
+  }
+
+  // ---- the pilgrims' flag-bearer: five taps on the one carrying the
+  //      banner gets a small reward, same idea as the owl above ----
+  for(const wnd of G.wanderers||[]){
+    if(wnd.kind==="pilgrim" && wnd.leader && visibleTo(P_YOU,wnd.x,wnd.y) &&
+       Math.hypot(wnd.x-w.x, wnd.y-w.y) < 13){
+      tapPilgrimLeader(wnd);
+      return;
+    }
+  }
+
   // ---- plain tap: selection only. commands go through the action buttons
   //      (or right-click on desktop), so tapping open ground always deselects ----
   const ent = pickAt(w.x, w.y);
@@ -6131,6 +6214,34 @@ function ungroupSelected(units){
     n++;
   }
   return n;
+}
+
+/* Five taps and it notices you: a head-tilt and a small find, once per
+   visit - capped with o.rewarded so mashing the same owl doesn't turn into
+   a moonstone tap rather than an owl. */
+function tapOwl(o){
+  o.clicks = (o.clicks||0) + 1;
+  if(o.clicks >= 5 && !o.rewarded){
+    o.rewarded = true;
+    o.tiltStart = o.t;
+    const pl = G.players[P_YOU];
+    pl.res.moonstone = (pl.res.moonstone||0) + 50;
+    hint("The "+o.def.name.toLowerCase()+" tilts its head at you - 50 moonstone turns up where it was watching from.");
+    refreshUI();
+  }
+}
+
+/* Same idea as tapOwl above: five taps on the pilgrims' flag-bearer gets a
+   small find, once per visit. */
+function tapPilgrimLeader(w){
+  w.clicks = (w.clicks||0) + 1;
+  if(w.clicks >= 5 && !w.rewarded){
+    w.rewarded = true;
+    const pl = G.players[P_YOU];
+    pl.res.moonstone = (pl.res.moonstone||0) + 50;
+    hint("The flag-bearer dips the banner to you - 50 moonstone left on the road.");
+    refreshUI();
+  }
 }
 
 function resetModes(){ G.action=null; G.uiMode="main"; G.placing=null; G.confirmKill=null; }
@@ -6738,6 +6849,11 @@ function exploredTo(p,wx,wy){
   return G.fog[p][ty*MAPW+tx]>0;
 }
 
+// how long an angler's cast-out and reel-in take - read by both the gather
+// tick (drives u.fishPhase/u.fishPhaseT) and drawHeld (renders them)
+const FISH_CAST_DUR = 0.5;
+const FISH_REEL_DUR = 0.35;
+
 /* ============================================================
    UPDATE
    ============================================================ */
@@ -7245,7 +7361,7 @@ function updateUnit(u, dt){
         if(moveToward(u, dp.x, dp.y, spd, dt, Math.max(dp.w,dp.h)*TILE/2 + 6)){
           G.players[u.p].res[u.carryKind] += u.carry;
           if(u.carryIron){ G.players[u.p].res.iron += u.carryIron; u.carryIron = 0; }
-          u.carry = 0; u.haulHome = false;
+          u.carry = 0; u.haulHome = false; u.carryFish = false; u.fishPhase = null;
           u.order = null; u.target = null;      // now genuinely idle, and counted
         }
         break;
@@ -7266,7 +7382,7 @@ function updateUnit(u, dt){
         if(moveToward(u, dp.x, dp.y, spd, dt, Math.max(dp.w,dp.h)*TILE/2 + 6)){
           G.players[u.p].res[u.carryKind] += u.carry;
           if(u.carryIron){ G.players[u.p].res.iron += u.carryIron; u.carryIron = 0; }
-          u.carry=0;
+          u.carry=0; u.carryFish=false; u.fishPhase=null;
         }
       } else {
         // farm hands work at the edge of the field so they stay in view, and
@@ -7274,6 +7390,15 @@ function updateUnit(u, dt){
         const reach = fishSpot ? 4 : (n.farmOf ? n.r*0.55 : n.r+9);
         const ax = fishSpot ? fishSpot.x : n.x, ay = fishSpot ? fishSpot.y : n.y;
         if(moveToward(u, ax, ay, spd, dt, reach)){
+          // the cast: only an angler has one, and only the moment they've
+          // actually arrived - drawHeld reads fishPhase/fishPhaseT to swing
+          // the rod out, then settles into the same waiting bob as before
+          if(fishSpot && !u.fishPhase){ u.fishPhase="cast"; u.fishPhaseT=0; }
+          if(u.fishPhase){
+            u.fishPhaseT += dt;
+            if(u.fishPhase==="cast" && u.fishPhaseT >= FISH_CAST_DUR){ u.fishPhase="wait"; u.fishPhaseT=0; }
+            else if(u.fishPhase==="reel" && u.fishPhaseT >= FISH_REEL_DUR){ u.fishPhase="wait"; u.fishPhaseT=0; }
+          }
           u.gatherT += dt;
           u.working = 0.45;                       // drives the work animation
           if(u.gatherT >= 0.62){
@@ -7290,6 +7415,7 @@ function updateUnit(u, dt){
             n.amt -= take; u.carry += take; u.carryKind = n.kind;
             if(n.kind==="stone") u.carryIron = (u.carryIron||0) + take*IRON_RATIO;
             u.atkAnim = 0.2;
+            if(fishSpot){ u.carryFish = true; u.fishPhase = "reel"; u.fishPhaseT = 0; }
             if(n.farmOf) fxWork(u.x, u.y, "#8fae4a");
             else if(n.kind==="wood") fxWork(u.x, u.y, "#6a5334");
             else if(n.vein) fxWork(u.x, u.y, n.kind==="gold"?"#d9a441":"#9b9b98");
@@ -10301,6 +10427,30 @@ function draw(){
       }
     }
 
+    // fishing boats hang a lantern over the stern after dark - the one
+    // naval light, since a war fleet isn't meant to advertise itself
+    const boatLanterns = [];
+    if(lit > 0){
+      for(const u of G.units){
+        if(u.hp<=0 || u.type!=="fishingboat") continue;
+        if(u.p!==P_YOU && !visibleTo(P_YOU,u.x,u.y)) continue;
+        const guttr = 0.90 + 0.10*Math.sin(G.t*0.9 + u.id*1.9);
+        const rad = BOAT_LANTERN_RADIUS * guttr;
+        const sp = w2s(u.x, u.y);
+        const rx = rad*c.z, ry = rad*0.72*c.z;
+        if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
+        boatLanterns.push({x:sp.x, y:sp.y, rx, ry});
+        nx.save();
+        nx.translate(sp.x, sp.y);
+        nx.scale(1, ry/rx);
+        const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
+        glowGradient(g, 0.95*lit, 0.14, 2.2, "0,0,0");
+        nx.fillStyle = g;
+        nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
+        nx.restore();
+      }
+    }
+
     nx.globalCompositeOperation = "source-over";
 
     // lay the night over the world
@@ -10344,6 +10494,26 @@ function draw(){
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(0,0,T.rx,0,6.283);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // the lantern's own wash - warmer still, a small hand-hung flame
+    // rather than a torch or a hearth
+    if(boatLanterns.length){
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+      for(const Lt of boatLanterns){
+        ctx.save();
+        ctx.translate(Lt.x, Lt.y);
+        ctx.scale(1, Lt.ry/Lt.rx);
+        const g = ctx.createRadialGradient(0,0,Lt.rx*0.05, 0,0,Lt.rx);
+        glowGradient(g, 0.26*lit, 0.10, 2.0, "255,222,140");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(0,0,Lt.rx,0,6.283);
         ctx.fill();
         ctx.restore();
       }
@@ -12645,19 +12815,65 @@ function drawHeld(u, hx, hy, H, atk, pl){
       // axe: haft + head, tool metal upgrades with the age
       const work = (u.working>0 && !u.moving);
       /* ...unless they are working a shoal, in which case they have a rod out
-         and the line in the water. Same villager, different tool. */
-      if(u.order==="gather" && u.target && u.target.water){
-        const cast = Math.sin(G.t*2.0 + u.id)*0.09;
-        const ang  = 0.95 + cast;                      // out in front, tip up
+         and the line in the water - or just caught something and are
+         carrying it home. Same villager, different tool.
+
+         Four things happen in order, driven by fishPhase/fishPhaseT/carryFish
+         (set in the gather tick, 03c-fog-and-tick.js): walk to the bank with
+         the rod shouldered and no line out yet; cast, the tip swinging from
+         behind up and out over FISH_CAST_DUR while the line and float pay out
+         with it; wait, the float bobbing steady in the water, exactly the
+         pose this used to be at all times; reel, the line drawing back in
+         over FISH_REEL_DUR the moment a catch lands; then the walk home
+         carries an actual fish instead of a rod. */
+      const fishing = u.order==="gather" && u.target && u.target.water;
+      const carryingFish = u.carryFish && u.carry>0 && !u.working;
+      if(fishing && carryingFish){
+        const bob = Math.sin(G.t*5+u.id)*0.4;
+        ctx.save();
+        ctx.translate(hx, hy+bob); ctx.rotate(0.3);
+        ctx.fillStyle="#8fb4c4";
+        ctx.beginPath(); ctx.ellipse(0,0,H*0.24,H*0.10,0,0,6.283); ctx.fill();
+        ctx.beginPath();                                // tail
+        ctx.moveTo(-H*0.22,0); ctx.lineTo(-H*0.32,-H*0.09); ctx.lineTo(-H*0.32,H*0.09);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle="#5c8494";
+        ctx.beginPath(); ctx.arc(H*0.14,-H*0.02,H*0.03,0,6.283); ctx.fill();  // an eye
+        ctx.restore();
+        break;
+      }
+      if(fishing){
+        const phase = u.working ? (u.fishPhase||"wait") : "shoulder";
+        if(phase==="shoulder"){
+          // on the way to the bank - rod carried, not cast yet
+          ctx.strokeStyle="#6b4f30"; ctx.lineWidth=Math.max(1.0,H*0.032);
+          ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx-H*0.10, hy-H*0.60); ctx.stroke();
+          break;
+        }
+        let ang, lineK;
+        if(phase==="cast"){
+          const k = Math.min(1, (u.fishPhaseT||0)/FISH_CAST_DUR);
+          ang = -0.9 + k*1.85;                          // swings from behind to out front
+          lineK = Math.max(0, (k-0.55)/0.45);           // the line only pays out on the back half of the swing
+        } else if(phase==="reel"){
+          ang = 0.95;
+          lineK = 1 - Math.min(1, (u.fishPhaseT||0)/FISH_REEL_DUR);
+        } else {
+          ang = 0.95 + Math.sin(G.t*2.0 + u.id)*0.09;    // waiting: a steady idle sway
+          lineK = 1;
+        }
         const tipX = hx + Math.sin(ang)*H*0.62, tipY = hy - Math.cos(ang)*H*0.62;
         ctx.strokeStyle="#6b4f30"; ctx.lineWidth=Math.max(1.0,H*0.032);
         ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(tipX,tipY); ctx.stroke();
-        const fx = tipX + H*0.09, fy = tipY + H*0.44 + Math.sin(G.t*2.6+u.id)*H*0.02;
-        ctx.strokeStyle="rgba(238,243,248,.7)"; ctx.lineWidth=0.55;
-        ctx.beginPath(); ctx.moveTo(tipX,tipY);
-        ctx.quadraticCurveTo(tipX+H*0.13, tipY+H*0.20, fx, fy); ctx.stroke();
-        ctx.fillStyle="#c1503f";                       // the float, bobbing
-        ctx.beginPath(); ctx.arc(fx, fy, Math.max(0.8,H*0.042), 0, 6.283); ctx.fill();
+        if(lineK > 0){
+          const bobY = (phase==="wait") ? Math.sin(G.t*2.6+u.id)*H*0.02 : 0;
+          const fx = tipX + H*0.09*lineK, fy = tipY + H*0.44*lineK + bobY;
+          ctx.strokeStyle="rgba(238,243,248,.7)"; ctx.lineWidth=0.55;
+          ctx.beginPath(); ctx.moveTo(tipX,tipY);
+          ctx.quadraticCurveTo(tipX+H*0.13*lineK, tipY+H*0.20*lineK, fx, fy); ctx.stroke();
+          ctx.fillStyle="#c1503f";                       // the float, bobbing
+          ctx.beginPath(); ctx.arc(fx, fy, Math.max(0.8,H*0.042)*Math.max(0.3,lineK), 0, 6.283); ctx.fill();
+        }
         break;
       }
       const ang = atk ? -0.5 : work ? (0.10 + Math.sin(G.t*7.5+u.id)*0.55) : 0.55;
@@ -14942,7 +15158,8 @@ function trySpawnOwl(force){
     x: perch.x + Math.cos(a)*260, y: perch.y + Math.sin(a)*260,
     state:"in", t:0, sit: 45+Math.random()*45,
     face: Math.random()<0.5 ? -1 : 1, turnCd: 2+Math.random()*3,
-    blink: 3+Math.random()*4, blinkT: 0, seed: Math.random()*6.283
+    blink: 3+Math.random()*4, blinkT: 0, seed: Math.random()*6.283,
+    clicks: 0, tiltStart: -999, rewarded: false
   };
   hint("A "+def.name.toLowerCase()+" settles on the roof and watches the village.");
   return true;
@@ -14990,7 +15207,9 @@ function drawOwl(){
   ctx.translate(o.x, o.y);
   ctx.scale(o.face<0 ? -1 : 1, 1);
 
-  // wings, only while it is on the move
+  // wings: a blur of motion while on the move, folded along its sides once
+  // it has actually landed - before this it had none at all while sitting,
+  // which is most of the time you get to look at it
   if(flying){
     ctx.fillStyle = shade(D.body,-0.15);
     for(const sgn of [-1,1]){
@@ -14998,10 +15217,28 @@ function drawOwl(){
       ctx.ellipse(sgn*r*0.75, -r*0.1 + flap*r*0.45, r*0.85, r*0.30, sgn*flap*0.5, 0, 6.283);
       ctx.fill();
     }
+  } else {
+    ctx.fillStyle = shade(D.body,-0.12);
+    for(const sgn of [-1,1]){
+      ctx.beginPath();
+      ctx.moveTo(sgn*r*0.55, -r*0.30);
+      ctx.quadraticCurveTo(sgn*r*0.92, r*0.05, sgn*r*0.62, r*0.75);
+      ctx.quadraticCurveTo(sgn*r*0.40, r*0.40, sgn*r*0.30, -r*0.10);
+      ctx.closePath(); ctx.fill();
+    }
   }
   // a rounded, upright body
   ctx.fillStyle = D.body;
   ctx.beginPath(); ctx.ellipse(0, 0, r*0.72, r*0.92, 0,0,6.283); ctx.fill();
+
+  // the head - face disc, tufts, eyes and beak - tilts on its own after the
+  // fifth tap (tapOwl in 03a-tap-and-selection.js sets o.tiltStart), rather
+  // than the whole bird rocking over
+  const tiltDur = 1.1;
+  const tiltEl = o.t - (o.tiltStart===undefined ? -999 : o.tiltStart);
+  const tilt = (tiltEl>=0 && tiltEl<tiltDur) ? Math.sin(tiltEl/tiltDur*Math.PI)*0.5 : 0;
+  ctx.save();
+  ctx.translate(0,-r*0.20); ctx.rotate(tilt); ctx.translate(0,r*0.20);
   // the pale face disc
   ctx.fillStyle = D.face;
   ctx.beginPath(); ctx.ellipse(0, -r*0.42, r*0.56, r*0.50, 0,0,6.283); ctx.fill();
@@ -15034,6 +15271,7 @@ function drawOwl(){
   ctx.beginPath();
   ctx.moveTo(0,-r*0.34); ctx.lineTo(r*0.10,-r*0.18); ctx.lineTo(-r*0.10,-r*0.18);
   ctx.closePath(); ctx.fill();
+  ctx.restore();
   ctx.restore();
 }
 
@@ -15078,6 +15316,14 @@ const DAY_AT     = 0.99;  // and it is full day again
 const NIGHT_TINT = "#101a2e";
 const LAMP_SCALE = 0.90;  // trims every building's light together
 const TORCH_RADIUS = 32;  // how far a soldier's torch reaches
+/* A small hand-hung lamp, dimmer than a carried torch - and wider than its
+   size alone would suggest, because the hole this punches in the night is
+   centred on the BOAT (u.x/u.y, the only position this loop has), while the
+   lamp itself hangs out near the stern. A tight radius left the lamp's own
+   graphic sitting near the rim of its own hole, barely brighter than the
+   dark around it - the pool has to reach past the offset to actually light
+   the thing that is meant to be glowing. */
+const BOAT_LANTERN_RADIUS = 40;
 const BRAZIER_RADIUS = 56;  // a brazier is built to light ground, but it's one small torch, not a beacon
 const NIGHT_MAX  = 0.93;  // how dark it actually gets - all but black
 
@@ -15655,7 +15901,19 @@ const NIGHT_EVENTS = [
   { name:"sealife",    go:()=>trySpawnSealife(true) },
   { name:"owl_perch",  go:()=>trySpawnOwl(true) },
   { name:"tornado",    go:()=>{ if(G.tornado) return false; spawnTornado(); return true; } },
-  { name:"costumes",   go:()=>{ if(G.invaders&&G.invaders.length) return false; spawnInvasion(); return true; } },
+  { name:"costumes",   go:()=>{
+      // the season scheduler already owns "once a year" via G.invasionDue -
+      // this just lets that year's one visit land on a pool-picked night
+      // instead of only ever at its own randomly-rolled clock time. It must
+      // never spawn a second one on top of that gate.
+      if(G.invaders&&G.invaders.length) return false;
+      if(G.players[P_YOU].age < 2) return false;
+      if(!G.invasionDue || G.invasionDone) return false;
+      G.invasionDone = true;
+      G.lastInvasionSeason = G.invasionSeasonCount;
+      spawnInvasion();
+      return true;
+    } },
   // good
   { name:"windfall",   go:()=>tryWindfall() },
   { name:"owl",        go:()=>tryOwlsBlessing() },
@@ -15905,6 +16163,27 @@ function drawBoat(u, pl){
     // one fisherman
     ctx.fillStyle = "#c9a27a";
     ctx.beginPath(); ctx.arc(r*0.5, -r*0.34, r*0.16, 0, 6.283); ctx.fill();
+
+    // a lantern hung over the stern, opposite the nets - unlit by day,
+    // and the one thing that lets a boat working late be spotted from shore
+    {
+      const nightF = G.dark||0;
+      const lx = -L*0.62, ly = -r*0.28;
+      ctx.strokeStyle = "#4a3a26"; ctx.lineWidth = Math.max(1, r*0.09);
+      ctx.beginPath(); ctx.moveTo(lx, ly + r*0.14); ctx.lineTo(lx, ly - r*0.58); ctx.stroke();
+      ctx.fillStyle = nightF > 0.1 ? "#ffce70" : "#7a6a52";
+      ctx.beginPath(); ctx.arc(lx, ly - r*0.58, r*0.15, 0, 6.283); ctx.fill();
+      if(nightF > 0.1){
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        const g = ctx.createRadialGradient(lx, ly-r*0.58, 0, lx, ly-r*0.58, r*1.1);
+        g.addColorStop(0, "rgba(255,206,112,"+(0.5*nightF).toFixed(2)+")");
+        g.addColorStop(1, "rgba(255,206,112,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(lx, ly-r*0.58, r*1.1, 0, 6.283); ctx.fill();
+        ctx.restore();
+      }
+    }
 
   } else if(kind === "warship"){
     // --- a lean oared ship with a ram and spear throwers ---
