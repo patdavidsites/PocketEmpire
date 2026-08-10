@@ -103,6 +103,11 @@
   .alm-wicon{width:20px;height:20px;}
   .alm-wicon svg{width:100%;height:100%;display:block;}
   .alm-clan-block{flex-direction:row;align-items:center;gap:9px;margin-left:auto;border-right:none;}
+  /* the almanac's one line about today - same wrap treatment as the weather
+     text next to it, which solves the identical problem */
+  .alm-banner-block{max-width:230px;}
+  .alm-banner-txt{font-size:11px;color:var(--parch-dim);line-height:1.3;
+    white-space:normal;font-weight:400;}
   .alm-clan-icon{flex:none;width:24px;height:26px;}
   .alm-clan-icon svg{width:100%;height:100%;display:block;}
   .alm-wtxt{font-size:9.5px;color:var(--parch-dim);text-align:center;white-space:normal;
@@ -272,8 +277,26 @@
   .screen{position:absolute;inset:0;z-index:30;display:flex;align-items:flex-start;
     justify-content:center;background:rgba(12,10,8,.93);padding:20px;overflow-y:auto;}
   .screen.hide{display:none;}
-  .card{max-width:520px;width:100%;margin:auto;background:var(--panel);border:1px solid var(--line);
-    border-radius:4px;padding:26px 28px;}
+  .card{position:relative;max-width:520px;width:100%;margin:auto;background:var(--panel);
+    border:1px solid var(--line);border-radius:4px;padding:26px 28px;}
+  /* close the splash without reading any of it */
+  .cardx{position:absolute;top:10px;right:12px;width:30px;height:30px;line-height:28px;
+    text-align:center;background:none;border:1px solid var(--line);border-radius:3px;
+    color:var(--parch-dim);font-size:17px;cursor:pointer;padding:0;}
+  .cardx:hover{background:#3d332a;color:var(--parch);}
+  .patch{border-top:1px solid var(--line);margin-top:18px;padding-top:14px;}
+  .patch ul{font-size:12px;line-height:1.7;color:#bdb29a;padding-left:16px;margin:6px 0 12px;}
+  /* each patch is its own button that folds open where it stands */
+  .pn{margin:0 0 6px;}
+  .pn summary{list-style:none;cursor:pointer;font-size:12px;color:var(--gold);
+    letter-spacing:.6px;padding:7px 10px;border:1px solid var(--line);border-radius:3px;
+    background:#332b23;user-select:none;}
+  .pn summary::-webkit-details-marker{display:none;}
+  /* the little arrow turns to point down once it is open */
+  .pn summary::before{content:"\25B8";display:inline-block;width:12px;
+    color:var(--parch-dim);transition:transform .12s;}
+  .pn[open] summary::before{transform:rotate(90deg);}
+  .pn summary:hover{background:#3d332a;color:var(--parch);}
   .card h1{font-family:Georgia,serif;font-size:27px;margin:0 0 4px;color:var(--gold);
     letter-spacing:.5px;font-weight:normal;}
   .card .kicker{font-size:10px;text-transform:uppercase;letter-spacing:2.4px;
@@ -432,6 +455,10 @@
         <span class="alm-wtxt" id="alm_wtxt1">—</span>
       </div>
     </div>
+    <div class="alm-block alm-banner-block">
+      <span class="alm-lbl">Almanac</span>
+      <span class="alm-val alm-banner-txt" id="alm_banner">—</span>
+    </div>
     <div class="alm-block alm-clan-block">
       <span class="alm-clan-icon" id="alm_clanicon"></span>
       <div>
@@ -454,6 +481,7 @@
 
 <div class="screen" id="startscreen">
   <div class="card">
+    <button class="cardx" id="btnclose" title="Close">&times;</button>
     <div class="kicker">A Real-Time Strategy</div>
     <h1>Cosy Empires</h1>
     <p>You are running a village. Feed it, build it up, and see it safely through
@@ -495,7 +523,58 @@
       You lead the <b style="color:#d9a441">Sunfolk</b> against the <b style="color:#a98fd0">Ashkin</b>.<br>Difficulty: <b id="startdiff" style="color:#d9a441">Medium</b><br><span id="startlayout" style="color:#b9ae95"></span></p>
     <button class="go" id="btnstart">Begin</button>
     <!-- the build date, so it is obvious at a glance which copy this is -->
-    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 4 August 2026</p>
+
+    <div class="patch">
+      <div class="sec">Patch notes</div>
+      <!-- One <details> per patch rather than one long list. They are
+           independent, so opening one does not shut the others: someone who
+           wants the lot can have the lot. Deliberately native <details> and
+           not a scripted accordion - it needs no JS, and it still works if
+           the splash is opened before the game script has run. -->
+      <details class="pn">
+        <summary>Patch 20.8</summary>
+        <ul>
+          <li>Something worth finding grows out in the deep country once a season. Bring it home and plant it</li>
+          <li>A new farm that does more than feed you</li>
+          <li>More moonstone after dark, and something that will show you the way</li>
+          <li>A full moon is worth more than a new one</li>
+          <li>Fireflies on warm nights, and two new sights in the sky</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 20.7</summary>
+        <ul>
+          <li>Braziers can be rebuilt once an age, each one on its own</li>
+          <li>Every rebuild throws its light further and stands up to more</li>
+          <li>And looks the part</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 20.6</summary>
+        <ul>
+          <li>The village settles in for the night gradually, house by house</li>
+          <li>Birds on your roofs, wind through the grass and smoke, and the odd shooting star</li>
+          <li>Buildings show their age. So do the people living in them</li>
+          <li>An almanac line at the bottom of the screen tells you about today</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 20.5</summary>
+        <ul>
+          <li>Twenty animals that only live well outside the town — five for each season</li>
+          <li>Squirrels, ducks, dragonflies, and a fox that never quite catches anything</li>
+          <li>Villagers take days off. Tap one to see who they are</li>
+          <li>Children, dogs, weather underfoot, and footprints in fresh snow</li>
+          <li>More happens at night</li>
+          <li>The Ashkin can cross to your island properly and attack together</li>
+        </ul>
+      </details>
+    </div>
+
+    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 10 August 2026</p>
   </div>
 </div>
 
@@ -1388,7 +1467,10 @@ const BEASTS = {
              col:"#a8556a", eye:"#ffd45e" }
 };
 
-const RAID_CHANCE = 0.30;   // down from .55 - real events shouldn't be an every-night thing
+const RAID_CHANCE = 0.30;
+// how often the dusk warning howl fires on a night wolves are possible -
+// deliberately not RAID_CHANCE, so it sometimes comes to nothing
+const WOLF_WARNING_CHANCE = 0.22;   // down from .55 - real events shouldn't be an every-night thing
 
 function beastKindsFor(season){
   const out=[];
@@ -1520,7 +1602,7 @@ function isLitAt(x, y, p){
     const bd = BLDG[b.type];
     const shrinkW = bd.shrinkW || bd.shrink || 0.70;
     if(bd.brazier && b.hp < b.maxhp*0.5) continue;   // blown out - no light till repaired
-    const rad = bd.brazier ? BRAZIER_RADIUS : (78 + b.w*TILE*shrinkW*0.95) * LAMP_SCALE;
+    const rad = bd.brazier ? brazierRadius(b) : (78 + b.w*TILE*shrinkW*0.95) * LAMP_SCALE;
     if(Math.hypot(b.x-x, b.y-y) < rad) return true;
   }
   for(const u of G.units){
@@ -2003,6 +2085,11 @@ function updateBeasts(dt){
     }
 
     if(!b.target || b.target.hp<=0 || (b.target.indoors)){
+      /* A wolf from a full pack occasionally glances aside at a deer before
+         getting back to it. Never at less than full strength, so a raid's
+         actual danger is untouched - and no capture, no damage, no kill.
+         (world-alive pack 5, feature 30) */
+      if(tryWolfDetour(b)) continue;
       b.target = (b.kind==="spider") ? spiderPickTarget(b)
                : (b.kind==="greatbear") ? greatBearPickTarget(b)
                : (b.kind==="zombie") ? zombiePickTarget(b)
@@ -2864,19 +2951,39 @@ function tryVillagerDream(force){
    dropped off at a mine) and whatever's left of it vanishes come morning,
    ready for a new one to turn up somewhere else the following night. What
    it's actually good for is still to be decided - for now it just banks up. */
+const MOONSTONE_VEINS = 3;          // up from one
+const MOONSTONE_RADIUS = 620;       // "near the village" - a wide ring, not the doorstep
+
 function spawnMoonstone(){
   G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE);
-  for(let t=0;t<40;t++){
+  const homes = G.bldgs.filter(b=>b.p===P_YOU);
+  if(!homes.length) return;
+
+  let placed = 0;
+  for(let attempt=0; attempt<MOONSTONE_VEINS*15 && placed<MOONSTONE_VEINS; attempt++){
     const tx = rnd(4,MAPW-4), ty = rnd(4,MAPH-4);
     const x=(tx+0.5)*TILE, y=(ty+0.5)*TILE;
     if(isWater(x,y) || blocked(x,y,null,false)) continue;
-    const amt = 60 + Math.random()*40;
+    // near SOME player building, not necessarily the town centre - a
+    // sprawling settlement gets veins near its edges too, not just the middle
+    const near = homes.some(b=>Math.hypot(b.x-x,b.y-y) < MOONSTONE_RADIUS);
+    if(!near) continue;
+    /* How much is in a vein still rides on the moon (pack 3, feature 14) -
+       ~80 at new moon, ~120 at full. Pack 9 replaced this whole function to
+       change vein COUNT and placement, and its own handoff warned that doing
+       so would paste over pack 3's yield scaling if the two were merged
+       carelessly. It did. Restored: the phase term is the entire reason the
+       moon cycle is a mechanic rather than a tint. */
+    const amt = (60 + Math.random()*40) * (1 + 0.5*moonPhase());
     G.nodes.push({ id:G.nextId++, isNode:true, kind:RES.MOONSTONE,
                    x, y, amt, max:amt, r:8, seed:Math.random()*6.283 });
-    hint("A vein of moonstone glimmers somewhere out in the dark.");
-    return;
+    placed++;
   }
+  // deliberately no hint() at all - it's there to be come across, not
+  // announced, the same way none of the wilderness animals (an earlier
+  // batch) are ever flagged up either
 }
+
 function clearMoonstone(){
   G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE);
 }
@@ -2984,6 +3091,14 @@ function updateWanderers(dt){
   for(let i=G.wanderers.length-1; i>=0; i--){
     const w = G.wanderers[i];
     w.t += dt; w.walk += dt;
+
+    /* The moonlit dog keeps to its own updater and has no exit point, so it
+       must not reach the generic tail of this loop: that branch reads w.ex,
+       and with it undefined `Math.hypot(NaN,NaN) || 1` quietly evaluates to
+       1 - which the arrival test reads as "close enough", deleting the dog
+       on its very first frame. Any future wanderer with its own movement
+       belongs here too. */
+    if(w.kind==="moondog") continue;
 
     if(w.kind==="cat"){
       if(w.leg===1){
@@ -3348,7 +3463,13 @@ function scorchAlpha(s){
    doesn't sit still: it hops to a new spot on the map every so often so it
    isn't just something that happens in one corner nobody's looking at. */
 const AURORA_OFF_SEASON = 0.18;   // the lights out of season, but only just
-const AURORA_CHANCE = 0.006, SHOOTINGSTAR_CHANCE = 0.01;
+/* Rolled every 20-40s of clear night. A match holds ~211 such seconds, i.e.
+   ~7 rolls, but only winter rolls at full odds and the other three seasons at
+   AURORA_OFF_SEASON - about 2.7 full-strength rolls a match all told. At the
+   old 0.006 that was one aurora every ~62 matches, so effectively nobody ever
+   saw the thing. 0.08 puts it at roughly 1 match in 5, same band as the
+   golden stag and the moon dragon. */
+const AURORA_CHANCE = 0.08, SHOOTINGSTAR_CHANCE = 0.01;
 const RAINBOW_CHANCE = 0.05, TORNADO_CHANCE = 0.012;
 
 function trySkyEvents(dt){
@@ -3531,6 +3652,25 @@ function updateWeather(dt){
   }
 }
 
+/* A wish on a caught shooting star (world-alive pack 1, feature 5). Small,
+   varied and low-stakes on purpose - noticing should be rewarded, not farmed. */
+function grantStargazeWish(){
+  const pl = G.players[P_YOU];
+  const gifts = [
+    ()=>{ pl.res.know += 8; hint("You wish on the falling star - a stray thought, oddly clear, adds a little knowledge."); },
+    ()=>{ pl.res.food += 12; hint("You wish on the falling star - tonight's forage feels a little more generous."); },
+    ()=>{ pl.res.gold += 6; hint("You wish on the falling star - someone finds a coin that wasn't there before."); }
+  ];
+  gifts[(Math.random()*gifts.length)|0]();
+  refreshUI();
+  // the star's position is screen-space; the fx layer wants world
+  const s = G.shootingStar;
+  if(s){
+    const sp = s.t/s.life;
+    fxHit(G.cam.x + (s.x0 + sp*140)/G.cam.z, G.cam.y + (s.y0 + sp*70)/G.cam.z, "#fff3c8", 8);
+  }
+}
+
 /* ---------- thunderstorms, lightning and fire ----------
    A wholly separate, rarer weather event from the seasonal one above -
    thick cloud, heavy rain, and every so often a bolt that hits some random
@@ -3631,7 +3771,11 @@ function updateFires(dt){
     if(!n.burning) continue;
     n.fireT = (n.fireT||0) + dt*fw.rate;
     n.amt = Math.max(0, n.amt - n.max*FIRE_TREE_DPS_FRAC*fw.dmg*dt);
-    if(n.fireT > n.fireOut || n.amt<=0){ n.burning=false; n.fireT=0; }
+    if(n.fireT > n.fireOut || n.amt<=0){
+      // a tree that burned out and survived keeps the mark for good
+      if(n.fireT > n.fireOut && n.amt > 0) n.scorched = true;
+      n.burning=false; n.fireT=0;
+    }
   }
 }
 
@@ -3827,6 +3971,16 @@ const BLDG = {
          drop:true, vision:7, trains:["villager"], ageup:true, know:0.30 },
   farm:{ name:"Farm", age:0, hp:130, w:2, h:2, cost:{wood:53,food:27}, hgt:5, roof:"none", build:12, vision:2,
          farm:true, farmMax:240, reseedCost:{wood:15}, drop:true, upgLine:"food" },
+  /* Its own complete entry, not a variant spliced into the farm's - and it
+     carries the WHOLE field set, farmMax above all: attachFarm needs it, and
+     without it the attached food node comes out with amt undefined, which
+     turns into a silent NaN inside the building drawing the first time a
+     finished one is on screen. Which crop it grew from lives on the building
+     instance (b.seasonalCrop), not in the type. (pack 10, feature 38) */
+  specialfarm:{ name:"Seasonal Farm", age:0, hp:130, w:2, h:2,
+                cost:{wood:53,food:27}, hgt:5, roof:"none", build:12,
+                vision:2, farm:true, farmMax:240,
+                reseedCost:{wood:15}, drop:true, upgLine:"food" },
   lumber:{ name:"Lumber Camp", age:0, hp:190, w:2, h:2, cost:{wood:70,food:30}, hgt:10, shrinkW:0.62, shrink:0.40, roofScale:0.75, roof:"gable", build:13,
            drop:true, vision:3, upgLine:"wood" },
   mine:{ name:"Mine", age:0, hp:210, w:2, h:2, cost:{wood:87,stone:40,food:38}, hgt:11, shrinkW:0.62, shrink:0.60, roof:"lean", build:15,
@@ -3900,6 +4054,39 @@ const TOWER_UPGRADES = [
 ];
 // every archer posted inside adds this much to what the tower throws
 const TOWER_GARRISON_ATK = 5;
+
+/* A brazier is rebuilt the same way a watchtower is - one tier per age, this
+   brazier only, paid for and chosen rather than granted. Each tier throws its
+   light further and looks the part: a plain bowl on legs, then an iron basket,
+   then a proper beacon on a stone column. The radius is what the night
+   actually cares about - it decides lit ground (isLitAt), the light pool the
+   darkness is punched with, and who counts as gathered round the fire. */
+const BRAZIER_UPGRADES = [
+  { name:"Iron Basket", age:1, cost:{wood:40,stone:30,know:30},
+    hp:40, rad:18, look:"iron" },
+  { name:"Beacon",      age:2, cost:{stone:90,iron:40,know:70},
+    hp:80, rad:28, look:"beacon" }
+];
+
+/* How far this particular brazier throws. Base plus whatever it has been
+   rebuilt through - never read BRAZIER_RADIUS directly for a specific
+   brazier, or an upgraded one lights a circle the size of a plain one. */
+function brazierRadius(b){
+  let rad = BRAZIER_RADIUS;
+  const lvl = (b && b.brazierLvl) || 0;
+  for(let i=0;i<lvl && i<BRAZIER_UPGRADES.length;i++) rad += BRAZIER_UPGRADES[i].rad;
+  return rad;
+}
+
+/* The next rebuild available to this brazier, or null if it is finished or
+   the age for it has not come round yet. */
+function brazierNextUpgrade(b){
+  if(!BLDG[b.type] || !BLDG[b.type].brazier) return null;
+  const lvl = b.brazierLvl || 0;
+  if(lvl >= BRAZIER_UPGRADES.length) return null;
+  const nxt = BRAZIER_UPGRADES[lvl];
+  return (G.players[b.p].age >= nxt.age) ? nxt : null;
+}
 
 /* What a tower actually throws: its own figure, the tiers it has been
    rebuilt through, and a bonus for each archer posted inside. */
@@ -4039,11 +4226,11 @@ function newGame(){
       { id:P_YOU, civ:"sunfolk", col:CIVS.sunfolk.col, dark:CIVS.sunfolk.dark, ai:false,
         res:{food:220,wood:220,stone:110,gold:90,moonstone:0,iron:0,know:0}, age:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
-        armor:{swordsman:0,archer:0,horsewarrior:0}, bardChoice:null },
+        armor:{swordsman:0,archer:0,horsewarrior:0}, bardChoice:null, seasonalFarms:{} },
       { id:P_AI, civ:"ashkin", col:CIVS.ashkin.col, dark:CIVS.ashkin.dark, ai:true,
         res:{food:220,wood:220,stone:110,gold:90,moonstone:0,iron:0,know:0}, age:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
-        armor:{swordsman:0,archer:0,horsewarrior:0}, bardChoice:null }
+        armor:{swordsman:0,archer:0,horsewarrior:0}, bardChoice:null, seasonalFarms:{} }
     ],
     terrain:null, fog:null, decor:[], critters:[], birds:[], crows:[], eyes:[], pets:[],
     storm:null, lightning:null, dragon:null, dracula:null, hackman:null, mcstar:null, gumby:null, puddles:[],
@@ -4062,6 +4249,10 @@ function newGame(){
     // what the night pool turned up tonight, so the tick can tell a quiet
     // event from an occasion (see quietNight)
     nightEventName: null,
+    storyNight: null,      // the elder's fireside tale, while one is running
+    wolfWarningAt: null,   // seconds left before tonight's warning howl
+    moonDogDue: false,     // a moonlit dog is booked for the next nightfall
+    windDir: 0.3, windT: 0,   // the shared wind smoke and grass both lean with
     ai:{ think:0, attackAt:70, wave:0, pushing:false, rebal:4, strategy:_pickedStrategy,
          beachSince:0, beachPush:false, waveNeed:0 },
     diff: DIFF[DIFFICULTY] || DIFF.medium,
@@ -4077,7 +4268,10 @@ function newGame(){
     paths: null, pathSweep: 0,
     beasts: [],
     wanderers: [],
-    weather: null, weatherAmt: 0, weatherAt: -1, solaceThisWinter: false, solaceFlavorShown: false, winterCount: 0
+    weather: null, weatherAmt: 0, weatherAt: -1, solaceThisWinter: false, solaceFlavorShown: false, winterCount: 0,
+    // seasonal special farms - initialised here rather than lazily, or a crop
+    // found in one match would still count as found in the next
+    seasonalCropNode: null, seasonalFound: {}, seasonalHintShown: {}
   };
   // start a season already in full swing rather than mid-transition
   if(G.season==="winter"){
@@ -4141,6 +4335,7 @@ function newGame(){
   if(G.islandMap){ clearIslandTowns(); stockIslands(); }
   rebuildNav();
   spawnWildlife();
+  foundVillage();   // one small thing true about this village only
   centerOnTown();
 }
 
@@ -4852,13 +5047,48 @@ const SPECIES = {
   // Snakes. No legs, so they are drawn quite differently (see drawCritter),
   // and they keep to the warm months - nothing is basking in the snow.
   grasssnake: { size:"small", col:"#6a7a45", seasons:["summer","spring"], snake:true },
-  adder:      { size:"small", col:"#9a8355", seasons:["summer","autumn"], snake:true, zigzag:true }
+  adder:      { size:"small", col:"#9a8355", seasons:["summer","autumn"], snake:true, zigzag:true },
+  // Deliberately no `seasons` at all, so speciesFor() and reseason() can never
+  // produce one by chance - the only way a critter becomes the golden stag is
+  // the explicit call in tryGoldenStag. (pack 3, feature 13)
+  goldenstag: { size:"medium", col:"#d9a441", seasons:[], antlers:true },
+
+  /* ---- deep-wilderness animals (world-alive pack 8) ----
+     Five per season, seen only well away from the village - the `wild` flag
+     is what keeps them out of the ordinary village-adjacent population, and
+     they lean on the same decoration flags drawCritter already understands
+     rather than needing shapes of their own. */
+  // spring - young and new
+  lamb:     { size:"small",  col:"#e8e2d0", seasons:["spring"], spots:true, wild:true },
+  piglet:   { size:"small",  col:"#c98f7a", seasons:["spring"], wild:true },
+  otter:    { size:"small",  col:"#5f4a38", seasons:["spring"], brush:true, wild:true },
+  hedgehog: { size:"small",  col:"#7a6a52", seasons:["spring"], wild:true },
+  polecat:  { size:"small",  col:"#3a3228", seasons:["spring"], brush:true, wild:true },
+  // summer - meadow and woodland
+  roedeer:  { size:"medium", col:"#a4784a", seasons:["summer"], antlers:true, wild:true },
+  weasel:   { size:"small",  col:"#b8794a", seasons:["summer"], brush:true, wild:true },
+  vole:     { size:"small",  col:"#8a7a5f", seasons:["summer"], wild:true },
+  ram:      { size:"medium", col:"#d4cbb4", seasons:["summer"], antlers:true, wild:true },
+  badger:   { size:"medium", col:"#e8e4dc", seasons:["summer"], spots:true, wild:true },
+  // autumn - foraging before the cold
+  beaver:   { size:"medium", col:"#6f5236", seasons:["autumn"], brush:true, wild:true },
+  marten:   { size:"small",  col:"#8a5a34", seasons:["autumn"], brush:true, wild:true },
+  mole:     { size:"small",  col:"#3a3630", seasons:["autumn"], wild:true },
+  tusker:   { size:"large",  col:"#4a3a28", seasons:["autumn"], tusks:true, wild:true },
+  elk:      { size:"large",  col:"#5f4a30", seasons:["autumn"], antlers:true, wild:true },
+  // winter - built for the cold
+  ermine:   { size:"small",  col:"#f4f6f8", seasons:["winter"], wild:true },
+  lynx:     { size:"medium", col:"#c4bfae", seasons:["winter"], wild:true },
+  reindeer: { size:"medium", col:"#8f7a5f", seasons:["winter"], antlers:true, wild:true },
+  wolverine:{ size:"medium", col:"#2e2620", seasons:["winter"], wild:true },
+  muskox:   { size:"large",  col:"#3a3228", seasons:["winter"], antlers:true, wild:true }
 };
 
 function speciesFor(season, size){
   const out = [];
   for(const k in SPECIES){
     const sp = SPECIES[k];
+    if(sp.wild) continue;               // those are for the deep country only
     if(sp.size===size && sp.seasons.includes(season)) out.push(k);
   }
   return out.length ? out : ["deer"];
@@ -4899,6 +5129,10 @@ function spawnWildlife(){
   G.hawkCd  = 40 + Math.random()*80;
   spawnBugs();
   spawnLeafPiles();
+  spawnWildAnimals();
+  // a match that starts halfway through a season should still get a crack at
+  // that season's crop rather than waiting for the first turnover
+  trySeasonalCropHint();
 }
 /* A scattering of bees and butterflies. Deliberately few - they are a detail
    you notice occasionally, not a swarm. They keep to the warm seasons and
@@ -4906,6 +5140,59 @@ function spawnWildlife(){
 /* Piles of leaves that gather here and there through autumn and are gone by
    the time the season turns. Seeded once per map so they sit in the same
    spots each autumn rather than jumping about. */
+const WILD_ANIMAL_MIN_DIST = 480;   // clear of every player building, not just the town centre
+const WILD_ANIMAL_MAX      = 9;     // across the whole map at once, whatever the season
+
+/* Only wild-tagged species, filtered by season and size - the wild
+   equivalent of the existing speciesFor(), kept as its own function
+   rather than a parameter added to that one, so a call site can never
+   accidentally get the wrong pool by forgetting a flag. */
+function wildSpeciesFor(season, size){
+  const out = [];
+  for(const k in SPECIES){
+    const sp = SPECIES[k];
+    if(sp.wild && sp.size===size && sp.seasons.includes(season)) out.push(k);
+  }
+  return out;   // may legitimately be empty - not every size has a wild entry every season
+}
+
+function spawnWildAnimals(){
+  if(!G.critters) G.critters = [];
+  const have = G.critters.filter(c=>c.wild).length;
+  let want = WILD_ANIMAL_MAX - have;
+  if(want <= 0) return;
+
+  const sizes = ["small","small","small","medium","medium","large"];
+  let guard = want * 10;
+  while(want > 0 && guard-- > 0){
+    const size = sizes[(Math.random()*sizes.length)|0];
+    const pool = wildSpeciesFor(G.season, size);
+    if(!pool.length) continue;   // nothing of this size is in season - try another
+
+    let tx, ty, ok = false;
+    for(let t=0; t<40 && !ok; t++){
+      tx = rnd(3, MAPW-3); ty = rnd(3, MAPH-3);
+      if(G.terrain[ty*MAPW+tx] === 5) continue;
+      const wx = tx*TILE+TILE/2, wy = ty*TILE+TILE/2;
+      let clear = true;
+      for(const b of G.bldgs){
+        if(b.p !== P_YOU) continue;
+        if(Math.hypot(b.x-wx, b.y-wy) < WILD_ANIMAL_MIN_DIST){ clear=false; break; }
+      }
+      if(clear) ok = true;
+    }
+    if(!ok) continue;   // this whole map may just not have anywhere far enough, on a small one
+
+    G.critters.push({
+      size, species: pool[(Math.random()*pool.length)|0], wild:true,
+      x:tx*TILE+TILE/2, y:ty*TILE+TILE/2,
+      tx:tx*TILE, ty:ty*TILE, wait:Math.random()*4, face:1, walk:Math.random()*6,
+      seed:Math.random()*6.28, flee:0
+    });
+    want--;
+  }
+}
+
 function spawnLeafPiles(){
   G.piles = [];
   for(let i=0;i<26;i++){
@@ -4950,11 +5237,52 @@ function spawnBugs(){
       wait: Math.random()*3
     });
   }
+  /* Dragonflies, seeded at the water's edge rather than anywhere dry.
+     (world-alive pack 5, feature 24) */
+  for(let i=0;i<5;i++){
+    let tx,ty,ok=false;
+    for(let t=0;t<30 && !ok;t++){
+      tx=rnd(3,MAPW-3); ty=rnd(3,MAPH-3);
+      if(G.terrain[ty*MAPW+tx]!==5 && touchesWater(tx,ty,1,1)) ok=true;
+    }
+    if(!ok) continue;
+    G.bugs.push({
+      dragonfly:true, bee:false, hopper:false,
+      x:tx*TILE+TILE/2, y:ty*TILE+TILE/2,
+      hx:tx*TILE+TILE/2, hy:ty*TILE+TILE/2,
+      a:Math.random()*6.283, seed:Math.random()*6.283,
+      col:"#4a8a9c", wait:Math.random()*3, scatterT:0
+    });
+  }
 }
 
 function updateBugs(dt){
   if(!G.bugs) return;
   for(const b of G.bugs){
+    /* Dragonflies keep NEAR the water rather than away from it - the one real
+       behavioural difference from the bees and butterflies - and scatter when
+       anyone wades close. (world-alive pack 5, feature 24) */
+    if(b.dragonfly){
+      let near = false;
+      for(const u of G.units){
+        if(Math.hypot(u.x-b.x,u.y-b.y) < 50){ near = true; break; }
+      }
+      if(near) b.scatterT = 1.2;
+      if(b.scatterT > 0){
+        b.scatterT -= dt;
+        b.x += Math.cos(b.a)*90*dt; b.y += Math.sin(b.a)*90*dt;
+        continue;
+      }
+      b.a += Math.sin(G.t*2.4+b.seed)*2.2*dt;
+      const sp = 34 + Math.sin(G.t*3+b.seed)*10;
+      const nx = b.x+Math.cos(b.a)*sp*dt, ny = b.y+Math.sin(b.a)*sp*dt;
+      const ntx = Math.floor(nx/TILE), nty = Math.floor(ny/TILE);
+      if(isWater(nx,ny) && Math.hypot(nx-b.hx,ny-b.hy)<60){ b.x=nx; b.y=ny; }
+      else if(!isWater(nx,ny) && ntx>=0 && nty>=0 && ntx<MAPW && nty<MAPH &&
+              touchesWater(ntx,nty,1,1)){ b.x=nx; b.y=ny; }
+      else b.a = Math.atan2(b.hy-b.y, b.hx-b.x) + (Math.random()-0.5);
+      continue;
+    }
     // a grasshopper sits perfectly still, then springs, then sits again
     if(b.hopper){
       b.hopCd -= dt;
@@ -5295,6 +5623,15 @@ function makeUnit(type, p, x, y){
     look:Math.floor(Math.random()*VILLAGER_LOOKS.length)
   };
   if(d.shift) u.form = "bear";
+  // The other three seasonal buffs are read live wherever they matter, so a
+  // unit trained after the farm went up picks them up for free. Health does
+  // not - hp/maxhp are written once, here - so the spring farm has to be
+  // checked at the moment of birth or every later recruit is short 7%.
+  // (pack 10, feature 38)
+  if(typeof hasSeasonalBuff === "function" && hasSeasonalBuff(p, "health")){
+    u.maxhp *= SEASONAL_BUFF;
+    u.hp    *= SEASONAL_BUFF;
+  }
   G.units.push(u);
   recalcPop(p);
   return u;
@@ -5718,6 +6055,20 @@ cv.addEventListener("pointerup", e=>{
   if(e.pointerId !== ptr.id) return;
   clearLongPress();
   const p = evPos(e);
+  /* Catch a shooting star before it fades. Checked before any of the tap
+     state is reset and with an early return, so a successful catch never
+     falls through and also moves a unit or clears the selection.
+     (world-alive pack 1, feature 5) */
+  if(G.shootingStar && !G.shootingStar.caught){
+    const st = G.shootingStar, sp = st.t/st.life;
+    const sx = st.x0 + sp*140, sy = st.y0 + sp*70;
+    if(Math.hypot(p.x-sx, p.y-sy) < 26){
+      st.caught = true;
+      grantStargazeWish();
+      ptr.down=false; ptr.moved=false; ptr.dragging=false; ptr.boxing=false; ptr.id=null;
+      return;
+    }
+  }
   const wasBoxing = ptr.boxing, wasMoved = ptr.moved, suppress = ptr.suppressTap;
   ptr.down=false; ptr.moved=false; ptr.dragging=false; ptr.boxing=false; ptr.id=null;
 
@@ -6117,6 +6468,12 @@ function pickAt(wx, wy, prefer, tol){
     if(d < 9+tol && d < bd){ best=w; bd=d; }
   }
   if(best) return best;
+  for(const o of G.leisure||[]){
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    const d = Math.hypot(o.x-wx, o.y-wy);
+    if(d < 9+tol && d < bd){ best=o; bd=d; }
+  }
+  if(best) return best;
   for(const b of G.bldgs){
     const hw=b.w*TILE/2, hh=b.h*TILE/2;
     if(wx>b.x-hw && wx<b.x+hw && wy>b.y-hh && wy<b.y+hh){
@@ -6306,8 +6663,12 @@ function spreadOffset(i, n){
 /* ============================================================
    BUILD PLACEMENT
    ============================================================ */
-function startPlacing(type){
+function startPlacing(type, seasonalCrop){
   G.placing = { type };
+  // which crop this farm will grow rides along on the placement, and is
+  // stamped onto the building in confirmPlace - the type is the same for
+  // all four, only the instance differs. (pack 10, feature 38)
+  if(seasonalCrop) G.placing.seasonalCrop = seasonalCrop;
   hint(BLDG[type].shore
     ? "Tap the water's edge — a dock stands half in the water."
     : "Tap the ground to place your " + BLDG[type].name.toLowerCase() + ".");
@@ -6325,6 +6686,12 @@ function confirmPlace(){
   if(!canAfford(pl, d.cost)){ hint("Not enough resources."); return; }
   pay(pl, d.cost);
   const b = makeBuilding(type, P_YOU, tx, ty, false);
+  if(type==="specialfarm"){
+    b.seasonalCrop = G.placing.seasonalCrop;
+    // the crop leaves the carrier's hands the moment it is in the ground -
+    // one find, one farm
+    for(const u of G.units) if(u.p===P_YOU && u.seasonalCrop===b.seasonalCrop) u.seasonalCrop = null;
+  }
   // every selected villager pitches in - no cap, and construction speed
   // scales with however many hands are on the job
   const vs = G.sel.filter(u=>u.kind==="unit" && u.type==="villager" && u.p===P_YOU);
@@ -6662,6 +7029,26 @@ function tryResearch(b, line){
 
 /* Rebuild this one watchtower a tier stronger. Per tower, like the gather
    research is per mine - a settlement with four towers pays four times. */
+function tryBrazierUpgrade(b){
+  const pl = G.players[P_YOU];
+  if(!b || b.p!==P_YOU || !b.done) return;
+  const d = BLDG[b.type];
+  if(!d || !d.brazier) return;
+  const lvl = b.brazierLvl || 0;
+  if(lvl >= BRAZIER_UPGRADES.length){ hint("This brazier is already a beacon."); return; }
+  const nxt = BRAZIER_UPGRADES[lvl];
+  if(pl.age < nxt.age){ hint("Requires the "+AGES[nxt.age]+"."); return; }
+  if(!canAfford(pl,nxt.cost)){ hint("Need "+costStr(nxt.cost)+"."); return; }
+  pay(pl,nxt.cost);
+  b.brazierLvl = lvl + 1;
+  // a rebuilt brazier is a sturdier one, and the work mends it as it goes
+  b.maxhp += nxt.hp;
+  b.hp = b.maxhp;
+  hint(nxt.name+" — the fire throws its light further now.");
+  fxWork(b.x, b.y-6, "#ff9a2e");
+  refreshUI();
+}
+
 function tryTowerUpgrade(b){
   const pl = G.players[P_YOU];
   if(!b || b.p!==P_YOU || !b.done) return;
@@ -6954,6 +7341,14 @@ function tick(dt){
     G.phase = ph;
     if(ph==="dusk"){
       hint(pickLine(DUSK_LINES,"dusk")); sendHome();
+      tryStoryNight();   // rarely, the elder settles by the fire instead
+      /* On a night when wolves are even seasonally possible, a howl a few
+         seconds into dusk - so a raid, when it comes, has been announced.
+         Deliberately not RAID_CHANCE: it is a warning that sometimes comes to
+         nothing, not a reliable tell. (world-alive pack 1, feature 4) */
+      if(beastKindsFor(G.season).includes("wolf") && Math.random() < WOLF_WARNING_CHANCE){
+        G.wolfWarningAt = 2 + Math.random()*7;
+      } else G.wolfWarningAt = null;
       // the fireside buff is meant to last "the next day" - so it comes off
       // right as that day ends, once the next night's events get their turn
       for(const u of G.units){
@@ -6962,6 +7357,9 @@ function tick(dt){
     }
     if(ph==="night" && was==="dusk"){
       hint(pickLine(NIGHT_LINES,"night")); nightfallFog();
+      // the dog only exists once it is properly dark - spawning it at dusk
+      // put it on the map one frame before its own updater culled it
+      if(G.moonDogDue){ G.moonDogDue = false; spawnMoonlitDog(); }
       /* One night, one thing. The pool goes first; if it turned something
          up, the ambient rolls below stand down for the night. They used to
          run regardless, which is how a night could deliver a windfall AND
@@ -6993,11 +7391,14 @@ function tick(dt){
         trySpawnWanderer("bat");
       }
       spawnMoonstone();
+      // and now and then, someone takes a torch out to it
+      tryMoonstoneGuide();
       if(!G.weather || !TORCH_OUT_WEATHER.includes(G.weather.key)){
         for(const u of G.units) u.torchOut = false;
       }
     }
     if(ph==="dawn"){
+      morningAfterCheck();   // a felt response to a rough night
       wakeUp();
       regrowOvernight();
       beastsFlee();
@@ -7031,8 +7432,15 @@ function tick(dt){
     const i = SEASON_ORDER.indexOf(G.season);
     G.season = SEASON_ORDER[(i+1) % SEASON_ORDER.length];
     reseason();
+    spawnWildAnimals();   // top the deep-country population back up for the new season
     rollWeather();
     trySpawnWanderer("cat");
+    tryGoldenStag();      // roughly once a season, and rarely even then
+    tryMoonlitDog();      // and once a season, a dog walks through by moonlight
+    // An unclaimed patch is deliberately NOT cleared here - a patient player
+    // can still go and find last season's crop, and it still grants its own
+    // season's stat. Which does mean two can be out at once. (pack 10, f.38)
+    trySeasonalCropHint();
     if(G.season==="winter"){
       G.winterCount = (G.winterCount||0) + 1;
       G.solaceThisWinter = (G.winterCount % SOLACE_EVERY === 0);
@@ -7123,6 +7531,18 @@ function tick(dt){
   }
   updateElder(dt);
   updateHomeLife(dt);
+  updateLeisureVillagers(dt);
+  updateStoryNight(dt);
+  updateFootprints(dt);
+  updatePairWalks(dt);
+  updateWaves(dt);
+  updateChildReactions(dt);
+  updateWolfDetours(dt);
+  // both on slow timers rather than every frame
+  G.pairWalkCd = (G.pairWalkCd===undefined) ? 10 : G.pairWalkCd-dt;
+  if(G.pairWalkCd <= 0){ G.pairWalkCd = 12+Math.random()*20; tryPairWalk(); }
+  G.waveCd = (G.waveCd===undefined) ? 4 : G.waveCd-dt;
+  if(G.waveCd <= 0){ G.waveCd = 5+Math.random()*9; tryVillagerWave(); }
   updatePaths(dt);
   updateBeasts(dt);
   updateWanderers(dt);
@@ -7137,6 +7557,21 @@ function tick(dt){
   if(G.underAttackFlashT>0) G.underAttackFlashT -= dt;
   updatePets(dt);
   updateWildlife(dt);
+  updateSquirrels(dt);
+  updateRoofBirds(dt);
+  updateWind(dt);
+  updateBirdRadar(dt);
+  updateGoldenStag(dt);
+  updateMoonlitDog(dt);
+  updateFireflies(dt);
+  updateMilkyWay(dt);
+  updateMoonDragon(dt);
+  updateDucks(dt);
+  updateFoxChases(dt);
+  // on a slow timer, not every frame - a 1.5% roll per fox per frame would
+  // have a chase starting constantly
+  G.foxChaseCd = (G.foxChaseCd===undefined) ? 6 : G.foxChaseCd-dt;
+  if(G.foxChaseCd <= 0){ G.foxChaseCd = 8+Math.random()*14; tryFoxChase(); }
   updateBugs(dt);
   updateSealife(dt);
   G.gullCd = (G.gullCd===undefined) ? 20+Math.random()*40 : G.gullCd-dt;
@@ -7209,6 +7644,13 @@ function tick(dt){
   updateProjectiles(dt);
   updateFx(dt);
   separate();
+  if(G.wolfWarningAt != null && G.phase === "dusk"){
+    G.wolfWarningAt -= dt;
+    if(G.wolfWarningAt <= 0){
+      G.wolfWarningAt = null;
+      hint("A distant howl rolls out over the darkening hills.");
+    }
+  }
   updateFog();
   aiThink(dt);
   cleanup();
@@ -7224,14 +7666,29 @@ function updateUnit(u, dt){
             * (u.musicSpd||1)                          // a Lute Player's tune, while it lasts
             * GLOBAL_SPEED_SCALE
             * (1 - (1-WINTER_SPEED)*G.snow)
-            * weatherSpdMult();                        // wind and snow slow you more than rain does
-  const atk = civStat(u.p,u.type,"atk",d.atk) * (u.buffAtk||1) * (f?f.atk:1) * (u.musicAtk||1);
+            * weatherSpdMult()                         // wind and snow slow you more than rain does
+            * (hasSeasonalBuff(u.p,"speed") ? SEASONAL_BUFF : 1);   // winter sweet potato
+  const atk = civStat(u.p,u.type,"atk",d.atk) * (u.buffAtk||1) * (f?f.atk:1) * (u.musicAtk||1)
+            * (hasSeasonalBuff(u.p,"strength") ? SEASONAL_BUFF : 1);   // summer sweetcorn
   u.cd -= dt;
   if(u.atkAnim>0) u.atkAnim -= dt;
   if(u.working>0) u.working -= dt;
   if(u.inspired>0) u.inspired -= dt;
   if(u.rested>0) u.rested -= dt;
+  if(u.storyBoost>0) u.storyBoost -= dt;
   if(u.bardBoost>0) u.bardBoost -= dt;
+
+  /* Gathering for the elder's tale. Once there they simply stand - the shared
+     timer in updateStoryNight decides when everyone moves on together, rather
+     than each villager deciding for itself. (world-alive pack 7, feature 33) */
+  if(u.order === "story"){
+    if(!u.storyDest){ u.order = "home"; }
+    else {
+      const arrived = moveToward(u, u.storyDest.x, u.storyDest.y, spd, dt, 8);
+      u.moving = !arrived;
+      return;
+    }
+  }
 
   // heading home for the night
   if(u.order === "home"){
@@ -7337,6 +7794,31 @@ function updateUnit(u, dt){
     case "gather": {
       const n = u.target;
       if(!n){ u.order=null; break; }
+      /* A seasonal crop is a one-off find, not a haul - picked up whole and
+         carried, so it never touches the swing-and-fill machinery below.
+         Only a villager can take one: anyone else is turned away without
+         consuming it, since losing a once-a-season find to a misclick would
+         sting far more than it should. (pack 10, feature 38) */
+      if(n.kind==="seasonalcrop"){
+        if(u.type!=="villager"){
+          if(u.p===P_YOU && !u.seasonalCropWarned){
+            hint("Only a villager can carry a seasonal crop home.");
+            u.seasonalCropWarned = true;
+          }
+          u.order = null; u.target = null;
+          break;
+        }
+        if(moveToward(u, n.x, n.y, spd, dt, n.r+9)){
+          u.seasonalCrop = n.season;
+          G.nodes = G.nodes.filter(x=>x!==n);
+          if(G.seasonalCropNode===n) G.seasonalCropNode=null;
+          if(!G.seasonalFound) G.seasonalFound={};
+          G.seasonalFound[n.season] = true;
+          if(u.p===P_YOU) hint("A villager has found a seasonal crop - bring them back to town to plant it.");
+          u.order = null; u.target = null;
+        }
+        break;
+      }
       /* A boat cannot beach itself on a berry patch, so that order still goes
          straight in the bin. The other way round is allowed now: a villager
          fishes a shoal from the bank, provided there is a bank to stand on
@@ -7410,7 +7892,8 @@ function updateUnit(u, dt){
             const seasonal = (n.kind==="food")
                            ? (1 - (1-WINTER_CROP)*G.snow) : 1;
             const insp = ((u.inspired>0) ? INSPIRE_BOOST : 1)
-                       * ((u.rested>0) ? RESTED_BOOST : 1);
+                       * ((u.rested>0) ? RESTED_BOOST : 1)
+                       * ((u.storyBoost>0) ? STORY_BOOST : 1);
             const take = Math.min(2 * GATHER_SCALE * (1 + lvl*0.40) * dg * seasonal * insp, n.amt);
             n.amt -= take; u.carry += take; u.carryKind = n.kind;
             if(n.kind==="stone") u.carryIron = (u.carryIron||0) + take*IRON_RATIO;
@@ -7442,7 +7925,8 @@ function updateUnit(u, dt){
           // from nothing, so a badly damaged building takes a while and a
           // scratch takes moments - and more villagers on it still add up
           const healRate = (BLDG[b.type].hp / BLDG[b.type].build)
-                          * ((u.inspired>0)?INSPIRE_BOOST:1) * ((u.rested>0)?RESTED_BOOST:1);
+                          * ((u.inspired>0)?INSPIRE_BOOST:1) * ((u.rested>0)?RESTED_BOOST:1)
+                          * ((u.storyBoost>0)?STORY_BOOST:1);
           b.hp = Math.min(b.maxhp, b.hp + healRate*dt);
           u.atkAnim = 0.2; u.working = 0.45;
           if(Math.random()<0.10) fxWork(u.x, u.y-4, "#b0a084");
@@ -7458,7 +7942,8 @@ function updateUnit(u, dt){
       if(moveToward(u, b.x, b.y, spd, dt, rad)){
         const rate = 1/BLDG[b.type].build;
         b.prog += rate*dt*((u.inspired>0)?INSPIRE_BOOST:1)
-                         *((u.rested>0)?RESTED_BOOST:1);
+                         *((u.rested>0)?RESTED_BOOST:1)
+                         *((u.storyBoost>0)?STORY_BOOST:1);
         b.hp = Math.min(b.maxhp, BLDG[b.type].hp*(0.12 + 0.88*b.prog));
         u.atkAnim = 0.2; u.working = 0.45;
         if(Math.random()<0.10) fxWork(u.x, u.y-4, "#b0a084");
@@ -7466,6 +7951,13 @@ function updateUnit(u, dt){
           b.prog=1; b.done=true; b.hp=b.maxhp;
           attachFarm(b);
           recalcPop(b.p);
+          if(b.type==="specialfarm" && b.seasonalCrop){
+            activateSeasonalBuff(b.p, b.seasonalCrop);
+            if(b.p===P_YOU){
+              const crop = SEASONAL_CROPS[b.seasonalCrop];
+              hint("The seasonal farm takes root - "+crop.name+", and everyone's a little "+crop.stat+"er for it.");
+            }
+          }
           if(b.type==="greathall"){
             G.players[b.p].res.know += 150;
             if(b.p===P_YOU) hint("The Great Hall stands - 150 knowledge, all at once, and more flowing in from here on.");
@@ -7908,7 +8400,7 @@ function moveToward(u, tx, ty, spd, dt, stop){
   }
   if(!moved){ u.lastSteer=undefined; u.steerT=0; }
 
-  if(moved){ u.walk = (u.walk||0) + step*0.13; treadPath(u); }
+  if(moved){ u.walk = (u.walk||0) + step*0.13; treadPath(u); dropFootprint(u); }
   u.moving = moved;
 
   u.x = Math.max(6, Math.min(WORLD_W-6, u.x));
@@ -8060,7 +8552,11 @@ function gatherUpgLevel(u, n){
 }
 function nearestNode(u, kind){
   let best=null, bd=1e9;
-  const naval = !!UNITS[u.type].naval;
+  /* Callers are not always units - ambient creatures ask "what is the nearest
+     tree to this point?" with a bare {x,y}. UNITS[undefined] is undefined, so
+     reading .naval off it threw. Nothing that is not a unit is naval. */
+  const ud = UNITS[u.type];
+  const naval = !!(ud && ud.naval);
   for(const n of G.nodes){
     if(n.amt<=0) continue;
     // fish are food a land villager cannot reach, and a boat cannot beach
@@ -8168,6 +8664,10 @@ function dealDamage(src, t, dmg, cls){
     for(let i=1;i<=tier;i++) m *= (1 - ARMOR_REDUCTION[i]);
   }
   if(t.kind==="unit" && t.musicDef) m *= t.musicDef;
+  // autumn pumpkin. Defence has no stat of its own to raise, so the +7%
+  // is spent here instead, as 7% less damage getting through - hence the
+  // (2 - BUFF) rather than a multiply by it. (pack 10, feature 38)
+  if(t.kind==="unit" && hasSeasonalBuff(t.p,"defence")) m *= (2 - SEASONAL_BUFF);
   const dealt = dmg*m;
   t.hp -= dealt;
   // kill credit - night beasts drop moonstone to whichever side lands the
@@ -8191,6 +8691,8 @@ function triggerUnderAttack(t){
   G.underAttackFlashT = 4;
   const specific = t.kind==="bldg" && t.type==="town";
   hint(specific ? "Your Town Center is under attack!" : "You are under attack!");
+  // so dawn can say something about it (pack 3, feature 15)
+  if(G.phase==="night") G.nightAttackAt = { x:t.x, y:t.y, t:G.t };
 }
 
 /* ---------- fx ---------- */
@@ -8254,6 +8756,10 @@ function cleanup(){
       }
     }
     G.nodes = G.nodes.filter(n=>!(n.farmOf && dead.has(n.farmOf)));
+    // "as long as the special farm is alive" - not a one-time grant
+    for(const b of dead){
+      if(b.type==="specialfarm" && b.seasonalCrop) deactivateSeasonalBuff(b.p, b.seasonalCrop);
+    }
     G.bldgs = G.bldgs.filter(b=>b.hp>0);
     G.sel = G.sel.filter(e=>!db.includes(e));
     recalcPop(P_YOU); recalcPop(P_AI);
@@ -9445,9 +9951,14 @@ function draw(){
                   x0*TILE, y0*TILE, (x1-x0)*TILE, (y1-y0)*TILE);
     ctx.globalAlpha = 1;
   }
+  drawSnowGlints(x0, y0, x1, y1);
   ctx.imageSmoothingEnabled = true;
 
   drawWaterFX(x0,y0,x1,y1);
+  drawPondFrost(x0,y0,x1,y1);
+  drawFootprints(x0,y0,x1,y1);
+  drawFireflies(x0,y0,x1,y1);
+  drawGrassSway(x0,y0,x1,y1);
 
   for(const p of G.puddles||[]){
     const tx=p.x/TILE, ty=p.y/TILE;
@@ -9589,12 +10100,30 @@ function draw(){
     if(!visibleTo(P_YOU,cr.x,cr.y)) continue;
     drawList.push({ e:cr, y:cr.y, kind:4 });
   }
+  /* 16 and 17, not the 8 and 9 that look free from the top of the switch -
+     those are drawCrow and drawPet further down it. The pack this came from
+     shipped an addendum about exactly that collision. */
+  for(const sq of (G.squirrels||[])){
+    if(sq.x<c0x||sq.y<c0y||sq.x>c1x||sq.y>c1y) continue;
+    if(!visibleTo(P_YOU,sq.x,sq.y)) continue;
+    drawList.push({ e:sq, y:sq.y, kind:16 });
+  }
+  for(const dk of (G.ducks||[])){
+    if(dk.x<c0x||dk.y<c0y||dk.x>c1x||dk.y>c1y) continue;
+    if(!visibleTo(P_YOU,dk.x,dk.y)) continue;
+    drawList.push({ e:dk, y:dk.y, kind:17 });
+  }
   if(G.elder && G.elder.state!=="inside" && visibleTo(P_YOU,G.elder.x,G.elder.y))
     drawList.push({ e:G.elder, y:G.elder.y, kind:5 });
   for(const o of G.homeLife||[]){
     if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
     if(!visibleTo(P_YOU,o.x,o.y)) continue;
     drawList.push({ e:o, y:o.y, kind:7 });
+  }
+  for(const o of G.leisure||[]){
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:18 });
   }
   for(const bs of G.beasts||[]){
     if(bs.x<c0x||bs.y<c0y||bs.x>c1x||bs.y>c1y) continue;
@@ -9658,11 +10187,11 @@ function draw(){
       case 4: drawCritter(it.e); break;
       case 5: drawElder(); break;
       case 6: drawBeast(it.e); break;
-      case 7: drawHomeLife(it.e); break;
+      case 7: drawHomeLife(it.e); drawChildReaction(it.e); break;
       // 15, not a second 7: wanderers used to share home-life's number, so
       // this arm was unreachable and every bard, pilgrim, bat, penguin and
       // cat was drawn as a doorstep child instead of itself
-      case 15: drawWanderer(it.e); break;
+      case 15: (it.e.kind==="moondog" ? drawMoonlitDog(it.e) : drawWanderer(it.e)); break;
       case 8: drawCrow(it.e); break;
       case 9: drawPet(it.e); break;
       case 10: drawDracula(it.e); break;
@@ -9670,8 +10199,20 @@ function draw(){
       case 12: drawMcStar(it.e); break;
       case 13: drawInvader(it.e); break;
       case 14: drawGumby(it.e); break;
+      case 16: drawSquirrel(it.e); break;
+      case 17: drawDuck(it.e); break;
+      case 18: drawLeisureVillager(it.e); break;
     }
   }
+  for(const u of G.units){
+    if(!u.waving || u.waving<=0) continue;
+    if(u.x<c0x||u.y<c0y||u.x>c1x||u.y>c1y) continue;
+    if(!visibleTo(P_YOU,u.x,u.y)) continue;
+    drawWaveGesture(u);
+  }
+  if(G.moonDragon) drawMoonDragon(G.moonDragon);
+  drawRoofBirds();   // small birds on the ridge, same layer as the owl
+  drawDreamBubbles();// what they are dreaming about, over a sleeping house
   drawOwl();         // on the roof, above everything it is sitting on
   flushBranches();   // autumn branches, batched by opacity
 
@@ -9828,11 +10369,35 @@ function draw(){
   }
 
   // bees and butterflies - only close up, only when it isn't buried in snow
-  if(G.bugs && c.z > 0.95 && G.bloom > 0.2){
-    const vis = Math.min(1, (G.bloom-0.2)/0.35);
+  /* The bloom gate is right for bees and butterflies - they are a flowering
+     season detail - but a dragonfly lives at the water's edge all year. The
+     outer gate is widened and the bloom fade now applies only to the two
+     flower-season kinds. (world-alive pack 5, feature 24) */
+  if(G.bugs && c.z > 0.95 && (G.bloom > 0.2 || G.season !== "winter")){
+    const vis = Math.min(1, Math.max(0,(G.bloom-0.2))/0.35);
     for(const bg of G.bugs){
       if(bg.x<c0x||bg.y<c0y||bg.x>c1x||bg.y>c1y) continue;
       if(!visibleTo(P_YOU,bg.x,bg.y)) continue;
+      /* Its own shape - two blurred wings and a long thin body - rather than
+         borrowing the butterfly's. Winter is excluded outright: a pond frozen
+         over has no business showing insect life above it. */
+      if(bg.dragonfly){
+        if(G.season === "winter") continue;
+        ctx.globalAlpha = 1;
+        const wingT = Math.abs(Math.sin(G.t*22+bg.seed));
+        ctx.strokeStyle = "rgba(220,240,235,.55)"; ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(bg.x-3, bg.y-2*wingT); ctx.lineTo(bg.x+3, bg.y-2*wingT);
+        ctx.moveTo(bg.x-3, bg.y+1.5*wingT); ctx.lineTo(bg.x+3, bg.y+1.5*wingT);
+        ctx.stroke();
+        ctx.fillStyle = bg.col;
+        ctx.beginPath();
+        ctx.ellipse(bg.x, bg.y, 3.2, 0.8, bg.a, 0, 6.283);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        continue;
+      }
+      if(vis <= 0) continue;          // bees and butterflies stay spring-only
       ctx.globalAlpha = vis;
       if(bg.hopper){
         // a grass-green speck, with its back legs cocked under it, and a
@@ -10343,7 +10908,7 @@ function draw(){
 
     // the darkness itself, warmed at dusk and dawn
     nx.globalCompositeOperation = "source-over";
-    nx.fillStyle = NIGHT_TINT;
+    nx.fillStyle = nightTintNow();   // the moon colours the night (pack 3, feature 14)
     nx.globalAlpha = NIGHT_MAX * d;
     nx.fillRect(0,0,VW,VH);
     if(G.phase==="dusk" || G.phase==="dawn"){
@@ -10383,7 +10948,7 @@ function draw(){
         // lamps than a cottage - and reaches far enough that neighbouring
         // buildings' pools meet in the middle. A brazier is built for nothing
         // else, so it throws further than its size suggests.
-        const rad = (bd.brazier ? BRAZIER_RADIUS
+        const rad = (bd.brazier ? brazierRadius(b)
                                 : (78 + bw*0.95) * LAMP_SCALE) * fl;
         const sp = w2s(b.x, base - bdep*0.28);
         const rx = rad * c.z, ry = rad * 0.72 * c.z;
@@ -10422,6 +10987,27 @@ function draw(){
         const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
         glowGradient(g, 0.97*lit, 0.14, 2.2, "0,0,0");
         nx.fillStyle = g;
+        nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
+        nx.restore();
+      }
+      /* and the moonstone guide's own torch - a real light that reveals the
+         dark as they walk, not a decoration drawn on top of it. Same guttering
+         and radius as a soldier's, copied rather than re-derived so the two
+         cannot drift apart. (world-alive pack 7, feature 32) */
+      for(const o of G.leisure||[]){
+        if(o.activity!=="moonstone" || o.state==="home") continue;
+        const guttr = 0.90 + 0.10*Math.sin(G.t*0.9 + o.id*1.9);
+        const rad = TORCH_RADIUS * guttr;
+        const sp = w2s(o.x, o.y);
+        const rx = rad*c.z, ry = rad*0.72*c.z;
+        if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
+        torches.push({x:sp.x, y:sp.y, rx, ry});
+        nx.save();
+        nx.translate(sp.x, sp.y);
+        nx.scale(1, ry/rx);
+        const g2 = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
+        glowGradient(g2, 0.97*lit, 0.14, 2.2, "0,0,0");
+        nx.fillStyle = g2;
         nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
         nx.restore();
       }
@@ -10757,6 +11343,8 @@ function draw(){
     ctx.restore();
   }
 
+  drawMilkyWay();   // the band of stars, on a properly clear night (pack 9)
+
   // a shooting star - one quick streak, gone in under two seconds
   if(G.shootingStar){
     const s = G.shootingStar, p = s.t/s.life;
@@ -10896,6 +11484,7 @@ function drawFog(x0,y0,x1,y1){
 }
 
 function drawNode(n){
+  if(n.kind==="seasonalcrop"){ drawSeasonalCropNode(n); return; }
   const wob = Math.sin(G.t*1.2+n.seed)*1.2;
   const frac = n.amt/n.max;
   if(n.kind===RES.WOOD){
@@ -10934,6 +11523,17 @@ function drawNode(n){
     const trunkW = (chopVariant===4) ? Math.max(1.5, 4*(1-choppedAmt*0.55)) : 4;
     ctx.fillStyle="#4a3a26";
     ctx.fillRect(n.x-trunkW/2,n.y-1,trunkW,9);
+    // lightning-scarred: a permanent black seam up the trunk. Only at full
+    // zoom - the branch above already returns a simple shape further out,
+    // where a mark this small on a hundred trees would just be noise.
+    if(n.scorched){
+      ctx.fillStyle = "rgba(20,16,12,.55)";
+      ctx.beginPath();
+      ctx.moveTo(n.x-trunkW*0.9, n.y+7);
+      ctx.lineTo(n.x-trunkW*0.2, n.y-6);
+      ctx.lineTo(n.x+trunkW*0.3, n.y+7);
+      ctx.closePath(); ctx.fill();
+    }
     // variant 1: a wedge notch cut into the trunk, growing as it's chopped
     if(chopVariant===1 && choppedAmt>0.12){
       const nsz = 1.5 + choppedAmt*3.2;
@@ -11183,24 +11783,71 @@ function drawBrazier(b){
   const flick = 0.80 + 0.20*Math.sin(G.t*6.2 + b.id*2.7);
   const night = G.dark || 0;
 
-  ctx.fillStyle = "rgba(0,0,0,.26)";
-  ctx.beginPath(); ctx.ellipse(cx, base+1, 9, 3.4, 0, 0, 6.283); ctx.fill();
+  /* Each brazier has its own point in the failing light at which it catches,
+     fixed per brazier rather than per night - so the village lights up one at
+     a time as dusk comes on, in the same order each evening, instead of every
+     bowl flaring at the same instant. (world-alive pack 1, feature 1) */
+  if(b.igniteAt===undefined) b.igniteAt = 0.12 + Math.random()*0.72;
+  const lit = night >= b.igniteAt;
+  if(lit && !b._wasLit){ b._wasLit = true; b._igniteT = G.t; }
+  if(!lit) b._wasLit = false;
 
-  // three legs and a bowl
-  ctx.strokeStyle = "#4f4a44"; ctx.lineWidth = 2; ctx.lineCap = "round";
+  /* Each rebuild is meant to be legible at a glance without reading a panel:
+     a plain bowl on three legs, then a banded iron basket, then a beacon on a
+     stone column. The bowl widens with each tier, which is also roughly what
+     the light does. (brazier upgrades) */
+  const bLvl = b.brazierLvl || 0;
+  const bw2  = 8 + bLvl*1.8;          // half-width of the bowl
+  const bh2  = 9 + bLvl*2.5;          // how high it stands
+
+  ctx.fillStyle = "rgba(0,0,0,.26)";
+  ctx.beginPath(); ctx.ellipse(cx, base+1, 9+bLvl*2, 3.4+bLvl*0.6, 0, 0, 6.283); ctx.fill();
+
+  if(bLvl >= 2){
+    // a beacon stands on a squat stone column rather than legs
+    ctx.fillStyle = done ? "#7c7a74" : "rgba(124,122,116,.5)";
+    ctx.beginPath();
+    ctx.moveTo(cx-4.5, base); ctx.lineTo(cx+4.5, base);
+    ctx.lineTo(cx+3.4, base-bh2); ctx.lineTo(cx-3.4, base-bh2);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "rgba(30,26,22,.45)"; ctx.lineWidth = 0.8; ctx.stroke();
+    ctx.strokeStyle = "rgba(30,26,22,.30)";
+    for(let i=1;i<3;i++){                       // courses of stone
+      ctx.beginPath();
+      ctx.moveTo(cx-4.2+i*0.3, base-i*bh2/3); ctx.lineTo(cx+4.2-i*0.3, base-i*bh2/3);
+      ctx.stroke();
+    }
+  } else {
+    ctx.strokeStyle = bLvl ? "#3f3a35" : "#4f4a44";
+    ctx.lineWidth = 2 + bLvl*0.5; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(cx-5, base); ctx.lineTo(cx-1.5, base-bh2);
+    ctx.moveTo(cx+5, base); ctx.lineTo(cx+1.5, base-bh2);
+    ctx.moveTo(cx,   base); ctx.lineTo(cx,     base-bh2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = done ? (bLvl>=2 ? "#5e5a54" : bLvl===1 ? "#565049" : "#6b6259")
+                       : "rgba(107,98,89,.5)";
   ctx.beginPath();
-  ctx.moveTo(cx-5, base); ctx.lineTo(cx-1.5, base-9);
-  ctx.moveTo(cx+5, base); ctx.lineTo(cx+1.5, base-9);
-  ctx.moveTo(cx,   base); ctx.lineTo(cx,     base-9);
-  ctx.stroke();
-  ctx.fillStyle = done ? "#6b6259" : "rgba(107,98,89,.5)";
-  ctx.beginPath();
-  ctx.moveTo(cx-8, base-9);
-  ctx.lineTo(cx+8, base-9);
-  ctx.lineTo(cx+5.5, base-14);
-  ctx.lineTo(cx-5.5, base-14);
+  ctx.moveTo(cx-bw2,     base-bh2);
+  ctx.lineTo(cx+bw2,     base-bh2);
+  ctx.lineTo(cx+bw2*0.7, base-bh2-5);
+  ctx.lineTo(cx-bw2*0.7, base-bh2-5);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = "rgba(30,26,22,.5)"; ctx.lineWidth = 0.9; ctx.stroke();
+
+  if(bLvl >= 1){
+    // an iron band round the basket, with rivets
+    ctx.strokeStyle = "#2f2b27"; ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(cx-bw2*0.92, base-bh2-2.2); ctx.lineTo(cx+bw2*0.92, base-bh2-2.2);
+    ctx.stroke();
+    ctx.fillStyle = "#8a837a";
+    for(const rx of [-bw2*0.6, 0, bw2*0.6]){
+      ctx.beginPath(); ctx.arc(cx+rx, base-bh2-2.2, 0.9, 0, 6.283); ctx.fill();
+    }
+  }
 
   if(!done){
     // a bare frame while it is being put up
@@ -11222,20 +11869,23 @@ function drawBrazier(b){
     ctx.globalAlpha = 1;
     return;
   }
-  const fh = (6 + 10*night) * flick;
+  if(!lit) return;                     // not caught yet tonight - a cold bowl
+  // a small flare for the first moment after it takes
+  const fresh = b._igniteT ? Math.max(0, 1 - (G.t - b._igniteT)/1.1) : 0;
+  const fh = (6 + 10*night) * flick * (1 + fresh*0.5) * (1 + bLvl*0.35);
   ctx.globalAlpha = 0.35 + 0.5*night;
   ctx.fillStyle = "rgba(255,140,40,.5)";
-  ctx.beginPath(); ctx.arc(cx, base-16, 7*flick, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, base-bh2-7, (7+bLvl*3)*flick, 0, 6.283); ctx.fill();
   ctx.globalAlpha = 1;
   ctx.fillStyle = "#ff9a2e";
   ctx.beginPath();
-  ctx.moveTo(cx, base-14-fh);
-  ctx.quadraticCurveTo(cx+5, base-14, cx, base-11);
-  ctx.quadraticCurveTo(cx-5, base-14, cx, base-14-fh);
+  ctx.moveTo(cx, base-bh2-5-fh);
+  ctx.quadraticCurveTo(cx+5+bLvl, base-bh2-5, cx, base-bh2-2);
+  ctx.quadraticCurveTo(cx-5-bLvl, base-bh2-5, cx, base-bh2-5-fh);
   ctx.fill();
   ctx.fillStyle = "#ffe08a";
   ctx.beginPath();
-  ctx.ellipse(cx, base-13.5-fh*0.35, 1.8, fh*0.28, 0, 0, 6.283);
+  ctx.ellipse(cx, base-bh2-4.5-fh*0.35, 1.8+bLvl*0.4, fh*0.28, 0, 0, 6.283);
   ctx.fill();
 }
 
@@ -11513,6 +12163,7 @@ function drawBuilding(b){
       ctx.fillRect(x+1, y-12, (w-2)*(b.hp/b.maxhp), 2);
     }
     drawBuildingFire(b, x, y, w, dep, H);
+    drawSeasonalFarmMarker(b, x, y);
     ctx.globalAlpha=1;
     return;
   }
@@ -11784,7 +12435,17 @@ function drawBuilding(b){
       const hv = houseVariant(b);
       ctx.fillStyle=dark;
       ctx.fillRect(cx-doorW*hv.doorScale/2, y+dep-doorH*0.9, doorW*hv.doorScale, doorH*0.9);
-      ctx.fillStyle="rgba(240,214,150,.7)";
+      /* Each household keeps its own hours: one threshold for when the lamp
+         goes on after dusk, another for when they turn in. Every house used
+         to be lit at the same fixed colour all day and all night.
+         (world-alive pack 1, feature 2) */
+      if(b.litAt===undefined)  b.litAt  = 0.10 + Math.random()*0.50;
+      if(b.darkAt===undefined) b.darkAt = 0.55 + Math.random()*0.35;
+      {
+        const night = G.dark || 0;
+        const winLit = night >= b.litAt && night < b.darkAt;
+        ctx.fillStyle = winLit ? "rgba(244,214,146,.85)" : "rgba(68,72,86,.55)";
+      }
       ctx.fillRect(x+w*hv.winX, y+dep-H*0.70, 5, 6);
       // chimney with a wisp of smoke - side, height and drift vary per house
       const chimEmbed = 5, chimTop = roofTop - (CHIM_H - chimEmbed);
@@ -11797,7 +12458,7 @@ function drawBuilding(b){
       for(let i=0;i<3;i++){
         const t=(G.t*0.5+i*0.33)%1;
         ctx.beginPath();
-        ctx.arc(smokeX + Math.sin(t*4+b.id)*3 + hv.smokeDir*t*5, chimTop-4-t*16, 2+t*4, 0, 6.283);
+        ctx.arc(smokeX + Math.sin(t*4+b.id)*3 + (hv.smokeDir*0.4 + (G.windDir||0)*0.7)*t*5, chimTop-4-t*16, 2+t*4, 0, 6.283);
         ctx.fill();
       }
       // a water barrel by the door, for the houses that have one
@@ -12056,6 +12717,7 @@ function drawBuilding(b){
     ctx.fillRect(x+1, y-H-8, (w-2)*(b.hp/b.maxhp), 2);
   }
   drawBuildingFire(b, x, y, w, dep, H);
+  drawSeasonalFarmMarker(b, x, y);   // which season's crop this one is
 
   // Christmas lights - not every winter, but when this one has them, every
   // building strings a little twinkling colour along its roofline at night
@@ -12074,6 +12736,10 @@ function drawBuilding(b){
     ctx.globalAlpha = baseAlpha;
   }
 
+  // washing strung along the wall of a house (world-alive pack 5, feature 28)
+  drawLaundryLine(b, x, y, w, dep, H);
+  // moss and flowers gathering with age (world-alive pack 2, feature 9)
+  drawBuildingWeathering(b, x, y, w, dep, H);
   ctx.globalAlpha=1;
 }
 
@@ -14112,6 +14778,38 @@ function drawGumby(g){
   }
 }
 
+/* Snow catching the moonlight on a clear winter night. A fixed number of
+   points per VISIBLE tile rather than per map tile, so the cost stays flat as
+   the camera pans, and each cell's seed is stable so a point twinkles in place
+   instead of jumping about. Gated hard: winter, deep snow, properly dark, no
+   storm, and not zoomed right out. (world-alive pack 4, feature 20) */
+function drawSnowGlints(x0, y0, x1, y1){
+  if(G.season !== "winter" || G.snow < 0.5) return;
+  if((G.dark||0) < 0.55) return;                  // properly dark, not just dusk
+  if(G.weather && G.weatherAmt > 0.2) return;      // a storm obscures rather than glints
+  if(G.cam.z < 0.7) return;                        // not worth it zoomed far out
+
+  const cols = Math.min(26, x1-x0), rows = Math.min(18, y1-y0);
+  if(cols<=0 || rows<=0) return;
+
+  ctx.fillStyle = "#eef6ff";
+  for(let gy=0; gy<rows; gy++){
+    for(let gx=0; gx<cols; gx++){
+      const seed = (gx*928371 + gy*57121 + (x0+gx)*13 + (y0+gy)*7) % 997;
+      if(seed % 23 !== 0) continue;                // sparse - most cells show nothing
+      const tx = x0 + gx + ((seed*13)%100)/100;
+      const ty = y0 + gy + ((seed*31)%100)/100;
+      const twinkle = 0.35 + 0.65*Math.max(0, Math.sin(G.t*1.6 + seed));
+      if(twinkle < 0.4) continue;
+      ctx.globalAlpha = twinkle * Math.min(1, (G.snow-0.5)*2) * (G.dark-0.4);
+      ctx.beginPath();
+      ctx.arc(tx*TILE, ty*TILE, 0.9, 0, 6.283);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
 function drawCritter(c){
   const d=CRITTER[c.size], r=d.r;
   const sp = SPECIES[c.species] || SPECIES.deer;
@@ -14171,9 +14869,13 @@ function drawCritter(c){
     ctx.fillStyle=col;
     ctx.beginPath(); ctx.ellipse(0,0,r*1.15,r*0.85,0,0,6.283); ctx.fill();
     ctx.beginPath(); ctx.arc(r*0.9,-r*0.5,r*0.6,0,6.283); ctx.fill();
+    /* A critter waiting between wanders had no animation at all - gait and
+       hop both come off `moving`, so a rabbit stood still for five seconds
+       was a completely static shape. Its ears tip and settle instead. */
+    const fidget = (!moving && c.wait > 0) ? Math.sin(G.t*1.4 + c.seed) * 0.18 : 0;
     ctx.strokeStyle=col; ctx.lineWidth=r*0.34; ctx.lineCap="round";
-    ctx.beginPath(); ctx.moveTo(r*0.85,-r*0.95); ctx.lineTo(r*0.55,-r*2.1); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(r*1.15,-r*0.95); ctx.lineTo(r*1.15,-r*2.0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r*0.85,-r*0.95); ctx.lineTo(r*(0.55+fidget),-r*2.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r*1.15,-r*0.95); ctx.lineTo(r*(1.15-fidget*0.6),-r*2.0); ctx.stroke();
     ctx.fillStyle = (c.species==="snowhare") ? "#cfd6df" : "#efe6d6";
     ctx.beginPath(); ctx.arc(-r*1.05,r*0.1,r*0.45,0,6.283); ctx.fill();
     if(sp.spots){                             // a fawn
@@ -14188,8 +14890,11 @@ function drawCritter(c){
     ctx.moveTo(-r*0.5,r*0.3); ctx.lineTo(-r*0.5+gait*r*0.5, r*1.05);
     ctx.moveTo( r*0.5,r*0.3); ctx.lineTo( r*0.5-gait*r*0.5, r*1.05);
     ctx.stroke();
+    // and a deer or fox standing about dips its head as if sniffing the ground
+    const sniff = (!moving && c.wait > 0)
+      ? Math.max(0, Math.sin(G.t*0.9 + c.seed)) * r*0.12 : 0;
     ctx.fillStyle=col;
-    ctx.beginPath(); ctx.ellipse(0,0,r*1.0,r*0.52,0,0,6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0, sniff, r*1.0, r*0.52, 0, 0, 6.283); ctx.fill();
     if(sp.brush){                             // low slung, bushy tail, pointed face
       ctx.beginPath();
       ctx.ellipse(-r*1.15, -r*0.1, r*0.62, r*0.42, -0.4, 0, 6.283); ctx.fill();
@@ -15276,6 +15981,1989 @@ function drawOwl(){
 }
 
 /* ============================================================
+   SQUIRRELS  (world-alive pack 4, feature 17)
+
+   Their own small population rather than an addition to G.critters:
+   a squirrel belongs to a particular tree, so the wander-and-flee
+   state machine the ground critters share would fight how these are
+   meant to behave. Modelled on updateHomeLife instead - a capped
+   population, each tied to one object, following that object's fate.
+   ============================================================ */
+const SQUIRREL_MAX = 5;
+
+function updateSquirrels(dt){
+  if(!G.squirrels) G.squirrels = [];
+  G.squirrelCd = (G.squirrelCd===undefined) ? 8+Math.random()*14 : G.squirrelCd-dt;
+
+  // one more takes up a tree now and then, if a free one exists
+  if(G.squirrelCd <= 0){
+    G.squirrelCd = 16 + Math.random()*26;
+    if(G.squirrels.length < SQUIRREL_MAX){
+      const claimed = new Set(G.squirrels.map(s=>s.tree));
+      const trees = G.nodes.filter(n=>n.kind===RES.WOOD && n.amt>0 && !n.burning && !claimed.has(n));
+      if(trees.length){
+        const t = trees[(Math.random()*trees.length)|0];
+        const a = Math.random()*6.283;
+        G.squirrels.push({
+          tree:t, x:t.x+Math.cos(a)*10, y:t.y+Math.sin(a)*10,
+          tx:t.x, ty:t.y, state:"forage", wait:Math.random()*3,
+          up:0, holdT:0, walk:Math.random()*6, face:1, seed:Math.random()*6.283,
+          id:G.nextId++
+        });
+      }
+    }
+  }
+
+  for(let i=G.squirrels.length-1; i>=0; i--){
+    const sq = G.squirrels[i];
+
+    // its tree is gone, spent or alight - find another or move on for good
+    if(!G.nodes.includes(sq.tree) || sq.tree.amt<=0 || sq.tree.burning){
+      const claimed = new Set(G.squirrels.map(s=>s.tree));
+      const next = nearestNode({x:sq.x,y:sq.y}, RES.WOOD);
+      if(next && next.amt>0 && !claimed.has(next) && Math.hypot(next.x-sq.x,next.y-sq.y)<260){
+        sq.tree = next; sq.state = "forage";
+      } else {
+        G.squirrels.splice(i,1);
+        continue;
+      }
+    }
+
+    // dart up the trunk when anyone closes in
+    let near = false;
+    for(const u of G.units){
+      if(Math.hypot(u.x-sq.x, u.y-sq.y) < 46){ near = true; break; }
+    }
+    if(near && sq.state !== "up"){ sq.state = "up"; sq.up = 0; }
+
+    if(sq.state === "up"){
+      sq.up = Math.min(1, sq.up + dt*3);
+      sq.x = sq.tree.x; sq.y = sq.tree.y - sq.up*14;
+      if(!near){
+        sq.holdT = (sq.holdT||0) + dt;
+        if(sq.holdT > 1.5 + Math.random()*2){ sq.state="forage"; sq.holdT=0; }
+      } else sq.holdT = 0;
+      continue;
+    }
+    sq.up = Math.max(0, sq.up - dt*2);
+
+    // otherwise a small foraging wander on a short leash from the tree
+    sq.wait -= dt;
+    if(sq.wait <= 0){
+      const a = Math.random()*6.283, r = 8+Math.random()*22;
+      sq.tx = sq.tree.x + Math.cos(a)*r; sq.ty = sq.tree.y + Math.sin(a)*r;
+      sq.wait = 1.2 + Math.random()*2.8;
+    }
+    const dx=sq.tx-sq.x, dy=sq.ty-sq.y, d=Math.hypot(dx,dy);
+    if(d>2){
+      const step=Math.min(d, 20*dt);
+      sq.x+=dx/d*step; sq.y+=dy/d*step; sq.walk+=step*0.2;
+      if(Math.abs(dx)>0.4) sq.face = dx<0?-1:1;
+    }
+  }
+}
+
+function drawSquirrel(sq){
+  const bob = sq.state!=="up" ? Math.abs(Math.sin(sq.walk))*0.7 : 0;
+  ctx.save();
+  ctx.translate(sq.x, sq.y - bob);
+  ctx.scale(sq.face<0?-1:1, 1);
+
+  ctx.fillStyle="rgba(0,0,0,.18)";
+  ctx.beginPath(); ctx.ellipse(0, 2.4, 2.6, 1, 0,0,6.283); ctx.fill();
+
+  ctx.fillStyle="#8a5a34";
+  ctx.beginPath(); ctx.ellipse(0,0,2.6,1.9,0,0,6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(1.9,-1.1,1.3,0,6.283); ctx.fill();
+
+  // the tail is most of the point - held up and curled over the back
+  ctx.fillStyle=shade("#8a5a34", -0.1);
+  ctx.beginPath();
+  ctx.moveTo(-1.8, 0.4);
+  ctx.quadraticCurveTo(-4.2, -1.5, -2.6, -4.4);
+  ctx.quadraticCurveTo(-1.6, -5.6, -0.6, -3.6);
+  ctx.quadraticCurveTo(-2.0, -2.6, -1.0, 0.2);
+  ctx.closePath(); ctx.fill();
+
+  ctx.restore();
+}
+
+/* ============================================================
+   A FOX AFTER A RABBIT  (world-alive pack 4, feature 18)
+
+   Not a hunting system: no capture, no resolution, no effect on
+   either animal beyond a few seconds of both moving differently.
+   The fox gives up on its own; the rabbit's existing flee timer ends
+   it from the other side. Losing the rabbit is the only outcome
+   this ever has.
+
+   It reuses updateWildlife's own flee mechanic (c.flee raises speed
+   and sets a retreat target) rather than inventing a second one -
+   all this adds is a new thing that can trigger it: a nearby fox,
+   instead of only ever a unit.
+   ============================================================ */
+const FOX_CHASE_CHANCE = 0.015;
+const FOX_CHASE_RANGE  = 130;
+const FOX_CHASE_LIFE   = 3.5;      // how long a fox commits before giving up
+
+function updateFoxChases(dt){
+  for(const c of G.critters){
+    if(!c.chasing) continue;
+    c.chaseT = (c.chaseT||0) - dt;
+    const prey = c.chasing;
+    /* As shipped this also gave up the moment `prey.flee` was set - but
+       tryFoxChase sets exactly that when it starts the chase, so the fox
+       abandoned it on the very next frame and never actually ran anything
+       down. The prey fleeing IS the chase; the fox gives up when its own
+       timer runs out, or when the rabbit is no longer on the map. */
+    if(c.chaseT <= 0 || !G.critters.includes(prey)){ c.chasing = null; continue; }
+    c.tx = prey.x; c.ty = prey.y; c.wait = 0;
+  }
+}
+
+function tryFoxChase(){
+  if(Math.random() > FOX_CHASE_CHANCE) return false;
+  const foxes = G.critters.filter(c=>
+    (c.species==="fox" || c.species==="snowfox") && !c.chasing && !c.flee);
+  if(!foxes.length) return false;
+  const fox = foxes[(Math.random()*foxes.length)|0];
+  const prey = G.critters.filter(c=>
+    (c.species==="rabbit" || c.species==="hare" || c.species==="snowhare" || c.species==="fawn")
+    && !c.flee && Math.hypot(c.x-fox.x, c.y-fox.y) < FOX_CHASE_RANGE);
+  if(!prey.length) return false;
+  const target = prey[(Math.random()*prey.length)|0];
+  fox.chasing = target; fox.chaseT = FOX_CHASE_LIFE;
+  target.flee = 1.4;
+  const a = Math.atan2(target.y-fox.y, target.x-fox.x);
+  target.tx = target.x+Math.cos(a)*120; target.ty = target.y+Math.sin(a)*120; target.wait = 0;
+  return true;
+}
+
+/* ============================================================
+   DUCKS AT THE WATER'S EDGE  (world-alive pack 4, feature 19)
+
+   Not a reskinned critter: every ground critter in updateWildlife
+   actively avoids water, and a shoreline bird wants the opposite
+   rule, so this is its own small system. It reuses touchesWater -
+   already in the file for dock placement - to find shoreline tiles.
+   ============================================================ */
+const DUCK_MAX = 6;
+
+function findShoreSpot(){
+  for(let tries=0; tries<40; tries++){
+    const tx = rnd(3, MAPW-3), ty = rnd(3, MAPH-3);
+    if(G.terrain[ty*MAPW+tx]===5) continue;        // must be dry land...
+    if(!touchesWater(tx,ty,1,1)) continue;          // ...right at the edge
+    return { x:(tx+0.5)*TILE, y:(ty+0.5)*TILE };
+  }
+  return null;
+}
+
+function updateDucks(dt){
+  if(!G.ducks) G.ducks = [];
+  G.duckCd = (G.duckCd===undefined) ? 10+Math.random()*20 : G.duckCd-dt;
+  if(G.duckCd <= 0){
+    G.duckCd = 20 + Math.random()*30;
+    if(G.ducks.length < DUCK_MAX){
+      const spot = findShoreSpot();
+      if(spot){
+        G.ducks.push({
+          x:spot.x, y:spot.y, home:spot, tx:spot.x, ty:spot.y,
+          wait:Math.random()*3, face:1, walk:Math.random()*6,
+          seed:Math.random()*6.283, id:G.nextId++, bob:Math.random()*6.283
+        });
+      }
+    }
+  }
+  for(let i=G.ducks.length-1; i>=0; i--){
+    const dk = G.ducks[i];
+    // scatter along the shore if anyone walks right up, rather than vanishing
+    let near = false;
+    for(const u of G.units){
+      if(Math.hypot(u.x-dk.x, u.y-dk.y) < 44){ near = true; break; }
+    }
+    if(near){
+      const spot = findShoreSpot();
+      if(spot && Math.hypot(spot.x-dk.home.x, spot.y-dk.home.y) < 400){
+        dk.tx = spot.x; dk.ty = spot.y; dk.wait = 0;
+      }
+    }
+    dk.wait -= dt;
+    if(dk.wait <= 0){
+      // a short paddle along the edge, biased to stay near home
+      const a = Math.random()*6.283, r = 10+Math.random()*20;
+      const nx = dk.home.x+Math.cos(a)*r, ny = dk.home.y+Math.sin(a)*r;
+      const ntx = Math.floor(nx/TILE), nty = Math.floor(ny/TILE);
+      if(ntx>=0 && nty>=0 && ntx<MAPW && nty<MAPH &&
+         touchesWater(ntx, nty, 1, 1) && G.terrain[nty*MAPW+ntx] !== 5){
+        dk.tx = nx; dk.ty = ny;
+      }
+      dk.wait = 2 + Math.random()*4;
+    }
+    const dx=dk.tx-dk.x, dy=dk.ty-dk.y, d=Math.hypot(dx,dy);
+    if(d>2){
+      const step=Math.min(d, 16*dt);
+      dk.x+=dx/d*step; dk.y+=dy/d*step; dk.walk+=step*0.18;
+      if(Math.abs(dx)>0.4) dk.face = dx<0?-1:1;
+    }
+    dk.bob += dt*2.2;
+  }
+}
+
+function drawDuck(dk){
+  const bob = Math.sin(dk.bob)*0.6;
+  ctx.save();
+  ctx.translate(dk.x, dk.y + bob);
+  ctx.scale(dk.face<0?-1:1, 1);
+
+  ctx.fillStyle="rgba(0,0,0,.15)";
+  ctx.beginPath(); ctx.ellipse(0, 1.6, 3, 1.1, 0,0,6.283); ctx.fill();
+
+  ctx.fillStyle="#e8e2d0";
+  ctx.beginPath(); ctx.ellipse(0,0,3.2,2.2,0,0,6.283); ctx.fill();
+  ctx.fillStyle="#4a3f30";
+  ctx.beginPath(); ctx.arc(2.2,-1.4,1.3,0,6.283); ctx.fill();
+  ctx.fillStyle="#d9a441";
+  ctx.beginPath();
+  ctx.moveTo(3.2,-1.4); ctx.lineTo(4.6,-1.1); ctx.lineTo(3.2,-0.7); ctx.closePath(); ctx.fill();
+
+  ctx.restore();
+}
+
+/* ============================================================
+   LEISURE VILLAGERS  (world-alive pack 6, feature 31)
+   Off-duty villagers in their own clothes, named from a pool, who go
+   and watch the farm, skip stones, read under a tree or fly a kite -
+   sometimes in pairs. Not part of the working population.
+   ============================================================ */
+const LEISURE_NAMES = [
+  "Wren","Isbel","Corwin","Marek","Sabine","Percy","Odile","Tamsin",
+  "Lucan","Bryony","Ansel","Delwyn","Ottilie","Garrick","Petra","Silas",
+  "Maelis","Corin","Wynne","Halvard"
+];
+
+/* ---------- clothing ----------
+   Off-duty villagers get their own small palette rather than the
+   worker's default colours - checked drawUnit()'s villager branch
+   first to confirm what "the usual clothes" actually are, and picked
+   away from that range rather than guessing. Each entry is a
+   [shirt, trim] pair. */
+const LEISURE_CLOTHES = [
+  ["#7a8f6a","#c9a24a"], ["#8a6a8f","#e8dcc4"], ["#6a7f8f","#d9a441"],
+  ["#8f7a5a","#c4dce8"], ["#7f6a8a","#a4c98f"], ["#9a7a5f","#8fb4c9"]
+];
+
+const LEISURE_MAX     = 5;     // couples count as one "slot" toward this
+const LEISURE_RADIUS  = 230;   // how far a house will look for something to do
+
+/* Where the leisure system will actually send someone from this house,
+   worked out fresh each time - a house on the far side of the map from
+   any water simply never offers "go skip stones", rather than every
+   house pretending it has a pond nearby. */
+function leisureOptionsFor(house){
+  const opts = ["home"];       // always available - the yard itself
+
+  const farm = G.bldgs.find(b=>b.p===P_YOU && b.type==="farm" && b.done &&
+    Math.hypot(b.x-house.x, b.y-house.y) < LEISURE_RADIUS);
+  if(farm) opts.push("farm");
+
+  // water within radius: sample a ring of points rather than scanning
+  // every tile in range, which would be needless work for a check this
+  // is allowed to be approximate about
+  let waterSpot = null;
+  for(let r=40; r<LEISURE_RADIUS && !waterSpot; r+=40){
+    for(let k=0;k<10;k++){
+      const a = k/10*6.283;
+      const x = house.x+Math.cos(a)*r, y = house.y+Math.sin(a)*r;
+      if(isWater(x,y)) continue;
+      if(touchesWater(Math.floor(x/TILE), Math.floor(y/TILE), 1, 1)){
+        waterSpot = {x,y}; break;
+      }
+    }
+  }
+  if(waterSpot) opts.push("water");
+
+  const tree = G.nodes.find(n=>n.kind===RES.WOOD && n.amt>0 && !n.burning &&
+    Math.hypot(n.x-house.x, n.y-house.y) < LEISURE_RADIUS &&
+    !G.units.some(u=>u.order==="gather" && u.target===n));
+  if(tree) opts.push("tree");
+
+  opts.push("kite");   // needs nothing but a little open ground, checked at spawn
+
+  return { opts, farm, waterSpot, tree };
+}
+
+function makeLeisureVillager(house, activity, dest, coupleId){
+  const name = (() => {
+    const used = new Set((G.leisure||[]).map(o=>o.name));
+    const free = LEISURE_NAMES.filter(n=>!used.has(n));
+    const pool = free.length ? free : LEISURE_NAMES;
+    return pool[(Math.random()*pool.length)|0];
+  })();
+  const clothes = LEISURE_CLOTHES[(Math.random()*LEISURE_CLOTHES.length)|0];
+  const doorX = house.x + (Math.random()-0.5)*10, doorY = house.y + house.h*TILE/2 + 6;
+
+  return {
+    kindTag:"leisure", id:G.nextId++, name, home:house,
+    activity, dest: dest || {x:doorX,y:doorY},
+    x:doorX, y:doorY, tx:doorX, ty:doorY,
+    state:"out", holdT: 20 + Math.random()*30,   // time spent actually doing the thing
+    t: 0, wait: 0, face: Math.random()<0.5?-1:1, walk: Math.random()*6,
+    skin: (Math.random()*SKINS.length)|0, clothes,
+    coupleId, seed: Math.random()*6.283,
+    // activity-specific counters, harmless if unused by a given activity
+    skipT: 1.5 + Math.random()*2, pageT: 3+Math.random()*3
+  };
+}
+
+function updateLeisureVillagers(dt){
+  if(!G.leisure) G.leisure = [];
+  G.leisureCd = (G.leisureCd===undefined) ? 14 : G.leisureCd - dt;
+
+  if(G.leisureCd <= 0){
+    G.leisureCd = 26 + Math.random()*34;
+    const slots = G.leisure.reduce((s,o)=>s + (o.coupleId?0.5:1), 0);
+    const houses = G.bldgs.filter(b=>b.p===P_YOU && b.type==="house" && b.done &&
+      !G.leisure.some(o=>o.home===b));
+    if(houses.length && slots < LEISURE_MAX && G.phase==="day" && Math.random() < 0.6){
+      const house = houses[(Math.random()*houses.length)|0];
+      const { opts, farm, waterSpot, tree } = leisureOptionsFor(house);
+      const activity = opts[(Math.random()*opts.length)|0];
+
+      let dest = null;
+      if(activity==="farm") dest = { x: farm.x + (Math.random()-0.5)*20, y: farm.y + farm.h*TILE/2 + 14 };
+      else if(activity==="water") dest = waterSpot;
+      else if(activity==="tree") dest = { x: tree.x + 14, y: tree.y + 6 };
+      else if(activity==="kite"){
+        // open ground near the house, not on top of anything
+        for(let tries=0; tries<12 && !dest; tries++){
+          const a=Math.random()*6.283, r=50+Math.random()*90;
+          const x=house.x+Math.cos(a)*r, y=house.y+Math.sin(a)*r;
+          if(!blocked(x,y,null,false)) dest = {x,y};
+        }
+        if(!dest) dest = { x: house.x, y: house.y + house.h*TILE/2 + 30 };
+      }
+
+      const coupleId = Math.random() < 0.28 ? (G.nextId+9000) : null;
+      const a = makeLeisureVillager(house, activity, dest, coupleId);
+      G.leisure.push(a);
+
+      if(coupleId){
+        // a partner, same destination, a step or two apart, same activity -
+        // but their own name and clothes, and their own timers, so they
+        // don't move in perfect lockstep
+        const off = 8 + Math.random()*6;
+        const dest2 = dest ? { x: dest.x + off, y: dest.y } : null;
+        const b = makeLeisureVillager(house, activity, dest2, coupleId);
+        b.partner = a; a.partner = b;
+        G.leisure.push(b);
+      }
+    }
+  }
+
+  for(let i=G.leisure.length-1; i>=0; i--){
+    const o = G.leisure[i];
+    o.t += dt;
+
+    // the house is gone, night has fallen, or a paired partner has
+    // already left - cap the remaining time short rather than leaving
+    // one half of a couple out there alone indefinitely
+    if(o.partner && !G.leisure.includes(o.partner)) o.holdT = Math.min(o.holdT, 4);
+
+    /* A guide out on the moonstone errand is exempt from the go-in-at-dark
+       rule until they turn for home - that walk IS the feature. Everyone else
+       still goes inside. (world-alive pack 7, feature 32) */
+    const nightExempt = o.activity==="moonstone" && o.state!=="home";
+    const gone = !o.home || o.home.hp<=0 || !G.bldgs.includes(o.home) ||
+                 ((G.dark||0) > 0.3 && !nightExempt);
+    if(gone){ G.leisure.splice(i,1); continue; }
+
+    if(o.state==="out"){
+      const dx=o.dest.x-o.x, dy=o.dest.y-o.y, d=Math.hypot(dx,dy);
+      if(d > 4){
+        const step = Math.min(d, 30*dt);
+        const nx=o.x+dx/d*step, ny=o.y+dy/d*step;
+        if(!blocked(nx,ny,null,false)){ o.x=nx; o.y=ny; o.walk += step*0.15; }
+        if(Math.abs(dx)>0.4) o.face = dx<0?-1:1;
+        o.moving = true;
+      } else {
+        o.state = "there"; o.moving = false; o.arriveT = 0;
+      }
+      continue;
+    }
+
+    if(o.state==="there"){
+      o.moving = false;
+      o.arriveT = (o.arriveT||0) + dt;
+      if(o.activity==="water"){
+        o.skipT -= dt;
+        if(o.skipT <= 0){ o.skipT = 2.5+Math.random()*3; o.skipAnim = 0.9; }
+        if(o.skipAnim > 0) o.skipAnim -= dt;
+      }
+      if(o.activity==="tree"){
+        o.pageT -= dt;
+        if(o.pageT <= 0){ o.pageT = 2.5+Math.random()*3.5; o.pageFlip = 0.3; }
+        if(o.pageFlip > 0) o.pageFlip -= dt;
+      }
+      if(o.arriveT > o.holdT){
+        o.state = "home"; o.dest = { x: o.home.x + (Math.random()-0.5)*10, y: o.home.y + o.home.h*TILE/2 + 6 };
+      }
+      continue;
+    }
+
+    if(o.state==="home"){
+      const dx=o.dest.x-o.x, dy=o.dest.y-o.y, d=Math.hypot(dx,dy);
+      if(d > 4){
+        const step = Math.min(d, 30*dt);
+        const nx=o.x+dx/d*step, ny=o.y+dy/d*step;
+        if(!blocked(nx,ny,null,false)){ o.x=nx; o.y=ny; o.walk += step*0.15; }
+        if(Math.abs(dx)>0.4) o.face = dx<0?-1:1;
+        o.moving = true;
+      } else {
+        G.leisure.splice(i,1);
+      }
+    }
+  }
+}
+
+/* ---------- drawing ----------
+   A fresh, compact adult figure rather than reusing drawUnit()'s
+   large shared human-figure renderer - that renderer is shared with
+   every soldier type and editing it for one new case was a bigger,
+   riskier change than drawing these fresh, the same call made for
+   squirrels and ducks in an earlier batch. */
+function drawLeisureVillager(o){
+  const skin = SKINS[o.skin % SKINS.length];
+  const [shirt, trim] = o.clothes;
+  const sitting = o.state==="there" && o.activity==="tree";
+  const bob = (o.moving && !sitting) ? Math.abs(Math.sin(o.walk))*1.3 : 0;
+
+  ctx.fillStyle = "rgba(0,0,0,.22)";
+  ctx.beginPath(); ctx.ellipse(o.x, o.y+1, 4.6, 1.8, 0, 0, 6.283); ctx.fill();
+
+  ctx.save();
+  ctx.translate(o.x, o.y - bob - (sitting?3:0));
+  ctx.scale(o.face<0?-1:1, 1);
+
+  const swing = (o.moving && !sitting) ? Math.sin(o.walk)*2.2 : 0;
+  ctx.strokeStyle = "#3a2f22"; ctx.lineWidth = 1.6; ctx.lineCap="round";
+  if(sitting){
+    // legs folded, not striding
+    ctx.beginPath();
+    ctx.moveTo(-2.4,-1); ctx.lineTo(-4.2,2); ctx.moveTo(2.4,-1); ctx.lineTo(4.2,2);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(-1.2,-3); ctx.lineTo(-1.2+swing*0.6,2);
+    ctx.moveTo( 1.2,-3); ctx.lineTo( 1.2-swing*0.6,2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = shirt;
+  ctx.beginPath();
+  ctx.moveTo(-3.2,-3); ctx.lineTo(3.2,-3); ctx.lineTo(2.7,-11); ctx.lineTo(-2.7,-11);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = trim;
+  ctx.fillRect(-2.7,-11,5.4,2);
+
+  // arms - default at the side, overridden below per activity
+  ctx.strokeStyle = shirt; ctx.lineWidth = 1.5; ctx.lineCap="round";
+  if(o.activity==="water" && o.state==="there" && o.skipAnim>0){
+    const p = 1 - o.skipAnim/0.9;
+    ctx.beginPath();
+    ctx.moveTo(2.5,-8); ctx.lineTo(2.5+Math.sin(p*3.14)*6, -8-Math.cos(p*3.14)*3);
+    ctx.stroke();
+  } else if(sitting){
+    ctx.beginPath();
+    ctx.moveTo(-2.5,-8); ctx.lineTo(-1,-6);
+    ctx.moveTo(2.5,-8); ctx.lineTo(1,-6);
+    ctx.stroke();
+    // a small open book
+    ctx.fillStyle = "#e8dcc4";
+    ctx.fillRect(-2.2, -7.4, 4.4, 3);
+    ctx.strokeStyle = "rgba(80,60,40,.4)"; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(0,-7.4); ctx.lineTo(0,-4.4); ctx.stroke();
+    if(o.pageFlip > 0){
+      ctx.fillStyle = "rgba(232,220,196,.85)";
+      ctx.beginPath();
+      ctx.moveTo(0,-7.4); ctx.lineTo(2.2-o.pageFlip*4, -6); ctx.lineTo(0,-4.4);
+      ctx.closePath(); ctx.fill();
+    }
+  } else if(o.activity==="kite" && o.state==="there"){
+    ctx.beginPath(); ctx.moveTo(2.5,-9); ctx.lineTo(4,-6); ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(-2.5,-8); ctx.lineTo(-2.5-swing*0.3,-4);
+    ctx.moveTo(2.5,-8); ctx.lineTo(2.5+swing*0.3,-4);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.arc(0, sitting?-13:-13.5, 2.9, 0, 6.283); ctx.fill();
+
+  ctx.restore();
+
+  // the kite itself, flown on a string from the raised hand - drawn in
+  // world space, outside the face-flip transform, so the string and
+  // kite don't mirror oddly when they turn around
+  if(o.activity==="kite" && o.state==="there"){
+    const wind = (typeof G.windDir === "number") ? G.windDir : 0.3;
+    const sway = Math.sin(G.t*0.8 + o.seed)*8 + wind*10;
+    const kx = o.x + (o.face<0?-4:4) + sway*0.3, ky = o.y - 34 + Math.sin(G.t*1.3+o.seed)*3;
+    ctx.strokeStyle = "rgba(200,200,200,.4)"; ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(o.x+(o.face<0?-2.5:2.5), o.y-19);
+    ctx.quadraticCurveTo(o.x+sway*0.5, o.y-27, kx, ky+4);
+    ctx.stroke();
+    ctx.fillStyle = o.clothes[1];
+    ctx.beginPath();
+    ctx.moveTo(kx,ky-4); ctx.lineTo(kx+4,ky); ctx.lineTo(kx,ky+4); ctx.lineTo(kx-4,ky);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.3)"; ctx.lineWidth=0.5;
+    for(let i=0;i<3;i++){
+      ctx.beginPath();
+      ctx.moveTo(kx, ky+4+i*3);
+      ctx.lineTo(kx+Math.sin(G.t*3+i)*2, ky+7+i*3);
+      ctx.stroke();
+    }
+  }
+  // a skipped stone's ripples, likewise drawn in world space
+  if(o.activity==="water" && o.state==="there" && o.skipAnim>0){
+    const p = 1 - o.skipAnim/0.9;
+    const dirx = o.face<0 ? -1 : 1;
+    ctx.strokeStyle = "rgba(210,226,236,.5)"; ctx.lineWidth=0.6;
+    for(let i=0;i<3;i++){
+      const sx = o.x + dirx*(14+i*10), sy = o.y-2;
+      const rr = Math.max(0, (p*6 - i*2));
+      if(rr<=0) continue;
+      ctx.globalAlpha = Math.max(0, 1-rr/6);
+      ctx.beginPath(); ctx.ellipse(sx, sy, rr, rr*0.4, 0, 0, 6.283); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ============================================================
+   THE MOONSTONE GUIDE  (world-alive pack 7, feature 32)
+   A rare night errand: someone takes up a real torch and walks out to
+   that night's vein, genuinely revealing the dark as they go.
+   ============================================================ */
+const MOONSTONE_GUIDE_CHANCE = 0.05;   // rolled once per night
+
+function tryMoonstoneGuide(){
+  if(!G.leisure) G.leisure = [];
+  if(G.leisure.some(o=>o.activity==="moonstone")) return false;   // never two at once
+  const vein = G.nodes.find(n=>n.kind===RES.MOONSTONE && n.amt>0);
+  if(!vein) return false;
+  if(Math.random() > MOONSTONE_GUIDE_CHANCE) return false;
+
+  const houses = G.bldgs.filter(b=>b.p===P_YOU && b.type==="house" && b.done);
+  if(!houses.length) return false;
+  // the house nearest the vein, not a random one - a guide setting off from
+  // the far side of the map read as arbitrary
+  houses.sort((a,b)=>Math.hypot(a.x-vein.x,a.y-vein.y)-Math.hypot(b.x-vein.x,b.y-vein.y));
+  const o = makeLeisureVillager(houses[0], "moonstone", { x:vein.x, y:vein.y+14 }, null);
+  o.holdT = 40 + Math.random()*30;    // stands by the vein a while, not a quick errand
+  G.leisure.push(o);
+  hint(o.name+" takes up a torch and heads off toward the moonstone.");
+  return true;
+}
+
+/* ============================================================
+   A STORY BY THE FIRE  (world-alive pack 7, feature 33)
+   Rare: the elder settles by a lit bonfire at dusk and the village comes to
+   listen instead of going straight to bed. Everyone who hears it out works
+   tomorrow warmed by it.
+   ============================================================ */
+const STORY_NIGHT_CHANCE = 0.03;   // rolled once per night - genuinely rare
+const STORY_HOLD_TIME    = 34;     // how long the telling lasts once they are gathered
+const STORY_BOOST        = 1.20;   // deliberately separate from RESTED_BOOST, and stacks with it
+
+function tryStoryNight(){
+  if(G.storyNight) return false;                          // one at a time
+  if(!G.elder || G.elder.state==="inside") return false;   // she has to be out to tell it
+  if(!G.players[P_YOU].bonfire) return false;              // and a fire lit to tell it by
+  const lodge = G.bldgs.find(b=>b.p===P_YOU && b.type==="lodge" && b.done);
+  if(!lodge) return false;
+  if(Math.random() > STORY_NIGHT_CHANCE) return false;
+
+  const yard = { x: lodge.x, y: (lodge.ty + lodge.h + yardOf("lodge")*0.5) * TILE };
+  const gathering = [];
+  let lane = 0;
+  for(const u of G.units){
+    if(u.p!==P_YOU || u.type!=="villager" || u.hp<=0 || u.indoors) continue;
+    if(u.order !== "home") continue;      // sendHome must already have run this dusk
+    const a = (lane % 8) / 8 * 6.283, r = 20 + Math.floor(lane/8)*16;
+    u.storyDest = { x: yard.x + Math.cos(a)*r, y: yard.y + Math.sin(a)*r };
+    u.order = "story";
+    gathering.push(u);
+    lane++;
+  }
+  if(!gathering.length) return false;     // nobody sent home yet - too early tonight
+
+  G.storyNight = { t:0, dur: STORY_HOLD_TIME, phase:"gathering", waitT:0 };
+  hint("The elder settles by the fire - word goes round, and the village comes to listen.");
+  return true;
+}
+
+function updateStoryNight(dt){
+  if(!G.storyNight) return;
+  const sn = G.storyNight;
+
+  if(sn.phase === "gathering"){
+    // wait for the walk-in, but never let one straggler hold the village up
+    sn.waitT = (sn.waitT||0) + dt;
+    const stillWalking = G.units.some(u=>u.order==="story" && u.hp>0);
+    const allThere = !G.units.some(u=>u.order==="story" && u.storyDest &&
+      Math.hypot(u.x-u.storyDest.x, u.y-u.storyDest.y) > 14);
+    if(!stillWalking || allThere || sn.waitT > 40){ sn.phase = "telling"; sn.t = 0; }
+    return;
+  }
+
+  if(sn.phase === "telling"){
+    sn.t += dt;
+    if(sn.t < sn.dur) return;
+    let count = 0;
+    for(const u of G.units){
+      if(u.order !== "story") continue;
+      u.storyBoost = DAY_LEN;      // the rest of tomorrow, not a few seconds
+      u.order = "home";            // handed back to the existing home walk
+      u.storyDest = null;
+      count++;
+    }
+    if(count>0) hint(count + (count===1?" villager":" villagers") +
+      " head home for the night, warmed by the elder's tale.");
+    G.storyNight = null;
+  }
+}
+
+/* ============================================================
+   ICE ON THE PONDS  (world-alive pack 5, feature 22)
+
+   As shipped this frosted every water tile on the map. That was written for
+   maps whose water is ponds and lakes; on an island map it would turn the
+   whole ocean pale. Scoped to small bodies only - a pond ices over, the sea
+   does not - using the same flood seaBody already does, measured once and
+   kept for the match.
+   ============================================================ */
+const POND_MAX_TILES = 140;      // bigger than this is a sea, not a pond
+
+function pondIds(){
+  if(G.pondIds) return G.pondIds;
+  const m = seaBody();
+  const size = new Map();
+  for(let i=0;i<m.length;i++){
+    const id = m[i];
+    if(id >= 0) size.set(id, (size.get(id)||0) + 1);
+  }
+  const small = new Set();
+  for(const [id, n] of size) if(n <= POND_MAX_TILES) small.add(id);
+  G.pondIds = small;
+  return small;
+}
+
+function drawPondFrost(x0, y0, x1, y1){
+  if(G.season !== "winter" || G.snow < 0.6) return;
+  const T = G.terrain;
+  if(!T) return;
+  const ponds = pondIds();
+  if(!ponds.size) return;
+  const m = seaBody();
+  ctx.fillStyle = "rgba(214,230,238,.34)";
+  for(let ty=y0; ty<y1; ty++){
+    for(let tx=x0; tx<x1; tx++){
+      const i = ty*MAPW+tx;
+      if(T[i] !== 5) continue;
+      if(!ponds.has(m[i])) continue;
+      ctx.fillRect(tx*TILE, ty*TILE, TILE, TILE);
+    }
+  }
+}
+
+/* ============================================================
+   FOOTPRINTS IN THE SNOW  (world-alive pack 5)
+   ============================================================ */
+const FOOTPRINT_LIFE = 45;       // how long one stays visible
+const FOOTPRINT_MAX  = 260;      // a soft cap so a long snowy match doesn't grow this forever
+
+function dropFootprint(u){
+  if(G.snow < 0.5) return;
+  if(!G.footprints) G.footprints = [];
+  // spaced by frame-count rather than true distance - see the honest
+  // note at the bottom of this file on what that trades away
+  u.stepAcc = (u.stepAcc||0) + 1;
+  if(u.stepAcc < 6) return;
+  u.stepAcc = 0;
+  if(G.footprints.length >= FOOTPRINT_MAX) G.footprints.shift();
+  // two small offset prints either side of the line of travel, the
+  // way an actual gait alternates left and right
+  const side = (u.footToggle = !u.footToggle) ? 1 : -1;
+  const perpX = -Math.sin((u.face<0)?Math.PI:0), perpY = 0;
+  G.footprints.push({
+    x: u.x + perpX*side*2.2, y: u.y + 4, t: 0, seed: Math.random()*6.283
+  });
+}
+
+function updateFootprints(dt){
+  if(!G.footprints || !G.footprints.length) return;
+  for(let i=G.footprints.length-1; i>=0; i--){
+    const f = G.footprints[i];
+    f.t += dt;
+    if(f.t > FOOTPRINT_LIFE) G.footprints.splice(i,1);
+  }
+}
+
+// ---------- new draw function ----------
+function drawFootprints(x0, y0, x1, y1){
+  if(!G.footprints || !G.footprints.length) return;
+  const px0=x0*TILE, py0=y0*TILE, px1=x1*TILE, py1=y1*TILE;
+  ctx.fillStyle = "rgba(120,132,148,.4)";
+  for(const f of G.footprints){
+    if(f.x<px0||f.x>px1||f.y<py0||f.y>py1) continue;
+    const a = f.t < 6 ? 1 : Math.max(0, 1 - (f.t-6)/(FOOTPRINT_LIFE-6));
+    if(a <= 0) continue;
+    ctx.globalAlpha = a * 0.4;
+    ctx.beginPath(); ctx.ellipse(f.x, f.y, 1.6, 2.4, 0, 0, 6.283); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+
+/* ============================================================
+   TWO VILLAGERS WALKING TOGETHER  (world-alive pack 5)
+   ============================================================ */
+const PAIR_WALK_CHANCE = 0.01;   // rolled on a slow timer, see call site
+const PAIR_WALK_RANGE  = 90;
+const PAIR_WALK_DIST   = 50;
+
+function tryPairWalk(){
+  if(Math.random() > PAIR_WALK_CHANCE) return;
+  const idle = G.units.filter(u=>
+    u.p===P_YOU && u.type==="villager" && !u.order && !u.indoors && !u.paired);
+  if(idle.length < 2) return;
+  const a = idle[(Math.random()*idle.length)|0];
+  const others = idle.filter(u=>u!==a && Math.hypot(u.x-a.x,u.y-a.y) < PAIR_WALK_RANGE);
+  if(!others.length) return;
+  const b = others[(Math.random()*others.length)|0];
+
+  // a short out-and-back, side by side, rather than a real destination
+  const ang = Math.random()*6.283;
+  const tx = a.x + Math.cos(ang)*PAIR_WALK_DIST, ty = a.y + Math.sin(ang)*PAIR_WALK_DIST;
+  if(blocked(tx,ty,null,false)) return;
+
+  for(const u of [a,b]){
+    u.paired = true; u.pairT = 6 + Math.random()*3;
+    u.order = "move"; u.tx = tx + (u===a?-6:6); u.ty = ty; u.path = null;
+  }
+}
+
+function updatePairWalks(dt){
+  for(const u of G.units){
+    if(!u.paired) continue;
+    u.pairT -= dt;
+    // the pair breaks up once the walk's had its moment or a real job
+    // (someone gave an order, an attack started, whatever) takes over -
+    // never fights the player's own commands
+    if(u.pairT <= 0 || u.order !== "move"){ u.paired = false; }
+  }
+}
+
+
+/* ============================================================
+   VILLAGERS WAVING  (world-alive pack 5)
+   ============================================================ */
+const WAVE_CHANCE = 0.02;   // rolled on a slow timer, see call site
+const WAVE_RANGE  = 60;
+const WAVE_LIFE   = 1.2;
+
+function tryVillagerWave(){
+  if(Math.random() > WAVE_CHANCE) return;
+  const vills = G.units.filter(u=>u.p===P_YOU && u.type==="villager" && !u.indoors && !(u.waving>0));
+  if(vills.length < 2) return;
+  const a = vills[(Math.random()*vills.length)|0];
+  const nearby = vills.filter(u=>u!==a && Math.hypot(u.x-a.x,u.y-a.y) < WAVE_RANGE);
+  if(!nearby.length) return;
+  const b = nearby[(Math.random()*nearby.length)|0];
+  a.waving = WAVE_LIFE; b.waving = WAVE_LIFE;
+}
+
+function updateWaves(dt){
+  for(const u of G.units){
+    if(u.waving > 0) u.waving -= dt;
+  }
+}
+
+// ---------- new draw function ----------
+function drawWaveGesture(u){
+  if(!(u.waving > 0)) return;
+  const lift = Math.sin((WAVE_LIFE-u.waving)*10) * 0.5 + 0.5;   // a couple of quick swings
+  ctx.save();
+  ctx.translate(u.x + u.r*0.7*(u.face<0?-1:1), u.y - u.r*0.9);
+  ctx.strokeStyle = "#c9a27a"; ctx.lineWidth = Math.max(1, u.r*0.16);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo((u.face<0?-1:1)*u.r*0.5, -u.r*(0.6+lift*0.4));
+  ctx.stroke();
+  ctx.restore();
+}
+
+
+/* ============================================================
+   CHILDREN REACTING TO PUDDLES AND SNOW  (world-alive pack 5)
+   ============================================================ */
+const CHILD_REACT_RANGE = 20;
+
+function updateChildReactions(dt){
+  if(!G.homeLife || !G.homeLife.length) return;
+  for(const o of G.homeLife){
+    if(o.kind !== "child") continue;
+    o.reactT = Math.max(0, (o.reactT||0) - dt);
+    if(o.reactT > 0) continue;   // already mid-reaction, let it finish
+
+    // a nearby puddle, warm seasons
+    if(G.puddles && G.puddles.length && G.season !== "winter"){
+      for(const p of G.puddles){
+        if(Math.hypot(o.x-p.x, o.y-p.y) < CHILD_REACT_RANGE){
+          o.reactT = 1.4; o.reactKind = "splash";
+          break;
+        }
+      }
+    }
+    // deep snow, cold seasons - a much rarer moment, not every pass
+    if(!o.reactT && G.season === "winter" && G.snow > 0.6 && Math.random() < 0.004){
+      o.reactT = 1.8; o.reactKind = "snowball";
+    }
+  }
+}
+
+// ---------- new draw addition ----------
+function drawChildReaction(o){
+  if(!(o.reactT > 0)) return;
+  const t = o.reactKind === "splash" ? (1.4 - o.reactT) : (1.8 - o.reactT);
+  if(o.reactKind === "splash"){
+    ctx.strokeStyle = "rgba(210,226,236,.6)"; ctx.lineWidth = 0.8;
+    const spread = Math.min(1, t*3);
+    for(let i=0;i<3;i++){
+      const a = -1.4 + i*1.4;
+      ctx.beginPath();
+      ctx.moveTo(o.x, o.y-2);
+      ctx.lineTo(o.x+Math.cos(a)*4*spread, o.y-2+Math.sin(a)*3*spread-2*spread);
+      ctx.stroke();
+    }
+  } else {
+    // a small snowball arcing from the child's hand
+    const p = Math.min(1, t/1.2);
+    ctx.fillStyle = "#eef3f8";
+    ctx.beginPath();
+    ctx.arc(o.x + p*10, o.y - 6 - Math.sin(p*3.14)*6, 1.3, 0, 6.283);
+    ctx.fill();
+  }
+}
+
+
+/* ============================================================
+   GRASS SWAYING  (world-alive pack 5)
+   ============================================================ */
+function drawGrassSway(x0, y0, x1, y1){
+  if(G.season === "winter") return;              // buried under snow-glint's territory instead
+  if(G.cam.z < 0.9) return;
+  const windAmt = (typeof G.windDir === "number") ? G.windDir : 0;   // 0 if pkg-2's wind isn't installed
+  const gust = G.weather ? (G.weatherAmt||0) : 0;
+
+  const cols = Math.min(24, x1-x0), rows = Math.min(16, y1-y0);
+  if(cols<=0 || rows<=0) return;
+
+  ctx.strokeStyle = "rgba(60,90,50,.30)";
+  ctx.lineWidth = 0.8;
+  for(let gy=0; gy<rows; gy++){
+    for(let gx=0; gx<cols; gx++){
+      const tx = x0+gx, ty = y0+gy;
+      if(G.terrain[ty*MAPW+tx] === 5) continue;          // no grass on water
+      const seed = (tx*928371 + ty*57121) % 997;
+      if(seed % 17 !== 0) continue;                       // sparse
+      const px = (tx+((seed*13)%100)/100)*TILE;
+      const py = (ty+((seed*31)%100)/100)*TILE;
+      const lean = (windAmt*0.6 + Math.sin(G.t*0.5+seed)*0.4) * (1 + gust*1.5);
+      ctx.beginPath();
+      ctx.moveTo(px, py+3);
+      ctx.lineTo(px+lean*3, py-3);
+      ctx.stroke();
+    }
+  }
+}
+
+
+/* ============================================================
+   A WOLF GLANCING AT A DEER  (world-alive pack 5)
+   ============================================================ */
+const WOLF_DETOUR_CHANCE = 0.05;   // rolled per wolf, per check - see call site
+const WOLF_DETOUR_RANGE  = 70;
+const WOLF_DETOUR_LIFE   = 2.2;    // short - this is a snap, not a real hunt
+
+function tryWolfDetour(b){
+  if(b.kind !== "wolf") return false;
+  if(b.detourT > 0) return false;               // already mid-detour
+  // only once the pack's still at full strength - never the one wolf
+  // still standing, so this can never be mistaken for the raid
+  // quietly losing a member
+  const packmates = G.beasts.filter(x=>x.kind==="wolf" && x.hp>0).length;
+  if(packmates < 3) return false;
+  if(Math.random() > WOLF_DETOUR_CHANCE) return false;
+
+  const deer = (G.critters||[]).filter(c=>
+    (c.species==="deer"||c.species==="stag") &&
+    Math.hypot(c.x-b.x, c.y-b.y) < WOLF_DETOUR_RANGE);
+  if(!deer.length) return false;
+  const target = deer[(Math.random()*deer.length)|0];
+
+  b.detourT = WOLF_DETOUR_LIFE;
+  b.detourTarget = target;
+  target.flee = 1.4;
+  const a = Math.atan2(target.y-b.y, target.x-b.x);
+  target.tx = target.x+Math.cos(a)*120; target.ty = target.y+Math.sin(a)*120; target.wait = 0;
+  return true;
+}
+
+function updateWolfDetours(dt){
+  if(!G.beasts) return;
+  for(const b of G.beasts){
+    if(!(b.detourT > 0)) continue;
+    b.detourT -= dt;
+    const t = b.detourTarget;
+    if(t && (G.critters||[]).includes(t)){
+      b.x += (t.x-b.x)*Math.min(1,dt*2);
+      b.y += (t.y-b.y)*Math.min(1,dt*2);
+    }
+    if(b.detourT <= 0){ b.detourT = 0; b.detourTarget = null; }
+  }
+}
+
+/* ============================================================
+   LAUNDRY LINES  (world-alive pack 5, feature 28)
+   ============================================================ */
+function drawLaundryLine(b, x, y, w, dep, H){
+  if(b.type !== "house" || !b.done) return;
+  if(b.laundryHas === undefined) b.laundryHas = Math.random() < 0.55;
+  if(!b.laundryHas) return;
+  if(G.season === "winter") return;   // nobody's hanging washing out over snow
+
+  const sway = Math.sin(G.t*0.6 + b.id) * 1.4;
+  const x0 = x + w*0.12, y0 = y - H*0.55;
+  const x1 = x + w*0.82, y1 = y - H*0.62;
+
+  ctx.strokeStyle = "rgba(220,214,196,.55)"; ctx.lineWidth = 0.6;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+
+  const cloths = [
+    { t:0.22, col:"#c9d4dc" }, { t:0.5, col:"#d9a441" }, { t:0.76, col:"#e8dfc8" }
+  ];
+  for(const cl of cloths){
+    const cx = x0 + (x1-x0)*cl.t, cy = y0 + (y1-y0)*cl.t;
+    ctx.fillStyle = cl.col;
+    ctx.beginPath();
+    ctx.moveTo(cx-2.2, cy);
+    ctx.lineTo(cx+2.2+sway*0.3, cy);
+    ctx.lineTo(cx+1.6+sway*0.5, cy+4.5);
+    ctx.lineTo(cx-1.6+sway*0.5, cy+4.5);
+    ctx.closePath(); ctx.fill();
+  }
+}
+
+/* ============================================================
+   BIRDS ON THE ROOFS  (world-alive pack 1, feature 3)
+   ============================================================ */
+const ROOFBIRD_MAX = 4;
+
+function updateRoofBirds(dt){
+  if(!G.roofBirds) G.roofBirds = [];
+  G.roofBirdCd = (G.roofBirdCd===undefined) ? 6+Math.random()*10 : G.roofBirdCd-dt;
+
+  // one more settles on a roof now and then, if there's a roof free
+  if(G.roofBirdCd <= 0){
+    G.roofBirdCd = 10 + Math.random()*20;
+    const roofs = G.bldgs.filter(b=>b.p===P_YOU && b.done &&
+      (b.type==="house" || b.type==="lodge" || b.type==="town"));
+    if(roofs.length && G.roofBirds.length < ROOFBIRD_MAX){
+      const h = roofs[(Math.random()*roofs.length)|0];
+      if(!G.roofBirds.some(rb=>rb.home===h)){
+        G.roofBirds.push({
+          home: h, id: G.nextId++,
+          // a little left/right of centre on the ridge, never dead-centre
+          ox: (Math.random()-0.5) * h.w * TILE * 0.4,
+          seed: Math.random()*6.283,
+          flee: 0,
+          t: 8 + Math.random()*20   // how long it stays before moving on anyway
+        });
+      }
+    }
+  }
+
+  for(let i=G.roofBirds.length-1; i>=0; i--){
+    const rb = G.roofBirds[i];
+    rb.t -= dt;
+    // its roof is gone, or it's simply had enough of this one
+    if(!rb.home || rb.home.hp<=0 || !G.bldgs.includes(rb.home) || rb.t<=0){
+      G.roofBirds.splice(i,1);
+      continue;
+    }
+    if(rb.flee<=0){
+      const bx = rb.home.x + rb.ox, by = rb.home.y - roofBirdPerchHeight(rb.home);
+      for(const u of G.units){
+        if(Math.hypot(u.x-bx, u.y-by) < 46){ rb.flee = 1; break; }
+      }
+    }
+    if(rb.flee>0){
+      rb.flee -= dt;
+      if(rb.flee<=0) G.roofBirds.splice(i,1);   // flown off for good, not just startled
+    }
+  }
+}
+
+/* Approximates how far above the building's anchor point (b.x, b.y)
+   the roof ridge sits, reusing BLDG[type].hgt — the same figure the
+   game's own roof-drawing code is built around — rather than
+   inventing a second number that could drift out of sync with it.
+   This is an approximation, not the exact per-variant roof geometry
+   (see houseVariant()/HOUSE_VARIANTS for how much that varies house
+   to house) — nudge the 0.62 multiplier by eye once birds are
+   actually rendering on screen; it's a starting guess, not a
+   measured constant. */
+function roofBirdPerchHeight(b){
+  return (BLDG[b.type].hgt || 7) * TILE * 0.62;
+}
+
+function drawRoofBirds(){
+  if(!G.roofBirds) return;
+  for(const rb of G.roofBirds){
+    if(!rb.home) continue;
+    const bx = rb.home.x + rb.ox, by = rb.home.y - roofBirdPerchHeight(rb.home);
+    if(rb.flee > 0){
+      // a quick flit up and away rather than an instant disappearance
+      const p = 1 - rb.flee;
+      drawOneRoofBird(bx + p*40, by - p*30, rb.seed, true);
+    } else {
+      drawOneRoofBird(bx, by, rb.seed, false);
+    }
+  }
+}
+
+function drawOneRoofBird(x, y, seed, flying){
+  const bob = flying ? 0 : Math.sin(G.t*2 + seed)*0.6;
+  ctx.fillStyle = "rgba(0,0,0,.15)";
+  ctx.beginPath(); ctx.ellipse(x, y+3, 3, 1.2, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#6a5c4a";
+  ctx.beginPath(); ctx.ellipse(x, y+bob, 2.6, 2, 0, 0, 6.283); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x-2.6, y+bob); ctx.lineTo(x-4.4, y+bob-0.6); ctx.lineTo(x-2.6, y+bob-1.2);
+  ctx.closePath(); ctx.fill();
+}
+
+/* ============================================================
+   WIND, AND SMOKE THAT LEANS WITH IT  (pack 2, feature 6)
+   ============================================================ */
+function updateWind(dt){
+  if(G.windDir===undefined) G.windDir = Math.random()*2-1;
+  G.windT = (G.windT||0) + dt;
+  // ambles slowly back and forth on a quiet day; leans hard toward
+  // whichever way it's already blowing once real weather rolls in,
+  // rather than introducing a second, separate "storm direction"
+  const target = G.weather
+    ? (G.windDir >= 0 ? 1 : -1)
+    : Math.sin(G.windT*0.05) * 0.6;
+  G.windDir += (target - G.windDir) * Math.min(1, dt*0.15);
+}
+
+/* ============================================================
+   DREAM BUBBLES OVER SLEEPING HOUSES  (pack 2, feature 8)
+   ============================================================ */
+function dreamBubbleHeight(b){
+  return (BLDG[b.type].hgt || 7) * TILE * 0.62 + 6;
+}
+
+function drawDreamBubbles(){
+  if((G.dark||0) < 0.5) return;   // only worth showing once it's properly dark
+
+  const occupied = new Set();
+  for(const u of G.units){
+    if(u.p===P_YOU && u.indoors && u.home) occupied.add(u.home);
+  }
+  if(!occupied.size) return;
+
+  for(const b of occupied){
+    if(!b || b.hp<=0 || !G.bldgs.includes(b)) continue;
+    drawOneDreamBubble(b.x, b.y - dreamBubbleHeight(b));
+  }
+}
+
+function drawOneDreamBubble(x, y){
+  const bob = Math.sin(G.t*1.1 + x*0.013) * 2;
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = "#eef1fb";
+  // two small trailing circles rising to one bigger one, the
+  // universal "thought bubble" shape
+  ctx.beginPath(); ctx.ellipse(x+1,   y-1+bob*0.5, 1.6, 1.3, 0, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x+3.5, y-4+bob*0.7, 2.4, 1.9, 0, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x+7,   y-9+bob,     6.2, 4.6, 0, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // a tiny "zzz" reads clearer than trying to draw anything inside
+  // the bubble at this scale
+  ctx.globalAlpha = 0.65;
+  ctx.fillStyle = "#4a4a66";
+  ctx.font = "6px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.fillText("z z z", x+7, y-8+bob);
+  ctx.textAlign = "left";
+  ctx.globalAlpha = 1;
+}
+
+/* ============================================================
+   BUILDINGS WEATHER WITH AGE  (pack 2, feature 9)
+   ============================================================ */
+function drawBuildingWeathering(b, x, y, w, dep, H){
+  if(!b.done) return;
+  if(b.builtAt===undefined) b.builtAt = G.t;   // safety net — see note 1 below
+  const age = G.t - b.builtAt;
+
+  // deterministic per-building placement so a given building's moss/
+  // flowers sit in the same spots every frame instead of jittering —
+  // same trick the file already uses elsewhere (b.id feeding a phase
+  // into Math.sin, etc.)
+  const seed = b.id * 12.9898;
+  const jx = (n) => (Math.sin(seed + n*3.1) * 0.5 + 0.5);   // 0..1, stable per building
+
+  // stage 1 — a fleck or two of moss near the base, after a couple
+  // of minutes standing
+  if(age > 90){
+    const mossAmt = Math.min(1, (age-90) / 120);
+    ctx.globalAlpha = 0.5 * mossAmt;
+    ctx.fillStyle = "#6f8a52";
+    for(let i=0;i<3;i++){
+      const mx = x + w*jx(i), my = y+dep - 2 - jx(i+10)*3;
+      ctx.beginPath(); ctx.ellipse(mx, my, 2.4, 1.5, 0, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // stage 2 — a small flower or two by the base, once it's really
+  // been standing a while
+  if(age > 240){
+    const flowerAmt = Math.min(1, (age-240) / 180);
+    const cols = ["#d97a9a","#e0c94a","#c98fd9"];
+    ctx.globalAlpha = 0.85 * flowerAmt;
+    for(let i=0;i<2;i++){
+      const fx = x + w*jx(i+20), fy = y+dep - 1;
+      ctx.fillStyle = "#5a7a42";
+      ctx.fillRect(fx-0.5, fy-3, 1, 3);
+      ctx.fillStyle = cols[(i+((b.id)|0))%cols.length];
+      ctx.beginPath(); ctx.arc(fx, fy-3.5, 1.3, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // stage 3 — a thin vine climbing one wall corner, for buildings
+  // that have stood the longest
+  if(age > 480 && !b.farm){
+    const vineAmt = Math.min(1, (age-480) / 240);
+    const vx = x + w * (jx(30) > 0.5 ? 0.06 : 0.94);
+    const vTop = y+dep-H, vBase = y+dep-1;
+    ctx.globalAlpha = 0.55 * vineAmt;
+    ctx.strokeStyle = "#4f7a3a"; ctx.lineWidth = 1.1; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(vx, vBase);
+    for(let s=0; s<=6; s++){
+      const t = s/6, wob = Math.sin(t*9 + seed)*2.2;
+      ctx.lineTo(vx+wob, vBase - t*(vBase-vTop)*Math.min(1,vineAmt));
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ============================================================
+   BIRDS AS A WARNING  (pack 2, feature 10)
+   ============================================================ */
+const BIRDRADAR_CHECK_EVERY  = 2.5;   // how often this scans at all — an ambient check, not a per-frame one
+const BIRDRADAR_HOME_RANGE   = 420;   // only warns about threats already fairly close to home
+const BIRDRADAR_TREE_RADIUS  = 60;    // how close together trees need to be to count as "canopy"
+const BIRDRADAR_TREE_MIN     = 3;     // how many trees within that radius before it counts
+const BIRDRADAR_COOLDOWN     = 35;    // don't re-warn constantly about the same lurking unit
+
+// ---------- new function ----------
+function updateBirdRadar(dt){
+  G.birdRadarCd = (G.birdRadarCd===undefined) ? BIRDRADAR_CHECK_EVERY : G.birdRadarCd-dt;
+  if(G.birdRadarWarnCd>0) G.birdRadarWarnCd -= dt;
+  if(G.birdRadarCd > 0) return;
+  G.birdRadarCd = BIRDRADAR_CHECK_EVERY;
+  if(G.birdRadarWarnCd > 0) return;   // still cooling down from the last warning
+
+  const myStuff = G.bldgs.filter(b=>b.p===P_YOU && b.done)
+                    .concat(G.units.filter(u=>u.p===P_YOU && u.hp>0));
+  if(!myStuff.length) return;
+
+  for(const u of G.units){
+    if(u.p!==P_AI || u.hp<=0) continue;
+    if(!UNITS[u.type] || UNITS[u.type].cls==="civ" || UNITS[u.type].cls==="scout") continue;
+    if(visibleTo(P_YOU, u.x, u.y)) continue;   // already plainly visible - birds add nothing here
+
+    let nearHome = false;
+    for(const s of myStuff){
+      if(Math.hypot(u.x-s.x, u.y-s.y) < BIRDRADAR_HOME_RANGE){ nearHome = true; break; }
+    }
+    if(!nearHome) continue;
+
+    let trees = 0;
+    for(const n of G.nodes){
+      if(n.kind !== RES.WOOD) continue;
+      if(Math.hypot(n.x-u.x, n.y-u.y) < BIRDRADAR_TREE_RADIUS){
+        trees++;
+        if(trees >= BIRDRADAR_TREE_MIN) break;
+      }
+    }
+    if(trees < BIRDRADAR_TREE_MIN) continue;
+
+    // found one - a warning, deliberately with no marker at the
+    // unit's actual position (see note 2 below)
+    G.birdRadarWarnCd = BIRDRADAR_COOLDOWN;
+    hint("Birds scatter from the canopy somewhere out past your walls.");
+    if(window.AudExtra && AudExtra.play) AudExtra.play("owl");
+    break;
+  }
+}
+
+/* ============================================================
+   TODAY'S ALMANAC LINE  (pack 2, feature 7)
+   ============================================================ */
+const ALMANAC_FLAVOR_LINES = [
+  "The old bell in the square keeps a fair time today.",
+  "Chimney smoke is climbing straight up this morning — a still, quiet day.",
+  "Someone's chalked \"good day for mending fences\" by the well.",
+  "The well water ran a little cold this dawn.",
+  "A quiet page today — nothing much is written down.",
+  "The almanac margin just says: fair, for now."
+];
+function almanacBannerFor(dayNum){
+  if(G.almBannerDay === dayNum) return G.almBannerText;
+  G.almBannerDay = dayNum;
+
+  const todayF = dayForecast(0);
+  if(todayF.current && G.weather){
+    const w = WEATHER[G.season] || WEATHER.summer;
+    G.almBannerText = "Today's almanac: " + (w.label || "rough weather") + " is already here.";
+  } else if(todayF.has){
+    const w = WEATHER[todayF.season] || WEATHER.summer;
+    G.almBannerText = "Today's almanac: " + (w.label || "weather") + " expected.";
+  } else {
+    G.almBannerText = ALMANAC_FLAVOR_LINES[(Math.random()*ALMANAC_FLAVOR_LINES.length)|0];
+  }
+  return G.almBannerText;
+}
+
+/* ============================================================
+   THE GOLDEN STAG  (pack 3, feature 13)
+   ============================================================ */
+/* Rarity across all of these is set from a measured cadence, not by feel: a
+   played match averages 16.8 minutes, 4 season turns, 8.9 nights and ~211
+   seconds of clear night. For a once-per-season-turn roll that makes the
+   per-match odds 1-(1-p)^4, so p = 1-(1-target)^(1/4).
+
+   The brief: a sighting like this should turn up about once in five matches,
+   and never every match - the point is that you come back and see something
+   you have not seen. 0.006 gave one stag every ~28 matches, which is built
+   and drawn and almost nobody would ever meet it. */
+const GOLDEN_STAG_CHANCE = 0.055;     // ≈1 in 5 matches over 4 season turns
+const GOLDEN_STAG_LIFE   = 90;        // how long the sighting lasts before it reverts
+
+function tryGoldenStag(){
+  if(G.goldenStag) return false;                     // only one at a time
+  if(Math.random() > GOLDEN_STAG_CHANCE) return false;
+  const pool = (G.critters||[]).filter(c =>
+    (c.species === "deer" || c.species === "stag" || c.species === "snowfox" || c.species === "fox")
+    && !c.flee);
+  if(!pool.length) return false;
+  const c = pool[(Math.random()*pool.length)|0];
+  c.goldenWas = c.species;
+  c.species = "goldenstag";
+  G.goldenStag = { critter: c, t: 0 };
+  hint("Something moves at the tree line — a stag, its antlers catching gold in the light.");
+  return true;
+}
+
+function updateGoldenStag(dt){
+  if(!G.goldenStag) return;
+  const gs = G.goldenStag;
+  gs.t += dt;
+  const c = gs.critter;
+  // reverts early and quietly if the critter it borrowed was removed by
+  // something else in the meantime (reseason(), a predator vignette from a
+  // future feature, etc.) rather than leaving a dangling reference around
+  const stillThere = c && G.critters && G.critters.includes(c);
+  if(!stillThere || gs.t > GOLDEN_STAG_LIFE){
+    if(stillThere) c.species = c.goldenWas || "deer";
+    G.goldenStag = null;
+  }
+}
+
+/* ============================================================
+   MOON PHASES  (pack 3, feature 14)
+   ============================================================ */
+const MOON_CYCLE = 12;   // nights per full cycle - see the length note above
+
+// Returns 0 (new moon, darkest) to 1 (full moon, brightest), a smooth
+// triangle wave rather than a stepped one so consecutive nights differ by
+// only a little, the way the real thing actually looks.
+function moonPhase(){
+  const n = (G.nightNo || 0) % MOON_CYCLE;
+  const f = n / MOON_CYCLE;
+  return 1 - Math.abs(f - 0.5) * 2;
+}
+
+// A pale, faintly silver-blue at full, easing toward the existing
+// NIGHT_TINT at new moon rather than replacing it outright — so a new-moon
+// night looks exactly like the game always has, and only a rising moon
+// visibly lightens and cools it from there.
+function nightTintNow(){
+  const p = moonPhase();
+  if(p < 0.05) return NIGHT_TINT;
+  const base = [0x10, 0x1a, 0x2e], full = [0x2c, 0x3c, 0x58];
+  const mix = (a, b) => Math.round(a + (b - a) * p * 0.7);
+  const r = mix(base[0], full[0]), g = mix(base[1], full[1]), b = mix(base[2], full[2]);
+  return "rgb(" + r + "," + g + "," + b + ")";
+}
+
+/* ============================================================
+   THE MORNING AFTER  (pack 3, feature 15)
+   ============================================================ */
+const MORNING_AFTER_LINES = [
+  "Villagers are out early, sweeping up after the night.",
+  "The worst of the damage is already being cleared away.",
+  "There's a lot of tidying up to do this morning.",
+  "People are picking through the wreckage from the night before.",
+  "The repair work starts before breakfast."
+];
+
+function morningAfterCheck(){
+  if(!G.nightAttackAt) return;
+  const at = G.nightAttackAt;
+  G.nightAttackAt = null;
+  hint(pickLine(MORNING_AFTER_LINES, "morningafter"));
+  // a handful of pale dust-coloured sparks at the spot that took the
+  // worst hit - reuses the existing particle helper exactly as any other
+  // impact effect in the file already does, nothing new to draw
+  fxHit(at.x, at.y, "#c9bfa4", 14);
+}
+
+/* ============================================================
+   HOW THIS VILLAGE WAS FOUNDED  (pack 3, feature 11)
+   ============================================================ */
+const VILLAGE_GIFTS = [
+  {
+    name: "a friendly stray",
+    blurb: "A cat has already made itself at home before the first house is even built.",
+    go(){
+      // trySpawnPet() requires a finished house, which doesn't exist yet at
+      // this point in newGame() — so this gift banks a flag instead, and the
+      // very first house built redeems it. See the hook in trySpawnPet's
+      // call site note below.
+      G.foundingPetOwed = true;
+    }
+  },
+  {
+    name: "a lucky vein",
+    blurb: "Word is there's moonstone under the north field already.",
+    go(){
+      // moonstone only ever exists at night (see spawnMoonstone's own
+      // comment), so rather than break that rule for one tile, this just
+      // makes the very first night's vein a generous one instead of an
+      // average one — same mechanic, first sighting made to feel earned.
+      G.foundingRichVein = true;
+    }
+  },
+  {
+    name: "a mild welcome",
+    blurb: "The first stretch of weather looks set to be kind.",
+    go(){
+      // skip whatever the normal roll decided for the founding season and
+      // guarantee no rough weather in it — the single softest possible
+      // touch, since it only ever removes something bad, never adds
+      // something good on top of the normal odds.
+      G.weatherAt = -1;
+    }
+  }
+];
+
+const VILLAGE_TRAITS = [
+  {
+    name: "a generous harvest",
+    blurb: "This is good ground — the first season's food store starts fuller.",
+    go(){ G.players[P_YOU].res.food += 60; }
+  },
+  {
+    name: "old timber stores",
+    blurb: "Whoever was here before left good wood behind.",
+    go(){ G.players[P_YOU].res.wood += 60; }
+  },
+  {
+    name: "a quarry close by",
+    blurb: "There's stone for the taking, close enough to matter.",
+    go(){ G.players[P_YOU].res.stone += 35; }
+  },
+  {
+    name: "an early frost behind them",
+    blurb: "A hard frost passed through before you arrived — the ground remembers it, but the worst is over.",
+    go(){ /* flavour only — deliberately no numeric effect, see note below */ }
+  }
+];
+
+// Kept deliberately uncommon rather than "always exactly one of each" —
+// a founding that's sometimes perfectly plain is part of what makes the
+// ones that aren't feel like something, the same reasoning the source
+// doc gives for starved-event weighting elsewhere in the same section.
+const VILLAGE_GIFT_CHANCE  = 0.5;
+const VILLAGE_TRAIT_CHANCE = 0.6;
+
+function foundVillage(){
+  const bits = [];
+  if(Math.random() < VILLAGE_GIFT_CHANCE){
+    const g = VILLAGE_GIFTS[(Math.random()*VILLAGE_GIFTS.length)|0];
+    g.go();
+    bits.push(g.blurb);
+  }
+  if(Math.random() < VILLAGE_TRAIT_CHANCE){
+    const t = VILLAGE_TRAITS[(Math.random()*VILLAGE_TRAITS.length)|0];
+    t.go();
+    bits.push(t.blurb);
+  }
+  if(bits.length) hint(bits.join(" "));
+}
+
+/* ============================================================
+   THE MOONLIT DOG  (world-alive pack 9, feature 35)
+   ============================================================ */
+/* Was 0.85, which over 4 season turns meant a dog every single match -
+   measured 6 of 6. Kept a little commoner than the pure sightings above
+   because this one has a job (it walks you to a moonstone vein) rather than
+   only being a thing to look at, but "sometimes walks through by moonlight"
+   should not mean nightly. 0.10 over 4 turns ≈ 1 match in 3. */
+const MOONDOG_CHANCE = 0.10;
+
+/* The roll happens at the season turn, but the dog only exists at night (see
+   the end of updateMoonlitDog) - and a season usually turns in daylight, so
+   rolled-and-spawned-immediately threw the appearance away on the next frame.
+   The roll now books the visit and the next nightfall makes it happen. */
+function tryMoonlitDog(){
+  if(Math.random() > MOONDOG_CHANCE) return false;
+  G.moonDogDue = true;
+  return true;
+}
+
+function spawnMoonlitDog(){
+  if(!G.wanderers) G.wanderers = [];
+  if(G.wanderers.some(w=>w.kind==="moondog")) return;
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
+  if(!town) return;
+  const a = Math.random()*6.283;
+  const spd = 24 + Math.random()*8;
+  G.wanderers.push({
+    kind:"moondog", name:"a pale dog", x: town.x+Math.cos(a)*260, y: town.y+Math.sin(a)*260,
+    tx: town.x, ty: town.y, spd, t:0, wait:0, face:1, walk:Math.random()*6,
+    seed:Math.random()*6.283, leading:false
+  });
+}
+
+function updateMoonlitDog(dt){
+  const d = (G.wanderers||[]).find(w=>w.kind==="moondog");
+  if(!d) return;
+  d.t += dt;
+
+  // being followed? a unit with a "follow" order targeting this dog is
+  // exactly what the existing follow-order code already produces the
+  // moment a player selects a unit and orders it onto the dog - nothing
+  // new needed there, this only needs to notice it's happening
+  const followed = G.units.some(u => u.p===P_YOU && u.order==="follow" && u.target===d);
+  if(followed && !d.leading){
+    const vein = G.nodes.find(n=>n.kind===RES.MOONSTONE);
+    if(vein){ d.leading = true; d.tx = vein.x; d.ty = vein.y+12; }
+  }
+
+  if(!d.leading){
+    // ordinary wander near the town until someone takes an interest
+    d.wait -= dt;
+    if(d.wait <= 0){
+      const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
+      const a = Math.random()*6.283, r = 40+Math.random()*80;
+      d.tx = (town?town.x:d.x) + Math.cos(a)*r; d.ty = (town?town.y:d.y) + Math.sin(a)*r;
+      d.wait = 3+Math.random()*4;
+    }
+  }
+
+  const dx=d.tx-d.x, dy=d.ty-d.y, dist=Math.hypot(dx,dy);
+  if(dist>3){
+    const bx=d.x, by=d.y;
+    if(d.leading){
+      /* Once it is actually leading somebody it has to be able to GET there.
+         The naive straight step below has no way round anything solid: it
+         simply refuses the blocked move and leaves the dog pinned against
+         whatever is in the way - and since it wanders around the town centre
+         while the vein can be anywhere in a 620px ring, the town itself was
+         usually the thing in the way. Measured: 18px covered in 30 seconds,
+         so the one errand this whole feature exists for almost never
+         finished. moveToward gives it the same A* every unit already uses. */
+      moveToward(d, d.tx, d.ty, d.spd, dt, 6);
+    } else {
+      const step = Math.min(dist, d.spd*dt);
+      const nx=d.x+dx/dist*step, ny=d.y+dy/dist*step;
+      if(!blocked(nx,ny,null,false)){ d.x=nx; d.y=ny; }
+    }
+    d.walk += Math.hypot(d.x-bx, d.y-by)*0.15;
+    if(Math.abs(dx)>0.4) d.face = dx<0?-1:1;
+  } else if(d.leading){
+    // arrived at the vein with company - the errand's done, wander a
+    // little then slip away for the night rather than standing there
+    // forever like a signpost
+    d.leadDoneT = (d.leadDoneT||0) + dt;
+    if(d.leadDoneT > 20) G.wanderers = G.wanderers.filter(w=>w!==d);
+  }
+
+  // gone by morning regardless, same as every other wanderer
+  if(G.phase !== "night") G.wanderers = (G.wanderers||[]).filter(w=>w.kind!=="moondog");
+}
+
+/* ---------- drawing: a small, plain quadruped, coloured for what it is ----------
+   Deliberately not reusing drawWanderer()'s existing cat/bat/penguin
+   cases - none of those shapes suit a dog, and this is simple enough
+   (one body, one head, a tail) to draw fresh rather than force onto an
+   unrelated silhouette. */
+function drawMoonlitDog(d){
+  const bob = Math.abs(Math.sin(d.walk))*0.9;
+  const glow = 0.5 + 0.5*Math.sin(G.t*1.2 + d.seed);
+  ctx.save();
+  ctx.translate(d.x, d.y - bob);
+  ctx.scale(d.face<0?-1:1, 1);
+
+  ctx.fillStyle = "rgba(0,0,0,.2)";
+  ctx.beginPath(); ctx.ellipse(0, 3, 5.5, 2, 0, 0, 6.283); ctx.fill();
+
+  // a faint pale-blue glow, since "moonstone-coloured" is the whole point
+  ctx.fillStyle = "rgba(190,215,235,"+(0.18+0.12*glow)+")";
+  ctx.beginPath(); ctx.arc(0, -1, 9, 0, 6.283); ctx.fill();
+
+  const col = "#c9dcea";
+  ctx.strokeStyle = shade(col,-0.25); ctx.lineWidth = 1.1; ctx.lineCap="round";
+  const gait = Math.sin(d.walk*1.4)*1.6;
+  ctx.beginPath();
+  ctx.moveTo(-3,0); ctx.lineTo(-3+gait,3);
+  ctx.moveTo(3,0); ctx.lineTo(3-gait,3);
+  ctx.stroke();
+
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.ellipse(0,-1,5.5,3,0,0,6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(4.5,-3,2.6,0,6.283); ctx.fill();
+  // ears
+  ctx.beginPath();
+  ctx.moveTo(3.6,-5); ctx.lineTo(3.2,-7.4); ctx.lineTo(5.4,-5.4);
+  ctx.closePath(); ctx.fill();
+  // tail, held up
+  ctx.strokeStyle = col; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-5,-1);
+  ctx.quadraticCurveTo(-8,-3,-7,-6);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+/* ============================================================
+   THE MILKY WAY, AND A DRAGON ACROSS THE MOON  (pack 9, feature 36)
+   ============================================================ */
+const MILKYWAY_CHANCE_WINDOW = [30, 55];   // seconds between rolls, on a clear night
+const MILKYWAY_LIFE = 40;
+
+function updateMilkyWay(dt){
+  if(G.milkyWay){
+    G.milkyWay.t += dt;
+    if(G.milkyWay.t > G.milkyWay.life) G.milkyWay = null;
+    return;
+  }
+  if(G.phase !== "night" || G.weather) return;
+  G.milkyWayCd = (G.milkyWayCd===undefined)
+    ? MILKYWAY_CHANCE_WINDOW[0]+Math.random()*MILKYWAY_CHANCE_WINDOW[1]
+    : G.milkyWayCd - dt;
+  if(G.milkyWayCd <= 0){
+    G.milkyWayCd = MILKYWAY_CHANCE_WINDOW[0]+Math.random()*MILKYWAY_CHANCE_WINDOW[1];
+    // left alone deliberately: ~5 rolls of this window fit in a match's clear
+    // night, so 0.05 already lands about 1 match in 5. Measured, not assumed.
+    if(Math.random() < 0.05) G.milkyWay = { t:0, life: MILKYWAY_LIFE+Math.random()*20, seed:Math.random()*99 };
+  }
+}
+
+/* Drawn in screen space, the same way the existing aurora is (search
+   "the aurora - wavy green" for that block, right before this one is
+   meant to sit) - a soft diagonal band of small fixed stars rather
+   than the aurora's moving coloured bands, so the two read as clearly
+   different things if either happens to catch a night the other also
+   does. */
+function drawMilkyWay(){
+  if(!G.milkyWay) return;
+  const mw = G.milkyWay;
+  const a = Math.min(1, mw.t/4, (mw.life-mw.t)/4);
+  ctx.save();
+  ctx.globalAlpha = 0.4*a;
+  ctx.strokeStyle = "rgba(200,210,230,.18)";
+  ctx.lineWidth = 60;
+  ctx.beginPath();
+  ctx.moveTo(-40, VH*0.05);
+  ctx.lineTo(VW*0.6, VH*0.5);
+  ctx.stroke();
+  ctx.globalAlpha = 0.6*a;
+  ctx.fillStyle = "#f4f2e8";
+  for(let i=0;i<70;i++){
+    const p = i/70;
+    const bx = -40 + p*(VW*0.6+40), by = VH*0.05 + p*(VH*0.45);
+    const jx = Math.sin(i*12.9+mw.seed)*22, jy = Math.cos(i*7.3+mw.seed)*18;
+    const tw = 0.4+0.6*Math.abs(Math.sin(G.t*1.5+i));
+    ctx.globalAlpha = 0.6*a*tw;
+    ctx.beginPath(); ctx.arc(bx+jx, by+jy, 0.8+((i%3)*0.4), 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ---------- the moonstone dragon ----------
+const MOONDRAGON_CHANCE_WINDOW = [50, 90];
+
+function updateMoonDragon(dt){
+  if(G.moonDragon){
+    const dr = G.moonDragon;
+    dr.t += dt;
+    const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
+    if(!town){ G.moonDragon = null; return; }
+
+    if(dr.state==="in"){
+      const p = Math.min(1, dr.t/3);
+      dr.x = dr.fromX + (town.x-dr.fromX)*p;
+      dr.y = dr.fromY + (town.y-140-dr.fromY)*p - Math.sin(p*3.14)*40;
+      if(p>=1){ dr.state="hover"; dr.t=0; }
+    } else if(dr.state==="hover"){
+      dr.x = town.x + Math.sin(G.t*0.7)*10;
+      dr.y = town.y-140 + Math.sin(G.t*1.1)*4;
+      if(dr.t > 1.5){ dr.state="breathe"; dr.t=0; }
+    } else if(dr.state==="breathe"){
+      dr.x = town.x; dr.y = town.y-140;
+      if(dr.t > 2.2){ dr.state="out"; dr.t=0; dr.toX=dr.fromX; dr.toY=dr.fromY-60; }
+    } else if(dr.state==="out"){
+      const p = Math.min(1, dr.t/3);
+      dr.x = town.x + (dr.toX-town.x)*p;
+      dr.y = (town.y-140) + (dr.toY-(town.y-140))*p;
+      if(p>=1) G.moonDragon = null;
+    }
+    return;
+  }
+
+  if(G.phase !== "night" || G.weather) return;
+  G.moonDragonCd = (G.moonDragonCd===undefined)
+    ? MOONDRAGON_CHANCE_WINDOW[0]+Math.random()*MOONDRAGON_CHANCE_WINDOW[1]
+    : G.moonDragonCd - dt;
+  if(G.moonDragonCd <= 0){
+    G.moonDragonCd = MOONDRAGON_CHANCE_WINDOW[0]+Math.random()*MOONDRAGON_CHANCE_WINDOW[1];
+    // ~2.2 rolls of this window fit in a match's clear night, so 0.10 ≈ 1 in 5
+    if(Math.random() < 0.10){
+      const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
+      if(town){
+        const a = Math.random()*6.283;
+        G.moonDragon = { state:"in", t:0, x:town.x+Math.cos(a)*500, y:town.y+Math.sin(a)*500-150,
+          fromX:town.x+Math.cos(a)*500, fromY:town.y+Math.sin(a)*500-150 };
+        hint("Something pale and enormous crosses the moon, and turns toward the town.");
+      }
+    }
+  }
+}
+
+/* Drawn in world space, same pass as any other flying thing - a plain
+   silhouette rather than a detailed dragon, since it's on screen for
+   under ten seconds and mostly seen at a distance or overhead. */
+function drawMoonDragon(dr){
+  if(!dr) return;
+  const flap = Math.sin(G.t*7)*0.3;
+  ctx.save();
+  ctx.translate(dr.x, dr.y);
+  ctx.fillStyle = "rgba(0,0,0,.15)";
+  ctx.beginPath(); ctx.ellipse(0, 150, 40, 10, 0, 0, 6.283); ctx.fill();
+
+  const col = "#cfe0ee", dark = shade(col,-0.3);
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.ellipse(0,0,26,9,0,0,6.283); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(24,-3,9,6,0,0,6.283); ctx.fill();
+  // wings
+  ctx.fillStyle = dark;
+  ctx.beginPath();
+  ctx.moveTo(-4,-2); ctx.lineTo(-30,-30-flap*20); ctx.lineTo(-8,-6); ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-4,2); ctx.lineTo(-30,30+flap*20); ctx.lineTo(-8,6); ctx.closePath(); ctx.fill();
+  // tail
+  ctx.strokeStyle = col; ctx.lineWidth = 5; ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(-24,0); ctx.quadraticCurveTo(-42,4,-52,-6); ctx.stroke();
+
+  if(dr.state==="breathe"){
+    const p = Math.min(1, dr.t/2.2);
+    const flick = 0.8+0.2*Math.sin(G.t*20);
+    ctx.fillStyle = "rgba(150,205,235,"+(0.7*flick)+")";
+    ctx.beginPath();
+    ctx.moveTo(30,-3);
+    ctx.lineTo(30+60*p, -18*flick);
+    ctx.lineTo(30+70*p, 0);
+    ctx.lineTo(30+60*p, 18*flick);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* ============================================================
+   FIREFLIES YOU CAN ACTUALLY SEE  (pack 9, feature 37)
+   ============================================================ */
+const FIREFLY_COLOURS = {
+  spring: "#b8e6a0",   // pale new-green
+  summer: "#f4d97a",   // warm gold
+  autumn: "#e89a5a"    // amber
+  // no winter entry on purpose - see the guard below
+};
+
+// ---------- full replacement for tryFireflySwarm() ----------
+function tryFireflySwarm(){
+  if(G.season === "winter") return false;   // never in winter, as asked for
+  const col = FIREFLY_COLOURS[G.season] || FIREFLY_COLOURS.summer;
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
+  if(!town) return false;
+
+  G.fireflies = G.fireflies || [];
+  const n = 10 + Math.floor(Math.random()*8);
+  for(let i=0;i<n;i++){
+    const a = Math.random()*6.283, r = 60+Math.random()*260;
+    G.fireflies.push({
+      x: town.x+Math.cos(a)*r, y: town.y+Math.sin(a)*r,
+      hx: town.x+Math.cos(a)*r, hy: town.y+Math.sin(a)*r,
+      col, seed: Math.random()*99, t:0,
+      life: 50+Math.random()*40, blink: Math.random()*6
+    });
+  }
+  hint("Fireflies drift low over the fields, blinking in and out.");
+  return true;
+}
+
+function updateFireflies(dt){
+  if(!G.fireflies || !G.fireflies.length) return;
+  for(let i=G.fireflies.length-1; i>=0; i--){
+    const f = G.fireflies[i];
+    f.t += dt;
+    if(f.t > f.life || G.phase !== "night"){ G.fireflies.splice(i,1); continue; }
+    f.blink += dt;
+    const a = Math.sin(G.t*0.4+f.seed)*2.3;
+    const nx = f.x + Math.cos(a)*8*dt, ny = f.y + Math.sin(a*1.3)*8*dt;
+    // drift, loosely tethered to where it started rather than wandering
+    // off across the whole map
+    if(Math.hypot(nx-f.hx, ny-f.hy) < 90){ f.x=nx; f.y=ny; }
+  }
+}
+
+/* ---------- drawing: small, soft, blinking points of light ---------- */
+function drawFireflies(x0, y0, x1, y1){
+  if(!G.fireflies || !G.fireflies.length) return;
+  if((G.dark||0) < 0.2) return;   // fireflies are a dark-time thing, not a dusk one
+  const px0=x0*TILE, py0=y0*TILE, px1=x1*TILE, py1=y1*TILE;
+  for(const f of G.fireflies){
+    if(f.x<px0||f.x>px1||f.y<py0||f.y>py1) continue;
+    const blink = Math.max(0, Math.sin(f.blink*1.8));
+    if(blink < 0.15) continue;   // properly off, not just dim, most of a cycle
+    ctx.globalAlpha = blink*0.85;
+    ctx.fillStyle = f.col;
+    ctx.beginPath(); ctx.arc(f.x, f.y, 1.1, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = blink*0.25;
+    ctx.beginPath(); ctx.arc(f.x, f.y, 3.2, 0, 6.283); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ============================================================
+   SEASONAL SPECIAL FARMS  (world-alive pack 10, feature 38)
+   One crop a season, found out in the dark, carried home by the villager
+   who picked it, and planted as a farm that lifts every unit by 7% for as
+   long as it stands.
+   ============================================================ */
+const SEASONAL_CROPS = {
+  spring: { name:"wild strawberries", flavour:"sweet",   stat:"health",  col:"#c9536a", leaf:"#4a7a3a" },
+  summer: { name:"sweetcorn",         flavour:"crunchy", stat:"strength",col:"#e8c23a", leaf:"#5a8a3a" },
+  autumn: { name:"pumpkin",           flavour:"hearty",  stat:"defence", col:"#d97a2f", leaf:"#7a6a2a" },
+  winter: { name:"sweet potato",      flavour:"warm",    stat:"speed",   col:"#a8623f", leaf:"#5a6a4a" }
+};
+
+const SEASONAL_BUFF = 1.07;   // +7%, per the person commissioning this - not the 10% first floated
+
+const SEASONAL_CROP_RADIUS = 480;   // reuses the wilderness-animal "outside the village" distance
+
+function trySeasonalCropHint(){
+  if(!G.seasonalFound) G.seasonalFound = {};        // { spring:true, ... } - once found, never hinted again
+  if(G.seasonalFound[G.season]) return;              // already found this one, this match
+  // one of THIS season's out there already is the thing to check for - not
+  // "any patch at all". An unclaimed patch is left standing when the season
+  // turns (see the season block in the tick), so a single shared slot would
+  // let one crop nobody ever collected lock out every season after it.
+  if(G.nodes.some(n=>n.kind==="seasonalcrop" && n.season===G.season)) return;
+  if(G.seasonalHintShown && G.seasonalHintShown[G.season]) return;
+  if(!G.seasonalHintShown) G.seasonalHintShown = {};
+
+  const crop = SEASONAL_CROPS[G.season];
+  const houses = G.bldgs.filter(b=>b.p===P_YOU);
+  if(!houses.length) return;
+
+  for(let attempt=0; attempt<50; attempt++){
+    const tx = rnd(3, MAPW-3), ty = rnd(3, MAPH-3);
+    if(G.terrain[ty*MAPW+tx] === 5) continue;
+    const x=(tx+0.5)*TILE, y=(ty+0.5)*TILE;
+    if(blocked(x,y,null,false)) continue;
+    const far = houses.every(b=>Math.hypot(b.x-x,b.y-y) > SEASONAL_CROP_RADIUS*0.4);
+    if(!far) continue;
+    G.seasonalCropNode = { id:G.nextId++, isNode:true, kind:"seasonalcrop",
+                            season:G.season, x, y, amt:1, max:1, r:9, seed:Math.random()*6.283 };
+    G.nodes.push(G.seasonalCropNode);
+    G.seasonalHintShown[G.season] = true;
+    hint("Something " + crop.flavour + " is growing somewhere out in the woods.");
+    return;
+  }
+}
+
+function activateSeasonalBuff(p, season){
+  if(!G.players[p].seasonalFarms) G.players[p].seasonalFarms = {};
+  const crop = SEASONAL_CROPS[season];
+  if(G.players[p].seasonalFarms[crop.stat]) return;   // already active - a second one changes nothing
+  G.players[p].seasonalFarms[crop.stat] = true;
+
+  // speed, strength and defence are read live at the point of use (see
+  // the call sites below) - nothing to apply here for those. Health is
+  // different in a way that took an actual failed test to find: hp/
+  // maxhp are STORED fields, set once, not recalculated each frame.
+  // The first version of this only did the retroactive bump below, and
+  // a unit trained AFTER the farm completed got no boost at all -
+  // caught by specifically testing "make a unit after activating," not
+  // just "does activating change the units that already exist." The
+  // real fix has two halves, not one - this bump for whoever already
+  // exists, and a matching live check inside makeUnit() itself for
+  // everyone trained from here on (see that section below).
+  if(crop.stat === "health"){
+    for(const u of G.units){
+      if(u.p !== p) continue;
+      u.maxhp *= SEASONAL_BUFF;
+      u.hp *= SEASONAL_BUFF;
+    }
+  }
+}
+
+function deactivateSeasonalBuff(p, season){
+  const crop = SEASONAL_CROPS[season];
+  // a second special farm of the same crop (however unlikely) keeps
+  // the buff alive on its own - only actually turn it off if this
+  // really was the last one standing
+  const stillStanding = G.bldgs.some(b=>b.p===p && b.type==="specialfarm" &&
+    b.seasonalCrop===season && b.hp>0);
+  if(stillStanding) return;
+  if(!G.players[p].seasonalFarms || !G.players[p].seasonalFarms[crop.stat]) return;
+  G.players[p].seasonalFarms[crop.stat] = false;
+  if(crop.stat === "health"){
+    for(const u of G.units){
+      if(u.p !== p) continue;
+      u.maxhp /= SEASONAL_BUFF;
+      u.hp = Math.min(u.hp/SEASONAL_BUFF, u.maxhp);
+    }
+  }
+}
+
+function hasSeasonalBuff(p, stat){
+  return !!(G.players[p] && G.players[p].seasonalFarms && G.players[p].seasonalFarms[stat]);
+}
+
+function drawSeasonalCropNode(n){
+  const crop = SEASONAL_CROPS[n.season];
+  const sway = Math.sin(G.t*0.8 + n.seed)*1.4;
+  ctx.fillStyle = "rgba(0,0,0,.18)";
+  ctx.beginPath(); ctx.ellipse(n.x, n.y+5, 12, 4, 0, 0, 6.283); ctx.fill();
+  // a little patch of turned earth, a fraction of a farm's own footprint -
+  // "house sized" was meant loosely, so this reads as a small garden bed
+  ctx.fillStyle = "#5f4a34";
+  ctx.beginPath(); ctx.ellipse(n.x, n.y+2, 13, 7, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle = crop.leaf;
+  for(let i=0;i<5;i++){
+    const a = i/5*6.283, r = 6+((i%2)*2);
+    ctx.beginPath();
+    ctx.ellipse(n.x+Math.cos(a)*r+sway*0.3, n.y+Math.sin(a)*r*0.5, 3.4, 2.2, a, 0, 6.283);
+    ctx.fill();
+  }
+  ctx.fillStyle = crop.col;
+  ctx.beginPath(); ctx.arc(n.x, n.y-1, 3.6, 0, 6.283); ctx.fill();
+  // a soft glow, so it reads as something worth walking toward even
+  // half-seen at the edge of the fog
+  ctx.globalAlpha = 0.22 + 0.08*Math.sin(G.t*1.6+n.seed);
+  ctx.fillStyle = crop.col;
+  ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+
+/* A small fixed symbol in the corner of the plot rather than a glow over it:
+   the crop rows are already saying whether a farm is lush or bare, and a
+   coloured wash sits right on top of that read. (pack 10, feature 38) */
+function drawSeasonSymbol(season, cx, cy){
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.fillStyle = "rgba(30,26,20,.55)";
+  ctx.beginPath(); ctx.arc(0,0,6.5,0,6.283); ctx.fill();
+  if(season === "spring"){
+    ctx.fillStyle = "#f0c9d6";
+    for(let i=0;i<5;i++){
+      const a = i/5*6.283;
+      ctx.beginPath();
+      ctx.ellipse(Math.cos(a)*2.3, Math.sin(a)*2.3, 1.8, 1.1, a, 0, 6.283);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#e8c23a";
+    ctx.beginPath(); ctx.arc(0,0,1.1,0,6.283); ctx.fill();
+  } else if(season === "summer"){
+    ctx.strokeStyle = "#f4d97a"; ctx.lineWidth = 0.9; ctx.lineCap = "round";
+    for(let i=0;i<8;i++){
+      const a = i/8*6.283;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a)*2.6, Math.sin(a)*2.6);
+      ctx.lineTo(Math.cos(a)*4.4, Math.sin(a)*4.4);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#f4d97a";
+    ctx.beginPath(); ctx.arc(0,0,2.2,0,6.283); ctx.fill();
+  } else if(season === "autumn"){
+    ctx.fillStyle = "#d97a2f";
+    ctx.beginPath();
+    ctx.moveTo(0,-4);
+    ctx.quadraticCurveTo(4,-1,0,4);
+    ctx.quadraticCurveTo(-4,-1,0,-4);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(90,50,20,.6)"; ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.moveTo(0,-3.4); ctx.lineTo(0,3.4); ctx.stroke();
+  } else {
+    ctx.strokeStyle = "#eaf3fa"; ctx.lineWidth = 0.9; ctx.lineCap = "round";
+    for(let i=0;i<3;i++){
+      const a = i/3*3.1416;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a)*-4, Math.sin(a)*-4);
+      ctx.lineTo(Math.cos(a)*4, Math.sin(a)*4);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawSeasonalFarmMarker(b, x, y){
+  if(b.type !== "specialfarm" || !b.seasonalCrop || !b.done) return;
+  drawSeasonSymbol(b.seasonalCrop, x+7, y+7);
+}
+
+/* ============================================================
    NIGHT CYCLE
    Pulled out of 01-constants-and-helpers.js as a pilot for the module split
    described in PROJECT_NOTES.md. Covers: the day/night clock itself, the
@@ -15782,7 +18470,7 @@ function tryFiresideGathering(){
   for(const u of G.units){
     if(u.p!==side || u.type!=="villager" || u.hp<=0 || u.fireBuffed) continue;
     for(const b of braziers){
-      if(Math.hypot(u.x-b.x,u.y-b.y) <= BRAZIER_RADIUS){ near.push(u); break; }
+      if(Math.hypot(u.x-b.x,u.y-b.y) <= brazierRadius(b)){ near.push(u); break; }
     }
   }
   if(!near.length) return false;
@@ -15846,10 +18534,10 @@ function tryRestlessPet(){
 
 // the rest below are pure atmosphere, same as the existing "flavour" line -
 // nothing to track, just a little more texture on a quiet night
-function tryFireflySwarm(){
-  hint("A scattering of fireflies drifts low over the fields, blinking in and out.");
-  return true;
-}
+/* The real one lives in 05-wildlife.js now (world-alive pack 9, feature 37) -
+   it puts actual fireflies on the map instead of only printing a line. This
+   file is concatenated AFTER that one, so leaving the old flavour-only version
+   here would have silently won and made the new one dead code. */
 function tryDistantHowl(){
   hint("A long howl rolls out over the hills and slowly fades.");
   return true;
@@ -16634,6 +19322,7 @@ function refreshUI(){
     $("alm_age").textContent = AGES[pl.age];
     $("alm_time").textContent = ph.charAt(0).toUpperCase()+ph.slice(1);
     $("alm_pop").textContent = pl.pop+"/"+pl.popcap;
+    $("alm_banner").textContent = almanacBannerFor(dayNum);   // one line about today
 
     const nIdle = idleUnits().length;
     const ib = $("alm_idlebtn");
@@ -16735,6 +19424,16 @@ function refreshUI(){
     $("selsub").textContent = "Out there in the dark";
     $("selstats").innerHTML = "HP "+Math.ceil(first.hp)+"/"+first.maxhp+"<br>ATK "+first.atk;
     return;
+  } else if(first.kindTag==="leisure"){
+    const doing = { home:"Having a day off", farm:"Watching the farm",
+                    water: first.skipAnim!==undefined && first.activity==="water"
+                           ? "Skipping stones" : "Down by the water",
+                    tree:"Sitting with a book", kite:"Flying a kite" };
+    $("selname").textContent = first.name;
+    $("selsub").textContent = "One of the village";
+    $("selstats").innerHTML = (doing[first.activity]||"Out and about") +
+      (first.partner ? "<br>with "+first.partner.name : "");
+    return;
   } else if(first.kindTag==="wanderer"){
     const label = { bat:"A bat", penguin:"A penguin" };
     $("selname").textContent = first.name || label[first.kind] || "A visitor";
@@ -16747,6 +19446,13 @@ function refreshUI(){
     const d=BLDG[first.type];
     $("selname").textContent=d.name;
     $("selsub").textContent = first.p===P_YOU?(first.done?"Your building":"Under construction"):"Enemy";
+    // all four seasonal farms share one type, so the name alone would leave
+    // you unable to tell which crop is in the ground (pack 10, feature 38)
+    if(first.type==="specialfarm" && first.seasonalCrop){
+      const sc = SEASONAL_CROPS[first.seasonalCrop];
+      $("selname").textContent = cap(sc.name);
+      $("selsub").textContent = "Seasonal Farm — every unit gains " + sc.stat;
+    }
     $("selstats").innerHTML="HP "+Math.ceil(first.hp)+"/"+first.maxhp+
       (first.done?"":"<br>"+Math.floor(first.prog*100)+"% built");
   }
@@ -16788,6 +19494,26 @@ function refreshUI(){
   // ---------- build sub-menu ----------
   if(G.uiMode==="build" && vills.length){
     addBtn("← Back", "cancel", true, ()=>{ G.uiMode="main"; G.placing=null; refreshUI(); });
+    // The seasonal farm is not in BUILD_ORDER on purpose - it is not a thing
+    // you can choose to build, it is a thing one particular villager can do
+    // because of what they are carrying. So it only appears with exactly one
+    // villager selected, and only if that one has the crop: with several
+    // selected there would be no telling whose crop was being planted.
+    // (pack 10, feature 38)
+    if(vills.length===1 && vills[0].seasonalCrop){
+      const carrier = vills[0], sd = BLDG.specialfarm, crop = SEASONAL_CROPS[carrier.seasonalCrop];
+      // it has to be planted at home, so the button says so rather than
+      // simply not being there - otherwise there is nothing telling you why
+      const nearTown = G.bldgs.some(b=>b.p===P_YOU && b.type==="town" &&
+        Math.hypot(b.x-carrier.x, b.y-carrier.y) < 260);
+      addBtn("🌱 " + cap(crop.name),
+             nearTown ? "plant the "+crop.name : "bring them back to town first",
+             nearTown && canAfford(pl, sd.cost),
+             ()=>startPlacing("specialfarm", carrier.seasonalCrop),
+             nearTown ? "Every unit gains "+crop.stat+" for as long as it stands."
+                      : "Bring them back to town first.",
+             true);   // always shown lit - the whole point of it
+    }
     for(const t of BUILD_ORDER){
       const d=BLDG[t];
       const locked = pl.age < d.age;
@@ -17075,6 +19801,25 @@ function refreshUI(){
                  ()=>tryResearch(b,d.upgLine), null, true);
         }
       }
+    }
+    // ---- rebuilding a brazier, one tier per age, this brazier only
+    if(d.brazier){
+      const lvl = b.brazierLvl || 0;
+      const rad = Math.round(brazierRadius(b));
+      if(lvl >= BRAZIER_UPGRADES.length){
+        addBtn("Beacon", "lights "+rad+" across — as far as it goes", false, null, "Fully rebuilt");
+      } else {
+        const nxt = BRAZIER_UPGRADES[lvl];
+        if(pl.age < nxt.age){
+          addBtn("? ? ?", "Rebuild unlocks in the "+AGES[nxt.age], false, null,
+                 "Rebuild unlocks in the "+AGES[nxt.age]);
+        } else {
+          addBtn(nxt.name, costStr(nxt.cost), canAfford(pl,nxt.cost),
+                 ()=>tryBrazierUpgrade(b), null, true);
+        }
+      }
+      addBtn("Light: "+rad, lvl ? "rebuilt "+lvl+" time"+(lvl>1?"s":"") : "a plain bowl on legs",
+             false, null, "How far this fire lights the ground");
     }
     // ---- rebuilding a watchtower, one tier per age, this tower only
     if(d.towerLine){
@@ -17493,6 +20238,11 @@ window.addEventListener("keydown", e=>{
 });
 
 $("btnstart").addEventListener("click", ()=>{
+  $("startscreen").classList.add("hide");
+  G.running=true;
+});
+// the X, top right: same thing as Begin for anyone who does not want to read
+$("btnclose").addEventListener("click", ()=>{
   $("startscreen").classList.add("hide");
   G.running=true;
 });
