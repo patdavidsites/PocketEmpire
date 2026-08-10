@@ -532,6 +532,20 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn">
+        <summary>Patch 20.9</summary>
+        <ul>
+          <li>Moonstone is worth going out for now &mdash; the veins are richer, and they glow through ground you have already explored</li>
+          <li>Spend enough of it and you can raise something new in the Bronze Age. By day it works crystal; after dark it is a different building entirely</li>
+          <li>It comes with a vein of its own that never quite runs dry</li>
+          <li>There are people who keep the opposite hours to your village. They light the ground they walk on</li>
+          <li>They throw moonstone at anything that comes for your town, and whatever it hits does not shrug it off</li>
+          <li>Daylight does not suit them. You can work them through it, but not for ever</li>
+          <li>Give them somewhere of their own to live and there will be more of them &mdash; and little ones out after dark</li>
+          <li>Villagers can finally be put in a numbered group, with a tool of their own on the button</li>
+        </ul>
+      </details>
+
+      <details class="pn">
         <summary>Patch 20.8</summary>
         <ul>
           <li>Something worth finding grows out in the deep country once a season. Bring it home and plant it</li>
@@ -539,6 +553,7 @@
           <li>More moonstone after dark, and something that will show you the way</li>
           <li>A full moon is worth more than a new one</li>
           <li>Fireflies on warm nights, and two new sights in the sky</li>
+          <li>The rare sights are tuned to turn up about one match in five — so no single game shows you everything, and there is always something you have not seen yet</li>
         </ul>
       </details>
 
@@ -798,6 +813,10 @@ function _shade(hex, amt){
    team identity is carried by the coloured ring at their feet. */
 const TINT = {
   villager:   null,        // null = use the player colour
+  // grey cloth for the night shift, with the team colour kept to a panel down
+  // the middle - so they read as their own people at a glance, and still read
+  // as yours (or the Ashkin's) up close
+  moonvillager: "#8b9299",
   scout:      "#2f8f80",   // teal — deliberately unlike the villagers
   horsescout: "#2f8f80",
   warrior:    null,
@@ -1270,6 +1289,37 @@ function updateHomeLife(dt){
               shirt: fam.shirt
             });
           }
+        }
+      }
+    }
+  }
+
+  /* The night town's own children. Deliberately the SAME system rather than
+     a new one - they wander, play and go in exactly like the day's children
+     do, and only the drawing differs. Cosmetic, as agreed: no rules, no
+     upkeep, nothing to learn. They are the sign that a night town is being
+     lived in rather than merely worked. (moonstone manor) */
+  G.moonKidCd = (G.moonKidCd||0) - dt;
+  if(G.moonKidCd <= 0){
+    G.moonKidCd = 24 + Math.random()*30;
+    const dark = (G.dark||0) > 0.35;
+    const homes = G.bldgs.filter(b=>b.p===P_YOU && b.done &&
+                                    (BLDG[b.type].manor || BLDG[b.type].moonstone));
+    if(dark && homes.length && G.homeLife.length < HOME_LIFE_MAX && Math.random() < 0.55){
+      const h = homes[(Math.random()*homes.length)|0];
+      if(!G.homeLife.some(o=>o.home===h)){
+        const fam = homeFamily(h);
+        const bx = h.x + (Math.random()-0.5)*16;
+        const by = h.y + h.h*TILE/2 + 8;
+        if(!blocked(bx, by, null, false)){
+          G.homeLife.push({
+            kind:"child", home:h, moon:true,
+            x:bx, y:by, tx:bx, ty:by,
+            t: 22 + Math.random()*40,
+            face: Math.random()<0.5?-1:1, walk:0, wait:0,
+            id: G.nextId++, col:null, skin:fam.skin, shirt:fam.shirt,
+            moonLook: Math.floor(Math.random()*MOONLOOKS)
+          });
         }
       }
     }
@@ -2955,7 +3005,11 @@ const MOONSTONE_VEINS = 3;          // up from one
 const MOONSTONE_RADIUS = 620;       // "near the village" - a wide ring, not the doorstep
 
 function spawnMoonstone(){
-  G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE);
+  // Clears last night's wild veins before laying tonight's - but a Manor's
+  // own vein is part of the building and has to survive this sweep too, not
+  // only the one at dawn. Missing it here quietly deleted the vein at every
+  // single nightfall, which is precisely when nobody would notice.
+  G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE || n.manorOf);
   const homes = G.bldgs.filter(b=>b.p===P_YOU);
   if(!homes.length) return;
 
@@ -2974,7 +3028,11 @@ function spawnMoonstone(){
        so would paste over pack 3's yield scaling if the two were merged
        carelessly. It did. Restored: the phase term is the entire reason the
        moon cycle is a mechanic rather than a tint. */
-    const amt = (60 + Math.random()*40) * (1 + 0.5*moonPhase());
+    /* Raised from 60+40 now that moonstone has somewhere to go: at the old
+       yield a 300-moonstone Manor was most of a match's nights. ~130 at new
+       moon, ~195 at full, so a couple of seasons of real mining pays for it
+       and a full-moon night is the one you plan around. */
+    const amt = (105 + Math.random()*50) * (1 + 0.5*moonPhase());
     G.nodes.push({ id:G.nextId++, isNode:true, kind:RES.MOONSTONE,
                    x, y, amt, max:amt, r:8, seed:Math.random()*6.283 });
     placed++;
@@ -2985,7 +3043,54 @@ function spawnMoonstone(){
 }
 
 function clearMoonstone(){
-  G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE);
+  // The wild veins are a night thing and go with the dark. A Manor's own
+  // vein is not wild - it is part of the building, and it is the whole
+  // reason the Manor is worth 300 moonstone, so it stays put through the
+  // day. (moonstone manor)
+  G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE || n.manorOf);
+}
+
+/* ---------- the Manor's own vein ----------
+   Deliberately a trickle and not a faucet: it regrows a fixed amount each
+   night up to a cap, so you can always make progress toward the next
+   moonstone villager, but never enough that moonstone stops being worth
+   going out for. If it simply never emptied, the Manor would print the
+   resource it cost and every later price would stop meaning anything. */
+const MANOR_VEIN_REGROW = 40;    // added each night
+const MANOR_VEIN_CAP    = 120;   // and never more than this sitting in it
+
+function attachManorVein(b){
+  if(!BLDG[b.type].manor || b.vein) return;
+  // tucked into the left corner of the plot, not sitting in the doorway -
+  // villagers walk in and out of the front of the building
+  const vx = b.x - b.w*TILE*0.30, vy = b.y + b.h*TILE/2 - 10;
+  b.vein = { id:G.nextId++, isNode:true, kind:RES.MOONSTONE, manorOf:b,
+             x:vx, y:vy, amt:MANOR_VEIN_CAP, max:MANOR_VEIN_CAP,
+             r:8, seed:Math.random()*6.283 };
+  G.nodes.push(b.vein);
+}
+
+function growManorVeins(){
+  for(const b of G.bldgs){
+    if(!BLDG[b.type].manor || !b.done) continue;
+    if(!b.vein || !G.nodes.includes(b.vein)) attachManorVein(b);
+    else b.vein.amt = Math.min(MANOR_VEIN_CAP, b.vein.amt + MANOR_VEIN_REGROW);
+  }
+}
+
+/* A Manor's vein goes when the Manor does - it is part of the building,
+   not a hole in the ground that outlives it. */
+function dropManorVein(b){
+  if(!b.vein) return;
+  G.nodes = G.nodes.filter(n=>n!==b.vein);
+  b.vein = null;
+}
+
+/* Has this player got a finished Manor? The gate for everything the night
+   town unlocks - the player is shown the Manor and nothing beyond it until
+   this is true. */
+function hasManor(p){
+  return G.bldgs.some(b=>b.p===p && BLDG[b.type].manor && b.done);
 }
 
 /* ---------- night regrowth ----------
@@ -3464,7 +3569,7 @@ function scorchAlpha(s){
    isn't just something that happens in one corner nobody's looking at. */
 const AURORA_OFF_SEASON = 0.18;   // the lights out of season, but only just
 /* Rolled every 20-40s of clear night. A match holds ~211 such seconds, i.e.
-   ~7 rolls, but only winter rolls at full odds and the other three seasons at
+   6.25 rolls measured, but only winter rolls at full odds and the others at
    AURORA_OFF_SEASON - about 2.7 full-strength rolls a match all told. At the
    old 0.006 that was one aurora every ~62 matches, so effectively nobody ever
    saw the thing. 0.08 puts it at roughly 1 match in 5, same band as the
@@ -3831,6 +3936,15 @@ const IRON_RATIO = 0.4;
 
 /* ---------- unit definitions ---------- */
 const UNITS = {
+  /* A weaker archer that works nights. Cheaper in food than a villager but
+     dear in moonstone, because moonstone is the thing you had to go out in
+     the dark for. pop:0 - they are counted against their own cap (the Manor
+     plus its cottages), not the ordinary population, so they never compete
+     with your army for room. cls "civ" keeps them out of military
+     box-selection the way villagers already are. */
+  moonvillager:{ name:"Moonstone Villager", age:2, hp:44, spd:58, atk:7, rng:62, cd:1.4,
+                 cost:{moonstone:120, food:30}, build:9, r:7, pop:0, cls:"civ",
+                 ranged:true, moonfolk:true },
   villager:{ name:"Villager", age:0, hp:32, spd:56, atk:3, rng:8, cd:1.0, cost:{food:45},
              build:6, r:7, pop:1, cls:"civ" },
   scout:{ name:"Scout", age:0, hp:38, spd:100, atk:2, rng:8, cd:1.2, cost:{food:60},
@@ -3884,7 +3998,65 @@ const UNITS = {
    warriors, a bow for archers, and so on. Non-military types (villagers,
    the civilian boats) aren't here, so their groups keep showing the plain
    number as before. */
+/* How many different ways the crystal takes to a moonstone villager. Seven
+   looks, dealt out at random, so a night crowd has the same variety the
+   ordinary villagers get from VILLAGER_LOOKS rather than being one sprite
+   repeated. (moonstone manor) */
+const MOONLOOKS = 7;
+
+/* The night town's own population, counted apart from the ordinary one so
+   the two never compete for room. The Manor houses three; every cottage
+   takes two more. (moonstone manor) */
+const MANOR_HOUSES  = 3;
+const COTTAGE_HOUSES = 2;
+
+function moonPop(p){
+  let n = 0;
+  for(const u of G.units) if(u.p===p && u.type==="moonvillager" && u.hp>0) n++;
+  return n;
+}
+function moonCap(p){
+  let cap = 0;
+  for(const b of G.bldgs){
+    if(b.p!==p || !b.done) continue;
+    if(BLDG[b.type].manor) cap += MANOR_HOUSES;
+    else if(BLDG[b.type].moonstone) cap += COTTAGE_HOUSES;
+  }
+  return cap;
+}
+
+/* Being hit by a moonstone shard. Deliberately the same three levers the
+   seasonal farms already use - a speed multiplier in updateUnit's `spd`, an
+   attack multiplier in its `atk`, and a damage-taken multiplier in
+   dealDamage - so it behaves predictably and balances against something that
+   already exists rather than being a fourth kind of maths.
+
+   Refreshed on every hit rather than stacked: a crowd of moonstone villagers
+   should keep a raid slowed for as long as they keep hitting it, not multiply
+   the effect until nothing can move at all. (moonstone manor) */
+/* Working a moonstone villager through the daylight. You can do it - they
+   are yours and sometimes you will need them - but the sun is not their
+   hour and it tells on them. Nothing at all happens for a whole season's
+   worth of accumulated daylight; past that they start losing a quarter of
+   their health a day. One full night asleep clears the tally, so you can
+   push them hard through a crisis and pay it back afterwards rather than
+   ruining them permanently. Deliberately more forgiving than waking an
+   ordinary villager at night, which is unrecoverable. (moonstone manor) */
+const SUNSICK_GRACE = 1.0;      // seasons' worth of daylight before it bites
+const SUNSICK_LOSS  = 0.25;     // share of max health lost per day after that
+
+const MOONSTRUCK_TIME = 4.0;    // seconds, from the last hit
+const MOONSTRUCK_SPD  = 0.85;   // slower
+const MOONSTRUCK_ATK  = 0.85;   // weaker
+const MOONSTRUCK_DEF  = 1.15;   // and every hit against them lands harder
+
 const GROUP_ICONS = {
+  // a moonstone for the night shift, a pickaxe for the day shift
+  moonvillager: "🔷",
+  // villagers get the pickaxe: the hammer is already the warrior's, and a
+  // work tool is what tells a labour group apart from a fighting one at a
+  // glance. (moonstone manor)
+  villager: "⛏️",
   warrior: "🔨", swordsman: "🗡️", archer: "🏹",
   scout: "🔭", horsescout: "🐴", horsewarrior: "🏇",
   catapult: "🪨", mage: "🔮", druid: "🐻", warship: "🚢",
@@ -4019,6 +4191,30 @@ const BLDG = {
             build:5, vision:3, brazier:true },
   armoury:{ name:"Armoury", age:1, hp:260, w:2, h:2, cost:{wood:110,stone:90,food:50}, hgt:11, shrinkW:0.62, shrink:0.58, roof:"lean", build:18,
             vision:3 },
+  /* The first building in the game with a 3x3 footprint, and the first that
+     costs moonstone at all. Both are deliberate: it should not fit into a
+     gap the way everything else does, and it should be the thing that finally
+     gives the nightly moonstone somewhere to go. Proportions follow the Great
+     Hall rather than the 2x2 norm - an early draft at 0.70 depth had the
+     roof swamping the whole building. Then pulled down again on sight: at
+     hgt 21 / shrink 0.55 the structure drew 89px tall against the Town
+     Centre's 55, and the crystals added another 58 on top of that, so it
+     read close to three times the height of the building it sits beside.
+     It keeps the 3x3 plot - it should still be a thing you have to find
+     room for - but draws inset, near the Town Centre's own size.
+     `mil:true` is purely cosmetic here: it buys the metal roof and the
+     riveted corner straps that make it read half-armoury. */
+  manor:{ name:"Moonstone Manor", age:1, hp:420, w:3, h:3,
+          cost:{moonstone:300, wood:140, stone:110, food:60},
+          hgt:18, shrinkW:0.60, shrink:0.42, roof:"gable", build:26,
+          vision:5, mil:true, manor:true, drop:true,
+          trains:["moonvillager"] },
+  /* Built by moonstone villagers, at night, and only once the Manor stands.
+     `moonstone:true` is what keeps it out of the ordinary build menu and out
+     of sight until then; it also makes it a night drop-off and a bed. */
+  cottage:{ name:"Moonstone Cottage", age:2, hp:200, w:2, h:2,
+            cost:{moonstone:90, wood:50}, hgt:13, shrinkW:0.62, shrink:0.56,
+            roof:"gable", build:12, vision:3, moonstone:true, drop:true },
   musiccollege:{ name:"Music College", age:1, hp:240, w:2, h:2, cost:{wood:117,gold:60,food:53}, hgt:12, shrinkW:0.62, shrink:0.58, roof:"dome", build:18,
                  vision:4, trains:["bardlute","bardtrumpet","barddrum","bardrock"] },
   warcollege:{ name:"War College", age:2, hp:360, w:2, h:2, cost:{wood:173,stone:100,food:77}, hgt:12, shrinkW:0.62, shrink:0.60, roof:"gable", build:20,
@@ -4127,6 +4323,8 @@ const ARMOR_REDUCTION = { 1:0.15, 2:0.15 };   // each tier cuts incoming damage 
    Shown while you are choosing where to put one - the panel has room for it,
    and "Brazier" on its own tells you nothing about why you would want one. */
 const BLDG_ABOUT = {
+  cottage:"A cottage for the night shift — two more moonstone villagers can live here, and they can bring their night's work home to it.",
+  manor:"Moonstone Manor — where the moonstone goes. By day it works the crystal into your other buildings; after dark it is something else entirely.",
   town:     "The heart of it all. Trains villagers, takes any resource, and is "+
             "where you advance an age. Lose it and you lose everything.",
   house:    "Room for more people. Raises your population limit, and villagers "+
@@ -4190,7 +4388,7 @@ function yardRect(b){
 }
 
 /* build menu order for villagers */
-const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","grove","armoury","musiccollege","warcollege","tradingpost","greathall","fortress","wall","tower","scouttower","siege","dock","town"];
+const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","grove","armoury","manor","cottage","musiccollege","warcollege","tradingpost","greathall","fortress","wall","tower","scouttower","siege","dock","town"];
 
 /* ---------- combat multipliers: attacker cls vs target cls ---------- */
 function classMult(a, d){
@@ -4271,7 +4469,9 @@ function newGame(){
     weather: null, weatherAmt: 0, weatherAt: -1, solaceThisWinter: false, solaceFlavorShown: false, winterCount: 0,
     // seasonal special farms - initialised here rather than lazily, or a crop
     // found in one match would still count as found in the next
-    seasonalCropNode: null, seasonalFound: {}, seasonalHintShown: {}
+    seasonalCropNode: null, seasonalFound: {}, seasonalHintShown: {},
+    moonBell: {},                                 // the Manor's bell, per player
+    buildMoon: false                              // is the build menu showing moonstone things?
   };
   // start a season already in full swing rather than mid-transition
   if(G.season==="winter"){
@@ -5623,6 +5823,7 @@ function makeUnit(type, p, x, y){
     look:Math.floor(Math.random()*VILLAGER_LOOKS.length)
   };
   if(d.shift) u.form = "bear";
+  if(d.moonfolk) u.moonLook = Math.floor(Math.random()*MOONLOOKS);
   // The other three seasonal buffs are read live wherever they matter, so a
   // unit trained after the farm went up picks them up for free. Health does
   // not - hp/maxhp are written once, here - so the spring farm has to be
@@ -5724,7 +5925,7 @@ function pendingPop(p){
   let n = 0;
   for(const b of G.bldgs){
     if(b.p!==p || !b.queue) continue;
-    for(const t of b.queue) n += (UNITS[t].pop||1);
+    for(const t of b.queue) n += (UNITS[t].pop ?? 1);
   }
   return n;
 }
@@ -5744,8 +5945,12 @@ function recalcPop(p){
   let pop = 0;
   for(const u of G.units){
     if(u.p!==p) continue;
-    pop += (UNITS[u.type].pop||1);
-    if(u.cargo) for(const c of u.cargo) pop += (UNITS[c.type].pop||1);
+    /* `?? 1`, not `|| 1`. A unit that genuinely costs no population declares
+       `pop: 0`, and 0 is falsy - so `||` quietly handed it back a 1 and the
+       moonstone villagers, who are counted against their own cap instead,
+       filled up the ordinary one as well. */
+    pop += (UNITS[u.type].pop ?? 1);
+    if(u.cargo) for(const c of u.cargo) pop += (UNITS[c.type].pop ?? 1);
   }
   pl.pop = pop;
   pl.popcap = Math.min(80, G.bldgs.filter(b=>b.p===p&&b.done&&BLDG[b.type].pop)
@@ -6694,9 +6899,15 @@ function confirmPlace(){
   }
   // every selected villager pitches in - no cap, and construction speed
   // scales with however many hands are on the job
-  const vs = G.sel.filter(u=>u.kind==="unit" && u.type==="villager" && u.p===P_YOU);
+  /* Whichever workforce this building belongs to. A cottage is moonstone
+     work and ordinary villagers will not touch it; everything else is theirs
+     and the night shift will not touch it. Falling back to the wrong crew
+     left a cottage sitting unbuilt with villagers walking to it and stopping.
+     (moonstone manor) */
+  const crew = d.moonstone ? "moonvillager" : "villager";
+  const vs = G.sel.filter(u=>u.kind==="unit" && u.type===crew && u.p===P_YOU);
   const send = vs.length ? vs
-             : G.units.filter(u=>u.p===P_YOU && u.type==="villager" && !u.order).slice(0,3);
+             : G.units.filter(u=>u.p===P_YOU && u.type===crew && !u.order).slice(0,3);
   send.forEach(v=>{ v.order="build"; v.target=b; v.workplace=null; v.path=null; });
   G.placing = null;
   G.uiMode = "main";
@@ -6819,7 +7030,13 @@ function tryTrain(b, type){
     hint("Your college already chose the "+UNITS[pl.bardChoice].name+" - that's the only kind you can train now.");
     return;
   }
-  if(pl.pop + pendingPop(b.p) + (d.pop||1) > pl.popcap){
+  /* The night shift is capped by its own housing - the Manor and its
+     cottages - and never by the ordinary population. Two villages, two
+     rolls. (moonstone manor) */
+  if(d.moonfolk){
+    if(moonPop(b.p) + b.queue.filter(t=>UNITS[t].moonfolk).length >= moonCap(b.p)){
+      hint("No room for more moonstone folk — build a Moonstone Cottage."); return; }
+  } else if(pl.pop + pendingPop(b.p) + (d.pop ?? 1) > pl.popcap){
     hint("Population limit reached — build a house."); return; }
   if(!canAfford(pl, d.cost)){ hint("Not enough resources."); return; }
 
@@ -6891,14 +7108,22 @@ function demolish(b){
   refreshUI();
 }
 
-function toggleBell(b){
+/* Two bells, two shifts. The Town Centre rings for the ordinary villagers;
+   the Manor rings for the moonstone folk, and they are entirely separate
+   flags - ringing one in the middle of the other's working hours would drag
+   a sleeping shift out of bed, which is exactly what one bell for everybody
+   would have done. (moonstone manor) */
+function toggleBell(b, moonfolk){
   const pl = G.players[b.p];
-  if(!G.bell) G.bell = {};
-  const on = !G.bell[b.p];
-  G.bell[b.p] = on;
+  const kind = moonfolk ? "moonvillager" : "villager";
+  if(moonfolk){ if(!G.moonBell) G.moonBell = {}; }
+  else        { if(!G.bell)     G.bell     = {}; }
+  const store = moonfolk ? G.moonBell : G.bell;
+  const on = !store[b.p];
+  store[b.p] = on;
   let n = 0;
   for(const u of G.units){
-    if(u.p!==b.p || u.type!=="villager") continue;
+    if(u.p!==b.p || u.type!==kind) continue;
     if(on){
       /* The bell is an alarm, so it outranks bedtime: anyone asleep comes
          out and walks to the Town Centre with everybody else. The job to
@@ -6939,7 +7164,12 @@ function toggleBell(b){
       // Rung off after dark and everyone goes to bed instead of back to
       // work, with the job kept for the morning. Rung off in daylight and
       // they pick up exactly where they left off.
-      if((G.dark||0) > 0.35 && sendOneHome(u)){
+      /* Bedtime is the opposite way round for the two shifts: a villager
+         rung off after dark goes to bed, a moonstone villager rung off
+         after dark goes back to work. Their own beds are handled when the
+         night shift's sleep cycle lands - for now they simply resume. */
+      const theirBedtime = moonfolk ? false : ((G.dark||0) > 0.35);
+      if(theirBedtime && sendOneHome(u)){
         u.dayOrder = job.order; u.dayTarget = job.target; u.daySite = null;
       } else {
         u.order = job.order; u.target = job.target;
@@ -6948,10 +7178,15 @@ function toggleBell(b){
       n++;
     }
   }
-  if(b.p===P_YOU)
-    hint(on ? n+" villagers called to the town centre."
-           : ((G.dark||0) > 0.35 ? n+" villagers head back to their beds."
-                                 : n+" villagers back to work."));
+  if(b.p===P_YOU){
+    if(moonfolk)
+      hint(on ? n+" moonstone villagers called in to the Manor."
+              : n+" moonstone villagers back to work.");
+    else
+      hint(on ? n+" villagers called to the town centre."
+              : ((G.dark||0) > 0.35 ? n+" villagers head back to their beds."
+                                    : n+" villagers back to work."));
+  }
   fxBell(b);
   refreshUI();
 }
@@ -7272,7 +7507,7 @@ function tick(dt){
         // Hold the finished unit at the door rather than letting it out and
         // overshooting the limit. It pops the moment there is room again.
         const plq = G.players[b.p];
-        if(plq.pop + (UNITS[type].pop||1) > plq.popcap){
+        if(plq.pop + (UNITS[type].pop ?? 1) > plq.popcap){
           if(b.p===P_YOU && !b.popWarn){
             b.popWarn = true;
             hint("A unit is waiting on population — build a house.");
@@ -7341,6 +7576,7 @@ function tick(dt){
     G.phase = ph;
     if(ph==="dusk"){
       hint(pickLine(DUSK_LINES,"dusk")); sendHome();
+      moonfolkRise();     // as the village goes to bed, the night shift gets up
       tryStoryNight();   // rarely, the elder settles by the fire instead
       /* On a night when wolves are even seasonally possible, a howl a few
          seconds into dusk - so a raid, when it comes, has been announced.
@@ -7391,6 +7627,7 @@ function tick(dt){
         trySpawnWanderer("bat");
       }
       spawnMoonstone();
+      growManorVeins();   // the Manor's own vein tops itself up overnight
       // and now and then, someone takes a torch out to it
       tryMoonstoneGuide();
       if(!G.weather || !TORCH_OUT_WEATHER.includes(G.weather.key)){
@@ -7400,6 +7637,7 @@ function tick(dt){
     if(ph==="dawn"){
       morningAfterCheck();   // a felt response to a rough night
       wakeUp();
+      moonfolkTurnIn();   // and the night shift turns in as the village gets up
       regrowOvernight();
       beastsFlee();
       clearMoonstone();
@@ -7461,6 +7699,7 @@ function tick(dt){
   updatePuddles(dt);
   updateScorches(dt);
   updateGarrisonHealing(dt);
+  updateSunSickness(dt);      // the daylight toll on the night shift
   updateSeasonInvasion(dt);
   updateBloodMoon(dt);
   trySkyEvents(dt);
@@ -7667,15 +7906,18 @@ function updateUnit(u, dt){
             * GLOBAL_SPEED_SCALE
             * (1 - (1-WINTER_SPEED)*G.snow)
             * weatherSpdMult()                         // wind and snow slow you more than rain does
-            * (hasSeasonalBuff(u.p,"speed") ? SEASONAL_BUFF : 1);   // winter sweet potato
+            * (hasSeasonalBuff(u.p,"speed") ? SEASONAL_BUFF : 1)    // winter sweet potato
+            * ((u.moonstruck||0) > 0 ? MOONSTRUCK_SPD : 1);         // a shard in them
   const atk = civStat(u.p,u.type,"atk",d.atk) * (u.buffAtk||1) * (f?f.atk:1) * (u.musicAtk||1)
-            * (hasSeasonalBuff(u.p,"strength") ? SEASONAL_BUFF : 1);   // summer sweetcorn
+            * (hasSeasonalBuff(u.p,"strength") ? SEASONAL_BUFF : 1)    // summer sweetcorn
+            * ((u.moonstruck||0) > 0 ? MOONSTRUCK_ATK : 1);
   u.cd -= dt;
   if(u.atkAnim>0) u.atkAnim -= dt;
   if(u.working>0) u.working -= dt;
   if(u.inspired>0) u.inspired -= dt;
   if(u.rested>0) u.rested -= dt;
   if(u.storyBoost>0) u.storyBoost -= dt;
+  if(u.moonstruck>0) u.moonstruck -= dt;
   if(u.bardBoost>0) u.bardBoost -= dt;
 
   /* Gathering for the elder's tale. Once there they simply stand - the shared
@@ -7951,6 +8193,10 @@ function updateUnit(u, dt){
           b.prog=1; b.done=true; b.hp=b.maxhp;
           attachFarm(b);
           recalcPop(b.p);
+          if(BLDG[b.type].manor){
+            attachManorVein(b);
+            if(b.p===P_YOU) hint("The Moonstone Manor stands. A vein has come up through its floor - and after dark it is a different building entirely.");
+          }
           if(b.type==="specialfarm" && b.seasonalCrop){
             activateSeasonalBuff(b.p, b.seasonalCrop);
             if(b.p===P_YOU){
@@ -8517,11 +8763,23 @@ const DROP_ACCEPTS = {
   mine:   ["stone","gold","moonstone"],
   dock:   ["food"]     // fish, brought in by boat
 };
+/* Will the night shift bank here? The Manor and the cottages always; anything
+   else only once it has been plated with moonstone. It gives the plating a
+   second job beyond speed, and it is what makes the night town spread out
+   from the Manor as you invest in it rather than arriving everywhere at once.
+   (moonstone manor) */
+function moonDropOK(u, b){
+  if(!UNITS[u.type] || !UNITS[u.type].moonfolk) return true;   // not their rule
+  const bd = BLDG[b.type];
+  return !!(bd.manor || bd.moonstone || b.plated);
+}
+
 function nearestDrop(u){
   let best=null, bd=1e9;
   const kind = u.carryKind;
   for(const b of G.bldgs){
     if(b.p!==u.p || !b.done || !BLDG[b.type].drop) continue;
+    if(!moonDropOK(u,b)) continue;
     const accepts = DROP_ACCEPTS[b.type];
     if(accepts && kind && !accepts.includes(kind)) continue;   // wrong goods for this building
     const d=Math.hypot(b.x-u.x,b.y-u.y);
@@ -8535,6 +8793,7 @@ function nearestDropFor(u, kind){
   let best=null, bd=1e9;
   for(const b of G.bldgs){
     if(b.p!==u.p || !b.done || !BLDG[b.type].drop) continue;
+    if(!moonDropOK(u,b)) continue;
     const accepts = DROP_ACCEPTS[b.type];
     if(accepts && !accepts.includes(kind)) continue;
     const d=Math.hypot(b.x-u.x,b.y-u.y);
@@ -8616,10 +8875,13 @@ function nearestEnemy(e, rng){
 function shoot(from, to, dmg, cls){
   const pl = G.players[from.p];
   const fire = cls==="arc" && pl && pl.fireArrows && !extremeWeatherActive();
+  const fd = from.type && UNITS[from.type];
   G.projectiles.push({ x:from.x, y:from.y, tx:to.x, ty:to.y, target:to,
     total: Math.max(1, Math.hypot(to.x-from.x, to.y-from.y)),
     dmg, cls, p:from.p, spd: cls==="siege"?150:290, siege: cls==="siege",
-    mystic: cls==="mystic", fire });
+    mystic: cls==="mystic", fire,
+    moon: !!(fd && fd.moonfolk),          // a thrown moonstone shard
+    seed: Math.random()*6.283 });
 }
 function updateProjectiles(dt){
   for(const pr of G.projectiles){
@@ -8642,8 +8904,11 @@ function updateProjectiles(dt){
       if(t && t.hp>0){
         dealDamage(pr, t, pr.dmg, pr.cls);
         if(pr.fire && t.hp>0) igniteBurn(t);
+        // the shard leaves them moonstruck: slower, weaker, and softer to
+        // everything else that hits them while it lasts
+        if(pr.moon && t.hp>0 && t.kind==="unit") t.moonstruck = MOONSTRUCK_TIME;
       }
-      fxHit(pr.tx, pr.ty, pr.fire?"#e8823a":(pr.mystic?"#9ec6e8":(pr.siege?"#b58a55":"#d8c9a8")), pr.siege?9:5);
+      fxHit(pr.tx, pr.ty, pr.moon?"#8fd6ee":(pr.fire?"#e8823a":(pr.mystic?"#9ec6e8":(pr.siege?"#b58a55":"#d8c9a8"))), pr.siege?9:5);
     } else {
       pr.x += dx/d*pr.spd*dt; pr.y += dy/d*pr.spd*dt;
     }
@@ -8668,6 +8933,8 @@ function dealDamage(src, t, dmg, cls){
   // is spent here instead, as 7% less damage getting through - hence the
   // (2 - BUFF) rather than a multiply by it. (pack 10, feature 38)
   if(t.kind==="unit" && hasSeasonalBuff(t.p,"defence")) m *= (2 - SEASONAL_BUFF);
+  // moonstruck: everything lands harder on them while the crystal is in them
+  if(t.kind==="unit" && (t.moonstruck||0) > 0) m *= MOONSTRUCK_DEF;
   const dealt = dmg*m;
   t.hp -= dealt;
   // kill credit - night beasts drop moonstone to whichever side lands the
@@ -8759,6 +9026,7 @@ function cleanup(){
     // "as long as the special farm is alive" - not a one-time grant
     for(const b of dead){
       if(b.type==="specialfarm" && b.seasonalCrop) deactivateSeasonalBuff(b.p, b.seasonalCrop);
+      if(BLDG[b.type].manor) dropManorVein(b);
     }
     G.bldgs = G.bldgs.filter(b=>b.hp>0);
     G.sel = G.sel.filter(e=>!db.includes(e));
@@ -9565,7 +9833,7 @@ function aiThink(dt){
   const needsCrossing = !!aiNeedsSea(town);
   const hasFerry = my.units.some(u=>u.type==="transport")
                 || my.all.some(b=>b.queue && b.queue.indexOf("transport") >= 0);
-  const popReserve = (needsCrossing && !hasFerry) ? (UNITS.transport.pop||1) + 1 : 0;
+  const popReserve = (needsCrossing && !hasFerry) ? (UNITS.transport.pop ?? 1) + 1 : 0;
 
   const prod = my.bldgs.filter(b=>BLDG[b.type].trains && b.type!=="town");
   for(const b of prod){
@@ -9769,7 +10037,7 @@ function aiTrain(b,type,reserve,bypassPop){
      turtles - so it stood on its own shore with fifty-four soldiers and
      no boat. Bounded by design, since it only ever applies while there
      is no transport at all. */
-  if(!bypassPop && pl.pop + pendingPop(P_AI) + (d.pop||1) > pl.popcap) return false;
+  if(!bypassPop && pl.pop + pendingPop(P_AI) + (d.pop ?? 1) > pl.popcap) return false;
   if(!canAfford(pl,d.cost)) return false;
   if(reserve){
     for(const k in reserve){
@@ -10187,7 +10455,8 @@ function draw(){
       case 4: drawCritter(it.e); break;
       case 5: drawElder(); break;
       case 6: drawBeast(it.e); break;
-      case 7: drawHomeLife(it.e); drawChildReaction(it.e); break;
+      case 7: drawHomeLife(it.e); if(it.e.moon) drawMoonKid(it.e);
+              drawChildReaction(it.e); break;
       // 15, not a second 7: wanderers used to share home-life's number, so
       // this arm was unreachable and every bard, pilgrim, bat, penguin and
       // cat was drawn as a doorstep child instead of itself
@@ -10455,6 +10724,24 @@ function draw(){
       ctx.beginPath(); ctx.arc(pr.x, pr.y-lift, 5.2, 0, 6.283); ctx.fill();
       ctx.fillStyle="#9a9188";
       ctx.beginPath(); ctx.arc(pr.x-1.6, pr.y-lift-1.6, 2.1, 0, 6.283); ctx.fill();
+    } else if(pr.moon){
+      /* A thrown shard, tumbling as it goes - drawn end-over-end rather than
+         pointing along its flight like an arrow, because it is a lump of
+         rock somebody has lobbed, not a fletched shot. */
+      ctx.fillStyle="rgba(0,0,0,.16)";
+      ctx.beginPath(); ctx.ellipse(pr.x,pr.y,3.4,1.4,ang,0,6.283); ctx.fill();
+      ctx.save();
+      ctx.translate(pr.x, pr.y-lift);
+      ctx.rotate(pr.seed + G.t*11);
+      ctx.fillStyle="rgba(150,225,245,.28)";
+      ctx.beginPath(); ctx.arc(0,0,5.6,0,6.283); ctx.fill();
+      ctx.fillStyle="#5fb8d4";
+      ctx.beginPath(); ctx.moveTo(0,-4.2); ctx.lineTo(1.9,0); ctx.lineTo(0,3.0); ctx.lineTo(-1.9,0);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle="rgba(210,245,250,.8)";
+      ctx.beginPath(); ctx.moveTo(0,-4.2); ctx.lineTo(0.8,-0.6); ctx.lineTo(0,0.6);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
     } else if(pr.mystic){
       const gl=0.6+0.4*Math.sin(G.t*14+pr.x*0.1);
       ctx.fillStyle="rgba(158,198,232,"+(0.22*gl)+")";
@@ -10546,6 +10833,7 @@ function draw(){
 
   // fog, drawn last in world space so it covers everything on the ground
   drawFog(x0,y0,x1,y1);
+  drawMoonstoneThroughFog();   // and the one thing allowed to show through it
 
   // the bolt itself - a brief jagged flicker from the sky down to whatever
   // it struck, gone in well under a second
@@ -10954,7 +11242,12 @@ function draw(){
         const rx = rad * c.z, ry = rad * 0.72 * c.z;
         if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
 
-        lamps.push({x:sp.x, y:sp.y, rx, ry});
+        /* A moonstone building is lit by the crystal growing through it, not
+           by lamps, so its pool is cool. This is the real reason the Manor's
+           own halo never read as blue: the warm amber wash below was painted
+           straight over the top of it every night. (moonstone manor) */
+        const moonlit = !!(bd.manor || bd.moonstone);
+        lamps.push({x:sp.x, y:sp.y, rx, ry, col: moonlit ? "130,205,235" : "255,180,80"});
 
         nx.save();
         nx.translate(sp.x, sp.y);
@@ -10986,6 +11279,31 @@ function draw(){
         nx.scale(1, ry/rx);
         const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
         glowGradient(g, 0.97*lit, 0.14, 2.2, "0,0,0");
+        nx.fillStyle = g;
+        nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
+        nx.restore();
+      }
+      /* Moonstone villagers carry their own light - the crystal growing on
+         them glows, so the ground around them is genuinely lit and you can
+         see what is near them. Steadier and a little smaller than a carried
+         flame: it does not gutter, because it is not burning. It is added to
+         `torches` with its own colour, so the cool wash below picks it up
+         instead of the yellow one. (moonstone manor) */
+      for(const u of G.units){
+        if(u.indoors || u.hp<=0) continue;
+        if(!UNITS[u.type] || !UNITS[u.type].moonfolk) continue;
+        if(u.p!==P_YOU && !visibleTo(P_YOU,u.x,u.y)) continue;
+        const pulse = 0.94 + 0.06*Math.sin(G.t*1.5 + u.id*1.3);
+        const rad = TORCH_RADIUS * 0.72 * pulse;
+        const sp = w2s(u.x, u.y);
+        const rx = rad*c.z, ry = rad*0.72*c.z;
+        if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
+        torches.push({x:sp.x, y:sp.y, rx, ry, col:"140,215,240"});
+        nx.save();
+        nx.translate(sp.x, sp.y);
+        nx.scale(1, ry/rx);
+        const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
+        glowGradient(g, 0.95*lit, 0.14, 2.2, "0,0,0");
         nx.fillStyle = g;
         nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
         nx.restore();
@@ -11056,7 +11374,7 @@ function draw(){
         ctx.translate(L.x, L.y);
         ctx.scale(1, L.ry/L.rx);
         const g = ctx.createRadialGradient(0,0,L.rx*0.04, 0,0,L.rx);
-        glowGradient(g, 0.22*lit, 0.10, 2.0, "255,180,80");
+        glowGradient(g, 0.22*lit, 0.10, 2.0, L.col || "255,180,80");
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(0,0,L.rx,0,6.283);
@@ -11076,7 +11394,7 @@ function draw(){
         ctx.translate(T.x, T.y);
         ctx.scale(1, T.ry/T.rx);
         const g = ctx.createRadialGradient(0,0,T.rx*0.05, 0,0,T.rx);
-        glowGradient(g, 0.26*lit, 0.10, 2.0, "255,212,104");
+        glowGradient(g, 0.26*lit, 0.10, 2.0, T.col || "255,212,104");
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(0,0,T.rx,0,6.283);
@@ -11483,6 +11801,36 @@ function drawFog(x0,y0,x1,y1){
                 x0*TILE, y0*TILE, (x1-x0)*TILE, (y1-y0)*TILE);
 }
 
+/* ---------- moonstone seen through the fog ----------
+   Veins were very hard to find: they only exist at night, they turn up
+   somewhere new each evening, and the fog put a flat lid over any ground you
+   were not standing in. Their glow now shows through ground you have ALREADY
+   EXPLORED - the dimmed fog - so a vein you have walked past is findable
+   again. It does NOT show through the unexplored black: seeing a glow in
+   country you have never set foot in would hand you the map, and the point
+   of the vein is that you go looking. Drawn after drawFog because the fog is
+   painted over everything in world space. (moonstone manor) */
+function drawMoonstoneThroughFog(){
+  const f = G.fog[P_YOU];
+  if(!f) return;
+  const pulse = 0.55 + 0.45*Math.sin(G.t*1.4);
+  ctx.save();
+  for(const n of G.nodes){
+    if(n.kind !== RES.MOONSTONE || n.amt <= 0) continue;
+    const tx = Math.floor(n.x/TILE), ty = Math.floor(n.y/TILE);
+    if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) continue;
+    // 1 is explored-but-not-currently-seen. 2 is in sight, so the node itself
+    // is already drawn; 0 is black and stays black.
+    if(f[ty*MAPW+tx] !== 1) continue;
+    ctx.globalAlpha = MOON_GLOW_MAX * (0.55 + 0.45*pulse);
+    ctx.fillStyle = "rgba(150,225,245,1)";
+    ctx.beginPath(); ctx.arc(n.x, n.y-2, 11*pulse, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = MOON_GLOW_MAX * 1.5;
+    ctx.beginPath(); ctx.arc(n.x, n.y-2, 3.2, 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+}
+
 function drawNode(n){
   if(n.kind==="seasonalcrop"){ drawSeasonalCropNode(n); return; }
   const wob = Math.sin(G.t*1.2+n.seed)*1.2;
@@ -11758,22 +12106,73 @@ function drawNode(n){
       ctx.beginPath(); ctx.arc(n.x+Math.cos(a)*4.5,n.y+Math.sin(a)*3,2.6,0,6.283); ctx.fill();
     }
   } else if(n.kind===RES.MOONSTONE){
+    /* Moonstone reads as ORE, not as a bare cluster of spikes: the same
+       angular grey rock the stone nodes use, with the crystal growing out
+       of it and lighting the stone from inside. Before this it was floating
+       shards on a dark smudge, which looked like nothing else on the map and
+       gave no clue it was something you mine. */
     const pulse = 0.6 + 0.4*Math.sin(G.t*1.6+n.seed);
-    ctx.fillStyle = "rgba(127,212,232,.3)";
-    ctx.beginPath(); ctx.arc(n.x, n.y-3, 13*pulse, 0, 6.283); ctx.fill();
-    ctx.fillStyle = "#3a4a52";
-    ctx.beginPath(); ctx.ellipse(n.x, n.y+3, 8, 4, 0, 0, 6.283); ctx.fill();
-    for(let i=0;i<4;i++){
-      const a = n.seed + i*1.7;
-      const cx = n.x+Math.cos(a)*4, cy = n.y-Math.abs(Math.sin(a))*6-1;
-      ctx.fillStyle = "#5fb8d4";
-      ctx.beginPath();
-      ctx.moveTo(cx, cy-6); ctx.lineTo(cx+2.4, cy); ctx.lineTo(cx, cy+2.5); ctx.lineTo(cx-2.4, cy);
-      ctx.closePath(); ctx.fill();
-      ctx.fillStyle = "rgba(210,245,250,.75)";
-      ctx.beginPath(); ctx.moveTo(cx, cy-6); ctx.lineTo(cx+0.9, cy-1); ctx.lineTo(cx, cy+1); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "rgba(127,212,232,"+(0.16*pulse).toFixed(3)+")";
+    ctx.beginPath(); ctx.arc(n.x, n.y-2, 14*pulse, 0, 6.283); ctx.fill();
+    // the rock itself - the stone node's own facets, a shade cooler
+    ctx.fillStyle="#74787c";
+    ctx.beginPath();
+    ctx.moveTo(n.x-10,n.y+5); ctx.lineTo(n.x-6,n.y-5);
+    ctx.lineTo(n.x+4,n.y-7); ctx.lineTo(n.x+10,n.y+2); ctx.lineTo(n.x+3,n.y+6);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle="#93989d";
+    ctx.beginPath(); ctx.moveTo(n.x-5,n.y-4); ctx.lineTo(n.x+3,n.y-6);
+    ctx.lineTo(n.x+1,n.y-1); ctx.closePath(); ctx.fill();
+    // seams of crystal lighting the rock from within
+    ctx.strokeStyle="rgba(150,225,245,"+(0.30+0.20*pulse).toFixed(3)+")";
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(n.x-6,n.y+1); ctx.lineTo(n.x-1,n.y-3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(n.x+2,n.y+4); ctx.lineTo(n.x+6,n.y-1); ctx.stroke();
+    // and the crystal breaking out of the top of it
+    const g = moonGlowNow();
+    for(let i=0;i<3;i++){
+      const a = n.seed + i*2.1;
+      moonShard(n.x+Math.cos(a)*4.5, n.y-3-Math.abs(Math.sin(a))*2,
+                7+((i*5)%4), 2.2, Math.sin(a)*0.20, g);
     }
   }
+}
+
+/* ---------- the moonstone shard ----------
+   The reusable crystal primitive: a long asymmetric spike with a shadowed
+   facet, a lit facet and a pale core down its spine, so it reads as a solid
+   object rather than a flat triangle. Crystal Peak's language, in the game's
+   own moonstone colours. The Manor, the cottages, the crystal plating and the
+   moonstone villagers are all drawn from this, so they stay of a piece.
+   (moonstone manor) */
+const MOON_CRY      = "#5fb8d4";
+const MOON_CRY_DIM  = "#356875";
+const MOON_CRY_LIT  = "#8fcde1";
+const MOON_CRY_CORE = "rgba(210,245,250,.75)";
+const MOON_GLOW_MAX = 0.10;   // the player picked "very faint" - this is the ceiling
+
+function moonShard(cx, cy, len, wid, lean, glow){
+  const tipX = cx + lean*len, tipY = cy - len;
+  if(glow > 0){
+    ctx.save(); ctx.globalAlpha = glow; ctx.fillStyle = "rgba(150,225,245,1)";
+    ctx.beginPath();
+    ctx.ellipse(cx+lean*len*0.5, cy-len*0.48, wid*1.9, len*0.58, lean*0.3, 0, 6.283);
+    ctx.fill(); ctx.restore();
+  }
+  ctx.fillStyle = MOON_CRY_DIM;
+  ctx.beginPath(); ctx.moveTo(tipX,tipY); ctx.lineTo(cx-wid,cy); ctx.lineTo(cx,cy+wid*0.45); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = MOON_CRY;
+  ctx.beginPath(); ctx.moveTo(tipX,tipY); ctx.lineTo(cx,cy+wid*0.45); ctx.lineTo(cx+wid,cy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = MOON_CRY_LIT;
+  ctx.beginPath(); ctx.moveTo(tipX,tipY); ctx.lineTo(cx+wid,cy); ctx.lineTo(cx+wid*0.42,cy-len*0.20); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = MOON_CRY_CORE;
+  ctx.beginPath(); ctx.moveTo(tipX,tipY); ctx.lineTo(cx+wid*0.18,cy-len*0.13); ctx.lineTo(cx-wid*0.09,cy-len*0.09); ctx.closePath(); ctx.fill();
+}
+
+/* How strongly anything moonstone glows right now. Ramps with the dark rather
+   than snapping on at dusk, and never exceeds the ceiling above. */
+function moonGlowNow(){
+  return MOON_GLOW_MAX * Math.max(0, Math.min(1, ((G.dark||0) - 0.25) / 0.55));
 }
 
 function drawBrazier(b){
@@ -12239,9 +12638,13 @@ function drawBuilding(b){
     ctx.save();
     ctx.globalAlpha = 0.35;
     ctx.strokeStyle = "#3f434a"; ctx.lineWidth = 1;
+    /* Kept inside the roof. These ran from x-w*0.08 to x+w*1.08, which is
+       wider than the 2px eaves overhang, so on every military building a few
+       short grey lines hung in the air off both sides. Barely noticeable on a
+       2x2; obvious on the Manor, which is where it was finally spotted. */
     for(let s=1;s<4;s++){
       const sy = rTop + (rBase-rTop)*s/4;
-      ctx.beginPath(); ctx.moveTo(x-w*0.08, sy); ctx.lineTo(x+w*1.08, sy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x-2, sy); ctx.lineTo(x+w+2, sy); ctx.stroke();
     }
     ctx.restore();
   }
@@ -12320,15 +12723,23 @@ function drawBuilding(b){
       ctx.lineTo(x+w+3, y-H+dep*0.52);
       ctx.lineTo(x-3, y-H+dep*0.52);
       ctx.closePath(); ctx.fill();
-      // a few icicles hanging off the eaves
+      /* Icicles off the eaves. Deliberately irregular: three of them at a
+         fixed 0.22/0.50/0.78 spacing, all much the same length, read as a
+         row of little triangles stuck on the wall rather than as ice. Count,
+         spacing, length and width all vary now - hashed off the building id
+         so a given building keeps the same ones frame to frame. */
       ctx.globalAlpha = Math.min(1, G.snow);
-      for(let i=0;i<3;i++){
-        const ix = x + w*(0.22+i*0.28);
-        const il = 2.5 + ((b.id+i)%3);
+      const nIce = 2 + ((b.id*7) % 3);
+      for(let i=0;i<nIce;i++){
+        const h1 = ((b.id*13 + i*29) % 97) / 97;
+        const h2 = ((b.id*31 + i*17) % 89) / 89;
+        const ix = x + w*(0.10 + h1*0.80);
+        const il = 1.8 + h2*4.6;
+        const iw = 0.9 + h2*0.8;
         ctx.beginPath();
-        ctx.moveTo(ix-1.2, y-H+dep-1);
-        ctx.lineTo(ix+1.2, y-H+dep-1);
-        ctx.lineTo(ix, y-H+dep-1+il);
+        ctx.moveTo(ix-iw, y-H+dep-1);
+        ctx.lineTo(ix+iw, y-H+dep-1);
+        ctx.lineTo(ix+(h1-0.5)*1.2, y-H+dep-1+il);
         ctx.closePath(); ctx.fill();
       }
     }
@@ -12359,6 +12770,111 @@ function drawBuilding(b){
   const spireTop = y - H - ridgeA*1.7;      // top of a cone
   const dark = "#33291e";
   switch(b.type){
+    /* The Moonstone Manor. Crystals erupt up THROUGH the front wall on the
+       left (clipped to the wall, so they read as growing out from inside
+       rather than propped against it) and burst out of the roof above - the
+       building cracked open by what is growing in it.
+
+       The window is deliberately one long pane rather than several small
+       ones: three little squares read as punched holes and gave the light
+       nowhere to show. And it is lit cool, not the warm amber every other
+       building uses, because the Manor's light comes from the crystal rather
+       than from a hearth - the one blue-lit building in the village.
+       (moonstone manor) */
+    case "cottage": {
+      /* The Manor's little sister: the same crystal language, a fraction of
+         the scale. Without this a "Moonstone Cottage" drew as an ordinary
+         hut with a team-coloured roof and there was nothing to tell it from
+         a house. (moonstone manor) */
+      const g = moonGlowNow();
+      const rA = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
+      const rT = y - H - rA*0.55;
+      moonShard(x+w*0.30, rT+7, 15, 3.0, -0.18, g);
+      moonShard(x+w*0.46, rT+3, 22, 4.0, -0.05, g);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x, y+dep-H, w, H); ctx.clip();
+      moonShard(x+w*0.18, y+dep+1, H*0.72, 3.2, 0.10, g);
+      ctx.restore();
+      // one small lit window, the same cool light as the Manor's
+      const cw = w*0.26, cx2 = x+w*0.60, cy2 = y+dep-H*0.66, ch = H*0.34;
+      ctx.fillStyle = (G.dark||0) > 0.3 ? "rgba(150,225,245,.62)" : "rgba(150,225,245,.30)";
+      ctx.fillRect(cx2, cy2, cw, ch);
+      ctx.strokeStyle="rgba(40,44,52,.6)"; ctx.lineWidth=1; ctx.strokeRect(cx2, cy2, cw, ch);
+      for(let i=0;i<3;i++){
+        const a = b.id*0.9 + i*2.1;
+        moonShard(x+w*(0.5+Math.cos(a)*0.60), y+dep+1+Math.sin(a*1.7)*2,
+                  3+((i*5)%3), 1.2, Math.sin(a)*0.2, g);
+      }
+      break;
+    }
+    case "manor": {
+      const g = moonGlowNow();
+      // --- the seam, clipped inside the wall ---
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x, y+dep-H, w, H); ctx.clip();
+      moonShard(x+w*0.15, y+dep+1, H*1.02, 5.4,  0.10, g);
+      moonShard(x+w*0.29, y+dep+1, H*0.68, 3.9, -0.06, g);
+      ctx.restore();
+      // --- one long window, to the right of the door ---
+      const gx=x+w*0.64, gy=y+dep-H*0.72, gw=w*0.28, gh=H*0.40;
+      const lit = 0.34 + (G.dark||0)*0.36;
+      ctx.fillStyle = "rgba(150,225,245,"+lit.toFixed(2)+")";
+      ctx.fillRect(gx,gy,gw,gh);
+      ctx.fillStyle = "rgba(196,240,252,"+(0.26+(G.dark||0)*0.29).toFixed(2)+")";
+      ctx.fillRect(gx,gy,gw,gh*0.34);                 // brighter along the top of the glass
+      ctx.strokeStyle="rgba(40,44,52,.65)"; ctx.lineWidth=1; ctx.strokeRect(gx,gy,gw,gh);
+      ctx.strokeStyle="rgba(40,44,52,.50)";
+      for(let m=1;m<3;m++){ ctx.beginPath();
+        ctx.moveTo(gx+gw*m/3, gy); ctx.lineTo(gx+gw*m/3, gy+gh); ctx.stroke(); }
+      // --- door: a plain rectangle. An arch fought with the long window. ---
+      ctx.fillStyle="#6f6250"; ctx.fillRect(cx-doorW*0.62, y+dep-3, doorW*1.24, 4);
+      // narrow and tall, not square: doorW is ~13 and doorH ~8 on this wall,
+      // so taking them at face value gave a door wider than it was high
+      /* A proper door: clearly taller than it is wide, and as tall as the
+         wall will take with a margin so it never reaches the eaves. The wall
+         was raised (hgt 15 -> 18) specifically to make room - at 15 the
+         clamp squashed the door back to nearly square, which is what made it
+         read as a hatch rather than a door. */
+      const dW=doorW*0.66, dH=H-4, dX=cx-dW/2, dY=y+dep-3-dH;
+
+      ctx.fillStyle="#2b2b33"; ctx.fillRect(dX,dY,dW,dH);
+      ctx.strokeStyle="rgba(40,44,52,.7)"; ctx.lineWidth=1; ctx.strokeRect(dX,dY,dW,dH);
+      ctx.fillStyle = "rgba(150,225,245,"+(0.16+(G.dark||0)*0.18).toFixed(2)+")";
+      ctx.fillRect(dX+dW*0.16, dY+dH*0.16, dW*0.68, dH*0.62);
+      // --- and the crystals through the roof, drawn last so they sit on top ---
+      moonShard(x+w*0.22, roofTop+10, 21, 4.4, -0.28, g);
+      moonShard(x+w*0.37, roofTop+3,  32, 6.4, -0.13, g);
+      moonShard(x+w*0.60, roofTop+12, 13, 3.0,  0.10, g);
+      // --- the little ones scattered outside ---
+      for(let i=0;i<5;i++){
+        const a = b.id*0.7 + i*2.3;
+        moonShard(x+w*(0.5+Math.cos(a)*0.66), y+dep+1+Math.sin(a*1.7)*2,
+                  4+((i*7)%4), 1.6, Math.sin(a)*0.18, g);
+      }
+      /* A halo around the whole building rather than a glow behind the
+         glass. Lighting the window alone read as a lamp in a room; the
+         Manor is meant to look like the crystal is lighting the shell of the
+         place from inside it. A ring gradient - transparent at the centre so
+         it does not wash the building out, brightest just off the outline -
+         costs one fill and no blur, which matters on a phone. */
+      if(g > 0){
+        const hx = x+w/2, hy = y+dep-H*0.55;
+        // tight to the building and weak: the first version put a wide bright
+        // blob over the whole plot and read as a spotlight shining on the
+        // Manor rather than the Manor itself glowing
+        const hr = Math.max(w, dep+H) * 0.60;
+        const grd = ctx.createRadialGradient(hx,hy,hr*0.55, hx,hy,hr);
+        grd.addColorStop(0.00, "rgba(150,225,245,0)");
+        grd.addColorStop(0.70, "rgba(150,225,245,"+(g*0.22).toFixed(3)+")");
+        grd.addColorStop(0.88, "rgba(150,225,245,"+(g*0.34).toFixed(3)+")");
+        grd.addColorStop(1.00, "rgba(150,225,245,0)");
+        ctx.save();
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(hx,hy,hr,0,6.283); ctx.fill();
+        ctx.restore();
+      }
+      break;
+    }
     case "town": {
       // wide arched doorway with steps
       ctx.fillStyle="#6f6250";
@@ -12650,8 +13166,13 @@ function drawBuilding(b){
     }
   }
 
-  // ---- finishing detail: lintels, shutters, props at the base ----
-  if(!d.farm && b.type!=="wall" && b.type!=="dock"){
+  /* ---- finishing detail: lintels, shutters, props at the base ----
+     Skipped for anything moonstone. This block puts a shuttered window at
+     x+w*0.70 and lights it warm amber after dark - which landed square on
+     top of the Manor's own long blue window and gave it two windows, one of
+     them the wrong colour. Buildings that draw their own door and glass in
+     the switch above opt out here. */
+  if(!d.farm && b.type!=="wall" && b.type!=="dock" && !d.manor && !d.moonstone){
     // stout timber lintel over the doorway
     ctx.fillStyle = "rgba(66,48,28,.75)";
     ctx.fillRect(cx-doorW*0.85, y+dep-doorH-2.5, doorW*1.7, 2.5);
@@ -12917,6 +13438,23 @@ function drawUnit(u){
     drawBard(u, pl);
   } else {
     drawPerson(u, pl, 0);
+    if(UNITS[u.type].moonfolk) drawMoonstoneGrowth(u, pl);
+  }
+  /* Moonstruck: a few motes of crystal light clinging to whoever has been
+     hit, so the slow is something you can SEE rather than a number quietly
+     ticking down. Drawn inside the unit's own transform, above the body. */
+  if((u.moonstruck||0) > 0){
+    const H = u.r*2.35, a = Math.min(1, u.moonstruck/MOONSTRUCK_TIME);
+    ctx.save();
+    ctx.globalAlpha = 0.30 + 0.30*a;
+    ctx.fillStyle = "rgba(150,225,245,1)";
+    for(let i=0;i<4;i++){
+      const t = G.t*2.2 + u.id + i*1.57;
+      ctx.beginPath();
+      ctx.arc(Math.cos(t)*u.r*0.9, -H*0.42 + Math.sin(t*1.3)*H*0.22, 1.0+0.5*Math.sin(t*2), 0, 6.283);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   ctx.restore();
@@ -12928,10 +13466,22 @@ function drawUnit(u){
     ctx.fillStyle= u.p===P_YOU?"#7fbf5f":"#c9573f";
     ctx.fillRect(x-u.r+0.6, y-u.r*2.4+0.7, (u.r*2-1.2)*(u.hp/u.maxhp), 2);
   }
-  // carried resource pip
+  // carried resource pip. Moonstone gets a pair of little shards rather than
+  // the flat square every other resource uses - a blue block read as nothing
+  // in particular, where a crystal is instantly the thing you just mined.
   if(u.carry>0){
-    ctx.fillStyle = C[u.carryKind]||"#fff";
-    ctx.fillRect(x+u.r*0.55, y-u.r*1.9, 4, 4);
+    if(u.carryKind===RES.MOONSTONE){
+      // carried in the leading hand, not floating over the head where the
+      // flat resource pip sits - a crystal reads as an object being held,
+      // so it has to be at hand height or it looks like it is hovering
+      const side = (u.face < 0) ? -1 : 1;
+      const px = x + side*u.r*0.82, py = y + u.r*0.10;
+      moonShard(px,            py,   5.6, 1.7, -0.10*side, moonGlowNow()*0.7);
+      moonShard(px+side*2.2, py+1.2, 3.6, 1.2,  0.16*side, moonGlowNow()*0.7);
+    } else {
+      ctx.fillStyle = C[u.carryKind]||"#fff";
+      ctx.fillRect(x+u.r*0.55, y-u.r*1.9, 4, 4);
+    }
   }
   // a bard's notes, drifting up every now and again while they actually play
   if(u.playing && u.noteT>0){
@@ -12947,6 +13497,73 @@ function drawUnit(u){
   }
 }
 
+
+/* ---------- moonstone growing on a person ----------
+   Seven variants, dealt out at spawn, so a night crowd has the variety the
+   day crowd gets from VILLAGER_LOOKS. Landmarks match drawPerson exactly:
+   the origin is already the ground under their feet by the time this runs.
+
+   Everything here is on the FRONT or the sides of the body. A ridge down the
+   spine was tried first and is completely invisible - the game only ever
+   shows a unit from the front, so anything on the back is drawn and then
+   never seen by anybody. (moonstone manor) */
+function drawMoonstoneGrowth(u, pl){
+  const H = u.r*2.35;
+  const shld = -H*0.60, hip = -H*0.32, head = -H*0.79, tw = H*0.185;
+  const g = Math.max(moonGlowNow(), 0.06);
+
+  /* A soft halo around the whole person after dark. The light pool they cast
+     lights the GROUND around them; this is what makes the villager themselves
+     read as the source of it rather than as somebody standing in somebody
+     else's lamplight. Scales with the darkness, so it is nothing at noon. */
+  const dk = G.dark || 0;
+  if(dk > 0.15){
+    const hr = H*0.95;
+    const grd = ctx.createRadialGradient(0,-H*0.45,hr*0.25, 0,-H*0.45,hr);
+    const a = 0.30*dk;
+    grd.addColorStop(0.00,"rgba(150,225,245,"+(a*0.85).toFixed(3)+")");
+    grd.addColorStop(0.55,"rgba(150,225,245,"+(a*0.42).toFixed(3)+")");
+    grd.addColorStop(1.00,"rgba(150,225,245,0)");
+    ctx.save(); ctx.fillStyle=grd;
+    ctx.beginPath(); ctx.arc(0,-H*0.45,hr,0,6.283); ctx.fill();
+    ctx.restore();
+  }
+
+  // the team colour, kept to a panel down the middle of the grey cloth
+  ctx.fillStyle = pl.col;
+  ctx.beginPath();
+  ctx.moveTo(-tw*0.36, shld+H*0.02); ctx.lineTo( tw*0.36, shld+H*0.02);
+  ctx.lineTo( tw*0.42, hip+H*0.05);  ctx.lineTo(-tw*0.42, hip+H*0.05);
+  ctx.closePath(); ctx.fill();
+
+  const S = (a,b,c,d,e)=>moonShard(a,b,c,d,e,g);
+  switch((u.moonLook||0) % MOONLOOKS){
+    case 0:   // one shoulder, growing outward
+      S(tw*0.95,shld+1.0,7.5,2.0,0.30); S(tw*1.30,shld+2.6,5.0,1.5,0.45);
+      S(-tw*0.90,shld+1.6,4.0,1.3,-0.32); break;
+    case 1:   // both shoulders
+      S(-tw*1.35,shld+2.0,6.5,1.9,-0.42); S(tw*1.35,shld+2.4,6.0,1.8,0.42);
+      S(-tw*1.5,hip-1,3.4,1.2,-0.45); S(tw*1.5,hip-1,3.2,1.1,0.45); break;
+    case 2:   // a crown over the head
+      for(let i=0;i<5;i++){ const a=-2.5+i*0.62;
+        S(Math.cos(a)*H*0.20, head-H*0.10+Math.sin(a)*H*0.05, 4.6+((i%2)*1.8),1.4,Math.cos(a)*0.5); }
+      S(0,shld+H*0.16,5.0,1.8,0.05); break;
+    case 3:   // encrusted all over
+      S(tw*1.0,shld+1,6.0,1.8,0.28);  S(-tw*1.0,shld+2,4.4,1.4,-0.30);
+      S(tw*1.3,hip-2,3.6,1.2,0.40);   S(-tw*1.2,hip-1,3.2,1.1,-0.40);
+      S(tw*0.2,shld+H*0.20,4.0,1.4,0.05); S(-tw*0.5,head-H*0.06,3.4,1.1,-0.20); break;
+    case 4:   // a burst across the chest
+      for(let i=0;i<5;i++){ const a=-2.2+i*0.55;
+        S(Math.cos(a)*tw*0.7, shld+H*0.15+Math.sin(a)*1.4, 3.4+((i%2)*2.2), 1.3, Math.cos(a)*0.42); }
+      break;
+    case 5:   // bracers along both forearms
+      S(-tw*1.55,hip+H*0.02,5.2,1.6,-0.52); S(-tw*1.25,hip-H*0.02,3.4,1.2,-0.40);
+      S( tw*1.55,hip+H*0.02,5.0,1.6, 0.52); S( tw*1.25,hip-H*0.02,3.2,1.2, 0.40);
+      S( tw*0.55,head-H*0.02,2.8,1.0, 0.22); break;
+    default:  // one great spire, and nothing else
+      S(tw*0.75, shld+0.5, 13.0, 2.9, 0.16); S(tw*1.20, shld+3.0, 4.2, 1.3, 0.38); break;
+  }
+}
 /* ---------- a little person ----------
    Chunky proportions in the spirit of The Settlers: a big round head, a short
    stocky body, rounded limbs with visible hands and boots. Reads clearly even
@@ -12955,7 +13572,7 @@ function drawPerson(u, pl, yOff){
   const r = u.r;
   const H = r*2.35;
   const skin = SKINS[u.skin % SKINS.length];
-  const isVill = u.type==="villager";
+  const isVill = u.type==="villager" || u.type==="moonvillager";
   const look = isVill ? VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length] : null;
   // villagers all wear the same cloth so a crowd reads as one people -
   // only faces, hair and small trims vary between them
@@ -15575,6 +16192,32 @@ function drawBeast(b){
 
 /* A child, a cat or a dog on the doorstep. Small, and drawn small - they
    should read as a detail you notice, not as another unit on the board. */
+/* A moonstone child: the ordinary child, then a little crystal on top and a
+   faint glow, scaled right down - they are half the size of a grown one, so
+   the shards have to be too or they read as a walking boulder. */
+function drawMoonKid(o){
+  const g = Math.max(moonGlowNow(), 0.06);
+  const dk = G.dark || 0;
+  ctx.save();
+  ctx.translate(o.x, o.y);
+  if(dk > 0.15){
+    const grd = ctx.createRadialGradient(0,-5,1.5, 0,-5,9);
+    const a = 0.26*dk;
+    grd.addColorStop(0,"rgba(150,225,245,"+(a*0.8).toFixed(3)+")");
+    grd.addColorStop(1,"rgba(150,225,245,0)");
+    ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(0,-5,9,0,6.283); ctx.fill();
+  }
+  switch((o.moonLook||0) % 3){
+    case 0: moonShard( 1.8,-6.0, 3.6, 1.1, 0.28, g);
+            moonShard(-1.6,-5.4, 2.4, 0.9,-0.30, g); break;
+    case 1: for(let i=0;i<3;i++){ const a=-1.9+i*0.95;
+              moonShard(Math.cos(a)*1.9, -8.4+Math.sin(a)*0.8, 2.6, 0.8, Math.cos(a)*0.45, g); }
+            break;
+    default: moonShard(2.1,-5.2, 4.4, 1.2, 0.20, g); break;
+  }
+  ctx.restore();
+}
+
 function drawHomeLife(o){
   // the ball belongs to the child, and is drawn in world space whether it
   // is in the air, on the grass, or in the animal's mouth
@@ -17445,8 +18088,8 @@ function foundVillage(){
    measured 6 of 6. Kept a little commoner than the pure sightings above
    because this one has a job (it walks you to a moonstone vein) rather than
    only being a thing to look at, but "sometimes walks through by moonlight"
-   should not mean nightly. 0.10 over 4 turns ≈ 1 match in 3. */
-const MOONDOG_CHANCE = 0.10;
+   should not mean nightly. 0.07 over 4 turns ≈ 1 match in 4. */
+const MOONDOG_CHANCE = 0.07;
 
 /* The roll happens at the season turn, but the dog only exists at night (see
    the end of updateMoonlitDog) - and a season usually turns in daylight, so
@@ -17592,8 +18235,10 @@ function updateMilkyWay(dt){
     : G.milkyWayCd - dt;
   if(G.milkyWayCd <= 0){
     G.milkyWayCd = MILKYWAY_CHANCE_WINDOW[0]+Math.random()*MILKYWAY_CHANCE_WINDOW[1];
-    // left alone deliberately: ~5 rolls of this window fit in a match's clear
-    // night, so 0.05 already lands about 1 match in 5. Measured, not assumed.
+    // 3.0 rolls a match measured, so 0.05 is about 1 match in 7. Left at the
+    // quiet end of the band on purpose - this one is ambient wallpaper across
+    // the whole sky rather than an event, and a band of stars you see every
+    // other match stops reading as a clear-night treat.
     if(Math.random() < 0.05) G.milkyWay = { t:0, life: MILKYWAY_LIFE+Math.random()*20, seed:Math.random()*99 };
   }
 }
@@ -17666,8 +18311,10 @@ function updateMoonDragon(dt){
     : G.moonDragonCd - dt;
   if(G.moonDragonCd <= 0){
     G.moonDragonCd = MOONDRAGON_CHANCE_WINDOW[0]+Math.random()*MOONDRAGON_CHANCE_WINDOW[1];
-    // ~2.2 rolls of this window fit in a match's clear night, so 0.10 ≈ 1 in 5
-    if(Math.random() < 0.10){
+    // Measured, not estimated: 1.63 of these rolls actually come up in a
+    // match (a first-run cooldown eats the opening window, and night comes
+    // in ~24s pieces), so 0.13 lands it at about 1 match in 5.
+    if(Math.random() < 0.13){
       const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
       if(town){
         const a = Math.random()*6.283;
@@ -18225,6 +18872,99 @@ function restVillager(u){
   u.order = "home"; u.target = home; u.path = null;
   hint((u.nightName||"They")+" finally head home to rest.");
   refreshUI();
+}
+
+/* ---------- the night shift ----------
+   The exact mirror of sendHome/wakeUp: moonstone villagers rise at dusk as
+   the ordinary villagers are going to bed, and turn in at dawn as they get
+   up. Two shifts, handing over cleanly.
+
+   Their beds are the Manor and, later, the cottages. If every one of those
+   has been destroyed they simply stay out - being homeless should not
+   delete them, and the user's call was that overflow is fine. The "home"
+   order in updateUnit is not type-filtered, so setting it here gets them
+   walking and indoors with no new movement code. (moonstone manor) */
+function moonHomeFor(u){
+  let best=null, bd=1e9;
+  for(const b of G.bldgs){
+    if(b.p!==u.p || !b.done) continue;
+    if(!BLDG[b.type].manor && !BLDG[b.type].moonstone) continue;
+    const d = Math.hypot(b.x-u.x, b.y-u.y);
+    if(d < bd){ bd=d; best=b; }
+  }
+  return best;
+}
+
+function moonfolkRise(){
+  for(const u of G.units){
+    if(u.type!=="moonvillager" || u.hp<=0) continue;
+    if(!u.indoors) continue;
+    const h = u.home || moonHomeFor(u);
+    if(h){
+      u.x = h.x + (Math.random()-0.5)*14;
+      u.y = h.y + h.h*TILE/2 + u.r + 3;
+      let guard=0;
+      while(blocked(u.x,u.y,null,false) && guard++<20){
+        const a=Math.random()*6.283, d=h.h*TILE/2 + 10 + guard*3;
+        u.x = h.x + Math.cos(a)*d; u.y = h.y + Math.sin(a)*d;
+      }
+    }
+    u.indoors = false;
+    u.rested = RESTED_TIME;
+    // whatever they were on before dawn
+    u.order = u.nightOrder || null;
+    u.target = u.nightTarget || null;
+    u.workplace = u.nightWork || null;
+    u.nightOrder = u.nightTarget = u.nightWork = null;
+    u.path = null;
+  }
+}
+
+/* The daylight toll. Ticked every frame rather than settled once at dusk,
+   because the thing being measured is hours spent awake in the sun, and a
+   player can put them back to bed at any point. `sunT` is the tally in
+   seconds; `SEASON_LEN` is one season, so a full grace period is a real
+   stretch of a match, not a token. */
+function updateSunSickness(dt){
+  const daylight = (G.dark||0) < 0.35;
+  for(const u of G.units){
+    if(u.type!=="moonvillager" || u.hp<=0) continue;
+    if(u.indoors){
+      // a proper night's sleep wipes the slate - that is the whole bargain
+      if(!daylight){ u.sunT = 0; u.sunWarned = false; }
+      continue;
+    }
+    if(!daylight) continue;
+    u.sunT = (u.sunT||0) + dt;
+    const grace = SEASON_LEN * SUNSICK_GRACE;
+    if(u.sunT <= grace) continue;
+    if(u.p===P_YOU && !u.sunWarned){
+      u.sunWarned = true;
+      hint("A moonstone villager has been too long in the sun. Let them sleep, or it will cost them.");
+    }
+    // SUNSICK_LOSS of their maximum health across one whole day
+    u.hp -= u.maxhp * SUNSICK_LOSS * (dt / DAY_LEN);
+    if(u.hp <= 0){
+      u.hp = 0;
+      if(u.p===P_YOU) hint("A moonstone villager has burned away in the daylight.");
+    }
+  }
+}
+
+function moonfolkTurnIn(){
+  // the Manor's bell outranks daybreak, the same way the town bell outranks
+  // bedtime - that is the whole point of having rung it
+  if(G.moonBell && G.moonBell[P_YOU]) return;
+  for(const u of G.units){
+    if(u.type!=="moonvillager" || u.hp<=0 || u.indoors) continue;
+    if(u.awakeByDay) continue;         // deliberately kept working - see the day-work toll
+    const h = moonHomeFor(u);
+    if(!h) continue;                   // nowhere to sleep: they stay out
+    u.nightOrder = u.order; u.nightTarget = u.target; u.nightWork = u.workplace;
+    u.home = h;
+    u.workplace = null;
+    u.order = "home"; u.target = h; u.path = null;
+  }
 }
 
 function wakeUp(){
@@ -19462,6 +20202,9 @@ function refreshUI(){
 
   const ownUnits = own.filter(e=>e.kind==="unit");
   const vills = ownUnits.filter(u=>u.type==="villager");
+  // the night shift: their own workforce, with their own build menu
+  const moonvills = ownUnits.filter(u=>u.type==="moonvillager");
+  const workers = vills.concat(moonvills);
   const fishers = ownUnits.filter(u=>UNITS[u.type] && UNITS[u.type].fisher);
   const druids = ownUnits.filter(u=>u.type==="druid");
   const military = ownUnits.filter(u=>u.cls && u.cls!=="civ");
@@ -19492,7 +20235,7 @@ function refreshUI(){
   }
 
   // ---------- build sub-menu ----------
-  if(G.uiMode==="build" && vills.length){
+  if(G.uiMode==="build" && workers.length){
     addBtn("← Back", "cancel", true, ()=>{ G.uiMode="main"; G.placing=null; refreshUI(); });
     // The seasonal farm is not in BUILD_ORDER on purpose - it is not a thing
     // you can choose to build, it is a thing one particular villager can do
@@ -19517,6 +20260,20 @@ function refreshUI(){
     for(const t of BUILD_ORDER){
       const d=BLDG[t];
       const locked = pl.age < d.age;
+      /* Progressive disclosure for the night town. The Manor is the one
+         thing shown before it can be built - named, greyed, with what it
+         needs - so there is a goal to work toward. Everything it unlocks
+         stays out of the list entirely until it is standing, and is then
+         reached through the Manor itself rather than from here. The player
+         is meant to find the rest as they go. */
+        // the two workforces never see each other's buildings
+      if(!!d.moonstone !== !!G.buildMoon) continue;
+      if(d.moonstone && !hasManor(P_YOU)) continue;
+      if(d.manor && locked){
+        addBtn(d.name, "Needs the "+AGES[d.age]+" · "+costStr(d.cost), false, null,
+               BLDG_ABOUT[t] || ("Unlocks in the "+AGES[d.age]));
+        continue;
+      }
       if(locked){
         // don't reveal what it is until the age is reached
         addBtn("? ? ?", "Unlocks in the "+AGES[d.age], false, null,
@@ -19535,8 +20292,8 @@ function refreshUI(){
       G.action = (G.action===id ? null : id);
       G.placing = null;
       if(G.action) hint(
-        id==="gather" ? (vills.length ? "Tap a tree, bush, rock or gold."
-                                      : "Tap a shoal of fish.") :
+        id==="gather" ? (workers.length ? "Tap a tree, bush, rock or gold."
+                                        : "Tap a shoal of fish.") :
         id==="attack" ? "Tap an enemy unit or building." :
         id==="follow" ? "Tap a villager, one of your military, or the elder to follow." :
         id==="garrison" ? "Tap your barracks (soldiers), archery range (archers), or a boat to board it." :
@@ -19545,8 +20302,8 @@ function refreshUI(){
     }, null, G.action===id);
 
     // a fishing boat gathers too - it just works shoals instead of bushes
-    if(vills.length || fishers.length)
-      act("gather","Gather", vills.length ? "tap a resource" : "tap a shoal");
+    if(workers.length || fishers.length)
+      act("gather","Gather", workers.length ? "tap a resource" : "tap a shoal");
     act("move","Move","tap the ground");
     // no point offering an attack to something that cannot throw a punch -
     // a fishing boat has atk 0, and arming the order just left you tapping
@@ -19618,8 +20375,16 @@ function refreshUI(){
       });
     }
 
-    if(vills.length){
-      addBtn("Build", "put up a building", true, ()=>{ G.uiMode="build"; G.action=null; refreshUI(); });
+    /* Both workforces build - but not the same things. A selection of
+       moonstone villagers opens a menu of moonstone buildings; ordinary
+       villagers get the ordinary list. Mixing the two selects nothing
+       useful, so the moonstone menu only opens when the selection is
+       entirely theirs. (moonstone manor) */
+    if(workers.length){
+      addBtn("Build", "put up a building", true, ()=>{
+        G.buildMoon = (moonvills.length>0 && vills.length===0);
+        G.uiMode="build"; G.action=null; refreshUI();
+      });
       const sites = G.bldgs.filter(b=>b.p===P_YOU && (!b.done || b.hp<b.maxhp)).length;
       if(sites){
         addBtn("Assist", "build or repair", true, ()=>{
@@ -19646,8 +20411,12 @@ function refreshUI(){
       });
     }
 
-    const allVillagers = ownUnits.length>0 && ownUnits.every(u=>u.type==="villager");
-    if(!allVillagers){
+    /* Villagers can be grouped too. This used to be gated off entirely -
+       a selection of nothing but villagers simply never got the button - so
+       there was no way to keep a mining crew or a building crew on a number
+       the way you can with soldiers. They are the units you re-select most
+       often, so they wanted it most. */
+    {
       const groupedSel = ownUnits.filter(u=>u.group!==undefined);
       if(groupedSel.length){
         addBtn("Ungroup", groupedSel.length>1 ? "leave their groups" : "leave group "+groupedSel[0].group,
@@ -19754,6 +20523,13 @@ function refreshUI(){
              ringing?"back to work":"villagers come in", true,
              ()=>toggleBell(b), null, ringing);
     }
+    // and the Manor's own, for its own people
+    if(BLDG[b.type].manor && b.done){
+      const mRinging = G.moonBell && G.moonBell[P_YOU];
+      addBtn(mRinging?"Bell: resume":"Bell: shelter",
+             mRinging?"back to work":"moonstone folk come in", true,
+             ()=>toggleBell(b, true), null, mRinging);
+    }
     const garr = (b.type==="barracks"||b.type==="range"||b.type==="fortress") ? (b.garrison||[]) : null;
     if(garr && garr.length){
       // occupied - this is what you get instead of the training menu
@@ -19767,8 +20543,24 @@ function refreshUI(){
         });
       });
     } else if(d.trains){
+      /* The Manor has two faces. After dark it is where moonstone villagers
+         are made; by day the crystal is worked into your other buildings
+         instead. So the training list simply is not there in daylight - the
+         user's own idea, and better than one menu with half of it greyed. */
+      if(d.manor && (G.dark||0) < 0.35){
+        addBtn("Nothing to make by day", "come back after dark", false, null,
+               "The Manor works crystal into your buildings by day, and makes moonstone villagers by night.");
+      } else
       for(const t of d.trains){
         const ud=UNITS[t];
+        if(ud.moonfolk){
+          const have=moonPop(b.p), cap=moonCap(b.p);
+          const full = have + b.queue.filter(q=>UNITS[q].moonfolk).length >= cap;
+          addBtn(ud.name, full ? "no room — build a cottage" : costStr(ud.cost)+"  ·  "+have+"/"+cap,
+                 !full && canAfford(pl,ud.cost), ()=>{ tryTrain(b,t); refreshUI(); },
+                 "They work nights, and sleep in the Manor and its cottages. "+have+" of "+cap+" housed.");
+          continue;
+        }
         if(pl.age < ud.age){
           addBtn("? ? ?", "Unlocks in the "+AGES[ud.age], false, null,
                  "Unlocks in the "+AGES[ud.age]);
