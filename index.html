@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Cosy Empires — RTS</title>
 <style>
   :root{
@@ -18,6 +18,14 @@
     --slate:#5b7189;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  /* touch-action is NOT inherited, so html/body's `none` never reached the
+     buttons - they were still getting iOS's double-tap-zoom and long-press
+     handling. `manipulation` keeps the tap and drops the rest; the callout
+     rule stops a held button raising the system menu. */
+  button, .gbtn, .btn, .alm-block{
+    touch-action:manipulation;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none; user-select:none;}
   html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#12100e;
     font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;color:var(--parch);
     user-select:none;-webkit-user-select:none;touch-action:none;}
@@ -69,9 +77,16 @@
   #menupanel .mapbtn.on::before{background:var(--gold);border-color:var(--gold);}
 
   /* ---------- bottom command panel ---------- */
+  /* The bottom strip of an iPad screen belongs to the system: it is where the
+     home-indicator swipe lives, and on a Home-button iPad it is right against
+     the button itself. A control row sitting in it gets the system's gesture
+     first and the game's second, which is how tapping the group numbers was
+     setting Siri off. max() keeps the desktop layout as it was while lifting
+     the row clear on any device that reports an inset. */
   #cmdbar{position:absolute;left:0;right:0;bottom:0;z-index:10;
     background:linear-gradient(180deg,#1b1713 0%,#241f1a 100%);border-top:1px solid var(--line);
-    display:flex;flex-direction:column;gap:5px;padding:5px 8px 6px;}
+    display:flex;flex-direction:column;gap:5px;
+    padding:5px 8px max(12px, env(safe-area-inset-bottom));}
   #cmdrow{display:flex;gap:8px;align-items:stretch;position:relative;height:84px;}
   /* the almanac replaces selinfo+btns entirely when nothing is selected -
      using the whole width instead of squeezing into the narrow stats column */
@@ -314,6 +329,44 @@
   .ghost{background:none;border:1px solid var(--line);color:var(--parch-dim);
     border-radius:3px;padding:11px 18px;font-size:13px;cursor:pointer;margin-left:8px;}
 
+  /* ---- the start menu ----
+     One .mpage visible at a time inside the same card, so moving between the
+     menu and the instructions does not resize or re-centre the card under
+     the reader. .mback goes back to the root page. */
+  .mpage.hide{display:none;}
+  .mlist{display:flex;flex-direction:column;gap:7px;margin:16px 0 4px;}
+  .mrow{display:block;width:100%;text-align:left;background:none;
+    border:1px solid var(--line);border-radius:3px;color:var(--parch);
+    font-family:inherit;font-size:14px;padding:12px 14px;cursor:pointer;
+    letter-spacing:.2px;}
+  .mrow:hover{background:#3d332a;border-color:#5a4c3d;}
+  /* The primary action keeps the solid gold treatment the Begin button had.
+     Both classes named on purpose: .mrow sets background:none and is the
+     later rule, so a bare .go here loses and the dark label goes invisible
+     against the dark card. */
+  .mrow.go{background:var(--gold);color:#221b10;border-color:var(--gold);}
+  .mrow.go:hover{background:#eab654;border-color:#eab654;}
+  /* a disabled row is still shown, not removed: an entry that appears from
+     nowhere once a save exists is harder to find than one that was always
+     there and greyed */
+  .mrow[disabled]{opacity:.42;cursor:default;}
+  .mrow[disabled]:hover{background:none;border-color:var(--line);}
+  .mrow .msub{display:block;font-size:11px;color:var(--parch-dim);
+    margin-top:3px;line-height:1.4;letter-spacing:0;font-weight:normal;}
+  .mrow.go .msub{color:#5c4a24;}
+  .mrow.diffbtn.on{border-color:var(--gold);color:var(--gold);}
+  .mrow.diffbtn.on .msub{color:#b9954f;}
+  .mfoot{font-size:12px;color:#9a8f7a;margin:16px 0 0 !important;line-height:1.6;}
+  .mwarn{font-size:11.5px;line-height:1.5;color:#c9a86a;background:rgba(217,164,65,.09);
+    border-left:2px solid var(--gold);border-radius:2px;padding:9px 11px;margin:12px 0 0;}
+  .mwarn.hide{display:none;}
+  .mpage .mback{margin:18px 0 0;display:inline-block;}
+  .mpage .mstart{margin:18px 0 0;display:inline-block;}
+  .mpage .mstart.hide,.mpage .mback.hide{display:none;}
+  /* the patch notes are a page of their own now, so its own top rule and the
+     heading it used to need would just be doubled up */
+  .mpage .patch{border-top:none;margin-top:0;padding-top:0;}
+
   @media (max-width:640px){
     #selinfo{width:104px;padding-right:8px;}
     #selname{font-size:13px;}
@@ -383,12 +436,12 @@
   <button class="diffbtn" data-diff="hard">Hard</button>
   <div class="mnu_note" id="mnu_difftip"></div>
   <div class="mnu_sep"></div>
-  <div class="mnu_head">Islands (in progress)</div>
-  <button class="mapbtn" data-map="Two isles" data-diff="easy">Islands &middot; Easy</button>
-  <button class="mapbtn" data-map="Two isles" data-diff="medium">Islands &middot; Medium</button>
-  <button class="mapbtn" data-map="Four isles" data-diff="medium">Four Isles &middot; Medium</button>
-  <div class="mnu_note">Both sides must build a dock and ship an army across.</div>
-  <div class="mnu_sep"></div>
+  <!-- The island deals are hidden until the naval work is finished - wooded
+       coasts can still leave a seed with no dock plot, and easy cannot finish
+       an island match at all. The map types themselves are untouched: setting
+       FORCED_MAP still deals one, which is how the tests reach them. Put the
+       buttons back when that lands. -->
+  <button id="mnu_save">Save village</button>
   <button id="mnu_restart">Restart game</button>
   <button id="mnu_close">Close</button>
 </div>
@@ -484,20 +537,62 @@
     <button class="cardx" id="btnclose" title="Close">&times;</button>
     <div class="kicker">A Real-Time Strategy</div>
     <h1>Cosy Empires</h1>
-    <p>You are running a village. Feed it, build it up, and see it safely through
-       the night. A match runs about <b>10–15 minutes</b>.</p>
 
-    <div class="sec">Keeping the village fed and stocked</div>
-    <ul>
+    <!-- The start screen is a menu now, and everything that used to be on it
+         - the instructions, the patch notes - is a page within that menu.
+         Only one .mpage is ever visible; openMenuPage() does the swapping. -->
+    <div class="mpage" id="mp_root">
+      <p>You are running a village. Feed it, build it up, and see it safely through
+       the night. A match runs about <b>10–15 minutes</b>.</p>
+      <div class="mlist">
+        <button class="mrow go" id="mm_new">New game</button>
+        <button class="mrow" id="mm_load">Continue saved village
+          <span class="msub" id="mm_loadsub">No village saved yet</span></button>
+        <button class="mrow" id="mm_how">How to play</button>
+        <button class="mrow" id="mm_settings">Settings</button>
+        <button class="mrow" id="mm_patch">Patch notes</button>
+      </div>
+      <p class="mfoot">
+        You lead the <b style="color:#d9a441">Sunfolk</b> against the <b style="color:#a98fd0">Ashkin</b>.<br>
+        Difficulty: <b id="startdiff" style="color:#d9a441">Medium</b><br>
+        <span id="startlayout" style="color:#b9ae95"></span></p>
+      <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 10 August 2026</p>
+    </div>
+
+    <div class="mpage hide" id="mp_new">
+      <div class="sec">Choose your match</div>
+      <div class="mlist">
+        <!-- .diffbtn so they light up with the current setting like the ones
+             in the ☰ menu do; .mdiff so they deal the match and then show the
+             instructions rather than dropping straight into play -->
+        <button class="mrow diffbtn mdiff" data-diff="peaceful">Peaceful
+          <span class="msub">Build a town uninterrupted. Nobody comes for you.</span></button>
+        <button class="mrow diffbtn mdiff" data-diff="easy">Easy
+          <span class="msub">A slight challenge, and time to think.</span></button>
+        <button class="mrow diffbtn mdiff" data-diff="medium">Medium
+          <span class="msub">A real one. The Ashkin play their own economy.</span></button>
+        <button class="mrow diffbtn mdiff" data-diff="hard">Hard
+          <span class="msub">If you want to be hunted.</span></button>
+      </div>
+      <!-- shown only when there is a village to lose: with one slot, the
+           new game's first dawn writes over it -->
+      <div class="mwarn hide" id="mm_overwrite">You have a saved village. Starting a
+        new game will write over it at the next dawn.</div>
+      <button class="ghost mback">Back</button>
+    </div>
+
+    <div class="mpage hide" id="mp_how">
+      <div class="sec">Keeping the village fed and stocked</div>
+      <ul>
       <li><b>Food</b> — send villagers to the berry bushes, then build a <b>Farm</b> so it keeps coming</li>
       <li><b>Wood</b> — chop the trees, and build a <b>Lumber Camp</b> to keep a crew at it</li>
       <li><b>Stone and gold</b> — build a <b>Mine</b> on the rocks and the gold seams</li>
       <li>Whoever builds a Farm, Lumber Camp or Mine <b>stays on as its crew</b> — three each</li>
       <li><b>Knowledge</b> accrues on its own — <b>Elder's Lodges</b> speed it up, and it is what buys your next age</li>
-    </ul>
+      </ul>
 
-    <div class="sec">Giving orders</div>
-    <ul>
+      <div class="sec">Giving orders</div>
+      <ul>
       <li><b>Tap</b> a unit to select it · <b>press and hold</b> a moment, then drag, to box-select</li>
       <li>With units selected, tap <b>Gather</b>, <b>Build</b>, <b>Attack</b> or <b>Move</b> in the bar below, <b>then tap the target</b></li>
       <li><b>Groups</b> — select some units, tap <b>Join group</b>, then tap a number <b>1–10</b> along the bottom.
@@ -508,29 +603,69 @@
           and <b>two nights running will kill them</b>, so send them to rest after one.</li>
       <li><b>Drag</b> to pan · <b>pinch or scroll</b> to zoom · <b>Apple Pencil</b> drags a selection box directly.
           On a computer: <b>↑ / ↓</b> zoom, <b>WASD</b> or <b>← / →</b> pan, <b>.</b> jumps to an idle villager</li>
-    </ul>
+      </ul>
 
-    <div class="sec">Picking your match</div>
-    <ul>
+      <div class="sec">Picking your match</div>
+      <ul>
       <li>The <b>☰ menu, top left</b>, changes difficulty at any time — it starts a fresh map</li>
       <li><b>Peaceful</b> to build a town uninterrupted · <b>Easy</b> for a slight challenge ·
           <b>Medium</b> for a real one · <b>Hard</b> if you want to be hunted</li>
-      <li>The <b>island deals</b> in that menu are still a work in progress</li>
+      <li>Your village <b>saves itself at each dawn</b>, and the ☰ menu has a
+          <b>Save</b> of its own. There is one village at a time, and
+          <b>Continue</b> on the start menu picks it back up</li>
       <li>Win by <b>destroying every enemy building</b></li>
-    </ul>
+      </ul>
 
-    <p style="font-size:12px;color:#9a8f7a;margin:0 0 14px">
-      You lead the <b style="color:#d9a441">Sunfolk</b> against the <b style="color:#a98fd0">Ashkin</b>.<br>Difficulty: <b id="startdiff" style="color:#d9a441">Medium</b><br><span id="startlayout" style="color:#b9ae95"></span></p>
-    <button class="go" id="btnstart">Begin</button>
-    <!-- the build date, so it is obvious at a glance which copy this is -->
+      <!-- This page is both the reference you can open from the menu and the
+           last thing before a new match starts, so it carries both endings:
+           Begin when a game has just been dealt, Back when it has not. -->
+      <button class="go mstart hide" id="mm_begin">Begin</button>
+      <button class="ghost mback" id="mm_howback">Back</button>
+    </div>
 
-    <div class="patch">
+    <div class="mpage hide" id="mp_set">
+      <div class="sec">Settings</div>
+      <p>Difficulty is set when you start a game, and can be changed at any time
+         from the <b>&#9776; menu</b>, top left &mdash; it starts a fresh map.</p>
+      <div class="mlist">
+        <button class="mrow" id="mm_delsave">Delete saved village
+          <span class="msub" id="mm_delsub">Nothing saved</span></button>
+      </div>
+      <p class="mfoot">Sound and a few other things will live here once they exist.</p>
+      <button class="ghost mback">Back</button>
+    </div>
+
+    <div class="mpage hide" id="mp_patch">
+      <div class="patch">
       <div class="sec">Patch notes</div>
       <!-- One <details> per patch rather than one long list. They are
            independent, so opening one does not shut the others: someone who
            wants the lot can have the lot. Deliberately native <details> and
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
+      <details class="pn">
+        <summary>Patch 21.1</summary>
+        <ul>
+          <li>Your village keeps itself now. It <b>saves at every dawn</b>, and the &#9776; menu has a <b>Save</b> of its own for putting it down mid-afternoon</li>
+          <li><b>Continue</b> on the start menu picks it back up &mdash; the same morning, the same people, the same ground you had walked</li>
+          <li>There is <b>one village at a time</b>. Starting a new game says so before it takes the old one</li>
+          <li>The start screen is a <b>menu</b>: new game, continue, how to play, settings, and these notes</li>
+          <li>Choosing a difficulty deals the match and shows you how to play before it starts &mdash; nothing moves until you say <b>Begin</b></li>
+          <li>Settings can delete a saved village. There will be more in there before long</li>
+          <li>The island deals are away for the moment while the boats are finished</li>
+        </ul>
+        <div class="sec" style="margin-top:12px">And out of the window</div>
+        <ul>
+          <li>Flocks <b>lean with the wind</b> now &mdash; the same wind the chimney smoke and the grass have always leaned with</li>
+          <li>When the weather really gets up, <b>the sky empties</b>. Birds make for the nearest edge, the gulls stop coming, and the ridges clear until it eases</li>
+          <li>Twice a year a <b>long skein crosses the whole map</b> &mdash; away south as the leaves turn, back again in spring</li>
+          <li><b>The day has a round to it.</b> Small things keep to the half-light at either end, deer come out into the open in the afternoon, and the big ones move at night</li>
+          <li>Something dry and brittle blows through on a windy summer or autumn afternoon</li>
+          <li><b>Frogs</b> sit at the water's edge and hop, mostly nowhere. Walk up to one and it is gone</li>
+          <li>Every so often <b>somebody's sheep gets out</b> and ambles across your valley</li>
+          <li>The rain in a downpour falls a little slower, so it reads as rain rather than static</li>
+        </ul>
+      </details>
       <details class="pn">
         <summary>Patch 20.9</summary>
         <ul>
@@ -542,6 +677,16 @@
           <li>Daylight does not suit them. You can work them through it, but not for ever</li>
           <li>Give them somewhere of their own to live and there will be more of them &mdash; and little ones out after dark</li>
           <li>Villagers can finally be put in a numbered group, with a tool of their own on the button</li>
+          <li>A night in their own bed mends anyone a little &mdash; whichever hours they keep</li>
+          <li>Longer messages now stay up long enough to actually be read</li>
+          <li>Fewer folk drifting out of doors, and the whales move on after a day or two</li>
+          <li>Moonstone comes up in three separate places around your village, and not every night &mdash; a night it does is worth staying up for</li>
+          <li>Fixed: dogs and children wandering out into the water</li>
+          <li>Fixed: the bottom row of buttons sitting too close to the edge on an iPad</li>
+          <li>Buildings can be worked through with crystal, once you have somewhere to work it &mdash; faster at whatever they do, and a light of their own after dark</li>
+          <li>Every kind of building takes the crystal differently: a seam through a field, a spine up a watchtower, a crown on the round roofs, spikes along a barracks</li>
+          <li>After dark a worked building is traced by the faintest blue line, and the crystal breathes very slowly &mdash; you will only catch it if you stop and watch one</li>
+          <li>The Ashkin get all of this too, if they ever get round to it. Moonstone is an indulgence, not their first thought</li>
         </ul>
       </details>
 
@@ -587,9 +732,9 @@
           <li>The Ashkin can cross to your island properly and attack together</li>
         </ul>
       </details>
+      </div>
+      <button class="ghost mback">Back</button>
     </div>
-
-    <p style="font-size:11px;color:#6f6753;margin:12px 0 0;letter-spacing:.4px">Build 10 August 2026</p>
   </div>
 </div>
 
@@ -666,6 +811,18 @@ function seededRandom(){
   t = (t + _rngD) | 0;
   _rngC = (_rngC + t) | 0;
   return (t >>> 0) / 4294967296;
+}
+
+/* The four words above ARE the stream's position, not just its seed. A save
+   that restored only the seed would rewind every future roll to the start of
+   the match, so a loaded game would re-deal the same weather and the same
+   night events it had already had. */
+function rngState(){ return [_rngA>>>0, _rngB>>>0, _rngC>>>0, _rngD>>>0]; }
+function setRngState(s){
+  if(!s || s.length !== 4) return false;
+  _rngA = s[0]>>>0; _rngB = s[1]>>>0; _rngC = s[2]>>>0; _rngD = s[3]>>>0;
+  if((_rngA|_rngB|_rngC|_rngD) === 0) _rngD = 1;   // never the all-zero state
+  return true;
 }
 
 setSeed((Date.now() ^ (Math.random()*4294967296)) >>> 0);
@@ -1255,9 +1412,12 @@ function updateHomeLife(dt){
     // A good deal rarer than it was (9-18s at 70%, up to six at once): a
     // doorstep with somebody on it every few seconds is wallpaper, and the
     // whole point of these is that noticing one is a small pleasure.
-    G.homeLifeCd = 20 + Math.random()*26;
+    // Halved again on the user's eye: somebody on a doorstep every half a
+    // minute is wallpaper, and the whole point of these is that noticing one
+    // is a small pleasure. Was 20-46s at 55%.
+    G.homeLifeCd = 46 + Math.random()*58;
     const houses = G.bldgs.filter(b=>b.p===P_YOU && b.type==="house" && b.done);
-    if(houses.length && G.homeLife.length < HOME_LIFE_MAX && Math.random() < 0.55){
+    if(houses.length && G.homeLife.length < HOME_LIFE_MAX && Math.random() < 0.42){
       const h = houses[(Math.random()*houses.length)|0];
       if(!G.homeLife.some(o=>o.home===h)){        // one household at a time
         const fam = homeFamily(h);
@@ -1466,7 +1626,20 @@ function updateHomeLife(dt){
     const dx = o.tx-o.x, dy = o.ty-o.y, d = Math.hypot(dx,dy);
     if(d > 2){
       const step = Math.min(d, spd*dt);
-      o.x += dx/d*step; o.y += dy/d*step;
+      const nxs = o.x + dx/d*step, nys = o.y + dy/d*step;
+      /* Every TARGET these use is already checked against blocked() - but
+         nothing checked the straight line BETWEEN them, so a dog fetching a
+         ball across a corner of a lake simply waded through it, which is how
+         one ended up standing in open water. Only entering is refused: one
+         that somehow starts in the water is still allowed to walk out of it,
+         or it would be stuck there for good. */
+      if(isWater(nxs, nys) && !isWater(o.x, o.y)){
+        o.tx = o.home.x; o.ty = o.home.y + o.home.h*TILE/2 + 6;
+        o.wait = 0.3;
+        o.moving = false;
+        continue;
+      }
+      o.x = nxs; o.y = nys;
       o.walk = (o.walk||0) + step*0.16;
       if(Math.abs(dx) > 0.4) o.face = dx<0 ? -1 : 1;
       o.moving = true;
@@ -2212,8 +2385,8 @@ function beastsFlee(){
    notice, not a regular feature of the map. The one exception is the rare
    bat swarm (see trySpawnBatSwarm) - several bats at once, each still just
    its own independent passer-by rather than a coordinated group. */
-const WANDER_CHANCE = { bat:0.16, penguin:0.10, cat:0.05 };
-const WANDER_SPD    = { bat:[95,130], penguin:[20,27], cat:[26,34] };
+const WANDER_CHANCE = { bat:0.16, penguin:0.10, cat:0.05, sheep:0.09 };
+const WANDER_SPD    = { bat:[95,130], penguin:[20,27], cat:[26,34], sheep:[15,21] };
 
 function trySpawnWanderer(kind, force){
   if(!G.wanderers) G.wanderers = [];
@@ -3003,18 +3176,36 @@ function tryVillagerDream(force){
    it's actually good for is still to be decided - for now it just banks up. */
 const MOONSTONE_VEINS = 3;          // up from one
 const MOONSTONE_RADIUS = 620;       // "near the village" - a wide ring, not the doorstep
+const MOONSTONE_APART  = 230;       // and the three of them kept well apart
+const MOONSTONE_NIGHT_CHANCE = 0.45;   // roughly every other night, not every one
 
+/* Veins come up near a settlement - EITHER settlement. This used to look at
+   `b.p === P_YOU` alone, so every vein in the game appeared around the
+   player's village and the Ashkin had to walk miners across the map in the
+   dark to reach one. They banked 101 of a 300 Manor in a thirty-minute match
+   and could never build it, which read as "the AI ignores the night town"
+   when really it had no ore within reach.
+
+   Each side now gets its own three. The player's experience is unchanged -
+   the same three veins in the same ring around their own village.
+   (moonstone manor) */
 function spawnMoonstone(){
   // Clears last night's wild veins before laying tonight's - but a Manor's
   // own vein is part of the building and has to survive this sweep too, not
   // only the one at dawn. Missing it here quietly deleted the vein at every
   // single nightfall, which is precisely when nobody would notice.
   G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE || n.manorOf);
-  const homes = G.bldgs.filter(b=>b.p===P_YOU);
+  spawnMoonstoneFor(P_YOU);
+  spawnMoonstoneFor(P_AI);
+}
+
+function spawnMoonstoneFor(p){
+  const homes = G.bldgs.filter(b=>b.p===p);
   if(!homes.length) return;
 
   let placed = 0;
-  for(let attempt=0; attempt<MOONSTONE_VEINS*15 && placed<MOONSTONE_VEINS; attempt++){
+  const at = [];
+  for(let attempt=0; attempt<MOONSTONE_VEINS*40 && placed<MOONSTONE_VEINS; attempt++){
     const tx = rnd(4,MAPW-4), ty = rnd(4,MAPH-4);
     const x=(tx+0.5)*TILE, y=(ty+0.5)*TILE;
     if(isWater(x,y) || blocked(x,y,null,false)) continue;
@@ -3022,6 +3213,14 @@ function spawnMoonstone(){
     // sprawling settlement gets veins near its edges too, not just the middle
     const near = homes.some(b=>Math.hypot(b.x-x,b.y-y) < MOONSTONE_RADIUS);
     if(!near) continue;
+    /* Three separate places around the village, not three veins in a heap.
+       Nothing kept them apart before, so a night's moonstone quite often
+       turned up as one cluster you could work without moving - which read as
+       a single find rather than three, and made the whole thing feel smaller
+       than it is. The attempt budget is generous (x40) because on a cramped
+       map this rejects a lot before it lands. */
+    if(at.some(q=>Math.hypot(q.x-x, q.y-y) < MOONSTONE_APART)) continue;
+    at.push({x,y});
     /* How much is in a vein still rides on the moon (pack 3, feature 14) -
        ~80 at new moon, ~120 at full. Pack 9 replaced this whole function to
        change vein COUNT and placement, and its own handoff warned that doing
@@ -3033,7 +3232,7 @@ function spawnMoonstone(){
        moon, ~195 at full, so a couple of seasons of real mining pays for it
        and a full-moon night is the one you plan around. */
     const amt = (105 + Math.random()*50) * (1 + 0.5*moonPhase());
-    G.nodes.push({ id:G.nextId++, isNode:true, kind:RES.MOONSTONE,
+    G.nodes.push({ id:G.nextId++, isNode:true, kind:RES.MOONSTONE, ring:p,
                    x, y, amt, max:amt, r:8, seed:Math.random()*6.283 });
     placed++;
   }
@@ -3885,18 +4084,23 @@ function updateFires(dt){
 }
 
 /* ---------- difficulty ---------- */
+/* `nightTown` is how much appetite this difficulty has for the Moonstone
+   Manor and everything behind it: 0 never bothers, 1 goes for it as soon as
+   it can afford to. Peaceful and Easy are deliberately left out of it
+   entirely - a night town on the other side of the map is a real escalation
+   and those two are meant to stay cosy. (moonstone manor) */
 const DIFF = {
   peaceful:{ label:"Peaceful", think:3.4, vills:6,  firstPush:1500, waveBase:18, waveStep:7,
-             res:0.42, gather:0.38,
+             res:0.42, gather:0.38, nightTown:0,
              tip:"Barely a contest. The rival pothers about and leaves you alone for twenty-five minutes." },
   easy:    { label:"Easy",     think:2.4, vills:8,  firstPush:900, waveBase:15, waveStep:6,
-             res:0.55, gather:0.52,
+             res:0.55, gather:0.52, nightTown:0,
              tip:"A gentle opponent. It builds slowly and won't attack for the first fifteen minutes." },
   medium:  { label:"Medium",   think:1.5, vills:12, firstPush:420, waveBase:11, waveStep:5,
-             res:0.80, gather:0.80,
+             res:0.80, gather:0.80, nightTown:0.45,
              tip:"A fair fight. It works a little slower than you and attacks from seven minutes." },
   hard:    { label:"Hard",     think:0.9, vills:15, firstPush:240, waveBase:8,  waveStep:4,
-             res:1.05, gather:1.05,
+             res:1.05, gather:1.05, nightTown:1,
              tip:"Quick to expand and quick to react. Expect company from four minutes." }
 };
 let DIFFICULTY = "medium";   // persists across restarts
@@ -4007,6 +4211,25 @@ const MOONLOOKS = 7;
 /* The night town's own population, counted apart from the ordinary one so
    the two never compete for room. The Manor houses three; every cottage
    takes two more. (moonstone manor) */
+/* Moonstone plating. One upgrade per building, not a tier ladder - the user
+   picked a single look. What it does depends on what the building is FOR, so
+   that plating anything is a real decision rather than a flat percentage
+   nobody can feel:
+     - anything that trains, trains faster
+     - a farm regrows faster
+     - a tower looses faster
+     - and every plated building becomes somewhere the night shift can bank
+       its work, which is the reason to plate an outlying camp at all
+   (moonstone manor) */
+const PLATE_SPEED = 1.15;                                  // 15% off whatever it does
+const PLATE_COST  = { moonstone:70, stone:40, know:30 };
+
+function canPlate(b){
+  const d = BLDG[b.type];
+  return !!(b && b.done && !b.plated && !d.manor && !d.moonstone && !d.brazier);
+}
+function plateRate(b){ return (b && b.plated) ? PLATE_SPEED : 1; }
+
 const MANOR_HOUSES  = 3;
 const COTTAGE_HOUSES = 2;
 
@@ -4471,7 +4694,16 @@ function newGame(){
     // found in one match would still count as found in the next
     seasonalCropNode: null, seasonalFound: {}, seasonalHintShown: {},
     moonBell: {},                                 // the Manor's bell, per player
-    buildMoon: false                              // is the build menu showing moonstone things?
+    buildMoon: false,                             // is the build menu showing moonstone things?
+    // dry-weather scenery. Initialised here rather than lazily, or a windy
+    // autumn's tumbleweeds would still be rolling about in the next match
+    tumbles: [], tumbleCd: 12,
+    // the twice-yearly skein. Initialised here, not lazily, or a migration
+    // already flown in one match would still count as flown in the next
+    migrationSeasonKey: null, migrationAt: 0, migrationDone: false,
+    // the shore frogs. Initialised here, not lazily, or one match's frogs
+    // would still be sitting on the bank at the start of the next
+    frogs: [], frogCd: 8
   };
   // start a season already in full swing rather than mid-transition
   if(G.season==="winter"){
@@ -4767,6 +4999,194 @@ function genMap(type){
     }
   }
 
+  // The look of the ground is a pure function of the terrain, so it lives in
+  // its own function - a loaded game rebuilds these bitmaps from the saved
+  // terrain without regenerating the map that made it.
+  bakeTerrainArt(T);
+
+  // scenery: grass tufts, pebbles, flowers. purely cosmetic, no collision
+  G.decor = [];
+  for(let i=0;i<520;i++){
+    const tx=rnd(0,MAPW), ty=rnd(0,MAPH);
+    if(G.terrain[ty*MAPW+tx]===5) continue;
+    G.decor.push({ x:tx*TILE+Math.random()*TILE, y:ty*TILE+Math.random()*TILE,
+                   // more wildflowers than before: they are the pieces that
+                   // actually stand up out of the grass and read as blooms
+                   t: Math.random()<0.66 ? 0 : (Math.random()<0.55 ? 1 : 2),
+                   s: 0.6+Math.random()*0.8, seed:Math.random()*6.28 });
+  }
+
+  G.fog = [ new Uint8Array(MAPW*MAPH), new Uint8Array(MAPW*MAPH) ]; // 0 unseen,1 explored,2 visible
+
+  // resource placement
+  const base = [ {x:9,y:MAPH-10}, {x:MAPW-10, y:9} ];
+
+  // Ore goes down FIRST. Veins refuse to sit near an existing node, so with
+  // the map now thick with woodland they would otherwise fail to place and
+  // stone and gold would quietly become scarce.
+  base.forEach(b=>{
+    vein(RES.GOLD,  b.x, b.y, 8, 11);
+    vein(RES.STONE, b.x, b.y, 8, 11);
+    // a third deposit alongside the usual pair - which kind is down to chance
+    vein(Math.random()<0.5 ? RES.GOLD : RES.STONE, b.x, b.y, 8, 11);
+  });
+  for(let i=0;i<9;i++) vein(RES.GOLD,  rnd(10,MAPW-10), rnd(10,MAPH-10), 0, 0);
+  for(let i=0;i<9;i++) vein(RES.STONE, rnd(10,MAPW-10), rnd(10,MAPH-10), 0, 0);
+
+  // starting cluster for each base
+  base.forEach(b=>{
+    scatter(RES.WOOD,  b.x, b.y, 9, 16, 130);
+    scatter(RES.FOOD,  b.x, b.y, 7, 5, 110);
+  });
+  // a workable copse close to each starting town
+  base.forEach(b=>{
+    // two decent copses within reach of home rather than one
+    for(let k=0;k<2;k++){
+      const a = Math.random()*Math.PI*2;
+      forest(b.x + Math.cos(a)*11, b.y + Math.sin(a)*11, 6, 40);
+    }
+  });
+  // proper woodland scattered over the map
+  for(let i=0;i<20;i++){
+    forest(rnd(7,MAPW-7), rnd(7,MAPH-7), 5+Math.random()*5, 34+((Math.random()*30)|0));
+  }
+  // a few lone trees so it isn't only dense blocks
+  for(let i=0;i<16;i++) scatter(RES.WOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 5, 5, 130);
+  for(let i=0;i<14;i++) scatter(RES.FOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 3, 3, 110);
+  // fish shoals - only reachable by boat
+  let placed=0;
+  for(let tries=0; tries<900 && placed<26; tries++){
+    const tx=rnd(2,MAPW-2), ty=rnd(2,MAPH-2);
+    if(G.terrain[ty*MAPW+tx]!==5) continue;
+    const wx=tx*TILE+TILE/2, wy=ty*TILE+TILE/2;
+    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 58)) continue;
+    G.nodes.push({ id:G.nextId++, isNode:true, water:true, kind:RES.FOOD,
+                   x:wx, y:wy, amt:300, max:300, r:14, seed:Math.random()*6.28 });
+    placed++;
+  }
+
+
+  // Double the map's resources by pairing: every node gets a twin right
+  // beside it, so you find two trees together, two berry bushes together,
+  // a richer vein - rather than the same clumps spread thinner.
+  const originals = G.nodes.filter(n=>!n.forest);
+  for(const n of originals){
+    const gap = n.vein ? n.r*1.5 : n.r + 9;
+    let placed = false;
+    for(let tries=0; tries<12 && !placed; tries++){
+      const a = Math.random()*Math.PI*2;
+      const d = gap + Math.random()*8;
+      const nx = n.x + Math.cos(a)*d, ny = n.y + Math.sin(a)*d;
+      if(nx<TILE || ny<TILE || nx>WORLD_W-TILE || ny>WORLD_H-TILE) continue;
+      const tx = Math.floor(nx/TILE), ty = Math.floor(ny/TILE);
+      const isWaterTile = G.terrain[ty*MAPW+tx] === 5;
+      if(!!n.water !== isWaterTile) continue;          // fish stay wet, trees stay dry
+      // don't let the twin land on top of another node
+      let clash = false;
+      for(const o of G.nodes){
+        if(o===n) continue;
+        if(Math.hypot(o.x-nx, o.y-ny) < (o.r + n.r)*0.75){ clash = true; break; }
+      }
+      if(clash) continue;
+      const twin = Object.assign({}, n, {
+        id: G.nextId++, x: nx, y: ny, seed: Math.random()*6.28
+      });
+      if(n.rocks){
+        twin.rocks = n.rocks.map(()=>({
+          a:Math.random()*6.28, d:Math.random()*13,
+          s:0.55+Math.random()*0.75, rot:Math.random()*6.28 }));
+      }
+      G.nodes.push(twin);
+      placed = true;
+    }
+  }
+}
+
+function rnd(a,b){ return a + Math.floor(Math.random()*(b-a)); }
+
+/* A forest is a dense blob of trees rather than a handful of scattered ones,
+   so the map has actual woodland you clear into rather than lone trunks. */
+function forest(cx, cy, radius, count){
+  let placed = 0;
+  for(let tries=0; tries<count*6 && placed<count; tries++){
+    // bias toward the middle so the edges thin out naturally
+    const a = Math.random()*Math.PI*2;
+    const d = Math.pow(Math.random(), 0.65) * radius;
+    const tx = Math.round(cx + Math.cos(a)*d);
+    const ty = Math.round(cy + Math.sin(a)*d * 0.85);
+    if(tx<2||ty<2||tx>=MAPW-2||ty>=MAPH-2) continue;
+    if(G.terrain[ty*MAPW+tx] === 5) continue;
+    const wx = tx*TILE + TILE/2 + (Math.random()-0.5)*16;
+    const wy = ty*TILE + TILE/2 + (Math.random()-0.5)*16;
+    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 15)) continue;
+    G.nodes.push({ id:G.nextId++, isNode:true, forest:true, kind:RES.WOOD,
+                   x:wx, y:wy, amt:120, max:120, r:11, seed:Math.random()*6.28 });
+    placed++;
+  }
+  return placed;
+}
+
+/* a vein is one large deposit - you plant a mine on it rather than
+   chasing scattered rocks around the map */
+function vein(kind, cx, cy, minD, maxD){
+  for(let attempt=0; attempt<30; attempt++){
+    let tx, ty;
+    if(maxD>0){
+      const a=Math.random()*Math.PI*2, d=minD+Math.random()*(maxD-minD);
+      tx=Math.round(cx+Math.cos(a)*d); ty=Math.round(cy+Math.sin(a)*d);
+    } else { tx=cx; ty=cy; }
+    if(tx<3||ty<3||tx>=MAPW-3||ty>=MAPH-3) continue;
+    if(G.terrain[ty*MAPW+tx]===5) continue;
+    const wx=tx*TILE+TILE/2, wy=ty*TILE+TILE/2;
+    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 62)) continue;
+    G.nodes.push({ id:G.nextId++, isNode:true, vein:true, kind, x:wx, y:wy,
+                   amt:1750, max:1750, r:23, seed:Math.random()*6.28,
+                   rocks:Array.from({length:9},()=>({
+                     a:Math.random()*6.28, d:Math.random()*16,
+                     s:0.55+Math.random()*0.75, rot:Math.random()*6.28 })) });
+    return;
+  }
+}
+
+function scatter(kind, cx, cy, spread, count, amount){
+  /* An island is a fifth of the ground a normal map gives you, so the same
+     handful of patches has to carry a whole settlement. Put more out, and
+     make each one richer. */
+  if(G.islandMap){
+    count  = Math.round(count  * 1.45);
+    amount = Math.round(amount * 1.35);
+  }
+  /* Every attempt that landed in water used to be thrown away, which was
+     harmless when the map was mostly land and quietly ruinous once it was
+     not: an island got a fifth of the resources it was supposed to, ten food
+     patches instead of fifty-six, two gold veins instead of twenty. The count
+     is what the map is meant to have, so keep looking for somewhere to put it
+     rather than dropping it in the sea. */
+  for(let i=0;i<count;i++){
+    let placed = false;
+    for(let tries=0; tries<40 && !placed; tries++){
+      // widen the search a little as we struggle, so a small island still fills
+      const reach = spread * (1 + tries*0.05);
+      const a = Math.random()*Math.PI*2, d = Math.random()*reach;
+      const tx = Math.round(cx + Math.cos(a)*d), ty = Math.round(cy + Math.sin(a)*d);
+      if(tx<1||ty<1||tx>=MAPW-1||ty>=MAPH-1) continue;
+      if(G.terrain[ty*MAPW+tx] === 5) continue;
+      const wx = tx*TILE + TILE/2 + (Math.random()-0.5)*10;
+      const wy = ty*TILE + TILE/2 + (Math.random()-0.5)*10;
+      if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 20)) continue;
+      G.nodes.push({ id:G.nextId++, isNode:true, kind, x:wx, y:wy, amt:amount, max:amount,
+                     r: kind===RES.WOOD?11:9, seed:Math.random()*6.28 });
+      placed = true;
+    }
+  }
+}
+
+
+/* Bake the ground bitmaps and the fog overlay from a terrain array.
+   Split out of genMap so a loaded save can rebuild them: it depends on
+   nothing but T, and deliberately draws no randomness, so calling it does
+   not shift the seeded stream and a replayed seed still matches. */
+function bakeTerrainArt(T){
   // Terrain is baked once into a bitmap and scaled up each frame. Painting it
   // at 4 sub-cells per tile costs nothing extra at draw time but gives the
   // ground, grass and water real variation instead of flat blocks of colour.
@@ -5040,184 +5460,7 @@ function genMap(type){
   G.fogCanvas = fc;
   G.fogCtx = fc.getContext("2d");
   G.fogImg = G.fogCtx.createImageData(MAPW, MAPH);
-
-  // scenery: grass tufts, pebbles, flowers. purely cosmetic, no collision
-  G.decor = [];
-  for(let i=0;i<520;i++){
-    const tx=rnd(0,MAPW), ty=rnd(0,MAPH);
-    if(G.terrain[ty*MAPW+tx]===5) continue;
-    G.decor.push({ x:tx*TILE+Math.random()*TILE, y:ty*TILE+Math.random()*TILE,
-                   // more wildflowers than before: they are the pieces that
-                   // actually stand up out of the grass and read as blooms
-                   t: Math.random()<0.66 ? 0 : (Math.random()<0.55 ? 1 : 2),
-                   s: 0.6+Math.random()*0.8, seed:Math.random()*6.28 });
-  }
-
-  G.fog = [ new Uint8Array(MAPW*MAPH), new Uint8Array(MAPW*MAPH) ]; // 0 unseen,1 explored,2 visible
-
-  // resource placement
-  const base = [ {x:9,y:MAPH-10}, {x:MAPW-10, y:9} ];
-
-  // Ore goes down FIRST. Veins refuse to sit near an existing node, so with
-  // the map now thick with woodland they would otherwise fail to place and
-  // stone and gold would quietly become scarce.
-  base.forEach(b=>{
-    vein(RES.GOLD,  b.x, b.y, 8, 11);
-    vein(RES.STONE, b.x, b.y, 8, 11);
-    // a third deposit alongside the usual pair - which kind is down to chance
-    vein(Math.random()<0.5 ? RES.GOLD : RES.STONE, b.x, b.y, 8, 11);
-  });
-  for(let i=0;i<9;i++) vein(RES.GOLD,  rnd(10,MAPW-10), rnd(10,MAPH-10), 0, 0);
-  for(let i=0;i<9;i++) vein(RES.STONE, rnd(10,MAPW-10), rnd(10,MAPH-10), 0, 0);
-
-  // starting cluster for each base
-  base.forEach(b=>{
-    scatter(RES.WOOD,  b.x, b.y, 9, 16, 130);
-    scatter(RES.FOOD,  b.x, b.y, 7, 5, 110);
-  });
-  // a workable copse close to each starting town
-  base.forEach(b=>{
-    // two decent copses within reach of home rather than one
-    for(let k=0;k<2;k++){
-      const a = Math.random()*Math.PI*2;
-      forest(b.x + Math.cos(a)*11, b.y + Math.sin(a)*11, 6, 40);
-    }
-  });
-  // proper woodland scattered over the map
-  for(let i=0;i<20;i++){
-    forest(rnd(7,MAPW-7), rnd(7,MAPH-7), 5+Math.random()*5, 34+((Math.random()*30)|0));
-  }
-  // a few lone trees so it isn't only dense blocks
-  for(let i=0;i<16;i++) scatter(RES.WOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 5, 5, 130);
-  for(let i=0;i<14;i++) scatter(RES.FOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 3, 3, 110);
-  // fish shoals - only reachable by boat
-  let placed=0;
-  for(let tries=0; tries<900 && placed<26; tries++){
-    const tx=rnd(2,MAPW-2), ty=rnd(2,MAPH-2);
-    if(G.terrain[ty*MAPW+tx]!==5) continue;
-    const wx=tx*TILE+TILE/2, wy=ty*TILE+TILE/2;
-    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 58)) continue;
-    G.nodes.push({ id:G.nextId++, isNode:true, water:true, kind:RES.FOOD,
-                   x:wx, y:wy, amt:300, max:300, r:14, seed:Math.random()*6.28 });
-    placed++;
-  }
-
-
-  // Double the map's resources by pairing: every node gets a twin right
-  // beside it, so you find two trees together, two berry bushes together,
-  // a richer vein - rather than the same clumps spread thinner.
-  const originals = G.nodes.filter(n=>!n.forest);
-  for(const n of originals){
-    const gap = n.vein ? n.r*1.5 : n.r + 9;
-    let placed = false;
-    for(let tries=0; tries<12 && !placed; tries++){
-      const a = Math.random()*Math.PI*2;
-      const d = gap + Math.random()*8;
-      const nx = n.x + Math.cos(a)*d, ny = n.y + Math.sin(a)*d;
-      if(nx<TILE || ny<TILE || nx>WORLD_W-TILE || ny>WORLD_H-TILE) continue;
-      const tx = Math.floor(nx/TILE), ty = Math.floor(ny/TILE);
-      const isWaterTile = G.terrain[ty*MAPW+tx] === 5;
-      if(!!n.water !== isWaterTile) continue;          // fish stay wet, trees stay dry
-      // don't let the twin land on top of another node
-      let clash = false;
-      for(const o of G.nodes){
-        if(o===n) continue;
-        if(Math.hypot(o.x-nx, o.y-ny) < (o.r + n.r)*0.75){ clash = true; break; }
-      }
-      if(clash) continue;
-      const twin = Object.assign({}, n, {
-        id: G.nextId++, x: nx, y: ny, seed: Math.random()*6.28
-      });
-      if(n.rocks){
-        twin.rocks = n.rocks.map(()=>({
-          a:Math.random()*6.28, d:Math.random()*13,
-          s:0.55+Math.random()*0.75, rot:Math.random()*6.28 }));
-      }
-      G.nodes.push(twin);
-      placed = true;
-    }
-  }
 }
-
-function rnd(a,b){ return a + Math.floor(Math.random()*(b-a)); }
-
-/* A forest is a dense blob of trees rather than a handful of scattered ones,
-   so the map has actual woodland you clear into rather than lone trunks. */
-function forest(cx, cy, radius, count){
-  let placed = 0;
-  for(let tries=0; tries<count*6 && placed<count; tries++){
-    // bias toward the middle so the edges thin out naturally
-    const a = Math.random()*Math.PI*2;
-    const d = Math.pow(Math.random(), 0.65) * radius;
-    const tx = Math.round(cx + Math.cos(a)*d);
-    const ty = Math.round(cy + Math.sin(a)*d * 0.85);
-    if(tx<2||ty<2||tx>=MAPW-2||ty>=MAPH-2) continue;
-    if(G.terrain[ty*MAPW+tx] === 5) continue;
-    const wx = tx*TILE + TILE/2 + (Math.random()-0.5)*16;
-    const wy = ty*TILE + TILE/2 + (Math.random()-0.5)*16;
-    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 15)) continue;
-    G.nodes.push({ id:G.nextId++, isNode:true, forest:true, kind:RES.WOOD,
-                   x:wx, y:wy, amt:120, max:120, r:11, seed:Math.random()*6.28 });
-    placed++;
-  }
-  return placed;
-}
-
-/* a vein is one large deposit - you plant a mine on it rather than
-   chasing scattered rocks around the map */
-function vein(kind, cx, cy, minD, maxD){
-  for(let attempt=0; attempt<30; attempt++){
-    let tx, ty;
-    if(maxD>0){
-      const a=Math.random()*Math.PI*2, d=minD+Math.random()*(maxD-minD);
-      tx=Math.round(cx+Math.cos(a)*d); ty=Math.round(cy+Math.sin(a)*d);
-    } else { tx=cx; ty=cy; }
-    if(tx<3||ty<3||tx>=MAPW-3||ty>=MAPH-3) continue;
-    if(G.terrain[ty*MAPW+tx]===5) continue;
-    const wx=tx*TILE+TILE/2, wy=ty*TILE+TILE/2;
-    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 62)) continue;
-    G.nodes.push({ id:G.nextId++, isNode:true, vein:true, kind, x:wx, y:wy,
-                   amt:1750, max:1750, r:23, seed:Math.random()*6.28,
-                   rocks:Array.from({length:9},()=>({
-                     a:Math.random()*6.28, d:Math.random()*16,
-                     s:0.55+Math.random()*0.75, rot:Math.random()*6.28 })) });
-    return;
-  }
-}
-
-function scatter(kind, cx, cy, spread, count, amount){
-  /* An island is a fifth of the ground a normal map gives you, so the same
-     handful of patches has to carry a whole settlement. Put more out, and
-     make each one richer. */
-  if(G.islandMap){
-    count  = Math.round(count  * 1.45);
-    amount = Math.round(amount * 1.35);
-  }
-  /* Every attempt that landed in water used to be thrown away, which was
-     harmless when the map was mostly land and quietly ruinous once it was
-     not: an island got a fifth of the resources it was supposed to, ten food
-     patches instead of fifty-six, two gold veins instead of twenty. The count
-     is what the map is meant to have, so keep looking for somewhere to put it
-     rather than dropping it in the sea. */
-  for(let i=0;i<count;i++){
-    let placed = false;
-    for(let tries=0; tries<40 && !placed; tries++){
-      // widen the search a little as we struggle, so a small island still fills
-      const reach = spread * (1 + tries*0.05);
-      const a = Math.random()*Math.PI*2, d = Math.random()*reach;
-      const tx = Math.round(cx + Math.cos(a)*d), ty = Math.round(cy + Math.sin(a)*d);
-      if(tx<1||ty<1||tx>=MAPW-1||ty>=MAPH-1) continue;
-      if(G.terrain[ty*MAPW+tx] === 5) continue;
-      const wx = tx*TILE + TILE/2 + (Math.random()-0.5)*10;
-      const wy = ty*TILE + TILE/2 + (Math.random()-0.5)*10;
-      if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 20)) continue;
-      G.nodes.push({ id:G.nextId++, isNode:true, kind, x:wx, y:wy, amt:amount, max:amount,
-                     r: kind===RES.WOOD?11:9, seed:Math.random()*6.28 });
-      placed = true;
-    }
-  }
-}
-
 /* ============================================================
    SPAWNING
    ============================================================ */
@@ -5536,6 +5779,43 @@ function spawnGulls(){
   return true;
 }
 
+/* How hard the wind pushes what is in the air. The drift is in px/sec at
+   full wind; the turn is a gain, not an angle, so it eases rather than
+   snapping. Both deliberately gentle - this is meant to be noticed only
+   once somebody is already watching the sky. */
+const BIRD_WIND_DRIFT = 16;
+const BIRD_WIND_TURN = 0.18;
+
+/* Move one bird for a frame, wind included. Its own function rather than a
+   loop body so that it can be exercised - and looked at - on its own; it
+   touches nothing but the bird it is handed, so it needs no game around it.
+
+   `wind` is G.windDir: a signed horizontal lean, about -1 to 1 and hard over
+   once weather rolls in. It is the same value the chimney smoke and the grass
+   sway read, so everything in the air agrees which way the day is blowing.
+
+   Two parts. The bird is carried sideways, and it turns a little downwind -
+   the turn is what makes a crosswind visibly slew a skein rather than just
+   sliding it. That turn is feeble on purpose: a strong one has every bird on
+   the map converge on flying flat sideways within a minute, which reads less
+   like weather and more like a bug. */
+function flyBird(b, wind, now, dt){
+  /* A hawk on the hunt holds its line far better than a skein of finches,
+     and a migration holds it better still - it is crossing the country, not
+     drifting about, and a skein that wandered would stop reading as one. */
+  const give = b.hawk ? 0.25 : b.migrant ? 0.3 : 1;
+  b.x += Math.cos(b.a)*b.spd*dt + wind*BIRD_WIND_DRIFT*give*dt;
+  b.y += Math.sin(b.a)*b.spd*dt;
+  const wander = b.hawk ? 0.5 : b.migrant ? 0.04 : 0.16;
+  b.a += Math.sin(now*(b.hawk?0.28:0.6)+b.seed)*wander*dt;
+  // shortest way round toward downwind (0 blowing right, PI blowing left)
+  const want = wind >= 0 ? 0 : Math.PI;
+  let off = want - b.a;
+  while(off >  Math.PI) off -= 6.283;
+  while(off < -Math.PI) off += 6.283;
+  b.a += off * BIRD_WIND_TURN * Math.abs(wind) * give * dt;
+}
+
 function spawnBird(kind){
   const edge=Math.random()<0.5;
   const y = edge ? Math.random()*WORLD_H : (Math.random()<0.5?-40:WORLD_H+40);
@@ -5563,16 +5843,22 @@ function updateWildlife(dt){
       c.tx=c.x+Math.cos(a)*120; c.ty=c.y+Math.sin(a)*120; c.wait=0;
     }
     if(c.flee>0) c.flee-=dt;
-    const spd=d.spd*(c.flee>0?2.4:1);
+    /* How much this animal is about at this hour - see dayRoundFor. It never
+       applies while fleeing: a startled deer runs flat out whatever the time,
+       and having it amble away from a soldier because the table said it was
+       resting would look ridiculous. */
+    const lively = (c.flee>0) ? 1 : dayRoundFor(c.size);
+    const spd=d.spd*(c.flee>0?2.4:lively);
     const dx=c.tx-c.x, dy=c.ty-c.y, dist=Math.hypot(dx,dy);
     if(dist<5){
       c.wait-=dt;
       if(c.wait<=0){
-        const a=Math.random()*6.283, r=40+Math.random()*110;
+        // lively animals pick somewhere further off and set out again sooner
+        const a=Math.random()*6.283, r=(40+Math.random()*110)*lively;
         let nx=c.x+Math.cos(a)*r, ny=c.y+Math.sin(a)*r;
         nx=Math.max(20,Math.min(WORLD_W-20,nx)); ny=Math.max(20,Math.min(WORLD_H-20,ny));
         if(!isWater(nx,ny)){ c.tx=nx; c.ty=ny; }
-        c.wait=1.5+Math.random()*5;
+        c.wait=(1.5+Math.random()*5)/lively;
       }
     } else {
       const step=spd*dt;
@@ -5582,22 +5868,48 @@ function updateWildlife(dt){
       if(dx>1) c.face=1; else if(dx<-1) c.face=-1;
     }
   }
+  /* Flocks lean with the wind instead of flying dead straight across it.
+     G.windDir is a signed horizontal lean, about -1 to 1 and hard over once
+     weather rolls in - the same value the chimney smoke and the grass sway
+     already read, so everything in the air agrees which way the day is
+     blowing. Two parts: they are carried sideways, and they turn a little
+     downwind, which is what makes a crosswind visibly slew the line.
+
+     The turn is kept feeble on purpose. A strong one would have every bird
+     on the map converge on flying flat sideways within a minute, which
+     looks less like weather and more like a bug. */
+  const wind = G.windDir || 0;
+  const foul = foulWeather();
   for(const b of G.birds){
-    b.x+=Math.cos(b.a)*b.spd*dt;
-    b.y+=Math.sin(b.a)*b.spd*dt;
-    b.a += Math.sin(G.t*(b.hawk?0.28:0.6)+b.seed)*(b.hawk?0.5:0.16)*dt;
+    flyBird(b, wind, G.t, dt);
+    /* Once the weather means it they make for the nearest edge and are gone.
+       Not deleted where they stand - a flock winking out mid-sky reads as a
+       bug - and not shoved sideways either: the first version nudged their
+       position, which fought whichever way they were already pointed, so a
+       bird heading the other way took the best part of a minute to clear and
+       the squall was often over first. Turning them and letting them fly is
+       both quicker and what a startled flock actually looks like. */
+    if(foul){
+      const want = b.x < WORLD_W/2 ? Math.PI : 0;   // the nearer edge
+      let off = want - b.a;
+      while(off >  Math.PI) off -= 6.283;
+      while(off < -Math.PI) off += 6.283;
+      b.a += off * Math.min(1, 2.2*dt);
+      b.spd += (150 - b.spd) * Math.min(1, 0.9*dt);  // and they get a move on
+    }
   }
   G.birds=G.birds.filter(b=>b.x>-90&&b.x<WORLD_W+90&&b.y>-90&&b.y<WORLD_H+90);
 
   G.flockCd = (G.flockCd===undefined ? 300 : G.flockCd) - dt;
   if(G.flockCd <= 0){
     G.flockCd = 300 + Math.random()*60;      // one V every five or six minutes
-    if(G.birds.filter(b=>!b.hawk).length === 0) spawnBird("flock");
+    // nothing takes off into a squall; the sky stays empty until it eases
+    if(!foul && G.birds.filter(b=>!b.hawk).length === 0) spawnBird("flock");
   }
   G.hawkCd = (G.hawkCd===undefined ? 120 : G.hawkCd) - dt;
   if(G.hawkCd <= 0){
     G.hawkCd = 100 + Math.random()*110;      // a lone hawk rather more often
-    if(G.birds.filter(b=>b.hawk).length < 2) spawnBird("hawk");
+    if(!foul && G.birds.filter(b=>b.hawk).length < 2) spawnBird("hawk");
   }
 }
 function dd0(c){ return c.size==="small"?74:c.size==="medium"?92:104; }
@@ -7113,6 +7425,19 @@ function demolish(b){
    flags - ringing one in the middle of the other's working hours would drag
    a sleeping shift out of bed, which is exactly what one bell for everybody
    would have done. (moonstone manor) */
+/* Plate one building with moonstone. Bought at the Manor, by day - the
+   Manor's other face. (moonstone manor) */
+function tryPlate(b){
+  const pl = G.players[b.p];
+  if(!canPlate(b)){ hint("That one cannot take the crystal."); return false; }
+  if(!canAfford(pl, PLATE_COST)){ hint("Need "+costStr(PLATE_COST)+" to work the crystal in."); return false; }
+  pay(pl, PLATE_COST);
+  b.plated = true;
+  if(b.p===P_YOU) hint(BLDG[b.type].name+" is worked through with moonstone - faster at what it does, and somewhere the night shift can bring its work.");
+  refreshUI();
+  return true;
+}
+
 function toggleBell(b, moonfolk){
   const pl = G.players[b.p];
   const kind = moonfolk ? "moonvillager" : "villager";
@@ -7501,7 +7826,7 @@ function tick(dt){
     if(b.queue.length){
       const type = b.queue[0];
       const pausedForNight = (type==="villager" && G.phase==="night");
-      if(!pausedForNight) b.qt += dt;
+      if(!pausedForNight) b.qt += dt * plateRate(b);   // moonstone plating
       if(!pausedForNight && b.qt >= UNITS[type].build){
         // The cap can fall after a unit was queued - a house burns down, say.
         // Hold the finished unit at the door rather than letting it out and
@@ -7542,7 +7867,7 @@ function tick(dt){
       b.cd -= dt;
       if(b.cd<=0){
         const t = nearestEnemy(b, d.rng);
-        if(t){ b.cd = d.cd; shoot(b, t, towerAtk(b), "bldg"); }
+        if(t){ b.cd = d.cd / plateRate(b); shoot(b, t, towerAtk(b), "bldg"); }
       }
     }
     // archers garrisoned in a range loose a volley together, the same way a
@@ -7626,7 +7951,11 @@ function tick(dt){
         if(!spawnRaid() && !trySpawnGreatBear()) trySpawnZombies();
         trySpawnWanderer("bat");
       }
-      spawnMoonstone();
+      /* Not every night. Moonstone turning up without fail made it just
+         another resource on a timetable; missing a night or two is what
+         makes a night it does appear worth staying up for. The Manor's own
+         vein is unaffected - that is what you paid for. */
+      if(Math.random() < MOONSTONE_NIGHT_CHANCE) spawnMoonstone();
       growManorVeins();   // the Manor's own vein tops itself up overnight
       // and now and then, someone takes a torch out to it
       tryMoonstoneGuide();
@@ -7654,6 +7983,12 @@ function tick(dt){
         hint(pickLine(DAWN_LINES,"dawn") + " — " +
              pickLine(RESTED_TAILS,"rest").replace("#", who));
       } else hint(pickLine(DAWN_LINES,"dawn"));
+      /* The autosave, once a day, at the point the village is calmest.
+         Quiet on purpose - dawn already has a line of its own, and a second
+         one saying "saved" every morning would wear thin. A finished match
+         is not written: the save is somewhere to come back to, and coming
+         back to a defeat screen is not that. */
+      if(!G.over) saveGame(true);
     }
     if(ph==="day" && was==="dawn" && G.season==="winter"){
       trySpawnWanderer("penguin");
@@ -7673,6 +8008,9 @@ function tick(dt){
     spawnWildAnimals();   // top the deep-country population back up for the new season
     rollWeather();
     trySpawnWanderer("cat");
+    // and somebody's sheep, out of its field and ambling across yours
+    if(G.season!=="winter" && trySpawnWanderer("sheep"))
+      hint("Somebody's sheep has got out.");
     tryGoldenStag();      // roughly once a season, and rarely even then
     tryMoonlitDog();      // and once a season, a dog walks through by moonlight
     // An unclaimed patch is deliberately NOT cleared here - a patient player
@@ -7700,6 +8038,7 @@ function tick(dt){
   updateScorches(dt);
   updateGarrisonHealing(dt);
   updateSunSickness(dt);      // the daylight toll on the night shift
+  updateSleepHealing(dt);     // and a night in your own bed mends you a little
   updateSeasonInvasion(dt);
   updateBloodMoon(dt);
   trySkyEvents(dt);
@@ -7799,6 +8138,9 @@ function tick(dt){
   updateSquirrels(dt);
   updateRoofBirds(dt);
   updateWind(dt);
+  updateTumbleweeds(dt);   // after updateWind, so they roll with today's wind
+  updateMigration(dt);
+  updateFrogs(dt);
   updateBirdRadar(dt);
   updateGoldenStag(dt);
   updateMoonlitDog(dt);
@@ -7814,7 +8156,9 @@ function tick(dt){
   updateBugs(dt);
   updateSealife(dt);
   G.gullCd = (G.gullCd===undefined) ? 20+Math.random()*40 : G.gullCd-dt;
-  if(G.gullCd<=0){ G.gullCd = 35+Math.random()*55; spawnGulls(); }
+  // gulls sit a squall out too. The timer still runs, so they come back on
+  // their own schedule once it eases rather than all at once the moment it does
+  if(G.gullCd<=0){ G.gullCd = 35+Math.random()*55; if(!foulWeather()) spawnGulls(); }
   updateOwl(dt);
   // an owl on the roof, now and again, and only after dark
   G.owlCd = (G.owlCd===undefined) ? 40+Math.random()*60 : G.owlCd-dt;
@@ -8136,7 +8480,8 @@ function updateUnit(u, dt){
             const insp = ((u.inspired>0) ? INSPIRE_BOOST : 1)
                        * ((u.rested>0) ? RESTED_BOOST : 1)
                        * ((u.storyBoost>0) ? STORY_BOOST : 1);
-            const take = Math.min(2 * GATHER_SCALE * (1 + lvl*0.40) * dg * seasonal * insp, n.amt);
+            const take = Math.min(2 * GATHER_SCALE * (1 + lvl*0.40) * dg * seasonal * insp
+                                    * dropPlateRate(u, n), n.amt);   // moonstone plating
             n.amt -= take; u.carry += take; u.carryKind = n.kind;
             if(n.kind==="stone") u.carryIron = (u.carryIron||0) + take*IRON_RATIO;
             u.atkAnim = 0.2;
@@ -8809,6 +9154,13 @@ function gatherUpgLevel(u, n){
   const b = nearestDropFor(u, n.kind);
   return (b && b.upgLvl) || 0;
 }
+/* Whichever drop-off will take this load - plated, and the work itself goes
+   faster. A farm answers for its own field. (moonstone manor) */
+function dropPlateRate(u, n){
+  if(n.farmOf) return plateRate(n.farmOf);
+  return plateRate(nearestDropFor(u, n.kind));
+}
+
 function nearestNode(u, kind){
   let best=null, bd=1e9;
   /* Callers are not always units - ambient creatures ask "what is the nearest
@@ -9799,6 +10151,133 @@ function aiThink(dt){
   const lodgeVills = G.ai.wantLodge ? 5 : 7;
   if(lodges < lodgeCap && vills.length >= lodgeVills) aiBuild("lodge", town);
 
+  /* ---- the night town ----
+     The Ashkin get everything the player does, scaled by difficulty. Gated
+     on actually having the moonstone rather than on a timer, so it arrives
+     when they have genuinely worked for it, the same as it does for you.
+     Everything past the Manor needs Iron, so this is a late-game turn for
+     them too. (moonstone manor) */
+  const appetite = (G.diff && G.diff.nightTown) || 0;
+  if(appetite > 0){
+    const manor = my.all.find(b=>BLDG[b.type].manor);
+
+    /* Moonstone exists only at night, and villagers sleep at night - so
+       without this the Ashkin could never gather a single piece and the
+       whole night town was unreachable for them. Measured before adding it:
+       0 moonstone banked across six 30-minute Hard matches.
+
+       They pay exactly what you pay: waking a villager costs it health and
+       speed for good, and two nights running kills it. So they wake only as
+       many as they need, and send them to rest after one night - which is
+       the same advice the game gives you. */
+    /* No age gate on the MINING. The Manor needs Bronze, but the moonstone
+       to pay for it does not, and this AI only reaches Bronze around the
+       seventeen-minute mark - so waiting for the age meant it had a couple
+       of nights to find 300 and never got past 101. It banks from the first
+       night now and builds the moment Bronze lands, which is what a player
+       planning for it would do. Only once the settlement can spare the
+       hands. */
+    /* Moonstone is an ADD-ON to a settlement, not the point of one. The AI
+       does not touch it until it has the ordinary business of living sorted
+       - a farm, a lumber camp, a mine and a barracks - and then only with
+       spare hands and a stocked larder. Before this it was banking 479
+       moonstone while holding 91 wood, which is precisely backwards. */
+    const basicsDone = has("farm") && has("lumber") && has("mine") && has("barracks");
+    /* "Spare capacity" has to be measured against what this AI ACTUALLY
+       holds, not against what sounds comfortable. Over a Hard match its
+       median is wood 43, food 39, stone 76, and its NINETIETH percentile is
+       wood 80, food 85 - it spends everything it earns. The first two
+       attempts at this test (wood>160/food>110 and wood>130/food>65) were
+       above that ceiling, so the window opened 0% of the time and the whole
+       block never ran once. These sit around its own upper quartile, which
+       is what "it can spare the hands tonight" honestly means here. */
+    const comfortable = pl.res.wood > 60 && pl.res.food > 50 && pl.res.stone > 70;
+    /* And it stops when it has enough for the one thing it wants to build.
+       Hoarding moonstone past the Manor's price is what let it out-mine a
+       player who was busy running a village - it never gets tired and never
+       has anything better to do at three in the morning. The second test is
+       the blunt statement of the same idea: this is never the resource it
+       has most of. */
+    const enough = pl.res.moonstone >= BLDG.manor.cost.moonstone * 1.15
+                || pl.res.moonstone > pl.res.wood;
+    if(!manor && basicsDone && comfortable && !enough
+       && vills.length >= 8 && (G.dark||0) > 0.35){
+      /* Only the veins that came up in ITS OWN ring, and only some of them.
+         An AI free to strip every vein on the map would simply out-mine the
+         player every match - it never sleeps in, never forgets, and never has
+         anything better to do at 3am. It gets its own ore near its own
+         village and leaves the player's alone, and even then it works no more
+         than two of its three at a time. */
+      const mine = G.nodes.filter(n=>n.kind===RES.MOONSTONE && n.amt>0 &&
+                                     !n.manorOf && n.ring===P_AI);
+      const veins = mine.slice(0, Math.max(1, MOONSTONE_VEINS-1));
+      if(veins.length){
+        // and a modest crew: enough to get there over a few seasons, not
+        // enough to have a Manor up before the player has seen a vein
+        /* The window this opens in is already narrow - night, basics built,
+           spare capacity, and its own veins actually up, which intersect
+           about a twentieth of the time. So when it does open, send a real
+           crew. This cannot turn into hoarding: `enough` caps the stockpile
+           at one Manor's worth, so a bigger crew reaches that sooner and
+           then stops, rather than mining on for ever. */
+        const want = Math.max(2, Math.round(3*appetite));
+        let outNow = vills.filter(u=>u.awakeAtNight && u.hp>0).length;
+        for(const u of vills){
+          if(outNow >= want) break;
+          if(!u.indoors || (u.nightsAwake||0) >= 1) continue;
+          const home = u.home || G.bldgs.find(b=>b.p===P_AI && b.type==="house" && b.done);
+          if(!home) break;
+          wakeVillagerForNight(u, home);
+          let best=null, bd=1e9;
+          for(const n of veins){ const dd=Math.hypot(n.x-u.x,n.y-u.y); if(dd<bd){bd=dd;best=n;} }
+          u.order="gather"; u.target=best; u.path=null;
+          outNow++;
+        }
+      }
+    }
+    // and anyone who has done a night goes back to bed before it kills them
+    for(const u of vills) if(u.awakeAtNight && (u.nightsAwake||0) >= 1) restVillager(u);
+
+    if(!manor){
+      /* The moonstone was never the hard part - the AI banks 479 of a 300
+         Manor and still cannot build it, because the ordinary half (140
+         wood, 110 stone, 60 food) is gone the moment it arrives. So it puts
+         a little aside, the same way it already does for a dock.
+
+         Bounded on purpose: it never holds back a house or a farm (that is
+         how the dock hold once deadlocked itself), and the hold expires so a
+         settlement that simply cannot reach the number gets on with its life
+         instead of saving forever. */
+      const c = BLDG.manor.cost;
+      if(pl.age>=1 && pl.res.moonstone >= c.moonstone){
+        if(pl.res.wood>=c.wood && pl.res.stone>=c.stone && pl.res.food>=c.food){
+          G.ai.saveForManor = 0;
+          aiBuild("manor", town, 1, appetite >= 1);
+        } else {
+          G.ai.saveForManor = (G.ai.saveForManor||0) + dt;
+          if(G.ai.saveForManor > 240) G.ai.saveForManor = -1;   // gave up; try again later
+        }
+      }
+      if(G.ai.saveForManor === -1 && Math.random() < 0.002) G.ai.saveForManor = 0;
+    } else if(manor.done){
+      G.ai.saveForManor = 0;
+      const cap = moonCap(P_AI), have = moonPop(P_AI);
+      const queued = manor.queue.length;
+      // a cottage once the Manor's own three are full
+      if(pl.age>=2 && have + queued >= cap && pl.res.moonstone >= BLDG.cottage.cost.moonstone*1.6)
+        aiBuild("cottage", town, 1, false);
+      // and the folk themselves, after dark, within their own housing
+      if(pl.age>=2 && (G.dark||0) > 0.35 && have + queued < cap)
+        aiTrain(manor, "moonvillager");
+      /* plate what it already has, cheapest use of spare moonstone - and it
+         is what lets its own night shift work away from the Manor */
+      if(pl.res.moonstone >= PLATE_COST.moonstone*2 && Math.random() < 0.5*appetite){
+        const able = my.all.filter(b=>canPlate(b));
+        if(able.length) tryPlate(able[(Math.random()*able.length)|0]);
+      }
+    }
+  }
+
   // 5. remaining military buildings
   if(has("barracks") && !has("range")) aiBuild("range", town, 1, true);
   if(pl.age>=1 && !has("stable")) aiBuild("stable", town, 1, true);
@@ -10063,6 +10542,11 @@ function aiBuild(type, town, concurrent, priority){
   // and likewise for the first barracks (houses excepted - see aiThink;
   // so is a farm while food is critical, since without food nothing else
   // can be trained or built either and the hold would deadlock itself)
+  /* Saving for the Manor: hold back the discretionary wood spends only.
+     Houses and farms are never held - that is exactly how the dock hold
+     managed to deadlock itself once. */
+  if(G.ai.saveForManor > 0 && type!=="manor" && type!=="house" && type!=="farm"
+     && type!=="barracks" && d.cost.wood) return;
   if(G.ai.saveForBarracks && type!=="barracks" && type!=="house"
      && !(type==="farm" && pl.res.food < 60) && d.cost.wood) return;
   // while the crossing is pressing, only put up what helps it happen -
@@ -10381,6 +10865,18 @@ function draw(){
     if(!visibleTo(P_YOU,dk.x,dk.y)) continue;
     drawList.push({ e:dk, y:dk.y, kind:17 });
   }
+  // 19: 18 is the leisure villager. See the note above about 8 and 9 -
+  // picking a number that only looks free is how that one went wrong.
+  for(const tw of (G.tumbles||[])){
+    if(tw.x<c0x||tw.y<c0y||tw.x>c1x||tw.y>c1y) continue;
+    if(!visibleTo(P_YOU,tw.x,tw.y)) continue;
+    drawList.push({ e:tw, y:tw.y, kind:19 });
+  }
+  for(const fr of (G.frogs||[])){
+    if(fr.x<c0x||fr.y<c0y||fr.x>c1x||fr.y>c1y) continue;
+    if(!visibleTo(P_YOU,fr.x,fr.y)) continue;
+    drawList.push({ e:fr, y:fr.y, kind:20 });
+  }
   if(G.elder && G.elder.state!=="inside" && visibleTo(P_YOU,G.elder.x,G.elder.y))
     drawList.push({ e:G.elder, y:G.elder.y, kind:5 });
   for(const o of G.homeLife||[]){
@@ -10471,6 +10967,8 @@ function draw(){
       case 16: drawSquirrel(it.e); break;
       case 17: drawDuck(it.e); break;
       case 18: drawLeisureVillager(it.e); break;
+      case 19: drawTumbleweed(it.e); break;
+      case 20: drawFrog(it.e); break;
     }
   }
   for(const u of G.units){
@@ -11246,7 +11744,7 @@ function draw(){
            by lamps, so its pool is cool. This is the real reason the Manor's
            own halo never read as blue: the warm amber wash below was painted
            straight over the top of it every night. (moonstone manor) */
-        const moonlit = !!(bd.manor || bd.moonstone);
+        const moonlit = !!(bd.manor || bd.moonstone || b.plated);
         lamps.push({x:sp.x, y:sp.y, rx, ry, col: moonlit ? "130,205,235" : "255,180,80"});
 
         nx.save();
@@ -11449,14 +11947,23 @@ function draw(){
          and the whole squall leans slightly as the gust comes and goes -
          so the field breaks up instead of marching in step. */
       ctx.lineWidth = 1;
+      /* Screen pixels a second, before each drop's own speedMul. Slowed by
+         about a third from 1500/820: at the old rate a drop crossed the
+         height of the screen in under half a second, which is too fast to
+         follow and read as a flickering static rather than as falling rain.
+
+         Keep the two in proportion if either changes - together they set
+         which way the rain is travelling, and the streaks are drawn at their
+         own angle (see `lean`), so they stop agreeing if only one moves. */
+      const RAIN_FALL = 1040, RAIN_DRIFT = 570;
       const gust = Math.sin(t*0.6) * 1.6 + Math.sin(t*1.7+1.1) * 0.7;
       for(let i=0;i<n;i++){
         const speedMul = 0.7 + hash1(i)*0.7;
         const near = hash1(i*2.3+9);            // how close this drop is
         const len = 8 + near*13;                 // near drops are longer
         const lean = -4 + (hash1(i*3.1+2)-0.5)*5 + gust*(0.6+near*0.8);
-        const x = ((i*137.5 + hash1(i*5.7)*300 + t*820*speedMul) % (VW+80)) - 40;
-        const y = ((i*91.3  + hash1(i*8.3)*300 + t*1500*speedMul) % (VH+80)) - 40;
+        const x = ((i*137.5 + hash1(i*5.7)*300 + t*RAIN_DRIFT*speedMul) % (VW+80)) - 40;
+        const y = ((i*91.3  + hash1(i*8.3)*300 + t*RAIN_FALL*speedMul) % (VH+80)) - 40;
         ctx.strokeStyle = "rgba(190,214,232," + (0.24 + near*0.34).toFixed(2) + ")";
         ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+lean, y+len); ctx.stroke();
       }
@@ -13239,6 +13746,7 @@ function drawBuilding(b){
   }
   drawBuildingFire(b, x, y, w, dep, H);
   drawSeasonalFarmMarker(b, x, y);   // which season's crop this one is
+  drawPlating(b, x, y, w, dep, H, d); // and the moonstone grown over it
 
   // Christmas lights - not every winter, but when this one has them, every
   // building strings a little twinkling colour along its roofline at night
@@ -13563,6 +14071,226 @@ function drawMoonstoneGrowth(u, pl){
     default:  // one great spire, and nothing else
       S(tw*0.75, shld+0.5, 13.0, 2.9, 0.16); S(tw*1.20, shld+3.0, 4.2, 1.3, 0.38); break;
   }
+}
+
+/* ---------- moonstone plating, per building ----------
+   Not one overlay stamped on everything. A field has no roof to come
+   through, a watchtower is a shaft with nothing at its foot, and spikes
+   along a barracks ridge say something a farm's crystals should not. Each
+   type gets a treatment that suits what it actually is; the shapes are
+   shared where two buildings really are the same shape, and the numbers
+   are its own. Anything without an entry falls back to `plateGeneric`.
+   (moonstone manor) */
+function plateSeam(x,y,w,dep,H,rT,g,d){          // fields - a seam in the furrows
+  // roof:"none" - there is nothing above the wall to sit on, so these live
+  // in the field itself and rT is never used
+  for(let i=0;i<6;i++){
+    const t=i/5;
+    moonShard(x+w*(0.10+t*0.80), y+dep*(0.30+((i%2)?0.34:0.58)),
+              3.0+((i*3)%3), 1.1, (t-0.5)*0.5, g);
+  }
+}
+function plateSpine(x,y,w,dep,H,rT,g,d){         // towers - climbing the shaft
+  ctx.save(); ctx.beginPath(); ctx.rect(x-3,y+dep-H,w+6,H); ctx.clip();
+  for(let i=0;i<4;i++){
+    const t=i/3;
+    moonShard(x+w*(0.24+((i%2)?0.52:0.0)), y+dep-H*t*0.82, 5.0+t*3.5, 1.7+t*0.5,
+              (i%2?0.34:-0.34), g);
+  }
+  ctx.restore();
+  // the spire's apex, not the gable ridge - a cone rises A*1.7 above the
+  // wall where a gable rises A*0.55, so this used to sit inside the roof
+  const apex = roofGeom(x,y,w,dep,H,d,rT).top;
+  moonShard(x+w*0.50, apex+3, 13, 2.6, 0.02, g);
+}
+function plateTeeth(x,y,w,dep,H,rT,g,d){         // wall - teeth along the top
+  for(let i=0;i<3;i++)
+    moonShard(x+w*(0.22+i*0.28), y+dep-H+2, 6.0+((i%2)*2.5), 1.6, (i-1)*0.24, g);
+}
+function plateDiadem(x,y,w,dep,H,rT,g,d){        // domes - a crown on the crown
+  /* Sat on the gable ridge before, which on a dome is higher than the dome
+     itself - the crystals floated in the air above it. Each one now stands
+     on the dome's own curve. */
+  const gm = roofGeom(x, y, w, dep, H, d, rT);
+  for(let i=0;i<6;i++){
+    const a = -2.55 + i*0.51;                     // across the top of the arc
+    const px = gm.cx + Math.cos(a)*gm.rx*0.86;
+    const py = gm.cy - Math.abs(Math.sin(a))*gm.ry*0.86;
+    moonShard(px, py+1.5, 7+((i%2)*5), 2.0, Math.cos(a)*0.40, g);
+  }
+}
+function plateRidge(x,y,w,dep,H,rT,g,d){         // military - spikes along the ridge
+  // gable and hip only, where drawRoof's ridge IS rT - no correction needed
+  for(let i=0;i<5;i++){
+    const t=i/4;
+    moonShard(x+w*(0.16+t*0.68), rT+5, 9+((i%2)*6), 2.0, (t-0.5)*0.3, g);
+  }
+  moonShard(x+w*0.08, y+dep+1, 4.5, 1.5, -0.3, g);
+  moonShard(x+w*0.92, y+dep+1, 4.0, 1.4,  0.3, g);
+}
+function plateFace(x,y,w,dep,H,rT,g,d){          // lean-to - out of the working face
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y+dep-H,w,H); ctx.clip();
+  moonShard(x+w*0.18, y+dep+1, H*0.92, 3.2, 0.12, g);
+  moonShard(x+w*0.34, y+dep+1, H*0.62, 2.4,-0.10, g);
+  ctx.restore();
+  moonShard(x+w*0.24, roofGeom(x,y,w,dep,H,d,rT).top+4, 13, 2.7, -0.22, g);
+  for(let i=0;i<3;i++){
+    const a=1.1+i*1.7;
+    moonShard(x+w*(0.5+Math.cos(a)*0.5), y+dep+1+Math.sin(a*1.6)*1.6, 3.4, 1.2, Math.sin(a)*0.2, g);
+  }
+}
+function plateGeneric(x,y,w,dep,H,rT,g,d){       // the fallback: foot, wall, roof
+  for(let i=0;i<4;i++){
+    const a=i*1.9;
+    moonShard(x+w*(0.5+Math.cos(a)*0.46), y+dep+1+Math.sin(a*1.7)*1.5,
+              3.5+((i*5)%3), 1.2, Math.sin(a)*0.2, g);
+  }
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y+dep-H,w,H); ctx.clip();
+  moonShard(x+w*0.16, y+dep+1, H*0.80, 3.0, 0.10, g);
+  moonShard(x+w*0.30, y+dep+1, H*0.52, 2.2,-0.08, g);
+  moonShard(x+w*0.86, y+dep+1, H*0.60, 2.4, 0.12, g);
+  ctx.restore();
+  moonShard(x+w*0.34, rT+7, 15, 3.0, -0.16, g);
+  moonShard(x+w*0.52, rT+3, 22, 4.0,  0.04, g);
+  moonShard(x+w*0.70, rT+8, 12, 2.4,  0.20, g);
+}
+
+const PLATE_LOOKS = {
+  farm: plateSeam, specialfarm: plateSeam,
+  tower: plateSpine, scouttower: plateSpine, fortress: plateSpine,
+  wall: plateTeeth,
+  lodge: plateDiadem, grove: plateDiadem, musiccollege: plateDiadem, greathall: plateDiadem,
+  barracks: plateRidge, range: plateRidge, stable: plateRidge,
+  siege: plateRidge, warcollege: plateRidge,
+  mine: plateFace, armoury: plateFace, tradingpost: plateFace, dock: plateFace,
+  // the two that get their own, because they are their own shape
+  town(x,y,w,dep,H,rT,g,d){                        // framing the door, and the tower
+    moonShard(x+w*0.31, y+dep+1, H*0.66, 2.8, -0.16, g);
+    moonShard(x+w*0.69, y+dep+1, H*0.66, 2.8,  0.16, g);
+    moonShard(x+w*0.50, rT-4, 15, 2.8, 0.02, g);
+    for(let i=0;i<3;i++)
+      moonShard(x+w*(0.16+i*0.34), y+dep+2, 4.0, 1.3, (i-1)*0.3, g);
+  },
+  house(x,y,w,dep,H,rT,g,d){                       // modest: an eave and a doorpost
+    moonShard(x+w*0.78, rT+6, 8, 1.9, 0.18, g);
+    moonShard(x+w*0.22, y+dep+1, H*0.52, 2.0, -0.12, g);
+    moonShard(x+w*0.55, y+dep+2, 3.4, 1.1, 0.1, g);
+  },
+  lumber(x,y,w,dep,H,rT,g,d){                      // up through the log stack
+    for(let i=0;i<4;i++)
+      moonShard(x+w*(0.14+i*0.24), y+dep+1, 5.5+((i%2)*4), 1.8, (i-1.5)*0.16, g);
+    moonShard(x+w*0.60, rT+8, 12, 2.5, 0.10, g);
+  }
+};
+
+/* A faint blue rim round a plated building after dark, on top of the light
+   pool it already casts. The pool says "there is light here"; the rim says
+   the light is coming from the building itself.
+
+   It traces the building's OUTER BOUNDS and nothing else. The first version
+   ran the path up to a single apex at the ridge, which drew a tall
+   triangular tent standing above every building - a gable's ridge is a LINE
+   spanning the full width, not a point, so the real roof is a slab and the
+   tent was a shape the building never had. Follow the box, per the user's
+   own drawing over a screenshot.
+
+   Three widening, fading strokes: the cheap way to a soft edge without
+   shadowBlur, which matters because this runs on a phone. Scales with
+   G.dark, so it is nothing at noon. (moonstone manor) */
+const PLATE_RIM = 0.104;  // the outermost stroke's alpha at full dark
+
+/* The rim has to follow the roof the building ACTUALLY has. A box whose top
+   came from the gable ridge sat well above a dome's crown and a long way
+   outside its curve, so on the lodge, grove, music college and great hall
+   the rim floated off the building and read as nothing at all.
+
+   These numbers are taken from drawRoof, not guessed: a lean rises to
+   top-A*0.45, a gable or hip to top-A*0.55, a cone to top-A*1.7, and a dome
+   is an ellipse centred at y-H+dep*0.30 with a vertical radius of A*0.72 and
+   a HALF-WIDTH of w*0.44 - narrower than the wall it sits on, which is why
+   it needs its own path rather than a taller box. (moonstone manor) */
+/* Where the top of this roof actually is, and for a dome how big it is.
+   Both the rim and the crystals now ask this, so they cannot disagree about
+   the same building - which is exactly what went wrong: the rim jumped from
+   the wall to the dome's edge because a dome springs well ABOVE the wall
+   top, and the crystals sat at the gable ridge, higher than the dome's real
+   crown. All taken from drawRoof. (moonstone manor) */
+function roofGeom(x, y, w, dep, H, d, rT){
+  const kind = d.roof || "gable";
+  const A = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
+  if(kind === "dome"){
+    /* Straight out of drawRoof's dome branch, which draws an ellipse centred
+       at (x+w/2, front - dep*0.15) with radii w*0.60+2 and A*1.15, where
+       front = y-H+dep. The previous numbers here (dep*0.30, w*0.44, A*0.72)
+       were lifted from the SNOW overlay block by mistake - a different
+       ellipse entirely - which put the crown far too high and left the
+       crystals hanging in the air above the roof. */
+    const front = y - H + dep;
+    const cy = front - dep*0.15, ry = A*1.15, rx = w*0.60 + 2;
+    return { kind, cx:x+w/2, cy, rx, ry, top: cy - ry };
+  }
+  const top = kind === "none" ? y + dep - H
+            : kind === "cone" ? y - H - A*1.7          // drawRoof: apex = top - A*1.7
+            : kind === "lean" ? y - H - A*0.45
+            : rT;
+  return { kind, top };
+}
+
+function platedRimPath(x, y, w, dep, H, d, rT){
+  const kind = d.roof || "gable";
+  const A = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
+  const o = 2, L = x - o, R = x + w + o, B = y + dep, wallTop = y + dep - H;
+
+  if(kind === "dome"){
+    /* Two separate strokes - the wall, and the dome above it. Joining them
+       into one path drew a diagonal from the wall top out to the dome's
+       edge, because the dome springs a long way above the wall. */
+    const gm = roofGeom(x, y, w, dep, H, d, rT);
+    ctx.beginPath();
+    ctx.rect(L, wallTop, R-L, B-wallTop);
+    ctx.moveTo(gm.cx + gm.rx + o, gm.cy);
+    ctx.ellipse(gm.cx, gm.cy, gm.rx + o, gm.ry + o, 0, 0, Math.PI, true);
+    return;
+  }
+
+  const top = roofGeom(x, y, w, dep, H, d, rT).top;
+  const r = 3;
+  ctx.beginPath();
+  ctx.moveTo(L+r, top);
+  ctx.lineTo(R-r, top);   ctx.quadraticCurveTo(R, top, R, top+r);
+  ctx.lineTo(R, B-r);     ctx.quadraticCurveTo(R, B, R-r, B);
+  ctx.lineTo(L+r, B);     ctx.quadraticCurveTo(L, B, L, B-r);
+  ctx.lineTo(L, top+r);   ctx.quadraticCurveTo(L, top, L+r, top);
+  ctx.closePath();
+}
+
+function drawPlatedOutline(b, x, y, w, dep, H, d, rT, pulse){
+  const dk = (G.dark || 0) * (pulse === undefined ? 1 : pulse);
+  if(dk <= 0.15) return;
+  ctx.save();
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  platedRimPath(x, y, w, dep, H, d, rT);
+  for(let i=0;i<3;i++){
+    ctx.lineWidth   = 1.2 + i*2.2;
+    ctx.strokeStyle = "rgba(150,225,245,"+(dk*(PLATE_RIM - i*PLATE_RIM*0.33)).toFixed(3)+")";
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawPlating(b, x, y, w, dep, H, d){
+  if(!b.plated) return;
+  /* A slow breath in and out, and each building on its own phase (b.id) so a
+     street of them never pulses in unison - that would read as the screen
+     flickering rather than as crystal. Deliberately shallow: +/-15% around
+     the base, slower than a heartbeat at ~7 seconds a cycle, so it is
+     something you notice only if you stop and look at one. */
+  const pulse = 1 + 0.15*Math.sin(G.t*0.9 + b.id*1.7);
+  const g = moonGlowNow() * pulse;
+  const rA = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
+  const rT = y - H - rA*0.55;
+  drawPlatedOutline(b, x, y, w, dep, H, d, rT, pulse);
+  (PLATE_LOOKS[b.type] || plateGeneric)(x, y, w, dep, H, rT, g, d);
 }
 /* ---------- a little person ----------
    Chunky proportions in the spirit of The Settlers: a big round head, a short
@@ -14516,6 +15244,45 @@ function drawWanderer(w){
     ctx.beginPath();
     ctx.moveTo(0,-0.4); ctx.lineTo(5.0, -2.5-flap*1.2); ctx.lineTo(1.4,0.7); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.ellipse(0,0,1.7,1.25,0,0,6.283); ctx.fill();
+    ctx.restore();
+    return;
+  }
+  if(w.kind==="sheep"){
+    /* Somebody's sheep, out of its field and wandering across yours. Drawn
+       as a woolly mass with a dark face and legs - the fleece is three
+       overlapping circles rather than a scalloped outline, which at this
+       size reads the same and costs a fraction of the strokes. */
+    const gait = Math.sin(w.walk*3.2);
+    const bob  = Math.abs(gait)*0.5;
+    ctx.save();
+    ctx.translate(w.x, w.y - bob);
+    ctx.scale(w.face<0?-1:1, 1);
+
+    ctx.fillStyle = "rgba(0,0,0,.20)";
+    ctx.beginPath(); ctx.ellipse(0, 4.2, 6.4, 2.2, 0,0,6.283); ctx.fill();
+
+    // legs, front and back pairs swinging opposite each other
+    const swing = gait*2.2;
+    ctx.strokeStyle = "#3a332b"; ctx.lineWidth = 1.2; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-2.8, 1.4); ctx.lineTo(-2.8+swing, 4.4);
+    ctx.moveTo( 2.4, 1.4); ctx.lineTo( 2.4-swing, 4.4);
+    ctx.stroke();
+
+    // fleece
+    ctx.fillStyle = "#e6e1d2";
+    ctx.beginPath();
+    ctx.arc(-2.2, 0, 3.5, 0, 6.283);
+    ctx.arc( 0.6, -0.6, 3.8, 0, 6.283);
+    ctx.arc( 3.0, 0.2, 3.1, 0, 6.283);
+    ctx.fill();
+
+    // face and ear, out in front of the wool
+    ctx.fillStyle = "#4a4038";
+    ctx.beginPath(); ctx.ellipse(5.4, 0.4, 1.9, 1.5, 0.2, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(4.4, -1.1, 1.0, 0.6, -0.5, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#d8d2b4";
+    ctx.beginPath(); ctx.arc(6.0, 0.1, 0.35, 0, 6.283); ctx.fill();
     ctx.restore();
     return;
   }
@@ -16323,6 +17090,13 @@ const SEALIFE = {
   shark: { len:13, col:"#4a5560", belly:"#4a5560", spd:28, pod:[1,1], finOnly:true }
 };
 const SEALIFE_CHANCE = { whale:0.20, orca:0.30, shark:0.50 };   // shares of one sighting
+/* A day or two, then they move on. Deliberately NOT `const SEALIFE_STAY =
+   DAY_LEN * 1.5` - DAY_LEN is a top-level const in 05b, which is concatenated
+   AFTER this file, and a const does not hoist. Evaluating it here at load
+   time threw "Cannot access 'DAY_LEN' before initialization" and the whole
+   game failed to boot. A function defers the read to runtime, by which point
+   everything is initialised. */
+function sealifeStay(){ return DAY_LEN * 1.5; }
 
 /* Is there enough open water here to be worth swimming through? Counts the
    sea tiles in a small block so a puddle or a river bend does not qualify. */
@@ -16391,8 +17165,17 @@ function updateSealife(dt){
     // it must stay in the water; a nose against the shore turns it away
     if(isWater(nx,ny)){ s.x = nx; s.y = ny; }
     else s.a += 1.1;
-    if(s.x<-60 || s.y<-60 || s.x>WORLD_W+60 || s.y>WORLD_H+60 || s.t>200) G.sealife.splice(i,1);
+    /* A day or two and they have moved on. Expressed in days rather than a
+       flat 200s so it reads as what it is. They cannot simply swim away on
+       an inland sea - a nose against the shore turns them back - so without
+       this a pod circles the same lake indefinitely. */
+    const gone = s.x<-60 || s.y<-60 || s.x>WORLD_W+60 || s.y>WORLD_H+60;
+    if(gone || s.t > sealifeStay()) G.sealife.splice(i,1);
   }
+  /* And once they have gone, the water is empty for a while. Measured: rolled
+     every 70-180s at 22% with a stay of up to 200s, a pod was in view about a
+     third of the time on a water map, which is why they felt permanent. */
+  if(!G.sealife.length) G.seaCd = Math.max(G.seaCd||0, 200 + Math.random()*200);
 }
 
 function drawSealife(s){
@@ -16964,11 +17747,11 @@ function updateLeisureVillagers(dt){
   G.leisureCd = (G.leisureCd===undefined) ? 14 : G.leisureCd - dt;
 
   if(G.leisureCd <= 0){
-    G.leisureCd = 26 + Math.random()*34;
+    G.leisureCd = 56 + Math.random()*72;   // was 26-60s - see the note on home life
     const slots = G.leisure.reduce((s,o)=>s + (o.coupleId?0.5:1), 0);
     const houses = G.bldgs.filter(b=>b.p===P_YOU && b.type==="house" && b.done &&
       !G.leisure.some(o=>o.home===b));
-    if(houses.length && slots < LEISURE_MAX && G.phase==="day" && Math.random() < 0.6){
+    if(houses.length && slots < LEISURE_MAX && G.phase==="day" && Math.random() < 0.45){
       const house = houses[(Math.random()*houses.length)|0];
       const { opts, farm, waterSpot, tree } = leisureOptionsFor(house);
       const activity = opts[(Math.random()*opts.length)|0];
@@ -17623,9 +18406,11 @@ function updateRoofBirds(dt){
   G.roofBirdCd = (G.roofBirdCd===undefined) ? 6+Math.random()*10 : G.roofBirdCd-dt;
 
   // one more settles on a roof now and then, if there's a roof free
+  // a squall clears the ridges: they go, and none settle until it eases
+  if(foulWeather() && G.roofBirds.length) G.roofBirds.length = 0;
   if(G.roofBirdCd <= 0){
     G.roofBirdCd = 10 + Math.random()*20;
-    const roofs = G.bldgs.filter(b=>b.p===P_YOU && b.done &&
+    const roofs = foulWeather() ? [] : G.bldgs.filter(b=>b.p===P_YOU && b.done &&
       (b.type==="house" || b.type==="lodge" || b.type==="town"));
     if(roofs.length && G.roofBirds.length < ROOFBIRD_MAX){
       const h = roofs[(Math.random()*roofs.length)|0];
@@ -17715,6 +18500,17 @@ function updateWind(dt){
     ? (G.windDir >= 0 ? 1 : -1)
     : Math.sin(G.windT*0.05) * 0.6;
   G.windDir += (target - G.windDir) * Math.min(1, dt*0.15);
+}
+
+/* Weather bad enough that anything with wings puts itself away.
+
+   Deliberately not "is there weather" - every spell of weather ramps up and
+   down, and birds vanishing the instant the first drizzle was rolled would
+   read as a glitch rather than as animals with sense. They go when it means
+   it, and they come back as it eases. */
+const FOUL_WEATHER_AT = 0.4;
+function foulWeather(){
+  return !!G.weather && (G.weatherAmt || 0) >= FOUL_WEATHER_AT;
 }
 
 /* ============================================================
@@ -18611,6 +19407,360 @@ function drawSeasonalFarmMarker(b, x, y){
 }
 
 /* ============================================================
+   TUMBLEWEEDS
+   ============================================================
+   Dry-weather scenery: a tangle of dead twigs that comes in off the upwind
+   edge and rolls across the map. Purely atmospheric - it collides with
+   nothing and means nothing.
+
+   It reads G.windDir, the same signed lean the smoke, the grass and now the
+   flocks use, so on a gusty autumn afternoon everything loose is going the
+   same way. A downpour stops them: a soaked tumbleweed does not roll. */
+const TUMBLE_MAX = 3;
+/* Rolled on its own slow timer, not per frame. Deliberately low: at 0.5 this
+   measured three a match, which is scenery rather than a thing you notice.
+   Something that turns up now and then is worth more than something always
+   rolling past. Measure after changing it - `tumbleweeds seen per match`. */
+const TUMBLE_CHANCE = 0.14;
+const TUMBLE_MIN_WIND = 0.28;   // below this the day is too still to bother
+
+function tumbleSeason(){
+  // high summer and autumn: the dry end of the year
+  return G.season === "summer" || G.season === "autumn";
+}
+
+function trySpawnTumbleweed(force){
+  if(!G.tumbles) G.tumbles = [];
+  if(G.tumbles.length >= TUMBLE_MAX) return false;
+  if(!force){
+    if(!tumbleSeason()) return false;
+    // a downpour flattens them; a gale is exactly their weather
+    if(G.weather && G.weather.key === "downpour") return false;
+    if(Math.abs(G.windDir || 0) < TUMBLE_MIN_WIND) return false;
+    const gale = G.weather && G.weather.key === "gale";
+    if(Math.random() > (gale ? TUMBLE_CHANCE * 2.2 : TUMBLE_CHANCE)) return false;
+  }
+  const wind = (G.windDir || 0) >= 0 ? 1 : -1;
+  // in at the edge the wind is coming FROM, so it crosses rather than leaves
+  const x = wind > 0 ? -30 : WORLD_W + 30;
+  const edgeX = wind > 0 ? 10 : WORLD_W - 10;
+  /* Try several rows before giving up. Every one of these maps has a coast,
+     so a single roll lands in the sea more often than not - the first
+     version took one look, found water and returned false nearly every
+     time, which would have been a feature that quietly never happened. */
+  let y = -1;
+  for(let tries = 0; tries < 12 && y < 0; tries++){
+    const cand = 40 + Math.random() * (WORLD_H - 80);
+    if(!isWater(edgeX, cand)) y = cand;
+  }
+  if(y < 0) return false;      // an entirely watery edge: nowhere to roll in
+  G.tumbles.push({
+    x, y,
+    r: 7 + Math.random() * 5,
+    spin: Math.random() * 6.283,
+    hop: Math.random() * 6.283,      // phase, so they do not all bounce together
+    seed: Math.random() * 6.283,
+    drift: 0.5 + Math.random() * 0.5 // some are heavier than others
+  });
+  return true;
+}
+
+function updateTumbleweeds(dt){
+  if(!G.tumbles) G.tumbles = [];
+  G.tumbleCd = (G.tumbleCd === undefined) ? 12 + Math.random() * 20 : G.tumbleCd - dt;
+  if(G.tumbleCd <= 0){
+    G.tumbleCd = 26 + Math.random() * 44;
+    trySpawnTumbleweed(false);
+  }
+  const wind = G.windDir || 0;
+  for(const t of G.tumbles){
+    const spd = wind * 46 * t.drift;
+    t.x += spd * dt;
+    // it wanders a little across the wind rather than running a ruler line
+    t.y += Math.sin(G.t * 0.7 + t.seed) * 9 * dt;
+    t.spin += spd * dt / Math.max(2, t.r);   // rolling, so spin follows travel
+    t.hop += dt * 5.5;
+  }
+  /* Gone once it is off the map, or once it has blown into water. Both are
+     the same thing to the player - it went away - and neither wants a wreck
+     left floating about.
+
+     The water check only applies once it is actually ON the map. isWater()
+     answers true for anything out of bounds, and these are spawned just off
+     the edge so they roll in - so the naive version culled every tumbleweed
+     on its first frame, and the feature never happened once in six matches
+     while still looking perfectly correct in the code. */
+  G.tumbles = G.tumbles.filter(t => {
+    if(t.x < -60 || t.x > WORLD_W + 60 || t.y < -60 || t.y > WORLD_H + 60) return false;
+    const onMap = t.x >= 0 && t.y >= 0 && t.x < WORLD_W && t.y < WORLD_H;
+    return !onMap || !isWater(t.x, t.y);
+  });
+}
+
+function drawTumbleweed(t){
+  const p = w2s(t.x, t.y);
+  const z = G.cam.z;
+  // it bounces as it rolls; the shadow stays on the ground and tightens
+  const lift = Math.abs(Math.sin(t.hop)) * 5 * z;
+  const r = t.r * z;
+
+  ctx.save();
+  ctx.globalAlpha = 0.20 - Math.abs(Math.sin(t.hop)) * 0.07;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(p.x, p.y, r * 0.85, r * 0.32, 0, 0, 6.283);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(p.x, p.y - lift - r * 0.5);
+  ctx.rotate(t.spin);
+  /* Six chords across the circle rather than a drawn bush: it reads as a
+     tangle at this size, and it is six strokes instead of sixty. The budget
+     for a whole frame is a few thousand operations. */
+  /* Thin, pale and open. The first pass at this used thick strokes in a
+     colour near the autumn ground, and the chords closed up into a solid
+     brown blob that read as a shrub. A tumbleweed is mostly the gaps. */
+  ctx.strokeStyle = "#c2b083";
+  ctx.lineWidth = Math.max(0.45, 0.6 * z);
+  ctx.globalAlpha = 0.85;
+  ctx.beginPath();
+  for(let i = 0; i < 7; i++){
+    // near-diameters rather than short chords, so they cross the middle and
+    // leave the outside open instead of ringing it
+    const a = t.seed + i * 0.897;
+    ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r * 0.9);
+    ctx.lineTo(Math.cos(a + 2.9) * r, Math.sin(a + 2.9) * r * 0.9);
+  }
+  ctx.stroke();
+  // a few paler, shorter twigs to break up the star the chords would make
+  ctx.strokeStyle = "#d8caa2";
+  ctx.globalAlpha = 0.45;
+  ctx.beginPath();
+  for(let i = 0; i < 4; i++){
+    const a = t.seed * 1.7 + i * 1.571;
+    ctx.moveTo(Math.cos(a) * r * 0.85, Math.sin(a) * r * 0.75);
+    ctx.lineTo(Math.cos(a + 1.9) * r * 0.7, Math.sin(a + 1.9) * r * 0.65);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ============================================================
+   MIGRATIONS
+   ============================================================
+   Twice a year a long skein crosses the whole map, high up and dead
+   straight: away south as the leaves turn, back again in spring. It is the
+   ordinary flock's opposite - that one drifts in, wanders about the middle
+   and leaves, whereas this has somewhere to be and does not stop.
+
+   One per season at most, and only in autumn and spring, so it stays an
+   occasion rather than scenery. */
+const MIGRATION_MIN = 14;        // a skein, not the everyday five-bird V
+const MIGRATION_MAX = 22;
+const MIGRATION_ALT = 30;        // well above the hawks
+
+function migrationSeason(){
+  return G.season === "autumn" || G.season === "spring";
+}
+
+function trySpawnMigration(force){
+  if(!force){
+    if(!migrationSeason()) return false;
+    if(G.migrationDone) return false;
+    if(G.seasonT < G.migrationAt) return false;
+    if(foulWeather()) return false;      // they sit out a squall like anything else
+  }
+  G.migrationDone = true;
+
+  /* Autumn goes south, spring comes back north. The map's south is +y, so
+     autumn flies down the screen and spring flies up it - and each is given
+     a lean across so the line is a diagonal rather than a ruler down the
+     middle of the map. */
+  const south = G.season === "autumn";
+  const acrossRight = Math.random() < 0.5;
+  const a = (south ? 1.571 : -1.571) + (acrossRight ? -0.55 : 0.55);
+
+  // start off the edge they are coming from, aimed to cross the whole map
+  const x = acrossRight ? -60 + Math.random()*260 : WORLD_W + 60 - Math.random()*260;
+  const y = south ? -70 : WORLD_H + 70;
+
+  G.birds.push({
+    x, y, a,
+    seed: Math.random()*6.28,
+    spd: 66 + Math.random()*16,
+    alt: MIGRATION_ALT + Math.random()*8,
+    n: MIGRATION_MIN + ((Math.random()*(MIGRATION_MAX-MIGRATION_MIN+1))|0),
+    migrant: true
+  });
+  hint(south ? "Geese, high up and going south."
+             : "The geese are back, heading north.");
+  return true;
+}
+
+function updateMigration(dt){
+  // a fresh season: pick a moment in it, and arm the one crossing it gets
+  if(G.migrationSeasonKey !== G.season){
+    G.migrationSeasonKey = G.season;
+    G.migrationAt = 25 + Math.random()*(SEASON_LEN - 50);
+    G.migrationDone = !migrationSeason();   // nothing due in summer or winter
+  }
+  if(!G.migrationDone) trySpawnMigration(false);
+}
+
+/* ============================================================
+   THE DAY'S ROUND
+   ============================================================
+   Which animals are up when. Small things keep to the half-light at either
+   end of the day, deer come out into the open in the afternoon, and the big
+   ones move at night - which is roughly true of the real thing, and means
+   the view out of the village is not the same at noon as it is at dusk.
+
+   This deliberately does NOT swap species the way reseason() does. Both
+   would be writing c.species, they would fight over it, and an animal would
+   flicker between two shapes on the boundary. It changes how much each is
+   about, not what it is. */
+const DAY_ROUND = {
+  // active hours per size band, by timeOfDay()
+  small:  { dawn:1.35, day:0.55, dusk:1.35, night:0.7 },
+  medium: { dawn:0.9,  day:1.25, dusk:1.1,  night:0.5 },
+  large:  { dawn:0.6,  day:0.7,  dusk:1.0,  night:1.3 }
+};
+
+/* How lively this animal should be right now: above 1 it roams further and
+   rests less, below 1 it settles down. Never zero - a herd that froze
+   solid would read as the game having hung, which is the last impression
+   this wants to give. */
+function dayRoundFor(size){
+  const row = DAY_ROUND[size] || DAY_ROUND.medium;
+  const v = row[timeOfDay()];
+  return (v === undefined) ? 1 : v;
+}
+
+/* ============================================================
+   FROGS
+   ============================================================
+   They sit at the water's edge and hop, mostly nowhere. Nearest thing on
+   the map to the ducks, and they use the same shore finder, but where a
+   duck paddles about a frog is still for long stretches and then moves in
+   one sharp jump - which is the whole of the animation.
+
+   They keep the half-light: out at dusk and after dark, largely hidden by
+   day. That is what dayRoundFor already says about small things, so they
+   read it rather than inventing a second opinion about the hour. */
+const FROG_MAX = 5;
+const FROG_HOP = 22;           // how far one hop carries it
+
+function frogWeather(){
+  // no frog is out in a blizzard, and they are not a winter animal at all
+  return G.season !== "winter" && !foulWeather();
+}
+
+function updateFrogs(dt){
+  if(!G.frogs) G.frogs = [];
+  G.frogCd = (G.frogCd===undefined) ? 8+Math.random()*14 : G.frogCd-dt;
+  if(G.frogCd <= 0){
+    G.frogCd = 16 + Math.random()*26;
+    if(frogWeather() && G.frogs.length < FROG_MAX){
+      const spot = findShoreSpot();
+      if(spot) G.frogs.push({
+        x:spot.x, y:spot.y, home:spot, id:G.nextId++,
+        wait: Math.random()*3, hop: 0, hx: spot.x, hy: spot.y,
+        face: Math.random()<0.5 ? 1 : -1, seed: Math.random()*6.283,
+        throat: Math.random()*6.283
+      });
+    }
+  }
+  // winter closes them down, and so does a squall
+  if(!frogWeather()){ if(G.frogs.length) G.frogs.length = 0; return; }
+
+  for(let i=G.frogs.length-1; i>=0; i--){
+    const f = G.frogs[i];
+    f.throat += dt * (1.1 + Math.sin(f.seed)*0.3);
+
+    // anything walking up sends it into the water, and that is the last of it
+    let near = false;
+    for(const u of G.units){
+      if(Math.hypot(u.x-f.x, u.y-f.y) < 34){ near = true; break; }
+    }
+    if(near){ G.frogs.splice(i,1); continue; }
+
+    if(f.hop > 0){
+      /* Mid-jump. The arc is drawn from `hop` counting down, so the frog is
+         moved along a straight line and lifted by drawFrog - a hop that
+         curved through the world would put it in the water at the top. */
+      f.hop -= dt;
+      const k = Math.max(0, Math.min(1, 1 - f.hop/0.36));
+      f.x = f.px + (f.hx - f.px)*k;
+      f.y = f.py + (f.hy - f.py)*k;
+      continue;
+    }
+
+    f.wait -= dt * dayRoundFor("small");   // livelier at dusk and after dark
+    if(f.wait <= 0){
+      f.wait = 1.4 + Math.random()*4.5;
+      const a = Math.random()*6.283;
+      const nx = f.home.x + Math.cos(a)*FROG_HOP, ny = f.home.y + Math.sin(a)*FROG_HOP;
+      // it will not hop into the water, nor more than a hop from its own bank
+      if(!isWater(nx,ny) && Math.hypot(nx-f.home.x, ny-f.home.y) < FROG_HOP*1.6){
+        f.px = f.x; f.py = f.y; f.hx = nx; f.hy = ny; f.hop = 0.36;
+        f.face = (nx > f.x) ? 1 : -1;
+      }
+    }
+  }
+}
+
+function drawFrog(f){
+  const p = w2s(f.x, f.y);
+  const z = G.cam.z;
+  // the arc: nothing while sitting, a low lift through the jump
+  const k = f.hop > 0 ? Math.sin((1 - f.hop/0.36) * Math.PI) : 0;
+  const lift = k * 7 * z;
+  const s = 1.9 * z;
+
+  ctx.save();
+  ctx.globalAlpha = 0.22 - k*0.1;
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.ellipse(p.x, p.y, s*1.15, s*0.45, 0, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  ctx.translate(p.x, p.y - lift);
+  ctx.scale(f.face, 1);
+
+  // back legs, tucked when sitting and kicked out through the jump
+  ctx.strokeStyle = "#4a6b3a";
+  ctx.lineWidth = Math.max(0.5, 0.85*z);
+  ctx.beginPath();
+  ctx.moveTo(-s*0.5, s*0.25);
+  ctx.lineTo(-s*(0.95 + k*0.9), s*(0.35 - k*0.45));
+  ctx.stroke();
+
+  // body
+  ctx.fillStyle = "#5f8a45";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, s, s*(0.72 - k*0.14), 0, 0, 6.283);
+  ctx.fill();
+  // a paler belly line so it is not a flat blob at this size
+  ctx.fillStyle = "#7aa557";
+  ctx.beginPath();
+  ctx.ellipse(s*0.1, s*0.18, s*0.6, s*0.3, 0, 0, 6.283);
+  ctx.fill();
+
+  // head, and the throat going in and out while it sits
+  const puff = f.hop > 0 ? 0 : Math.max(0, Math.sin(f.throat)) * 0.32;
+  ctx.fillStyle = "#5f8a45";
+  ctx.beginPath();
+  ctx.ellipse(s*0.62, -s*0.12, s*0.5, s*(0.42 + puff), 0, 0, 6.283);
+  ctx.fill();
+  // two eyes on top, which is most of what makes it read as a frog
+  ctx.fillStyle = "#d8d2b4";
+  ctx.beginPath(); ctx.arc(s*0.72, -s*0.5, s*0.2, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#1e2a18";
+  ctx.beginPath(); ctx.arc(s*0.76, -s*0.5, s*0.1, 0, 6.283); ctx.fill();
+  ctx.restore();
+}
+
+/* ============================================================
    NIGHT CYCLE
    Pulled out of 01-constants-and-helpers.js as a pilot for the module split
    described in PROJECT_NOTES.md. Covers: the day/night clock itself, the
@@ -18851,8 +20001,11 @@ function wakeVillagerForNight(u, home){
   u.site = u.daySite || null;
   u.dayOrder = u.dayTarget = u.daySite = null;
   u.path = null;
-  hint(u.nightName+" is woken for the night's work.");
-  refreshUI();
+  // the Ashkin do this too, and you should not be told about their staff
+  if(u.p===P_YOU){
+    hint(u.nightName+" is woken for the night's work.");
+    refreshUI();
+  }
 }
 
 // send an exhausted villager home to actually rest - resets the nightly
@@ -18862,7 +20015,7 @@ function restVillager(u){
   u.awakeAtNight = false;
   u.nightsAwake = 0;
   const home = findHome(u);
-  if(!home){ hint("No home to send them to yet."); return; }
+  if(!home){ if(u.p===P_YOU) hint("No home to send them to yet."); return; }
   u.home = home;
   const spread = G.units.filter(w=>w.home===home).length;
   const lane = spread % 5, row = (spread/5)|0;
@@ -18893,6 +20046,30 @@ function moonHomeFor(u){
     if(d < bd){ bd=d; best=b; }
   }
   return best;
+}
+
+/* A night in your own bed mends you a little. Applies to whichever shift is
+   actually asleep - the villagers indoors after dark, the moonstone folk
+   indoors through the day - so both get the same quiet benefit from keeping
+   their own hours.
+
+   Rate is a share of the sleeper's OWN maximum, so a moonstone villager
+   (44hp) and a villager (32hp) both wake up proportionally better rather
+   than the smaller one healing faster in relative terms. Sized so a full
+   night restores about a fifth: enough that resting is worth doing, not so
+   much that it replaces staying out of trouble. It cannot exceed maxhp, so
+   a villager worn down by nights awake still cannot climb back past the
+   ceiling those nights cost them. (moonstone manor) */
+const SLEEP_HEAL_PER_NIGHT = 0.20;
+
+function updateSleepHealing(dt){
+  // the sleeping part of a day is roughly the dark half of it
+  const rate = SLEEP_HEAL_PER_NIGHT / (DAY_LEN * 0.45);
+  for(const u of G.units){
+    if(!u.indoors || u.hp<=0 || u.hp>=u.maxhp) continue;
+    if(u.type!=="villager" && u.type!=="moonvillager") continue;
+    u.hp = Math.min(u.maxhp, u.hp + u.maxhp*rate*dt);
+  }
 }
 
 function moonfolkRise(){
@@ -19891,6 +21068,325 @@ function drawDruidForm(u, col, pl){
   ctx.restore();
 }
 
+/* ============================================================
+   SAVE AND LOAD
+   ============================================================
+
+   One slot. The village autosaves at each dawn, and the menu has a Save
+   button for anyone who wants to put it down mid-afternoon.
+
+   The awkward part is that G is a graph, not a tree. A villager points at
+   the farm it works; that farm points back at the node it was built on; the
+   node points back at the farm. JSON.stringify(G) throws on the first farm
+   in the match, and even where it does not throw it would write a separate
+   copy of the same building everywhere it was pointed at - so after a load
+   a unit's .workplace would be a lookalike of the farm rather than the farm
+   itself, and the two would drift apart with nothing to show it.
+
+   So every entity is written exactly once, in `ents`, and every mention of
+   it anywhere else - including inside G.units itself - is a {$ref:id}
+   marker that gets swapped back for the object on load. */
+
+const SAVE_KEY = "cosyempires_save";
+/* Bumped whenever the payload's shape changes in a way an older save cannot
+   satisfy. A save from a different version is dropped rather than half-read:
+   a village that loads wrong is worse than one that does not load. */
+const SAVE_VERSION = 1;
+
+/* Safari in private browsing throws on the very act of touching localStorage,
+   rather than politely failing on write, so every access goes through here. */
+function saveStore(){
+  try { return (typeof window !== "undefined" && window.localStorage) || null; }
+  catch(e){ return null; }
+}
+
+function hasSave(){
+  const s = saveStore();
+  if(!s) return false;
+  try { return !!s.getItem(SAVE_KEY); } catch(e){ return false; }
+}
+
+function clearSave(){
+  const s = saveStore();
+  if(!s) return;
+  try { s.removeItem(SAVE_KEY); } catch(e){}
+}
+
+/* Fields on G that are never written.
+
+   Caches, all of them - either bitmaps and canvases baked from something
+   else that IS saved, or scratch buffers rebuilt on first use. Writing them
+   would be pointless at best; at worst it would freeze a canvas into the
+   save and make it unreadable. Anything not listed here is saved, so a new
+   field added elsewhere in the game is remembered by default rather than
+   silently forgotten - which is the failure that is hard to notice. */
+const SAVE_SKIP = new Set([
+  // baked from G.terrain by bakeTerrainArt() on load
+  "terrainCanvas", "terrainSub", "terrainWinter", "terrainSpring", "terrainAutumn",
+  "fogCanvas", "fogCtx", "fogImg",
+  // built lazily on the first minimap draw and the first dark frame
+  "mmT", "mmTc", "mmImg", "mmAt", "nightCv", "nightCx",
+  // pathfinding scratch, rebuilt on first use
+  "paths", "navLand", "aiRouteCache",
+  // mid-animation, one frame from irrelevant
+  "projectiles", "fx", "lightning",
+  // a reference to shared static config, not per-match data: the difficulty
+  // key is saved alongside the state and DIFF is looked up again on load
+  "diff",
+  // a UI signature used to skip rebuilding the button row
+  "_lastBtnsSig"
+]);
+
+/* G.players are NOT entities. Their .id is the player index, 0 and 1, which
+   collides with the resource node that happens to be id 1 - and an id map
+   built over both would hand a relinked reference the wrong object. Nothing
+   points at a player object anyway (units carry .p, the index), so players
+   are written inline as plain data and never take part in the ref scheme. */
+const SAVE_NOT_ENTITIES = new Set(["players"]);
+
+/* Collect every entity: any object with a numeric id sitting in one of G's
+   arrays, plus any that is only ever reachable through a single slot such
+   as G.elder. Deliberately not a hard-coded list of collections - a new kind
+   of creature with its own array is picked up without anybody remembering
+   to come back here. */
+function saveEntities(){
+  const ents = new Map();     // id -> object
+  const isEnt = new Set();    // identity, so the check never rests on .id alone
+  const clash = [];
+  const take = (o) => {
+    if(!o || typeof o !== "object" || typeof o.id !== "number") return;
+    if(isEnt.has(o)) return;
+    const prev = ents.get(o.id);
+    if(prev && prev !== o){ clash.push(o.id); return; }
+    ents.set(o.id, o); isEnt.add(o);
+  };
+  const keys = Object.keys(G).sort();      // fixed order, so saves are stable
+  for(const k of keys){
+    if(SAVE_SKIP.has(k) || SAVE_NOT_ENTITIES.has(k)) continue;
+    const v = G[k];
+    if(Array.isArray(v)){ for(const o of v) take(o); }
+  }
+  // singletons last, so an object that also lives in an array is found there
+  for(const k of keys){
+    if(SAVE_SKIP.has(k) || SAVE_NOT_ENTITIES.has(k)) continue;
+    const v = G[k];
+    if(v && typeof v === "object" && !Array.isArray(v) && !ArrayBuffer.isView(v)) take(v);
+  }
+  return { ents, isEnt, clash };
+}
+
+/* Anything holding a function is a canvas, a context or a DOM element that
+   has been parked on G as a cache. Plain game data never does. This is the
+   net under SAVE_SKIP: a cache added later is dropped rather than crashing
+   the save, and the path is recorded so a test can say what was thrown away
+   instead of it going unnoticed. */
+function saveIsLive(v){
+  for(const k in v) if(typeof v[k] === "function") return true;
+  return false;
+}
+
+let __saveDropped = [];
+
+/* value -> plain JSON data. Entities become {$ref:id}; typed arrays keep
+   their kind so load can rebuild the right sort. */
+function saveFreeze(v, isEnt, path, depth){
+  if(v === null || v === undefined) return null;
+  const t = typeof v;
+  if(t === "number") return isFinite(v) ? v : 0;
+  if(t === "string" || t === "boolean") return v;
+  if(t === "function"){ __saveDropped.push(path); return undefined; }
+  if(t !== "object") return undefined;
+  if(depth > 24){ __saveDropped.push(path + " (too deep)"); return undefined; }
+
+  if(ArrayBuffer.isView(v)) return { $ta: v.constructor.name, d: Array.from(v) };
+  if(isEnt.has(v)) return { $ref: v.id };
+  if(Array.isArray(v)){
+    const out = [];
+    for(let i=0;i<v.length;i++){
+      const f = saveFreeze(v[i], isEnt, path + "[" + i + "]", depth+1);
+      out.push(f === undefined ? null : f);
+    }
+    return out;
+  }
+  if(saveIsLive(v)){ __saveDropped.push(path); return undefined; }
+  const out = {};
+  for(const k in v){
+    const f = saveFreeze(v[k], isEnt, path + "." + k, depth+1);
+    if(f !== undefined) out[k] = f;
+  }
+  return out;
+}
+
+/* Build the whole payload without touching localStorage - the tests round-trip
+   through this, and the browser writes what it returns. */
+function buildSave(){
+  if(!G) return null;
+  const { ents, isEnt, clash } = saveEntities();
+  if(clash.length){
+    // Two objects claiming one id means relink would hand out the wrong one.
+    // Refuse rather than write a village that loads back subtly wrong.
+    return { error: "duplicate entity ids: " + clash.slice(0,6).join(", ") };
+  }
+  __saveDropped = [];
+
+  const state = {};
+  for(const k in G){
+    if(SAVE_SKIP.has(k)) continue;
+    const f = saveFreeze(G[k], isEnt, "G." + k, 0);
+    if(f !== undefined) state[k] = f;
+  }
+
+  const entOut = {};
+  for(const [id, o] of ents){
+    const e = {};
+    for(const k in o){
+      const f = saveFreeze(o[k], isEnt, "#" + id + "." + k, 0);
+      if(f !== undefined) e[k] = f;
+    }
+    entOut[id] = e;
+  }
+
+  return {
+    version: SAVE_VERSION,
+    savedAt: Date.now(),
+    seed: G.seed,
+    rng: rngState(),
+    difficulty: DIFFICULTY,
+    forcedMap: FORCED_MAP ? FORCED_MAP.name : null,
+    dropped: __saveDropped.slice(),
+    ents: entOut,
+    state: state
+  };
+}
+
+/* Write the one slot. Returns true if the village is actually on disk. */
+function saveGame(quiet){
+  const s = saveStore();
+  if(!s){ if(!quiet) hint("This browser will not let the village be saved."); return false; }
+  /* A finished match is never written. With one slot, saving over a village
+     you can still go back to with one you have already lost is the worst
+     thing this could quietly do - and the endscreen is reachable with the
+     menu still open behind it. */
+  if(!G || G.over){ if(!quiet) hint("That match is over — there is nothing left to save."); return false; }
+  let payload;
+  try { payload = buildSave(); }
+  catch(e){ if(!quiet) hint("The village could not be saved."); return false; }
+  if(!payload || payload.error){ if(!quiet) hint("The village could not be saved."); return false; }
+  try {
+    s.setItem(SAVE_KEY, JSON.stringify(payload));
+  } catch(e){
+    // out of quota, or storage refused outright
+    if(!quiet) hint("There was no room to save the village.");
+    return false;
+  }
+  if(!quiet) hint("Village saved.");
+  return true;
+}
+
+/* {$ref} -> the object, {$ta} -> the typed array, everything else copied. */
+function saveThaw(v, byId, depth){
+  if(v === null || typeof v !== "object") return v;
+  if(Array.isArray(v)){
+    for(let i=0;i<v.length;i++) v[i] = saveThaw(v[i], byId, depth+1);
+    return v;
+  }
+  if(typeof v.$ref === "number"){
+    /* A reference whose entity is gone resolves to null, not a throw: the
+       target of an order can die in the same frame the save is written. */
+    return byId.get(v.$ref) || null;
+  }
+  if(typeof v.$ta === "string"){
+    const C = (v.$ta === "Float32Array") ? Float32Array
+            : (v.$ta === "Uint8ClampedArray") ? Uint8ClampedArray
+            : (v.$ta === "Int32Array") ? Int32Array
+            : (v.$ta === "Float64Array") ? Float64Array
+            : Uint8Array;
+    return C.from(v.d || []);
+  }
+  if(depth > 24) return v;
+  for(const k in v) v[k] = saveThaw(v[k], byId, depth+1);
+  return v;
+}
+
+/* Read the slot back and make it the running game. Returns true on success;
+   on any failure G is left exactly as it was, so a bad save costs the player
+   nothing but a message. */
+function loadGame(){
+  const s = saveStore();
+  if(!s) return false;
+  let payload;
+  try {
+    const raw = s.getItem(SAVE_KEY);
+    if(!raw) return false;
+    payload = JSON.parse(raw);
+  } catch(e){ return false; }
+  if(!payload || payload.version !== SAVE_VERSION || !payload.state || !payload.ents){
+    hint("That saved village is from an older version and cannot be read.");
+    return false;
+  }
+
+  let built;
+  try {
+    // Pass A: every entity becomes a real object, so the ids have something
+    // to point at before anything is relinked.
+    const byId = new Map();
+    for(const id in payload.ents) byId.set(+id, Object.assign({}, payload.ents[id]));
+    // Pass B: relink the entities themselves, then the rest of the state
+    for(const o of byId.values()) for(const k in o) o[k] = saveThaw(o[k], byId, 0);
+    built = saveThaw(payload.state, byId, 0);
+  } catch(e){
+    hint("That saved village could not be read.");
+    return false;
+  }
+
+  // Settings live outside G and have to come back before it is swapped in
+  if(DIFF[payload.difficulty]) DIFFICULTY = payload.difficulty;
+  FORCED_MAP = payload.forcedMap ? (MAP_TYPES.find(m=>m.name===payload.forcedMap) || null) : null;
+
+  /* newGame() replaces G wholesale rather than mutating it, and so does this
+     - everything else reads the current G through the shared binding, so the
+     swap has to be one assignment and not a field-by-field copy. */
+  G = built;
+  G.diff = DIFF[DIFFICULTY] || DIFF.medium;
+  G.projectiles = []; G.fx = []; G.lightning = null;
+  G.running = false; G.over = false;
+
+  // the ground's bitmaps are baked from the terrain rather than saved
+  bakeTerrainArt(G.terrain);
+  // pathfinding scratch rebuilds itself; the nav grid is rebuilt now because
+  // the first tick will already be asking units to walk somewhere
+  G.navDirty = true;
+  rebuildNav();
+  // recalcPop takes the player index, not the player
+  for(let i=0;i<G.players.length;i++) recalcPop(i);
+
+  // and pick the random stream back up where the save left it, so the loaded
+  // evening is the one that was coming, not the opening of the match again
+  setSeed(payload.seed >>> 0);
+  setRngState(payload.rng);
+
+  resize();
+  refreshUI();
+  return true;
+}
+
+/* A one-line description of the slot for the start menu, or null. */
+function saveSummary(){
+  const s = saveStore();
+  if(!s) return null;
+  try {
+    const raw = s.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const p = JSON.parse(raw);
+    if(!p || p.version !== SAVE_VERSION) return null;
+    const st = p.state || {};
+    const mins = Math.floor((st.t || 0) / 60);
+    const season = st.season ? (st.season.charAt(0).toUpperCase() + st.season.slice(1)) : "";
+    const d = DIFF[p.difficulty] ? DIFF[p.difficulty].label : p.difficulty;
+    return season + " · " + mins + " min · " + d;
+  } catch(e){ return null; }
+}
+
 /* ---------- minimap ---------- */
 const mm = document.getElementById("minimap");
 const mmc = mm.getContext("2d");
@@ -19952,8 +21448,20 @@ mm.addEventListener("pointerdown", e=>{
    ============================================================ */
 const $ = id=>document.getElementById(id);
 let hintT=0;
+/* How long a line stays up is set by how long it takes to READ, not by a
+   flat timer. Everything used to get 3.25s, so "Not enough resources." and a
+   150-character piece of narrative about the frost were given exactly the
+   same moment on screen - and the long ones were gone before you finished.
+
+   ~16 characters a second is an unhurried pace (comfortable reading is
+   nearer 20), plus a fixed 2.2s to notice the thing has appeared at all.
+   Capped at 13s so nothing camps on the screen. */
+function hintDuration(msg){
+  return Math.min(13, Math.max(3.25, 2.2 + (msg ? msg.length : 0)/16));
+}
 function hint(msg){
-  const h=$("hint"); h.textContent=msg; h.classList.add("show"); hintT=3.25;   // a quarter longer than it was
+  const h=$("hint"); h.textContent=msg; h.classList.add("show");
+  hintT = hintDuration(msg);
 }
 
 function idleUnits(){
@@ -20548,8 +22056,21 @@ function refreshUI(){
          instead. So the training list simply is not there in daylight - the
          user's own idea, and better than one menu with half of it greyed. */
       if(d.manor && (G.dark||0) < 0.35){
-        addBtn("Nothing to make by day", "come back after dark", false, null,
-               "The Manor works crystal into your buildings by day, and makes moonstone villagers by night.");
+        /* The Manor's daytime face: a list of what can still take the
+           crystal. Nearest first, because you are usually thinking about
+           the camp you just built rather than hunting the whole map. */
+        const able = G.bldgs.filter(x=>x.p===P_YOU && canPlate(x))
+                            .sort((p1,p2)=>Math.hypot(p1.x-b.x,p1.y-b.y)-Math.hypot(p2.x-b.x,p2.y-b.y));
+        if(!able.length){
+          addBtn("Nothing left to plate", "every building has its crystal", false, null,
+                 "The Manor works crystal into your other buildings by day, and makes moonstone villagers by night.");
+        } else {
+          for(const t of able.slice(0,6)){
+            addBtn("🔷 "+BLDG[t.type].name, costStr(PLATE_COST), canAfford(pl, PLATE_COST),
+                   ()=>{ tryPlate(t); },
+                   "Faster at what it does, a light of its own after dark, and somewhere your moonstone villagers can bring their night's work.");
+          }
+        }
       } else
       for(const t of d.trains){
         const ud=UNITS[t];
@@ -20973,10 +22494,17 @@ $("menubtn").addEventListener("click", ()=>{
 
 if(document.querySelectorAll){
   for(const b of document.querySelectorAll(".diffbtn")){
+    /* The start menu's rows carry .diffbtn too, so that they light up with
+       the current setting - but they must not also get this handler, or a
+       new game would start twice and skip the instructions. */
+    if(b.classList && b.classList.contains("mdiff")) continue;
     // picking a plain difficulty also means "off the islands, back to the
     // usual mix of maps" - otherwise choosing Hard while on an island deal
     // would silently keep the water and look like the button did nothing
     b.addEventListener("click", ()=>{ FORCED_MAP = null; setDifficulty(b.getAttribute("data-diff")); });
+  }
+  for(const b of document.querySelectorAll(".mdiff")){
+    b.addEventListener("click", ()=>{ FORCED_MAP = null; startNewGameFromMenu(b.getAttribute("data-diff")); });
   }
   for(const b of document.querySelectorAll(".mapbtn")){
     b.addEventListener("click", ()=>{
@@ -20987,6 +22515,10 @@ if(document.querySelectorAll){
   }
 }
 $("mnu_close").addEventListener("click", ()=>$("menupanel").classList.add("hide"));
+$("mnu_save").addEventListener("click", ()=>{
+  $("menupanel").classList.add("hide");
+  saveGame();     // says so itself, either way
+});
 $("mnu_restart").addEventListener("click", ()=>{
   $("menupanel").classList.add("hide");
   $("endscreen").classList.add("hide");
@@ -21010,8 +22542,9 @@ $("btnresume").addEventListener("click", ()=>{
 });
 $("btnexit").addEventListener("click", ()=>{
   $("pausescreen").classList.add("hide");
-  $("startscreen").classList.remove("hide");
-  // the game itself stays paused underneath - "Begin" picks it back up
+  // always back to the root page, never wherever the menu was last left
+  showStartMenu();
+  // the game itself stays paused underneath - the X picks it back up
 });
 window.addEventListener("keydown", e=>{
   if(e.key==="Escape" && G && !G.over){
@@ -21029,11 +22562,109 @@ window.addEventListener("keydown", e=>{
   if((e.key==="." || e.key===",") && G && G.running){ e.preventDefault(); jumpToIdle(); }
 });
 
-$("btnstart").addEventListener("click", ()=>{
+/* ---------- the start menu ----------
+   The start screen is a menu with pages rather than one long splash: the
+   instructions and the patch notes are pages within it. Exactly one page is
+   visible at a time, and they live inside the same card so that moving
+   between them does not resize or re-centre it under the reader. */
+const MENU_PAGES = ["mp_root","mp_new","mp_how","mp_set","mp_patch"];
+function openMenuPage(id, opts){
+  for(const p of MENU_PAGES){
+    const el = $(p);
+    if(!el || !el.classList) continue;
+    if(p === id) el.classList.remove("hide"); else el.classList.add("hide");
+  }
+  if(id === "mp_new"){
+    syncDiffButtons();     // the difficulty rows carry the .diffbtn class too
+    const w = $("mm_overwrite");
+    // one slot: the new game's first dawn writes over whatever is in it
+    if(w && w.classList) w.classList.toggle("hide", !hasSave());
+  }
+  if(id === "mp_how"){
+    /* The how-to page ends in Begin when a match has just been dealt and is
+       waiting behind it, and in Back when it was opened as reference from
+       the menu. Same page either way - two endings rather than two copies
+       of the instructions to keep in step. */
+    const starting = !!(opts && opts.starting);
+    const go = $("mm_begin"), back = $("mm_howback");
+    if(go && go.classList) go.classList.toggle("hide", !starting);
+    if(back && back.classList) back.classList.toggle("hide", starting);
+  }
+  if(id === "mp_root" || id === "mp_set") refreshSaveRows();
+}
+
+/* Picking a difficulty on the menu deals the match but does not start it:
+   the instructions come up first, every time, and Begin is what sets the
+   clock going. Distinct from the ☰ menu's difficulty buttons, which are for
+   someone already playing and drop them straight back into a fresh map. */
+function startNewGameFromMenu(d){
+  if(!DIFF[d]) return;
+  DIFFICULTY = d;
+  syncDiffButtons();
+  $("menupanel").classList.add("hide");
+  $("endscreen").classList.add("hide");
+  $("pausescreen").classList.add("hide");
+  newGame(); resize(); refreshUI(); errShown = false;
+  G.running = false;                  // held until Begin
+  $("startscreen").classList.remove("hide");
+  openMenuPage("mp_how", { starting:true });
+}
+
+/* Continue is greyed rather than removed when there is nothing to continue.
+   A row that appears out of nowhere the first time a save exists is harder
+   to find than one that was always sitting there, unavailable. */
+function refreshSaveRows(){
+  const has = hasSave(), sum = has ? saveSummary() : null;
+  const setRow = (btnId, subId, empty) => {
+    const b = $(btnId), s = $(subId);
+    if(b && b.setAttribute){
+      if(has) b.removeAttribute("disabled"); else b.setAttribute("disabled","");
+    }
+    if(s) s.textContent = has ? (sum || "A saved village") : empty;
+  };
+  setRow("mm_load", "mm_loadsub", "No village saved yet");
+  setRow("mm_delsave", "mm_delsub", "Nothing saved");
+}
+
+function showStartMenu(){
+  openMenuPage("mp_root");
+  $("startscreen").classList.remove("hide");
+}
+
+$("mm_new").addEventListener("click", ()=>openMenuPage("mp_new"));
+$("mm_how").addEventListener("click", ()=>openMenuPage("mp_how"));
+$("mm_settings").addEventListener("click", ()=>openMenuPage("mp_set"));
+$("mm_patch").addEventListener("click", ()=>openMenuPage("mp_patch"));
+if(document.querySelectorAll){
+  for(const b of document.querySelectorAll(".mback"))
+    b.addEventListener("click", ()=>openMenuPage("mp_root"));
+}
+$("mm_begin").addEventListener("click", ()=>{
   $("startscreen").classList.add("hide");
-  G.running=true;
+  G.running = true;
 });
-// the X, top right: same thing as Begin for anyone who does not want to read
+
+$("mm_load").addEventListener("click", ()=>{
+  if(!hasSave()) return;
+  // loadGame() leaves G untouched if it cannot read the slot, so there is
+  // nothing to undo here - just tell the player and stay on the menu
+  if(!loadGame()){ refreshSaveRows(); return; }
+  $("startscreen").classList.add("hide");
+  $("endscreen").classList.add("hide");
+  $("pausescreen").classList.add("hide");
+  G.running = true;
+  errShown = false;
+  hint("Your village, as you left it.");
+});
+
+$("mm_delsave").addEventListener("click", ()=>{
+  if(!hasSave()) return;
+  clearSave();
+  refreshSaveRows();
+  hint("The saved village was deleted.");
+});
+
+// the X, top right: leave the menu and get on with the game underneath
 $("btnclose").addEventListener("click", ()=>{
   $("startscreen").classList.add("hide");
   G.running=true;
@@ -21047,9 +22678,13 @@ window.addEventListener("error", e=>{
   reportError(e.error || new Error(e.message), "the page");
 });
 
+/* Boot still deals a fresh match, as it always has, so there is a world
+   running under the menu rather than a black screen. Picking Continue
+   replaces it outright - newGame() and loadGame() both swap G whole. */
 newGame();
 resize();
 refreshUI();
+showStartMenu();
 requestAnimationFrame(frame);
 </script>
 </body>
