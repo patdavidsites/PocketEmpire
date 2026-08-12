@@ -410,6 +410,63 @@
   body.device-tablet #topbar{height:61px;}
   body.device-tablet .res .val{font-size:16px;}
   body.device-tablet .gbtn{height:23px;}
+
+  /* ============================================================
+     iPAD LAYOUT FIX  —  12 Aug 2026  —  EASY TO ROLL BACK
+     ============================================================
+     Added as one block at the END of the stylesheet on purpose: it overrides
+     by source order rather than by editing rules in place, so removing this
+     block (or reverting its single commit) puts the layout back exactly as
+     it was. Nothing above has been touched.
+
+     Fixes two reported faults on iPad:
+       - PORTRAIT: the bottom of the command bar was cut off.
+       - LANDSCAPE: the bottom buttons sat in the Home button's swipe zone
+         and raised Siri.
+
+     Three causes, three parts:
+
+     A. #cmdrow was a hard 84px and #cmdbar had no ceiling, so the bar was
+        ~127px + inset whatever room existed - and html/body are
+        overflow:hidden, so it was CLIPPED rather than scrolled.
+
+     B. env(safe-area-inset-bottom) reports 0 on a Home-button iPad, so the
+        old max(12px, env(...)) floor left 12px, which does not clear the
+        swipe zone. The floor is raised, and raised further in landscape
+        where the button is closest.
+        NOTE: 24/30px is an estimate. Apple publishes no figure and it is
+        not exposed to CSS - which is exactly why env() returns 0 there. If
+        Siri still fires, raise these two numbers; nothing else need change.
+
+     C. The only breakpoints were max-width 640px and 410px. An iPad in
+        portrait is 768-1024 wide and matched NEITHER, so it was handed the
+        full desktop layout in a narrow window. There was no height-based or
+        orientation-based rule anywhere in the file.
+     ============================================================ */
+
+  /* A - the bar sizes itself to the room it has, and can never exceed it */
+  #cmdrow{ height: clamp(58px, 11vh, 84px); }
+  #cmdbar{ max-height: 34vh; }
+
+  /* C - the band iPad portrait used to fall straight through */
+  @media (orientation: portrait) and (max-width: 1100px){
+    #btns{ grid-auto-columns: minmax(96px, 1fr); }
+    .btn{ padding: 4px 7px; min-width: 66px; }
+    #selinfo{ width: 92px; padding-right: 6px; }
+    #cmdbar{ padding-left: 6px; padding-right: 6px; }
+  }
+  /* and any screen that is simply short, whatever its width */
+  @media (max-height: 620px){
+    #cmdrow{ height: clamp(52px, 10vh, 72px); }
+    .gbtn{ height: 18px; font-size: 10px; }
+  }
+
+  /* B - a bottom reserve that does not depend on env() reporting anything */
+  #cmdbar{ padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  @media (orientation: landscape){
+    #cmdbar{ padding-bottom: max(30px, env(safe-area-inset-bottom)); }
+  }
+
 </style>
 </head>
 <body>
