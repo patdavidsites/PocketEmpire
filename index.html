@@ -653,12 +653,28 @@
           <li>The year leaves something on the step &mdash; blooms in spring, a leaning sheaf in autumn, snow shovelled aside in winter</li>
           <li>A few <b>chickens</b> peck about in front of it by day, and go to roost after dark</li>
         </ul>
+        <div class="sec">Overhead</div>
+        <ul>
+          <li>Some clear nights the sky will not keep still &mdash; <b>one streak after another</b>, for a minute or two, and then it settles</li>
+          <li>On a <b>full moon</b>, and only then, someone walks through by moonlight with the ground going pale where they pass. Notice them and they leave something behind</li>
+        </ul>
         <div class="sec">Out in the country</div>
         <ul>
           <li><b>Rabbits have burrows.</b> They graze within sight of one and bolt down it when anyone comes near, and put their heads out again a while later</li>
           <li>Where there has been fighting, <b>crows come by afterwards</b> and wheel over the place for a time</li>
           <li><b>Locusts</b> can come down on a night's fields and strip a share of what is standing. A bad night, not a ruined harvest</li>
           <li><b>Moonstone is twice as common</b> at night. It was never as scarce as it looked &mdash; it is only ever out between dusk and dawn, and nobody is awake to notice</li>
+        </ul>
+        <div class="sec">Put right</div>
+        <ul>
+          <li><b>Peaceful means peaceful.</b> The Ashkin will not march on you at all &mdash; not after twenty-five minutes, not ever &mdash; unless you go for them first. Defending your own ground does not count; going to their side of the valley does, and you will be told the day it happens</li>
+          <li>The <b>Manor's own vein</b> comes back. Mined flat, it had been gone for the rest of the match; it now fills again over two or three nights</li>
+          <li><b>Moonstone stops being minable at dawn</b>, as it always should have &mdash; anyone still working a vein when the sun came up carried on all day</li>
+          <li><b>Moonstone glows harder</b> after dark, and comes up earlier in the evening, so a vein is easier to come across</li>
+          <li>The <b>elder and the pilgrims</b> no longer lean on the side of a house for ever when the way round is blocked</li>
+          <li>The <b>seasonal crop</b> can no longer grow inside a tree, where it could not be picked</li>
+          <li><b>Butterflies</b> keep off the trunks</li>
+          <li><b>Musicians can be told to follow</b> your soldiers, which is rather the point of them &mdash; the order was offered and then refused</li>
         </ul>
         <div class="sec">People and time</div>
         <ul>
@@ -1180,6 +1196,11 @@ function elderPickTarget(){
 }
 
 function updateElder(dt){
+  /* Marked once, here, rather than at every spawn site - she is created in
+     more than one place and a missed flag would put her back to shuffling
+     against a wall. See the note in moveToward. */
+  if(G.elder && !G.elder.strolls) G.elder.strolls = true;
+
   // she arrives with the Lodge, and leaves if it is lost
   const lodge = G.bldgs.find(b=>b.p===P_YOU && b.type==="lodge" && b.done);
   if(!lodge){ if(G.elder){ G.elder=null; } return; }
@@ -2422,8 +2443,8 @@ function beastsFlee(){
    notice, not a regular feature of the map. The one exception is the rare
    bat swarm (see trySpawnBatSwarm) - several bats at once, each still just
    its own independent passer-by rather than a coordinated group. */
-const WANDER_CHANCE = { bat:0.16, penguin:0.10, cat:0.05, sheep:0.09 };
-const WANDER_SPD    = { bat:[95,130], penguin:[20,27], cat:[26,34], sheep:[15,21] };
+const WANDER_CHANCE = { bat:0.16, penguin:0.10, cat:0.05, sheep:0.09, moonwright:0.55 };
+const WANDER_SPD    = { bat:[95,130], penguin:[20,27], cat:[26,34], sheep:[15,21], moonwright:[14,19] };
 
 function trySpawnWanderer(kind, force){
   if(!G.wanderers) G.wanderers = [];
@@ -2445,6 +2466,7 @@ function trySpawnWanderer(kind, force){
     const exitA  = Math.random()*6.283, exitD  = 300+Math.random()*100;
     G.wanderers.push({
       kind, name:"Dog", kindTag:"wanderer", id:G.nextId++,
+      strolls: true,
       x: town.x+Math.cos(enterA)*enterD, y: town.y+Math.sin(enterA)*enterD,
       midx, midy,
       ex: town.x+Math.cos(exitA)*exitD, ey: town.y+Math.sin(exitA)*exitD,
@@ -2474,6 +2496,7 @@ function spawnLineWanderer(kind, town){
 
   G.wanderers.push({
     kind, kindTag:"wanderer", id:G.nextId++,
+    strolls: true,      // may give up on an unreachable spot - see moveToward
     x: cx - Math.cos(a)*reach, y: cy - Math.sin(a)*reach,
     ex: cx + Math.cos(a)*reach, ey: cy + Math.sin(a)*reach,
     face:1, walk:0, t:0, seed:Math.random()*6.283,
@@ -2577,6 +2600,11 @@ function trySpawnPilgrims(force){
     G.wanderers.push({
       kind:"pilgrim", name:"Wandering Pilgrims", kindTag:"wanderer", id:G.nextId++, groupId,
       leader: i===0,
+      /* The waypoint past the town was already moved clear of the town hall
+         (see the note above), but the road can still run them at any other
+         building on the way. This lets them count "as close as I can get" as
+         arrived rather than leaning on it - see moveToward. */
+      strolls: true,
       x: ex+px, y: ey+py,
       wx: wx+px, wy: wy+py,
       ex: fx+px, ey: fy+py,
@@ -2756,6 +2784,45 @@ function callCrowsTo(x, y){
       spd: 70 + Math.random()*40, state:"circle"
     });
   }
+  return true;
+}
+
+/* ============================================================
+   THE MOONWRIGHT
+   ============================================================
+   Someone who only walks on a full moon. Not rare by dice - rare by the
+   calendar: moonPhase() is only this high on one night in twelve, so the
+   0.55 chance above is a coin toss on a night that itself comes round twice
+   a year of game time.
+
+   That is the point of hanging it off the moon rather than off a
+   probability. A creature you meet at random is a surprise; one you can
+   count the nights to is an appointment, and the moon phase has been
+   sitting there unused for exactly this.
+
+   Follows the night-event rules: returns true only when one actually set
+   out, takes `force` and skips its own dice when the pool calls - but NOT
+   the moon, because a Moonwright on a half moon is not a Moonwright. */
+const MOONWRIGHT_FULL = 0.85;     // how full the moon has to be
+const MOONWRIGHT_GIFT = 40;       // moonstone, for noticing them
+
+function moonwrightNight(){
+  return G.phase === "night" && moonPhase() >= MOONWRIGHT_FULL;
+}
+
+function tryMoonwright(force){
+  if(!moonwrightNight()) return false;              // the moon is not negotiable
+  if(G.wanderers && G.wanderers.some(w=>w.kind==="moonwright")) return false;
+  if(G.moonwrightSeen === G.nightNo) return false;  // one a night, not one a roll
+  if(!force && Math.random() > WANDER_CHANCE.moonwright) return false;
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
+  if(!town) return false;
+
+  G.moonwrightSeen = G.nightNo;
+  spawnLineWanderer("moonwright", town);
+  const w = G.wanderers[G.wanderers.length-1];
+  if(w){ w.clicks = 0; w.rewarded = false; w.glow = Math.random()*6.283; }
+  hint("Someone is walking by moonlight, and the ground is pale where they pass.");
   return true;
 }
 
@@ -3344,6 +3411,7 @@ function spawnMoonstone(){
   // own vein is part of the building and has to survive this sweep too, not
   // only the one at dawn. Missing it here quietly deleted the vein at every
   // single nightfall, which is precisely when nobody would notice.
+  for(const n of G.nodes) if(n.kind===RES.MOONSTONE && !n.manorOf) retireNode(n);
   G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE || n.manorOf);
   spawnMoonstoneFor(P_YOU);
   spawnMoonstoneFor(P_AI);
@@ -3391,11 +3459,20 @@ function spawnMoonstoneFor(p){
   // batch) are ever flagged up either
 }
 
+/* A node taken off the map is marked as well as filtered out. A villager
+   holds its target by reference, and nothing in the gather loop consulted
+   G.nodes - so a villager mining a wild vein at dawn went on mining the
+   orphan all day. Measured: 32 moonstone pulled out of a vein that was no
+   longer there. A flag rather than a G.nodes.includes() check because that
+   is a thousand-element scan per gatherer per frame. */
+function retireNode(n){ if(n) n.gone = true; return n; }
+
 function clearMoonstone(){
   // The wild veins are a night thing and go with the dark. A Manor's own
   // vein is not wild - it is part of the building, and it is the whole
   // reason the Manor is worth 300 moonstone, so it stays put through the
   // day. (moonstone manor)
+  for(const n of G.nodes) if(n.kind===RES.MOONSTONE && !n.manorOf) retireNode(n);
   G.nodes = G.nodes.filter(n=>n.kind!==RES.MOONSTONE || n.manorOf);
 }
 
@@ -3408,13 +3485,26 @@ function clearMoonstone(){
 const MANOR_VEIN_REGROW = 40;    // added each night
 const MANOR_VEIN_CAP    = 120;   // and never more than this sitting in it
 
-function attachManorVein(b){
-  if(!BLDG[b.type].manor || b.vein) return;
+/* `startAmt` defaults to a full vein, which is what a newly raised Manor
+   gets - that is what the 300 moonstone bought. growManorVeins passes 0 for
+   one that has been mined out, so it fills back up over about three nights
+   rather than being handed back whole every morning. */
+function attachManorVein(b, startAmt){
+  if(!BLDG[b.type].manor) return;
+  /* Only bail if the vein is real AND still on the map. This used to read
+     `|| b.vein`, and a mined-out vein is culled from G.nodes by cleanup()
+     while b.vein goes on pointing at it - truthy, so this returned early and
+     the Manor's vein was never restored. Measured: zero for four nights
+     running, which is to say for ever. */
+  if(b.vein && G.nodes.includes(b.vein)) return;
+  b.vein = null;
   // tucked into the left corner of the plot, not sitting in the doorway -
   // villagers walk in and out of the front of the building
   const vx = b.x - b.w*TILE*0.30, vy = b.y + b.h*TILE/2 - 10;
   b.vein = { id:G.nextId++, isNode:true, kind:RES.MOONSTONE, manorOf:b,
-             x:vx, y:vy, amt:MANOR_VEIN_CAP, max:MANOR_VEIN_CAP,
+             x:vx, y:vy,
+             amt: (startAmt === undefined) ? MANOR_VEIN_CAP : startAmt,
+             max: MANOR_VEIN_CAP,
              r:8, seed:Math.random()*6.283 };
   G.nodes.push(b.vein);
 }
@@ -3422,8 +3512,11 @@ function attachManorVein(b){
 function growManorVeins(){
   for(const b of G.bldgs){
     if(!BLDG[b.type].manor || !b.done) continue;
-    if(!b.vein || !G.nodes.includes(b.vein)) attachManorVein(b);
-    else b.vein.amt = Math.min(MANOR_VEIN_CAP, b.vein.amt + MANOR_VEIN_REGROW);
+    // a vein mined flat is culled by cleanup(); bring it back empty, then
+    // top it up below, so it is worth working again in two or three nights
+    if(!b.vein || !G.nodes.includes(b.vein)) attachManorVein(b, 0);
+    if(!b.vein) continue;                       // not a Manor, or no room
+    b.vein.amt = Math.min(MANOR_VEIN_CAP, b.vein.amt + MANOR_VEIN_REGROW);
   }
 }
 
@@ -3431,6 +3524,7 @@ function growManorVeins(){
    not a hole in the ground that outlives it. */
 function dropManorVein(b){
   if(!b.vein) return;
+  retireNode(b.vein);
   G.nodes = G.nodes.filter(n=>n!==b.vein);
   b.vein = null;
 }
@@ -3954,8 +4048,13 @@ function trySkyEvents(dt){
   if(!G.shootingStar && G.phase==="night" && !G.weather){
     G.starCd = (G.starCd===undefined) ? 10+Math.random()*15 : G.starCd-dt;
     if(G.starCd<=0){
-      G.starCd = 10+Math.random()*15;
-      if(Math.random()<SHOOTINGSTAR_CHANCE){
+      /* A shower is the same streak, arriving far more often - no new
+         drawing, no second slot to keep, and it stops the moment the
+         shower does. */
+      const shower = !!G.meteorShower;
+      G.starCd = shower ? (METEOR_GAP_MIN + Math.random()*(METEOR_GAP_MAX-METEOR_GAP_MIN))
+                        : (10+Math.random()*15);
+      if(shower || Math.random()<SHOOTINGSTAR_CHANCE){
         G.shootingStar = { t:0, life:1.6, x0:Math.random()*0.7*VW, y0:Math.random()*0.25*VH };
       }
     }
@@ -4122,6 +4221,43 @@ function grantStargazeWish(){
   if(s){
     const sp = s.t/s.life;
     fxHit(G.cam.x + (s.x0 + sp*140)/G.cam.z, G.cam.y + (s.y0 + sp*70)/G.cam.z, "#fff3c8", 8);
+  }
+}
+
+/* ============================================================
+   A METEOR SHOWER
+   ============================================================
+   A night when the sky will not sit still. Nothing new is drawn: the shower
+   simply re-arms the shooting star that already exists, over and over, so
+   what was one streak every twenty seconds becomes a dozen in a minute.
+
+   Follows the night-event rules in CLAUDE.md - returns true only when it
+   actually started one, takes `force` and skips the dice when the pool
+   calls, and its flag is cleared at dawn. It picks no side because it does
+   not touch a settlement: the sky is over both of them, and the Ashkin get
+   told nothing about the weather. */
+const METEOR_CHANCE = 0.0016;     // per ambient roll - rare on its own
+const METEOR_LIFE_MIN = 45;       // how long the sky keeps at it
+const METEOR_LIFE_MAX = 90;
+const METEOR_GAP_MIN = 0.5;       // seconds between streaks while it lasts
+const METEOR_GAP_MAX = 2.2;
+
+function tryMeteorShower(force){
+  if(G.meteorShower) return false;             // one at a time
+  if(G.phase !== "night") return false;        // nothing to see before dark
+  if(G.weather) return false;                  // nor through cloud
+  if(!force && Math.random() > METEOR_CHANCE) return false;
+  G.meteorShower = { t:0, life: METEOR_LIFE_MIN + Math.random()*(METEOR_LIFE_MAX-METEOR_LIFE_MIN) };
+  hint("The sky will not keep still tonight - one streak after another.");
+  return true;
+}
+
+function updateMeteorShower(dt){
+  if(!G.meteorShower) return;
+  G.meteorShower.t += dt;
+  // cloud rolling in ends it early, same as it stops the ordinary star
+  if(G.meteorShower.t > G.meteorShower.life || G.weather || G.phase !== "night"){
+    G.meteorShower = null;
   }
 }
 
@@ -4865,7 +5001,16 @@ function newGame(){
     locustNight: null,
     // the town centre's chickens. Initialised here, not lazily, or one
     // match's flock would still be pecking about at the start of the next
-    chickens: [], chickenCd: 3
+    chickens: [], chickenCd: 3,
+    /* Peaceful only: has the player struck first? Initialised here rather
+       than lazily, or one match's war would still be on in the next. */
+    peaceBroken: false,
+    // a night the sky will not sit still. Cleared at dawn; initialised here
+    // rather than lazily so one match's shower cannot start the next
+    meteorShower: null,
+    // which night the Moonwright was last seen, so it is one a night rather
+    // than one a roll. Initialised here, not lazily
+    moonwrightSeen: -1
   };
   // start a season already in full swing rather than mid-transition
   if(G.season==="winter"){
@@ -5819,13 +5964,31 @@ function spawnLeafPiles(){
   }
 }
 
+/* Is there a resource node sitting on this tile? Bugs keep their home patch
+   off them - a butterfly seeded on a tree circles a point inside the trunk
+   and reads as stuck to it, which is exactly how it was reported. Trees do
+   not block anything (blocked() only knows water and buildings), so nothing
+   was ever caught; it only looked that way. */
+function bugSpotClear(tx, ty){
+  const cx = tx*TILE + TILE/2, cy = ty*TILE + TILE/2;
+  for(const n of G.nodes){
+    if(n.amt <= 0) continue;
+    /* Trees only. Rejecting every node kept dragonflies off the shoals they
+       are supposed to hover over, and a bug near a rock or a berry bush was
+       never what was reported - it is the ones apparently glued to a trunk. */
+    if(n.kind !== RES.WOOD) continue;
+    if(Math.abs(n.x-cx) < TILE*0.9 && Math.abs(n.y-cy) < TILE*0.9) return false;
+  }
+  return true;
+}
+
 function spawnBugs(){
   G.bugs = [];
   for(let i=0;i<16;i++){
     let tx,ty,ok=false;
     for(let t=0;t<30 && !ok;t++){
       tx=rnd(3,MAPW-3); ty=rnd(3,MAPH-3);
-      if(G.terrain[ty*MAPW+tx]!==5) ok=true;
+      if(G.terrain[ty*MAPW+tx]!==5 && bugSpotClear(tx,ty)) ok=true;
     }
     if(!ok) continue;
     const roll = Math.random();
@@ -5849,7 +6012,7 @@ function spawnBugs(){
     let tx,ty,ok=false;
     for(let t=0;t<30 && !ok;t++){
       tx=rnd(3,MAPW-3); ty=rnd(3,MAPH-3);
-      if(G.terrain[ty*MAPW+tx]!==5 && touchesWater(tx,ty,1,1)) ok=true;
+      if(bugSpotClear(tx,ty) && G.terrain[ty*MAPW+tx]!==5 && touchesWater(tx,ty,1,1)) ok=true;
     }
     if(!ok) continue;
     G.bugs.push({
@@ -6969,8 +7132,15 @@ function tapAt(sx, sy){
         }
       } else hint("Tap a building that needs building or repair.");
     } else if(a==="follow"){
-      const followers = own.filter(u=>u.cls && u.cls!=="civ");
-      if(!followers.length){ hint("Only your military can be sent to follow someone."); }
+      /* Military AND anyone carrying a tune. The bard types are cls:"civ",
+         so this used to exclude them - while the button that offers the
+         order was built from [...military, ...bards] and did include them.
+         The result was a Follow button that appeared for a musician and
+         then refused it, which is the whole point of a musician: to walk
+         with the soldiers and play at them. The two lists agree now. */
+      const followers = own.filter(u=>(u.cls && u.cls!=="civ") ||
+                                      (UNITS[u.type] && UNITS[u.type].buffKind));
+      if(!followers.length){ hint("Only your military or your musicians can be sent to follow someone."); }
       else {
         const target = pickAt(w.x, w.y);
         const validTarget = target && (target===G.elder || target===G.mcstar ||
@@ -7071,6 +7241,12 @@ function tapAt(sx, sy){
     if(wnd.kind==="pilgrim" && wnd.leader && visibleTo(P_YOU,wnd.x,wnd.y) &&
        Math.hypot(wnd.x-w.x, wnd.y-w.y) < 13){
       tapPilgrimLeader(wnd);
+      return;
+    }
+    // and the Moonwright, who only ever walks on a full moon
+    if(wnd.kind==="moonwright" && visibleTo(P_YOU,wnd.x,wnd.y) &&
+       Math.hypot(wnd.x-w.x, wnd.y-w.y) < 13){
+      tapMoonwright(wnd);
       return;
     }
   }
@@ -7288,6 +7464,19 @@ function tapPilgrimLeader(w){
     const pl = G.players[P_YOU];
     pl.res.moonstone = (pl.res.moonstone||0) + 50;
     hint("The flag-bearer dips the banner to you - 50 moonstone left on the road.");
+    refreshUI();
+  }
+}
+
+/* Same idea as the pilgrims' flag-bearer: five taps, once per visit. Theirs
+   is moonstone because that is what they are made of. */
+function tapMoonwright(w){
+  w.clicks = (w.clicks||0) + 1;
+  if(w.clicks >= 5 && !w.rewarded){
+    w.rewarded = true;
+    const pl = G.players[P_YOU];
+    pl.res.moonstone = (pl.res.moonstone||0) + MOONWRIGHT_GIFT;
+    hint("They turn, and the light goes with them - " + MOONWRIGHT_GIFT + " moonstone left in the grass.");
     refreshUI();
   }
 }
@@ -8124,6 +8313,18 @@ function tick(dt){
       // the dog only exists once it is properly dark - spawning it at dusk
       // put it on the map one frame before its own updater culled it
       if(G.moonDogDue){ G.moonDogDue = false; spawnMoonlitDog(); }
+      /* The Moonwright keeps the calendar, not the lottery. Deliberately
+         outside the "one night, one thing" pool below and not standing down
+         when the pool fires: they come on a full moon, and a full moon does
+         not care what else the night had planned. tryMoonwright checks the
+         moon itself and declines on any other night, so this is safe to call
+         every nightfall.
+
+         Also why they are not a NIGHT_EVENTS entry: the pool's coverage test
+         proves every entry CAN fire when chosen, and an entry that correctly
+         refuses eleven nights in twelve reads as unreachable to it. It is
+         not - it is punctual. */
+      tryMoonwright(false);
       /* One night, one thing. The pool goes first; if it turned something
          up, the ambient rolls below stand down for the night. They used to
          run regardless, which is how a night could deliver a windfall AND
@@ -8184,6 +8385,7 @@ function tick(dt){
          it for both. CLAUDE.md is explicit that a night flag left set for
          one side is a bug waiting to happen. */
       G.locustNight = null;
+      G.meteorShower = null;      // the sky settles with the light
       G.merchantBonus = 1;
       const up = G.units.filter(u=>u.p===P_YOU && u.rested>0).length;
       if(up){
@@ -8353,6 +8555,7 @@ function tick(dt){
   updateBattleSites(dt);
   updateDropPiles(dt);      // the stack by the door gets put away
   updateChickens(dt);
+  updateMeteorShower(dt);
   updateBirdRadar(dt);
   updateGoldenStag(dt);
   updateMoonlitDog(dt);
@@ -8580,7 +8783,14 @@ function updateUnit(u, dt){
         moveToward(u, t.x, t.y, closingSpd, dt, followDist-10);
       } else if(tgtSpd > 2){
         const ux=dx/dist, uy=dy/dist;
-        const step = Math.min(spd, tgtSpd) * dt;
+        /* Exactly the target's pace, which is what holds the gap steady.
+           This took Math.min(spd, tgtSpd): a follower slower than whoever it
+           was escorting fell behind every frame, tripped the catching-up
+           threshold, sprinted, caught up, dropped back - the jitter, in a
+           loop, for as long as the group was moving. Matching pace cannot
+           drift, and closingSpd above already lets a slow follower exceed
+           its own speed to close a gap, so this is consistent with it. */
+        const step = tgtSpd * dt;
         u.x += ux*step; u.y += uy*step;
         u.moving = true;
         faceToward(u, dx, dt);
@@ -8592,6 +8802,10 @@ function updateUnit(u, dt){
     case "gather": {
       const n = u.target;
       if(!n){ u.order=null; break; }
+      /* Gone from the map - a wild moonstone vein at dawn, or anything
+         mined flat. Without this the villager kept working the orphaned
+         object, which is how moonstone went on being mined all day. */
+      if(n.gone){ u.target = null; u.order = null; break; }
       /* A seasonal crop is a one-off find, not a haul - picked up whole and
          carried, so it never touches the swing-and-fill machinery below.
          Only a villager can take one: anyone else is turned away without
@@ -9218,11 +9432,19 @@ function moveToward(u, tx, ty, spd, dt, stop){
     if(u.stuckT > 1.5){ u.path=null; u.pathCd=0; u.stuckT=0; }  // force a fresh path
   }
 
-  // A move order can be given to a spot that simply cannot be stood on - the
-  // middle of a building, say. Rather than shuffling against it forever, count
-  // "as close as I can get" as arriving. Only for plain move orders: a gatherer
-  // or builder that cannot reach its target should keep trying or retarget.
-  if(u.order === "move"){
+  /* A move order can be given to a spot that simply cannot be stood on - the
+     middle of a building, say. Rather than shuffling against it forever, count
+     "as close as I can get" as arriving. Deliberately NOT for everyone: a
+     gatherer or builder that cannot reach its target should keep trying or
+     retarget, or it would quietly stop working.
+
+     `u.strolls` opts the wanderers in - the elder, the pilgrims, the bard and
+     the rest. They are not units, have no `order` at all, and so never got
+     this escape: they aimed at a doorway on the far side of a house and
+     walked into the wall until their own timer moved them on, which is the
+     "elders get stuck walking into houses for ever" report, and the pilgrims'
+     one too. Same cause, both of them. */
+  if(u.order === "move" || u.strolls){
     if(newDist < stop + 46 && newDist > dist0 - 0.5) u.nearT = (u.nearT||0) + dt;
     else if(newDist >= stop + 46) u.nearT = 0;
     if(u.nearT > 1.8){ u.nearT = 0; u.moving = false; u.path = null; return true; }
@@ -9481,6 +9703,23 @@ function updateProjectiles(dt){
   }
   G.projectiles = G.projectiles.filter(p=>!p.dead);
 }
+/* What the valley is told the day the peace ends. One of these, once, and
+   never again in that match - G.peaceBroken sees to that. */
+/* Within this of any building of yours, a blow is taken as defending your
+   own ground rather than starting a war. Matches the radius the AI itself
+   uses to decide something is threatening its town. */
+const PEACE_HOME_GROUND = 380;
+
+const PEACE_BROKEN_LINES = [
+  "You have drawn first blood. The Ashkin will not let that stand.",
+  "Word carries to the Ashkin camp: the Sunfolk struck first. The quiet years are over.",
+  "The peace held until today. Whatever comes now, it began with your hand.",
+  "Smoke goes up from the Ashkin side. They know who came for them, and they are coming back."
+];
+function PEACE_BROKEN_LINE(){
+  return PEACE_BROKEN_LINES[(Math.random()*PEACE_BROKEN_LINES.length)|0];
+}
+
 function dealDamage(src, t, dmg, cls){
   const tcls = t.kind==="bldg" ? "bldg" : (t.form?"inf":t.cls);
   let m = classMult(cls, tcls);
@@ -9503,6 +9742,34 @@ function dealDamage(src, t, dmg, cls){
   if(t.kind==="unit" && (t.moonstruck||0) > 0) m *= MOONSTRUCK_DEF;
   const dealt = dmg*m;
   t.hp -= dealt;
+  /* Peaceful: the Ashkin leave you alone until you GO FOR them. Only a blow
+     struck by the player on the Ashkin counts - a wolf or a night beast is
+     not the player picking a fight - and defending your own ground does not
+     count either.
+
+     That last part matters. Measured without it, 4 matches in 8 went to war
+     while the player never ordered a single attack: an Ashkin scout wanders
+     past the town, the garrison shoots it as it is meant to, and that was
+     being read as the player starting a war. Aggression is going to their
+     side of the map or laying into their buildings; shooting somebody who
+     walked onto your doorstep is not. */
+  if(DIFFICULTY === "peaceful" && !G.peaceBroken && dealt > 0 &&
+     src && src.p === P_YOU && t.p === P_AI){
+    let aggression = (t.kind === "bldg");        // their buildings are never "defence"
+    if(!aggression){
+      let nearMine = 1e9;
+      for(const b of G.bldgs){
+        if(b.p !== P_YOU) continue;
+        const d = Math.hypot(b.x - t.x, b.y - t.y);
+        if(d < nearMine) nearMine = d;
+      }
+      aggression = nearMine > PEACE_HOME_GROUND;
+    }
+    if(aggression){
+      G.peaceBroken = true;
+      hint(PEACE_BROKEN_LINE());
+    }
+  }
   // kill credit - night beasts drop moonstone to whichever side lands the
   // last blow (see updateBeasts), so remember who that was
   if(src.p!==undefined) t.lastHitBy = src.p;
@@ -9602,6 +9869,8 @@ function cleanup(){
     G.sel = G.sel.filter(e=>!db.includes(e));
     recalcPop(P_YOU); recalcPop(P_AI);
   }
+  // mark before filtering - a unit may still be holding one by reference
+  for(const n of G.nodes) if(!(n.amt>0 || (n.farmOf && n.farmOf.hp>0))) retireNode(n);
   G.nodes = G.nodes.filter(n=>n.amt>0 || (n.farmOf && n.farmOf.hp>0));
 }
 
@@ -10618,6 +10887,14 @@ function aiThink(dt){
   // the beachhead gathers to the same size as a land wave, so a crossing
   // inherits the difficulty and strategy tuning rather than inventing its own
   G.ai.waveNeed = threshold;
+  /* Peaceful means peaceful. It used to mean "attacks after twenty-five
+     minutes", which most matches simply never reached - so it read as never
+     while being nothing of the sort, and a long game got a nasty surprise.
+     The Ashkin now never march at all unless the player draws first blood;
+     from that moment they behave like any other difficulty. Defending
+     themselves is handled elsewhere and is untouched: they will fight back
+     where they stand whatever this says. */
+  if(DIFFICULTY === "peaceful" && !G.peaceBroken){ G.ai.pushing = false; } else
   if(G.t < G.diff.firstPush*fpMult) G.ai.pushing = false; else
   if(!G.ai.pushing && army.length >= threshold){
     G.ai.pushing = true; G.ai.wave++;
@@ -12553,11 +12830,16 @@ function drawMoonstoneThroughFog(){
     // 1 is explored-but-not-currently-seen. 2 is in sight, so the node itself
     // is already drawn; 0 is black and stays black.
     if(f[ty*MAPW+tx] !== 1) continue;
-    ctx.globalAlpha = MOON_GLOW_MAX * (0.55 + 0.45*pulse);
+    /* Through explored fog. This used the flat ceiling and so glowed just as
+       hard at noon as at midnight; it rides the same darkness ramp as
+       everything else moonstone now, and the halo is wider so a vein reads
+       from further off. */
+    const night = Math.max(0.35, moonGlowNow() / MOON_GLOW_MAX);
+    ctx.globalAlpha = MOON_GLOW_MAX * (0.55 + 0.45*pulse) * night;
     ctx.fillStyle = "rgba(150,225,245,1)";
-    ctx.beginPath(); ctx.arc(n.x, n.y-2, 11*pulse, 0, 6.283); ctx.fill();
-    ctx.globalAlpha = MOON_GLOW_MAX * 1.5;
-    ctx.beginPath(); ctx.arc(n.x, n.y-2, 3.2, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(n.x, n.y-2, 15*pulse, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = Math.min(1, MOON_GLOW_MAX * 1.8 * night);
+    ctx.beginPath(); ctx.arc(n.x, n.y-2, 4.0, 0, 6.283); ctx.fill();
   }
   ctx.restore();
 }
@@ -12837,35 +13119,11 @@ function drawNode(n){
       ctx.beginPath(); ctx.arc(n.x+Math.cos(a)*4.5,n.y+Math.sin(a)*3,2.6,0,6.283); ctx.fill();
     }
   } else if(n.kind===RES.MOONSTONE){
-    /* Moonstone reads as ORE, not as a bare cluster of spikes: the same
-       angular grey rock the stone nodes use, with the crystal growing out
-       of it and lighting the stone from inside. Before this it was floating
-       shards on a dark smudge, which looked like nothing else on the map and
-       gave no clue it was something you mine. */
-    const pulse = 0.6 + 0.4*Math.sin(G.t*1.6+n.seed);
-    ctx.fillStyle = "rgba(127,212,232,"+(0.16*pulse).toFixed(3)+")";
-    ctx.beginPath(); ctx.arc(n.x, n.y-2, 14*pulse, 0, 6.283); ctx.fill();
-    // the rock itself - the stone node's own facets, a shade cooler
-    ctx.fillStyle="#74787c";
-    ctx.beginPath();
-    ctx.moveTo(n.x-10,n.y+5); ctx.lineTo(n.x-6,n.y-5);
-    ctx.lineTo(n.x+4,n.y-7); ctx.lineTo(n.x+10,n.y+2); ctx.lineTo(n.x+3,n.y+6);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle="#93989d";
-    ctx.beginPath(); ctx.moveTo(n.x-5,n.y-4); ctx.lineTo(n.x+3,n.y-6);
-    ctx.lineTo(n.x+1,n.y-1); ctx.closePath(); ctx.fill();
-    // seams of crystal lighting the rock from within
-    ctx.strokeStyle="rgba(150,225,245,"+(0.30+0.20*pulse).toFixed(3)+")";
-    ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(n.x-6,n.y+1); ctx.lineTo(n.x-1,n.y-3); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(n.x+2,n.y+4); ctx.lineTo(n.x+6,n.y-1); ctx.stroke();
-    // and the crystal breaking out of the top of it
-    const g = moonGlowNow();
-    for(let i=0;i<3;i++){
-      const a = n.seed + i*2.1;
-      moonShard(n.x+Math.cos(a)*4.5, n.y-3-Math.abs(Math.sin(a))*2,
-                7+((i*5)%4), 2.2, Math.sin(a)*0.20, g);
-    }
+    /* Its own function so a review page can lift it verbatim and show the
+       vein at any darkness without the rest of the map around it - the same
+       reason bakeTerrainArt and flyBird were split out. Nothing about the
+       drawing changed in the move. */
+    drawMoonstoneNode(n);
   }
 }
 
@@ -12880,7 +13138,11 @@ const MOON_CRY      = "#5fb8d4";
 const MOON_CRY_DIM  = "#356875";
 const MOON_CRY_LIT  = "#8fcde1";
 const MOON_CRY_CORE = "rgba(210,245,250,.75)";
-const MOON_GLOW_MAX = 0.10;   // the player picked "very faint" - this is the ceiling
+/* Raised from 0.10 on 12 Aug 2026, at the user's request: "make moonstone
+   glow a little more and so it's easier to find in the dark". The old value
+   came from an earlier round where "very faint" was picked; that note is
+   kept here so nobody quietly reverts this thinking it was a mistake. */
+const MOON_GLOW_MAX = 0.20;
 
 function moonShard(cx, cy, len, wid, lean, glow){
   const tipX = cx + lean*len, tipY = cy - len;
@@ -12903,7 +13165,11 @@ function moonShard(cx, cy, len, wid, lean, glow){
 /* How strongly anything moonstone glows right now. Ramps with the dark rather
    than snapping on at dusk, and never exceeds the ceiling above. */
 function moonGlowNow(){
-  return MOON_GLOW_MAX * Math.max(0, Math.min(1, ((G.dark||0) - 0.25) / 0.55));
+  /* Comes up earlier in the evening than it did (0.12 rather than 0.25) and
+     is full by the time it is properly dark, so the point of the night when
+     you would actually go looking is the point at which it is easiest to
+     see. Still nothing at all in daylight. */
+  return MOON_GLOW_MAX * Math.max(0, Math.min(1, ((G.dark||0) - 0.12) / 0.45));
 }
 
 function drawBrazier(b){
@@ -13045,6 +13311,45 @@ function houseVariant(b){
   return HOUSE_VARIANTS[((b.id*2654435761)>>>0) % HOUSE_VARIANTS.length];
 }
 
+
+/* A moonstone vein: angular grey ore with the crystal growing out of it and
+   lighting the stone from inside. The halo answers moonGlowNow(), so it is a
+   lantern at midnight and barely a shimmer at dusk. */
+function drawMoonstoneNode(n){
+  /* Moonstone reads as ORE, not as a bare cluster of spikes: the same
+     angular grey rock the stone nodes use, with the crystal growing out
+     of it and lighting the stone from inside. Before this it was floating
+     shards on a dark smudge, which looked like nothing else on the map and
+     gave no clue it was something you mine. */
+  const pulse = 0.6 + 0.4*Math.sin(G.t*1.6+n.seed);
+  /* The halo around a vein you can actually see. It grows with the dark
+     as well as pulsing, so a vein is a lantern at midnight and barely a
+     shimmer at dusk - which is when you want to be able to spot one. */
+  const night = 0.55 + 1.35*(moonGlowNow() / MOON_GLOW_MAX);
+  ctx.fillStyle = "rgba(150,225,245,"+(0.16*pulse*night).toFixed(3)+")";
+  ctx.beginPath(); ctx.arc(n.x, n.y-2, 14*pulse*(0.85+0.35*night), 0, 6.283); ctx.fill();
+  // the rock itself - the stone node's own facets, a shade cooler
+  ctx.fillStyle="#74787c";
+  ctx.beginPath();
+  ctx.moveTo(n.x-10,n.y+5); ctx.lineTo(n.x-6,n.y-5);
+  ctx.lineTo(n.x+4,n.y-7); ctx.lineTo(n.x+10,n.y+2); ctx.lineTo(n.x+3,n.y+6);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle="#93989d";
+  ctx.beginPath(); ctx.moveTo(n.x-5,n.y-4); ctx.lineTo(n.x+3,n.y-6);
+  ctx.lineTo(n.x+1,n.y-1); ctx.closePath(); ctx.fill();
+  // seams of crystal lighting the rock from within
+  ctx.strokeStyle="rgba(150,225,245,"+(0.30+0.20*pulse).toFixed(3)+")";
+  ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(n.x-6,n.y+1); ctx.lineTo(n.x-1,n.y-3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(n.x+2,n.y+4); ctx.lineTo(n.x+6,n.y-1); ctx.stroke();
+  // and the crystal breaking out of the top of it
+  const g = moonGlowNow();
+  for(let i=0;i<3;i++){
+    const a = n.seed + i*2.1;
+    moonShard(n.x+Math.cos(a)*4.5, n.y-3-Math.abs(Math.sin(a))*2,
+              7+((i*5)%4), 2.2, Math.sin(a)*0.20, g);
+  }
+}
 /* ---------- fire ----------
    One flame drawn as a few overlapping flicker layers, a soft glow,
    rising embers and a little smoke. How many of these get drawn, and how
@@ -15577,6 +15882,60 @@ function drawWanderer(w){
     ctx.beginPath();
     ctx.moveTo(0,-0.4); ctx.lineTo(5.0, -2.5-flap*1.2); ctx.lineTo(1.4,0.7); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.ellipse(0,0,1.7,1.25,0,0,6.283); ctx.fill();
+    ctx.restore();
+    return;
+  }
+  if(w.kind==="moonwright"){
+    /* A hooded figure carrying moonlight rather than a lamp: the glow comes
+       off them, not off anything they hold. Drawn in the moonstone palette
+       so they read as belonging to the same lore as the veins and the
+       Manor, and lit by moonGlowNow() so they are brightest at the dead of
+       night - which is the only time they are ever out. */
+    const gait = Math.sin(w.walk*3.0);
+    const bob  = Math.abs(gait)*0.5;
+    const pulse = 0.65 + 0.35*Math.sin(G.t*1.5 + (w.glow||0));
+    const lit = Math.max(0.35, moonGlowNow()/MOON_GLOW_MAX);
+
+    // the light they cast on the ground
+    ctx.save();
+    ctx.globalAlpha = 0.16*pulse*lit;
+    ctx.fillStyle = "rgb(150,225,245)";
+    ctx.beginPath(); ctx.ellipse(w.x, w.y+2, 17, 6.5, 0, 0, 6.283); ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(w.x, w.y - bob);
+    ctx.scale(w.face<0?-1:1, 1);
+
+    ctx.fillStyle = "rgba(0,0,0,.22)";
+    ctx.beginPath(); ctx.ellipse(0, 3.6, 5.2, 1.9, 0,0,6.283); ctx.fill();
+
+    // a long robe rather than legs - they do not stride, they proceed
+    const hem = Math.sin(w.walk*3.0)*0.9;
+    ctx.fillStyle = "#2f3c52";
+    ctx.beginPath();
+    ctx.moveTo(-2.6,-9); ctx.lineTo(2.6,-9);
+    ctx.lineTo(4.2+hem, 3.4); ctx.lineTo(-4.2+hem, 3.4);
+    ctx.closePath(); ctx.fill();
+    // a pale seam down it, the same crystal blue as everything moonstone
+    ctx.strokeStyle = "rgba(150,225,245," + (0.30+0.30*pulse*lit).toFixed(2) + ")";
+    ctx.lineWidth = 0.9;
+    ctx.beginPath(); ctx.moveTo(0,-8.4); ctx.lineTo(hem*0.5, 3); ctx.stroke();
+
+    // hood, with the face in shadow inside it
+    ctx.fillStyle = "#3a4a63";
+    ctx.beginPath(); ctx.arc(0,-11.2, 3.5, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#141a24";
+    ctx.beginPath(); ctx.ellipse(0.5,-10.8, 2.2, 2.5, 0, 0, 6.283); ctx.fill();
+    // and two points of moonlight where the eyes would be
+    ctx.fillStyle = "rgba(190,240,252," + (0.55+0.4*pulse).toFixed(2) + ")";
+    ctx.beginPath(); ctx.arc(1.4,-11.0, 0.62, 0, 6.283); ctx.fill();
+
+    // the halo about the hood
+    ctx.globalAlpha = 0.22*pulse*lit;
+    ctx.fillStyle = "rgb(150,225,245)";
+    ctx.beginPath(); ctx.arc(0,-11.2, 8*pulse, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 1;
     ctx.restore();
     return;
   }
@@ -19648,6 +20007,13 @@ function trySeasonalCropHint(){
     if(G.terrain[ty*MAPW+tx] === 5) continue;
     const x=(tx+0.5)*TILE, y=(ty+0.5)*TILE;
     if(blocked(x,y,null,false)) continue;
+    /* Not on top of another node. blocked() knows water and buildings only,
+       so nothing stopped this landing inside a tree - and a crop sharing a
+       tile with a trunk cannot be picked, because the tap and the villager's
+       own search both find the tree first. Reported as "spawned on a tree
+       and was unable to be gathered", and that is exactly it. */
+    if(G.nodes.some(n => n.amt > 0 &&
+        Math.abs(n.x-x) < TILE*1.1 && Math.abs(n.y-y) < TILE*1.1)) continue;
     const far = houses.every(b=>Math.hypot(b.x-x,b.y-y) > SEASONAL_CROP_RADIUS*0.4);
     if(!far) continue;
     G.seasonalCropNode = { id:G.nextId++, isNode:true, kind:"seasonalcrop",
@@ -21229,6 +21595,7 @@ const NIGHT_EVENTS = [
   { name:"dragon",     go:()=>trySpawnDragon(true) },
   { name:"crows",      go:()=>tryCrowRaid(true) },
   { name:"locusts",    go:()=>tryLocusts(true) },
+  { name:"meteors",    go:()=>tryMeteorShower(true) },
   { name:"visitor",    go:()=>trySpawnWanderer(["bat","penguin","cat"][(Math.random()*3)|0], true) },
   { name:"pilgrims",   go:()=>trySpawnPilgrims(true) },
   { name:"bard",       go:()=>trySpawnBard(true) },
