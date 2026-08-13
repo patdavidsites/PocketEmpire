@@ -410,63 +410,6 @@
   body.device-tablet #topbar{height:61px;}
   body.device-tablet .res .val{font-size:16px;}
   body.device-tablet .gbtn{height:23px;}
-
-  /* ============================================================
-     iPAD LAYOUT FIX  —  12 Aug 2026  —  EASY TO ROLL BACK
-     ============================================================
-     Added as one block at the END of the stylesheet on purpose: it overrides
-     by source order rather than by editing rules in place, so removing this
-     block (or reverting its single commit) puts the layout back exactly as
-     it was. Nothing above has been touched.
-
-     Fixes two reported faults on iPad:
-       - PORTRAIT: the bottom of the command bar was cut off.
-       - LANDSCAPE: the bottom buttons sat in the Home button's swipe zone
-         and raised Siri.
-
-     Three causes, three parts:
-
-     A. #cmdrow was a hard 84px and #cmdbar had no ceiling, so the bar was
-        ~127px + inset whatever room existed - and html/body are
-        overflow:hidden, so it was CLIPPED rather than scrolled.
-
-     B. env(safe-area-inset-bottom) reports 0 on a Home-button iPad, so the
-        old max(12px, env(...)) floor left 12px, which does not clear the
-        swipe zone. The floor is raised, and raised further in landscape
-        where the button is closest.
-        NOTE: 24/30px is an estimate. Apple publishes no figure and it is
-        not exposed to CSS - which is exactly why env() returns 0 there. If
-        Siri still fires, raise these two numbers; nothing else need change.
-
-     C. The only breakpoints were max-width 640px and 410px. An iPad in
-        portrait is 768-1024 wide and matched NEITHER, so it was handed the
-        full desktop layout in a narrow window. There was no height-based or
-        orientation-based rule anywhere in the file.
-     ============================================================ */
-
-  /* A - the bar sizes itself to the room it has, and can never exceed it */
-  #cmdrow{ height: clamp(58px, 11vh, 84px); }
-  #cmdbar{ max-height: 34vh; }
-
-  /* C - the band iPad portrait used to fall straight through */
-  @media (orientation: portrait) and (max-width: 1100px){
-    #btns{ grid-auto-columns: minmax(96px, 1fr); }
-    .btn{ padding: 4px 7px; min-width: 66px; }
-    #selinfo{ width: 92px; padding-right: 6px; }
-    #cmdbar{ padding-left: 6px; padding-right: 6px; }
-  }
-  /* and any screen that is simply short, whatever its width */
-  @media (max-height: 620px){
-    #cmdrow{ height: clamp(52px, 10vh, 72px); }
-    .gbtn{ height: 18px; font-size: 10px; }
-  }
-
-  /* B - a bottom reserve that does not depend on env() reporting anything */
-  #cmdbar{ padding-bottom: max(24px, env(safe-area-inset-bottom)); }
-  @media (orientation: landscape){
-    #cmdbar{ padding-bottom: max(30px, env(safe-area-inset-bottom)); }
-  }
-
 </style>
 </head>
 <body>
@@ -652,6 +595,7 @@
       <ul>
       <li><b>Tap</b> a unit to select it · <b>press and hold</b> a moment, then drag, to box-select</li>
       <li>With units selected, tap <b>Gather</b>, <b>Build</b>, <b>Attack</b> or <b>Move</b> in the bar below, <b>then tap the target</b></li>
+      <li>A villager's <b>Remove</b> clears a tree or berry bush out of the way on the spot &mdash; handy when something is standing where you want to build. You get nothing for it</li>
       <li><b>Groups</b> — select some units, tap <b>Join group</b>, then tap a number <b>1–10</b> along the bottom.
           Tap that number any time to call them up; tap it <b>twice</b> to bring the camera to them.
           New units of the same kind join on their own.</li>
@@ -702,6 +646,12 @@
            the splash is opened before the game script has run. -->
       <details class="pn">
         <summary>Patch 21.2</summary>
+        <div class="sec">Clearing ground</div>
+        <ul>
+          <li>Villagers and moonstone villagers have a <b>Remove</b> button. Tap it, then tap a tree or a berry bush and it is gone on the spot &mdash; useful when the plot you want to build on has something standing in it</li>
+          <li><b>Nothing is carried home for it.</b> It is not a harvest, it is getting the thing out of the way</li>
+          <li>It stays switched on so you can clear several in a row. It will not take a farm's crop, a shoal, stone, gold or moonstone, nor a tree your lumber camp was built to work</li>
+        </ul>
         <div class="sec">The town centre</div>
         <ul>
           <li>It has a <b>chimney</b> at last &mdash; the tallest building in the village had a cold hearth while every cottage around it smoked. It draws harder while somebody is being trained inside</li>
@@ -727,10 +677,11 @@
           <li><b>Peaceful means peaceful.</b> The Ashkin will not march on you at all &mdash; not after twenty-five minutes, not ever &mdash; unless you go for them first. Defending your own ground does not count; going to their side of the valley does, and you will be told the day it happens</li>
           <li>The <b>Manor's own vein</b> comes back. Mined flat, it had been gone for the rest of the match; it now fills again over two or three nights</li>
           <li><b>Moonstone stops being minable at dawn</b>, as it always should have &mdash; anyone still working a vein when the sun came up carried on all day</li>
-          <li><b>Moonstone glows harder</b> after dark, and comes up earlier in the evening, so a vein is easier to come across</li>
+          <li><b>Moonstone glows harder</b> after dark, and comes up earlier in the evening, so a vein is easier to come across &mdash; brighter again since, and there is a third more of it in your own veins each night. The Ashkin's are as they were</li>
           <li>The <b>elder and the pilgrims</b> no longer lean on the side of a house for ever when the way round is blocked</li>
           <li>The <b>seasonal crop</b> can no longer grow inside a tree, where it could not be picked</li>
           <li><b>Butterflies</b> keep off the trunks</li>
+          <li><b>Moonstone no longer comes up under a tree.</b> Near enough half of every night's veins were sharing their ground with one, and a third of them were hidden behind it entirely &mdash; which was rather more to blame for veins being hard to find than the dark was. Veins now look for open ground, and on a night when there is none to be had they push the tree aside</li>
           <li><b>Musicians can be told to follow</b> your soldiers, which is rather the point of them &mdash; the order was offered and then refused</li>
         </ul>
         <div class="sec">People and time</div>
@@ -3480,10 +3431,30 @@ function spawnMoonstoneFor(p){
 
   let placed = 0;
   const at = [];
-  for(let attempt=0; attempt<MOONSTONE_VEINS*40 && placed<MOONSTONE_VEINS; attempt++){
+  /* x140, not x40. Keeping veins out from under trees rejects a great many
+     more candidates than the old checks did - measured at 20 nights in 48
+     falling short of the full six on the old budget. The loop is a handful
+     of cheap comparisons run once a night, so a bigger budget costs nothing
+     worth counting and the alternative is quietly laying less ore than the
+     constant says. */
+  for(let attempt=0; attempt<MOONSTONE_VEINS*140 && placed<MOONSTONE_VEINS; attempt++){
     const tx = rnd(4,MAPW-4), ty = rnd(4,MAPH-4);
     const x=(tx+0.5)*TILE, y=(ty+0.5)*TILE;
     if(isWater(x,y) || blocked(x,y,null,false)) continue;
+    /* Not under a tree, and not with one standing in front of it.
+
+       blocked() knows only water and buildings, so nothing ever stopped a
+       vein landing inside a trunk - and the draw list sorts by y, so a tree
+       even slightly SOUTH of a vein is painted over the top of it. Measured
+       before this went in: 45% of veins shared a tile with a tree and 29.5%
+       had one drawn in front. Nearly a third of every night's moonstone was
+       being hidden, which is a better explanation of "I only ever saw one
+       vein" than any amount of glow.
+
+       The box is asymmetric on purpose: a tree to the north is behind the
+       vein and harmless, one to the south is in front of it and is not. */
+    if(G.nodes.some(t => t.kind===RES.WOOD && t.amt > 0 &&
+        Math.abs(t.x-x) < 26 && (t.y-y) > -20 && (t.y-y) < 32)) continue;
     // near SOME player building, not necessarily the town centre - a
     // sprawling settlement gets veins near its edges too, not just the middle
     const near = homes.some(b=>Math.hypot(b.x-x,b.y-y) < MOONSTONE_RADIUS);
@@ -3506,7 +3477,54 @@ function spawnMoonstoneFor(p){
        yield a 300-moonstone Manor was most of a match's nights. ~130 at new
        moon, ~195 at full, so a couple of seasons of real mining pays for it
        and a full-moon night is the one you plan around. */
-    const amt = (105 + Math.random()*50) * (1 + 0.5*moonPhase());
+    /* A third again for the player, and only the player. Asked for as "30%
+       more each night, but don't let the AI get to it".
+
+       Worth being exact about that second half, because it was already half
+       true: the AI has never been able to touch YOUR veins - aiThink filters
+       on `n.ring===P_AI` and its comment says it leaves the player's alone.
+       What it does have is three of its own near its own village, and that
+       was a deliberate fix: without them it banked 101 of a 300 Manor in a
+       thirty-minute match and could never raise one, which read as "the AI
+       ignores the night town" when really it had no ore within reach. So the
+       rise goes to the player's ring only; the Ashkin keep what they had. */
+    const RICHER = (p === P_YOU) ? 1.3 : 1;
+    const amt = (105 + Math.random()*50) * (1 + 0.5*moonPhase()) * RICHER;
+    G.nodes.push({ id:G.nextId++, isNode:true, kind:RES.MOONSTONE, ring:p,
+                   x, y, amt, max:amt, r:8, seed:Math.random()*6.283 });
+    placed++;
+  }
+  /* Still short? Then take the ground and fell what is standing on it.
+
+     The pass above will not build on a tree at all, which is right when
+     there is open ground to be had - no reason to chew up the player's
+     forest for a vein that could sit in a clearing. But on a wooded map it
+     ran out of candidates and quietly laid four veins where the constant
+     says six (measured: 5 nights in 48). Laying less ore than advertised is
+     the worse failure of the two, and a vein erupting through the ground
+     hard enough to shove a tree aside is no stretch, so the fallback stops
+     asking and clears the way. */
+  for(let attempt=0; attempt<MOONSTONE_VEINS*60 && placed<MOONSTONE_VEINS; attempt++){
+    const tx = rnd(4,MAPW-4), ty = rnd(4,MAPH-4);
+    const x=(tx+0.5)*TILE, y=(ty+0.5)*TILE;
+    if(isWater(x,y) || blocked(x,y,null,false)) continue;
+    if(!homes.some(b=>Math.hypot(b.x-x,b.y-y) < MOONSTONE_RADIUS)) continue;
+    if(at.some(q=>Math.hypot(q.x-x, q.y-y) < MOONSTONE_APART)) continue;
+    // ...but never a tree a lumber camp was built to work. That camp holds
+    // it as b.node and would be left standing over an empty patch of ground
+    // with nothing to cut for the rest of the match.
+    const doomed = G.nodes.filter(t => t.kind===RES.WOOD && t.amt > 0 &&
+        Math.abs(t.x-x) < 26 && (t.y-y) > -20 && (t.y-y) < 32);
+    if(doomed.some(t => G.bldgs.some(b => b.node === t))) continue;
+    /* Felled the same way the game retires a tree that has been cut out:
+       amt to 0 so every `amt<=0` guard reads it as spent, retireNode() so a
+       villager already walking to it drops the order instead of chopping an
+       orphan for the rest of the day, then out of G.nodes. */
+    for(const t of doomed){ t.amt = 0; retireNode(t); }
+    if(doomed.length) G.nodes = G.nodes.filter(n => !doomed.includes(n));
+    at.push({x,y});
+    const RICHER = (p === P_YOU) ? 1.3 : 1;
+    const amt = (105 + Math.random()*50) * (1 + 0.5*moonPhase()) * RICHER;
     G.nodes.push({ id:G.nextId++, isNode:true, kind:RES.MOONSTONE, ring:p,
                    x, y, amt, max:amt, r:8, seed:Math.random()*6.283 });
     placed++;
@@ -3523,6 +3541,42 @@ function spawnMoonstoneFor(p){
    longer there. A flag rather than a G.nodes.includes() check because that
    is a thousand-element scan per gatherer per frame. */
 function retireNode(n){ if(n) n.gone = true; return n; }
+
+/* ---------- clearing ground by hand ----------
+   The "Remove" order: a tree or a berry bush in the way of where you want to
+   build, gone on the tap, with nothing carried home for it. Deliberately not
+   a gather order that throws the resources away - the point is that it is
+   instant and needs no walking, because it is a base-planning tool, not work.
+
+   What it will NOT take:
+   - a farm's crop (n.farmOf), which is a building's field and would leave the
+     farm standing over nothing
+   - a shoal (n.water), which is not in anybody's way
+   - stone, gold or a moonstone vein - clearing is for the greenery you can
+     see through, not for the ore you were looking for
+   - anything a building was put up to work (b.node): felling a lumber camp's
+     tree leaves the camp with nothing to cut for the rest of the match. Same
+     rule the moonstone placer follows before it fells anything. */
+function canClearNode(n){
+  if(!n || !n.isNode) return "nothing";
+  if(n.farmOf) return "farm";
+  if(n.water) return "shoal";
+  if(n.kind !== RES.WOOD && n.kind !== RES.FOOD) return "kind";
+  if(G.bldgs.some(b => b.node === n)) return "worked";
+  return "ok";
+}
+
+function clearNode(n){
+  if(canClearNode(n) !== "ok") return false;
+  /* Emptied AND retired, not just filtered out of G.nodes. A villager holds
+     its target by reference and the gather loop never consults G.nodes, so
+     without the flag anyone already chopping this tree would go on chopping
+     the orphan all day - the exact bug that had 32 moonstone come out of a
+     vein that was no longer there. */
+  n.amt = 0; retireNode(n);
+  G.nodes = G.nodes.filter(x => x !== n);
+  return true;
+}
 
 function clearMoonstone(){
   // The wild veins are a night thing and go with the dark. A Manor's own
@@ -7271,6 +7325,31 @@ function tapAt(sx, sy){
           G.sel = G.sel.filter(e=>e!==u);
         }
       }
+    } else if(a==="clear"){
+      const n = pickAt(w.x, w.y, "node", tol);
+      const why = canClearNode(n);
+      if(why === "ok"){
+        const what = n.kind===RES.WOOD ? "tree" : "bush";
+        fxPing(n.x, n.y);          // ping BEFORE it goes - n.x is read here
+        clearNode(n);
+        hint("The "+what+" is cleared away. Nothing was carried home for it.");
+      } else if(why === "worked"){
+        hint("Something was built to work that one - clearing it would leave the building with nothing.");
+      } else if(why === "farm"){
+        hint("That is a farm's crop. Pull down the farm itself if you want the ground back.");
+      } else if(why === "shoal"){
+        hint("A shoal is out in the water and in nobody's way.");
+      } else if(why === "kind"){
+        hint("Only trees and berry bushes can be cleared - not stone, gold or moonstone.");
+      } else {
+        hint("Nothing there to clear - tap a tree or a berry bush.");
+      }
+      /* Stays armed on purpose, unlike every other order here. Clearing a
+         plot to build on means four or five of these in a row, and having to
+         re-arm the button between each one turns a convenience into a chore.
+         Tap Remove again (or pick any other order) to put it away. */
+      refreshUI();
+      return;
     } else if(a==="rally"){
       // handled below for buildings, not units
     } else if(a==="move"){
@@ -12766,6 +12845,7 @@ function draw(){
   if(G.action && G.running){
     const label = G.action==="gather" ? "Tap a resource to gather"
                 : G.action==="attack" ? "Tap a target to attack"
+                : G.action==="clear"  ? "Tap a tree or bush to clear it - stays on"
                 : "Tap where to move";
     ctx.save();
     ctx.font = "600 13px 'Avenir Next', 'Segoe UI', system-ui, sans-serif";
@@ -12790,6 +12870,16 @@ function draw(){
         if(n.x<G.cam.x-40||n.y<G.cam.y-40) continue;
         if(n.x>G.cam.x+VW/G.cam.z+40||n.y>G.cam.y+VH/G.cam.z+40) continue;
         if(!exploredTo(P_YOU,n.x,n.y)) continue;
+        ctx.beginPath(); ctx.arc(n.x,n.y,n.r+7,0,6.283); ctx.stroke();
+      }
+    } else if(G.action==="clear"){
+      /* Only the ones it will actually take. Ringing every node the way
+         gather does would promise the player they can clear a gold seam. */
+      for(const n of G.nodes){
+        if(n.x<G.cam.x-40||n.y<G.cam.y-40) continue;
+        if(n.x>G.cam.x+VW/G.cam.z+40||n.y>G.cam.y+VH/G.cam.z+40) continue;
+        if(!exploredTo(P_YOU,n.x,n.y)) continue;
+        if(canClearNode(n)!=="ok") continue;
         ctx.beginPath(); ctx.arc(n.x,n.y,n.r+7,0,6.283); ctx.stroke();
       }
     } else if(G.action==="attack"){
@@ -13199,7 +13289,11 @@ const MOON_CRY_CORE = "rgba(210,245,250,.75)";
    glow a little more and so it's easier to find in the dark". The old value
    came from an earlier round where "very faint" was picked; that note is
    kept here so nobody quietly reverts this thinking it was a mistake. */
-const MOON_GLOW_MAX = 0.20;
+/* 0.10 -> 0.20 -> 0.30. Raised again 12 Aug 2026, "50% brighter so you can
+   see it at night". The original note said the player picked "very faint";
+   that has now been reversed twice, deliberately, and is kept here so nobody
+   restores it from the comment alone. */
+const MOON_GLOW_MAX = 0.30;
 
 function moonShard(cx, cy, len, wid, lean, glow){
   const tipX = cx + lean*len, tipY = cy - len;
@@ -23020,6 +23114,7 @@ function refreshUI(){
         id==="attack" ? "Tap an enemy unit or building." :
         id==="follow" ? "Tap a villager, one of your military, or the elder to follow." :
         id==="garrison" ? "Tap your barracks (soldiers), archery range (archers), or a boat to board it." :
+        id==="clear" ? "Tap a tree or berry bush to clear it away. Nothing is carried home for it." :
                         "Tap where you want them to go.");
       refreshUI();
     }, null, G.action===id);
@@ -23108,6 +23203,9 @@ function refreshUI(){
         G.buildMoon = (moonvills.length>0 && vills.length===0);
         G.uiMode="build"; G.action=null; refreshUI();
       });
+      /* Sits with Build because that is the job it is for: the plot you
+         want is nearly always the one with a tree on it. */
+      act("clear","Remove","clears a tree or bush in the way");
       const sites = G.bldgs.filter(b=>b.p===P_YOU && (!b.done || b.hp<b.maxhp)).length;
       if(sites){
         addBtn("Assist", "build or repair", true, ()=>{
