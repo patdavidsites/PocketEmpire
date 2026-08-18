@@ -257,7 +257,32 @@
   .logrow.unseen .logstate{color:var(--parch-dim);}
   .logrow:not(.unseen) .logstate{color:var(--gold);}
 
+  /* ---------- the age-up strip ----------
+     Sits directly above the group bar, and only exists while an age is on
+     its way. Deliberately slim: it is a thing you notice out of the corner
+     of your eye, not a window. */
+  #agebar{position:relative;flex:none;height:13px;border-radius:3px;overflow:hidden;
+    background:rgba(20,17,14,.9);border:1px solid var(--line);}
+  /* There is no blanket .hide rule in this sheet - every user of the class
+     declares its own, and without this one the empty track sat above the group
+     numbers for the whole match. display:none, not visibility:hidden, so it
+     gives its row and the flex gap back as well. */
+  #agebar.hide{display:none;}
+  #agefill{position:absolute;left:0;top:0;bottom:0;width:0;
+    background:linear-gradient(90deg,rgba(217,164,65,.35) 0%,rgba(217,164,65,.75) 100%);
+    transition:width .12s linear;}
+  #agelabel{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;
+    align-items:center;justify-content:center;gap:6px;
+    font-size:9px;font-weight:700;letter-spacing:.4px;color:var(--parch);
+    text-shadow:0 1px 0 rgba(0,0,0,.6);}
+  #agelabel .agetime{color:var(--parch-dim);font-weight:600;}
+
   /* ---------- queue ---------- */
+  /* the campaign's two-way ending */
+  .donebtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .go.ghost{background:transparent;border:1px solid var(--line);color:var(--parch);}
+  .go.ghost:hover{background:rgba(255,255,255,.06);}
+
   #groupbar{display:flex;gap:3px;flex:none;}
   .gbtn{flex:1;min-width:0;height:21px;border-radius:3px;background:rgba(36,31,26,.92);
     border:1px solid var(--line);color:var(--parch-dim);cursor:pointer;
@@ -473,6 +498,7 @@
   <button id="pausebtn" title="Pause">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/></svg>
   </button>
+  <div id="agebar" class="hide"><div id="agefill"></div><span id="agelabel"></span></div>
   <div id="groupbar"></div>
   <div id="queuewrap" class="hide">
     <div id="queue"></div>
@@ -1082,6 +1108,21 @@
   </div>
 </div>
 
+<!-- Peaceful, and the last of the twenty camps is down. It ASKS rather than
+     ending: a village somebody has kept for months is not a match to be closed
+     on them. Carry on and it never asks again. -->
+<div class="screen hide" id="donescreen">
+  <div class="card">
+    <div class="kicker">The seasons are yours</div>
+    <h1>Every camp cleared</h1>
+    <p id="donetext"></p>
+    <div class="donebtns">
+      <button class="go" id="btncarryon">Carry on</button>
+      <button class="go ghost" id="btnfinish">Finish here</button>
+    </div>
+  </div>
+</div>
+
 <div class="screen hide" id="endscreen">
   <div class="card">
     <div class="kicker" id="endkicker">Match complete</div>
@@ -1203,8 +1244,28 @@ setSeed((Date.now() ^ (Math.random()*4294967296)) >>> 0);
 Math.random = seededRandom;
 
 const TILE = 34;
-const MAPW = 58, MAPH = 58;
-const WORLD_W = MAPW * TILE, WORLD_H = MAPH * TILE;
+/* ---------- how big the world is ----------
+
+   Not a constant any more: peaceful gets a bigger map than the timed
+   difficulties do. Peaceful is the mode you keep a village in for months, with
+   twenty goblin camps to find across four seasons, and 58x58 is a board you
+   have walked all of within the first hour. The others are races, where a big
+   map is just a longer walk to the same fight.
+
+   These are `let` and are set by sizeMap(), called at the top of newGame and
+   again on load. Nothing allocates from them at load time - every use is
+   inside a function - which is what makes this safe to change per match. */
+let MAPW = 58, MAPH = 58;
+let WORLD_W = MAPW * TILE, WORLD_H = MAPH * TILE;
+const MAP_TILES = { peaceful: 84, other: 58 };
+function sizeMap(w, h){
+  MAPW = w; MAPH = h;
+  WORLD_W = MAPW * TILE; WORLD_H = MAPH * TILE;
+}
+function sizeMapFor(diff){
+  const n = (diff === "peaceful") ? MAP_TILES.peaceful : MAP_TILES.other;
+  sizeMap(n, n);
+}
 
 const P_YOU = 0, P_AI = 1;
 /* The goblins, a third side. Not a civilisation and not an opponent in the
@@ -1346,6 +1407,28 @@ function mixCol(a, b, t){
                +((pa[1]+(pb[1]-pa[1])*t)|0)+","
                +((pa[2]+(pb[2]-pa[2])*t)|0)+")";
 }
+/* Mix two #hex colours and give back a #hex, not an rgb() string.
+
+   That matters: shade() parses #hex and nothing else, and it is called on
+   wall and roof colours all over the renderer. mixCol() returns "rgb(...)",
+   so anything mixed with it can never be shaded afterwards - nest the two and
+   you get black. This is the version to use for a base colour that something
+   downstream is going to shade. */
+const _mixHexCache = new Map();
+function mixHex(a, b, t){
+  const key = a+"|"+b+"|"+t;
+  const hit = _mixHexCache.get(key);
+  if(hit !== undefined) return hit;
+  const pa = parseInt(a.slice(1),16), pb = parseInt(b.slice(1),16);
+  const mix = (sh) => {
+    const ca = (pa>>sh)&255, cb = (pb>>sh)&255;
+    return Math.max(0, Math.min(255, (ca + (cb-ca)*t)|0));
+  };
+  const out = "#" + ((1<<24) | (mix(16)<<16) | (mix(8)<<8) | mix(0)).toString(16).slice(1);
+  _mixHexCache.set(key, out);
+  return out;
+}
+
 const _shadeCache = new Map();
 function shade(hex, amt){
   const key = hex+"|"+amt;
@@ -2248,7 +2331,7 @@ function isLitAt(x, y, p){
   }
   for(const u of G.units){
     if(u.p!==p || u.indoors || u.hp<=0 || !carriesTorch(u)) continue;
-    if(Math.hypot(u.x-x, u.y-y) < TORCH_RADIUS) return true;
+    if(Math.hypot(u.x-x, u.y-y) < torchRadius(u)) return true;
   }
   return false;
 }
@@ -4189,6 +4272,35 @@ function updateVeinRegrowth(dt){
     n.amt = Math.min(n.max, n.amt + n.max*0.015);
   }
 }
+/* ---------- a fished-out shoal comes back ----------
+
+   Everything else that regrows here needs something left to grow from - both
+   the loops above skip a node at amt<=0 - so a shoal fished to nothing simply
+   stayed nothing for the rest of the match, and a coastal village slowly ran
+   out of sea. Fish move: an empty patch of water is empty because the shoal
+   left it, and a couple of days later there is one there again.
+
+   It comes back FULL rather than trickling, because half a shoal of fish is
+   not a thing you can see - and it is the whole point that returning to a spot
+   you emptied two days ago is worth the trip.
+
+   The timer is set here rather than wherever the last fish was taken, so every
+   route that empties a shoal is covered by one piece of code. */
+const FISH_RETURN = () => DAY_LEN * 2;
+function updateShoalReturn(){
+  for(const n of G.nodes){
+    if(!n.water || n.amt > 0) continue;
+    if(n.refillAt === undefined || n.refillAt === null){ n.refillAt = G.t + FISH_RETURN(); continue; }
+    if(G.t >= n.refillAt){
+      n.amt = n.max;
+      n.refillAt = null;
+      /* Announced only if the player has actually seen that water - otherwise
+         it is news about a place they have never been. */
+      if(exploredTo(P_YOU, n.x, n.y)) hint("Fish are back in the water where a shoal was emptied.");
+    }
+  }
+}
+
 // same idea for trees - a modest, reliable trickle back for every
 // partly-chopped one each night, rather than leaving it purely to the one
 // random pick a night in the shared pool above
@@ -5211,6 +5323,64 @@ const AGES = ["Stone Age","Bronze Age","Iron Age"];
    the whole game at once - the opening was over the moment it started. The
    split gives it a middle: a camp that works, before a village that builds.
    Nothing downstream of either flag changes. */
+/* What each building is made of: a colour, and how far to pull the civ's own
+   wall colour towards it. Kept as a mix rather than a replacement so a village
+   still reads as one village - the civ palette shows through everything.
+
+   Buildings not listed here keep the plain civ wall: the house is deliberately
+   the baseline everything else is judged against, and the moonstone and goblin
+   buildings have their own material language already. */
+const BLDG_MATERIAL = {
+  // the working village
+  bakery:      ["#a8503c", 0.52],   // red brick, the same brick as the oven
+  blacksmith:  ["#4a4642", 0.50],   // sooted through
+  granary:     ["#cfc08a", 0.45],   // limewashed, to keep the grain cool
+  well:        ["#9a978e", 0.42],   // rough stone
+  lumber:      ["#a87f4e", 0.40],   // fresh-cut timber
+  mine:        ["#79726a", 0.42],   // the rock it is cut into
+  dock:        ["#6e7a72", 0.36],   // wet, weathered boards
+  stable:      ["#96663c", 0.52, 1.6],   // dark barn timber
+  tradingpost: ["#b08a52", 0.40],   // warm boards, meant to look prosperous
+  caretaker:   ["#7d8f62", 0.40],   // green, like everything it looks after
+  // knowledge
+  observatory: ["#3f4a78", 0.56, 1.5],   // night-blue
+  musiccollege:["#5b7fb4", 0.56, 1.5],   // soft blue
+  warcollege:  ["#565c66", 0.44],   // dark slate
+  greathall:   ["#c0a05c", 0.50, 1.1],   // honeyed stone
+  shrine:      ["#c6c0b0", 0.44, 1.7],   // pale limestone
+  lodge:       ["#7e7440", 0.44, 1.6],   // mossy timber
+  grove:       ["#6e8a5c", 0.40, 1.7],   // grown, not built
+  moongarden:  ["#9c93b8", 0.40, 1.6],   // pale lilac
+  // military
+  /* The military group needs real colours, not shades of the grey their
+     roofs already are: a material that is itself grey mixes into METAL and
+     changes nothing, which is how the barracks, the range, the stable and
+     the siege yard ended up four identical slate boxes. */
+  barracks:    ["#7d5a4a", 0.44, 1.6],   // red-brown barrack timber
+  range:       ["#6a7f52", 0.46, 1.6],   // waxed leather and yew
+  armoury:     ["#6e7682", 0.46, 1.6],   // cold steel
+  siege:       ["#8a6238", 0.50, 1.6],   // heavy oak, and plenty of it
+  tower:       ["#7a7a7e", 0.36, 1.4],
+  scouttower:  ["#a5875c", 0.40],   // timber, not stone - it is not a fort
+  fortress:    ["#6b6b70", 0.46, 1.4],
+  // out in the world
+  wildlingsden:["#5d4a38", 0.50],   // bark and hide
+  hermithouse: ["#7f8470", 0.40],   // mossy stone
+  cottage:     ["#8ea8bc", 0.32]    // the moonstone cottage, a hint cooler
+};
+
+/* How long an age takes to arrive once it is paid for: half a day.
+
+   It used to be instant - the resources vanished and the whole village was
+   suddenly a age older, which made the biggest decision in the match the
+   least satisfying thing in it. Half a day is long enough that you watch it
+   happen and plan around it, and short enough that it is not a wait. */
+const AGE_UP_TIME = () => DAY_LEN * 0.5;
+
+/* The five ambient dragonflies at the water's edge take one of these each -
+   the same jewel palette the summer drift uses for its own. */
+const DRAGONFLY_COLS = ["#5ec8c0","#4f9fd8","#d8b83a","#7fc46a","#c86a9a"];
+
 const WANDERING_AGE = "Wandering Age";
 /* What a settled camp may put up before the Stone Age. Feeding itself,
    cutting timber, working stone and roofing its people - the four things a
@@ -5274,11 +5444,27 @@ const AGE_COST = [
    it and next year it returns exactly as it was. (idea_peaceful_goblins) */
 const GOBLIN_MAX_LEVEL   = 5;
 const GOBLIN_MIN_DIST    = 620;   // how far from either village it will settle
-const GOBLIN_CAMP_TRIES  = 260;   // attempts at finding it somewhere legal
+/* Attempts at finding it somewhere legal. Raised with the palisade: the spot
+   now has to be far enough from every edge for a five-tile ring to fit as well
+   as unexplored, dry, clear of both villages and clear of every node - and at
+   260 tries a cramped map could run out and quietly produce no camp at all. */
+const GOBLIN_CAMP_TRIES  = 900;
 /* Level 1 is five goblins and a couple of shacks, exactly as asked for.
    Every level after it is the same camp with more of them in it - the
    shape of the fight is meant to stay recognisable while it gets harder. */
-function goblinGarrisonFor(level){ return 5 + (level-1)*3; }
+function goblinGarrisonFor(level){
+  /* Five, and three more a level - but from level three the warlord's escort
+     is counted against it rather than added on top. Measured without that, a
+     level three camp fielded nineteen fighters behind a wall with two lookouts
+     on it, and NOTHING cleared it: eighteen of the player's units died with the
+     warlord still on full health, never once reached. The wall and the boss are
+     the difficulty at this level; the head count does not need to be as well. */
+  const base = 5 + (level-1)*3;
+  /* And the escort is counted against it, plus two: the four guards and the
+     warlord are five bodies the player has to get through at the END, so the
+     ones loitering at the gate can afford to be fewer. */
+  return level >= GOBLIN_BOSS_LEVEL ? Math.max(4, base - GOB_BOSS_GUARDS - 2) : base;
+}
 function goblinShacksFor(level){ return Math.min(4, 2 + ((level-1)>>1)); }
 /* Level one is five goblins, a hut and two shacks and nothing else. Every
    level after that adds a lookout, an archer or two, and a war brute - so the
@@ -5286,7 +5472,33 @@ function goblinShacksFor(level){ return Math.min(4, 2 + ((level-1)>>1)); }
    (idea_peaceful_goblins: "L2 and above get watch towers, archers, brutes") */
 const GOB_CLEAVE_SHARE = 0.6;      // what the sweep does to everyone but the target
 const GOBLIN_BIG = 1.3;            // how much larger a war brute is drawn
-function goblinTowersFor(level){  return level < 2 ? 0 : Math.min(3, level - 1); }
+/* ---------- level three: a warlord behind a wall ----------
+   The three pieces are meant to be read in order. The palisade decides WHERE
+   the fight happens - one gate, covered by lookouts - the guards decide WHAT
+   you have to kill first, and only then does the warlord itself matter.
+
+   It never leaves the camp, at any level: the whole peaceful arc rests on the
+   goblins being yours to start, and a boss that comes to find you would take
+   that away. */
+const GOBLIN_BOSS_LEVEL = 3;       // the level a warlord first appears at
+const GOBLIN_BOSS_SCALE = 1.75;    // how much larger it is drawn than a runt
+const GOB_BOSS_GUARDS = 4;         // its escort
+const GOB_BOSS_WARD = 0.82;        // damage it shrugs off while one of them lives
+const GOB_BOSS_RAGE_CD = 0.62;     // and how much faster it swings once they are gone
+const GOB_BOSS_RAGE_CLEAVE = 1.5;
+const GOBLIN_WALL_LEVEL = 3;       // the level the camp gets a palisade
+const GOBLIN_WALL_R = 5;           // its radius, in tiles, from the hut
+const GOBLIN_GATE_ARC = 0.62;      // how wide the gateway is, in radians
+/* Lookouts. Level three is capped at ONE rather than two: measured with two on
+   the gate, no force of any size ever got inside - twenty-seven units died with
+   the warlord still on full health, never reached. A wall you cannot get
+   through is not a hard fight, it is a closed door. Levels four and five keep
+   their extra ones, and by then the player has an army to match. */
+function goblinTowersFor(level){
+  if(level < 2) return 0;
+  if(level === 3) return 1;
+  return Math.min(3, level - 1);
+}
 function goblinArchersFor(level){ return level < 2 ? 0 : Math.min(5, level - 1); }
 function goblinBrutesFor(level){  return level < 2 ? 0 : Math.min(3, (level >> 1)); }
 /* What clearing one pays. **A flat 100 of everything, at every level**, set
@@ -5300,7 +5512,12 @@ function goblinBrutesFor(level){  return level < 2 ? 0 : Math.min(3, (level >> 1
    idea_peaceful_goblins. */
 const GOBLIN_REWARD_FLAT = 100;
 function goblinRewardFor(level){
-  const n = GOBLIN_REWARD_FLAT;
+  /* Flat 100s up to level two, and then it climbs steeply - because from
+     level three the camp is a walled fort with a warlord in it, and if that
+     pays the same as five runts round a hut there is no reason on earth to
+     go near it. Two and a half times at three, four at four, six at five. */
+  const MULT = { 1:1, 2:1, 3:2.5, 4:4, 5:6 };
+  const n = Math.round(GOBLIN_REWARD_FLAT * (MULT[level] || 1));
   return { food:n, wood:n, stone:n, gold:n, moonstone:n, iron:n, know:n };
 }
 
@@ -5357,6 +5574,28 @@ const UNITS = {
   gobwarbrute:{ name:"Goblin War Brute", age:0, hp:101, spd:44, atk:17, rng:11, cd:1.6,
             cost:{}, build:1, r:12, pop:0, cls:"inf",
             goblin:true, gobBody:"warbrute", gobBig:true, cleave:30 },
+  /* ---------- the warlord, from level three ----------
+     One to a camp, and the reason a level three camp is not just a bigger
+     level two. It is slow and it hits like a falling tree, but the fight is
+     not about its health: while any of its four guards is still standing it
+     barely feels a blow (GOB_BOSS_WARD, dealDamage in 04a). Break the escort
+     first or you are hitting a wall.
+
+     Its stat line is deliberately NOT a wall of health - 340 is a little over
+     three war brutes - because the difficulty is meant to live in the ward, the
+     guards and the slam, not in how long you have to stand there swinging. It
+     hits for less than a war brute's sweep would suggest, too: what the warlord
+     does to a line is throw it about, and a fight you keep getting up from is a
+     better fight than one you lose in four seconds.
+
+     And it swings SLOWLY - four seconds between blows, twice as long as any
+     other goblin. A big thing that attacks at a normal rate reads as a big
+     thing hurrying; the weight comes from the pause. It also gives the rhythm
+     room to be read: two slow swings then the axes go up is a beat you can
+     count, where at half this interval it was a blur. */
+  gobwarlord:{ name:"Goblin Warlord", age:0, hp:470, spd:36, atk:27, rng:15, cd:4.0,
+            cost:{}, build:1, r:17, pop:0, cls:"inf",
+            goblin:true, gobBody:"warlord", gobBig:true, gobBoss:true, cleave:34 },
   archer:{ name:"Archer", age:0, hp:52, spd:60, atk:11, rng:76, cd:1.3, cost:{wood:47,gold:25,food:23},
            build:10, r:7, pop:1, cls:"arc", ranged:true },
   horsescout:{ name:"Horse Scout", age:1, hp:70, spd:118, atk:6, rng:9, cd:1.2, cost:{food:80},
@@ -5592,6 +5831,17 @@ const BLDG = {
            drop:true, vision:3, upgLine:"wood" },
   mine:{ name:"Mine", age:0, hp:210, w:2, h:2, cost:{wood:87,stone:40,food:38}, hgt:11, shrinkW:0.62, shrink:0.60, roof:"lean", build:15,
          drop:true, vision:3, upgLine:"ore" },
+  /* The goblins' own palisade. An ordinary building, so it blocks the way like
+     every other building does (blocked(), 03d) and has to be knocked down like
+     one - there is no new rule here, which is exactly why it is safe. */
+  goblinwall:{ name:"Goblin Palisade", age:0, hp:105, w:1, h:1, cost:{}, hgt:12, roof:"none",
+         build:1, vision:0, gobDef:true },
+  /* The gate. Tougher than the stakes either side of it, which is the whole
+     decision the wall exists to create: go through the gate, which is quick to
+     find and slow to break and covered by both lookouts, or break a length of
+     palisade round the back where nothing is watching. */
+  goblingate:{ name:"Goblin Gate", age:0, hp:260, w:1, h:1, cost:{}, hgt:16, roof:"none",
+         build:1, vision:2, gobDef:true },
   dock:{ name:"Dock", age:0, hp:230, w:2, h:2, cost:{wood:93,food:42}, hgt:9, shrinkW:0.62, shrink:0.60, roof:"lean", build:15,
          drop:true, vision:5, shore:true, trains:["fishingboat","transport","warship"] },
   house:{ name:"House", age:0, hp:200, w:1, h:1, cost:{wood:47,food:23}, hgt:7, roof:"gable", roofScale:0.5, build:11, pop:6, vision:3 },
@@ -6404,13 +6654,13 @@ function defaultGameState(){
       { id:P_YOU, civ:"sunfolk", col:CIVS.sunfolk.col, dark:CIVS.sunfolk.dark, ai:false,
         /* Nothing at all to start with - the Wandering Age is gathered for by
            hand. See WANDERING_AGE. */
-        res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, pop:0, popcap:0, queue:[],
+        res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
         armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0 },
       { id:P_AI, civ:"ashkin", col:CIVS.ashkin.col, dark:CIVS.ashkin.dark, ai:true,
         /* Nothing at all to start with - the Wandering Age is gathered for by
            hand. See WANDERING_AGE. */
-        res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, pop:0, popcap:0, queue:[],
+        res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
         armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0 },
       /* The goblins. A full players[] entry because the whole game indexes
@@ -6420,7 +6670,7 @@ function defaultGameState(){
          Wandering Age protects a bare start. (idea_peaceful_goblins) */
       { id:P_GOB, civ:"sunfolk", col:"#6f9a3e", dark:"#3d5a22", ai:false, goblin:true,
         res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0},
-        age:0, settled:true, stoneAge:true, pop:0, popcap:0, queue:[],
+        age:0, settled:true, stoneAge:true, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
         armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null,
         seasonalFarms:{}, caretakerCd:0 }
@@ -6443,6 +6693,12 @@ function defaultGameState(){
     goblinCamp:null,
     goblinLevel:{ spring:1, summer:1, autumn:1, winter:1 },
     goblinBeaten:{ spring:0, summer:0, autumn:0, winter:0 },
+    /* All twenty camps down, and whether the player has been asked what they
+       want to do about it. Asked once and never again - see checkCampaignDone.
+       Kept on G rather than worked out from goblinBeaten each time, because a
+       village that answered "carry on" months ago must not be asked again on
+       every load. */
+    campaignDone:false, campaignAsked:false,
     goblinWoken:false,
     goblinCampAt:-1,          // which season number a camp was last pitched for
     caretakers:[],
@@ -6606,6 +6862,10 @@ function defaultGameState(){
 }
 
 function newGame(){
+  /* The world's size before anything is placed in it - mapgen, the fog, the
+     pathfinder and every array in G are sized from MAPW/MAPH, so this has to
+     be the first thing that happens. Peaceful gets the big one. */
+  sizeMapFor(DIFFICULTY);
   // Seed first, before anything at all is rolled. Doing this partway through
   // meant the AI's strategy and the opening weather were still being drawn
   // from wherever the previous game had left the stream, so the same seed
@@ -7048,12 +7308,26 @@ function genMap(type){
       forest(b.x + Math.cos(a)*11, b.y + Math.sin(a)*11, 6, 40);
     }
   });
+  /* ---------- everything below scales with the map ----------
+
+     These counts were written for a 58x58 board. Peaceful plays on 84x84 -
+     more than twice the ground - and left alone that map came out with the
+     same twenty forests and twelve berry clumps spread over twice the area,
+     which is not a bigger world, it is a thinner one. Every walk is longer for
+     the same economy, which makes the mode worse rather than larger.
+
+     So the counts are per unit of ground, not per map. A bigger map has more
+     in it at the same density; the numbers below still read as what a 58x58
+     map gets, which is what every one of them was tuned against. */
+  const AREA = (MAPW*MAPH) / (58*58);
+  const many = (n) => Math.max(1, Math.round(n * AREA));
+
   // proper woodland scattered over the map
-  for(let i=0;i<20;i++){
+  for(let i=0;i<many(20);i++){
     forest(rnd(7,MAPW-7), rnd(7,MAPH-7), 5+Math.random()*5, 34+((Math.random()*30)|0));
   }
   // a few lone trees so it isn't only dense blocks
-  for(let i=0;i<16;i++) scatter(RES.WOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 5, 5, 130);
+  for(let i=0;i<many(16);i++) scatter(RES.WOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 5, 5, 130);
   /* Wild berries out in the country: half what they were, and the whole
      story of that number is worth keeping.
 
@@ -7076,24 +7350,46 @@ function genMap(type){
      Judge it in whole matches - tests/play.js --diff hard --seeds 13,17,23,29
      at this density has the AI pushing at 10m00, 10m11, 12m25 and 13m54 and
      winning two of four. */
-  for(let i=0;i<12;i++) scatter(RES.FOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 3, 2, 110);
-  // fish shoals - only reachable by boat
+  for(let i=0;i<many(12);i++) scatter(RES.FOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 3, 2, 110);
+  /* Fish shoals - only reachable by boat.
+
+     Half as many as there were, each holding twice as much. There used to be
+     26 placed here and then the pairing pass below gave every one of them a
+     twin, so the sea ended up with 52 shoals sitting in pairs - which read as
+     a crowd rather than as somewhere worth sailing to. Shoals are now left out
+     of the pairing (see `originals` below) and hold 600 instead of 300, so the
+     water carries exactly as much food in half the places.
+
+     A little more room between them as well - though the twin was always the
+     real culprit, sitting about two thirds of a tile away.
+
+     The separation relaxes if the map cannot take 26 at arm's length. A
+     Coastland map is 13% water, and held to a strict spacing it fitted only
+     six shoals: 3,600 food where it used to have 12,600, which quietly
+     wrecks a coastal game. Every map gets its 26 - they just sit closer
+     together where the water is tight. */
   let placed=0;
-  for(let tries=0; tries<900 && placed<26; tries++){
-    const tx=rnd(2,MAPW-2), ty=rnd(2,MAPH-2);
-    if(G.terrain[ty*MAPW+tx]!==5) continue;
-    const wx=tx*TILE+TILE/2, wy=ty*TILE+TILE/2;
-    if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < 58)) continue;
-    G.nodes.push({ id:G.nextId++, isNode:true, water:true, kind:RES.FOOD,
-                   x:wx, y:wy, amt:300, max:300, r:14, seed:Math.random()*6.28 });
-    placed++;
+  const SHOALS = many(26);
+  for(const apart of [76, 56, 40, 26]){
+    for(let tries=0; tries<900*AREA && placed<SHOALS; tries++){
+      const tx=rnd(2,MAPW-2), ty=rnd(2,MAPH-2);
+      if(G.terrain[ty*MAPW+tx]!==5) continue;
+      const wx=tx*TILE+TILE/2, wy=ty*TILE+TILE/2;
+      if(G.nodes.some(n=>Math.hypot(n.x-wx,n.y-wy) < apart)) continue;
+      G.nodes.push({ id:G.nextId++, isNode:true, water:true, kind:RES.FOOD,
+                     x:wx, y:wy, amt:600, max:600, r:14, seed:Math.random()*6.28 });
+      placed++;
+    }
+    if(placed >= SHOALS) break;
   }
 
 
   // Double the map's resources by pairing: every node gets a twin right
   // beside it, so you find two trees together, two berry bushes together,
   // a richer vein - rather than the same clumps spread thinner.
-  const originals = G.nodes.filter(n=>!n.forest);
+  // shoals are deliberately not paired - they are already twice as rich, and
+  // two of them side by side is the thing that made the sea look crowded
+  const originals = G.nodes.filter(n=>!n.forest && !n.water);
   for(const n of originals){
     const gap = n.vein ? n.r*1.5 : n.r + 9;
     let placed = false;
@@ -7527,6 +7823,11 @@ function bakeTerrainArt(T){
       depth[i] = Math.min(depth[i], m+1);
     }
   }
+  /* Kept, not thrown away. How far a water tile is from land is exactly what
+     the offshore swell lines need to know: a line drawn a tile out has no
+     business appearing in a channel two tiles wide, where the offset from one
+     bank crosses the offset from the other. (drawWaterFX, 04c) */
+  G.seaDepth = depth;
 
   /* The painted coast, worked out once at sub-cell resolution and shared by
      all four seasonal bitmaps. See coastSubType above: this is the picture
@@ -8058,7 +8359,13 @@ function spawnBugs(){
       x:tx*TILE+TILE/2, y:ty*TILE+TILE/2,
       hx:tx*TILE+TILE/2, hy:ty*TILE+TILE/2,
       a:Math.random()*6.283, seed:Math.random()*6.283,
-      col:"#4a8a9c", wait:Math.random()*3, scatterT:0
+      /* Jewel colours, one each, the way the summer drift's dragonflies have
+         them - they are drawn as a small lit mark now rather than as a body
+         with lines for wings, and a single teal for all five read as five
+         copies of one insect. */
+      col: DRAGONFLY_COLS[(Math.random()*DRAGONFLY_COLS.length)|0],
+      wait:Math.random()*3, scatterT:0,
+      dart: Math.random()*0.9, da: Math.random()*6.283, shine: Math.random()*6
     });
   }
 }
@@ -8080,8 +8387,17 @@ function updateBugs(dt){
         b.x += Math.cos(b.a)*90*dt; b.y += Math.sin(b.a)*90*dt;
         continue;
       }
-      b.a += Math.sin(G.t*2.4+b.seed)*2.2*dt;
-      const sp = 34 + Math.sin(G.t*3+b.seed)*10;
+      /* Hangs, then is somewhere else - the same dart-and-hang the summer
+         drift's dragonflies use, rather than the steady curving cruise a bee
+         flies. It is the half of "looks like a firefly" that is about
+         MOVEMENT: a firefly drifts and a dragonfly stops dead, and neither of
+         them travels in a smooth arc. */
+      b.shine = (b.shine || 0) + dt;
+      b.dart = (b.dart === undefined ? 0.4 : b.dart) - dt;
+      if(b.dart <= -0.85){ b.dart = 0.22 + Math.random()*0.22; b.da = Math.random()*6.283; }
+      if(b.dart > 0) b.a = b.da;
+      else b.a += Math.sin(G.t*2.4+b.seed)*2.2*dt;
+      const sp = b.dart > 0 ? (95 + Math.sin(G.t*7+b.seed)*20) : (5 + Math.sin(G.t*3+b.seed)*4);
       const nx = b.x+Math.cos(b.a)*sp*dt, ny = b.y+Math.sin(b.a)*sp*dt;
       const ntx = Math.floor(nx/TILE), nty = Math.floor(ny/TILE);
       if(isWater(nx,ny) && Math.hypot(nx-b.hx,ny-b.hy)<60){ b.x=nx; b.y=ny; }
@@ -11020,13 +11336,52 @@ function tryAgeUp(){
     return;
   }
   if(pl.age >= 2){ hint("You're already in the Iron Age."); return; }
+  if(pl.ageUpTo != null){ hint("The " + AGES[pl.ageUpTo] + " is already on its way."); return; }
   const cost = AGE_COST[pl.age+1];
   if(!canAfford(pl, cost)){ hint("Need " + costStr(cost) + " to advance."); return; }
   pay(pl, cost);
-  pl.age++;
-  hint("Your people enter the " + AGES[pl.age] + ".");
-  fxAge(P_YOU);
+  /* Paid for now, arrives in half a day. See AGE_UP_TIME and the progress
+     strip above the group bar - the whole point is that you can watch it
+     coming and plan the half day around it. */
+  beginAgeUp(pl);
+  hint("Work begins on the " + AGES[pl.ageUpTo] + " - it will be half a day before it arrives.");
   refreshUI();
+}
+
+/* Start the clock on an age. Shared by the player and the AI so both wait the
+   same half day for the same money - it would be a strange thing to charge one
+   side time and not the other. */
+function beginAgeUp(pl){
+  pl.ageUpTo = pl.age + 1;
+  pl.ageUpT = 0;
+}
+
+/* And the moment it lands. */
+function finishAgeUp(pl, idx){
+  pl.age = pl.ageUpTo;
+  pl.ageUpTo = null;
+  pl.ageUpT = 0;
+  fxAge(idx);
+  if(idx === P_YOU){
+    hint("Your people enter the " + AGES[pl.age] + ".");
+    refreshUI();
+  }
+}
+
+/* Called once a frame from the tick. */
+function updateAgeUp(dt){
+  for(let i=0;i<G.players.length;i++){
+    const pl = G.players[i];
+    if(pl.goblin || pl.ageUpTo == null) continue;
+    pl.ageUpT = (pl.ageUpT || 0) + dt;
+    if(pl.ageUpT >= AGE_UP_TIME()) finishAgeUp(pl, i);
+  }
+}
+
+/* How far along, 0..1, or null if this player is not advancing. */
+function ageUpProgress(pl){
+  if(!pl || pl.ageUpTo == null) return null;
+  return Math.max(0, Math.min(1, (pl.ageUpT || 0) / AGE_UP_TIME()));
 }
 
 /* ============================================================
@@ -11148,6 +11503,8 @@ let lastT = 0;
 function tick(dt){
   if(!G.running || G.over) return;
   G.t += dt;
+  updateAgeUp(dt);          // an age takes half a day to arrive once paid for
+  updateShoalReturn();      // and fish come back to an emptied shoal in two days
 
   // knowledge trickle + building production
   for(const b of G.bldgs){
@@ -11760,6 +12117,46 @@ function updateUnit(u, dt){
     u.tired = Math.max(0, u.tired - dt/TIRED_REST);
   }
   if(u.indoors) return;              // asleep
+  /* ---------- the warlord and its escort hold the camp ----------
+     They never leave it, at any level. The whole peaceful arc rests on the
+     goblins being yours to start, and a warlord that walks out to meet you
+     takes that away - and measured without this, it did exactly that: it came
+     out into the open, cleaved through eighteen units with its guards still on
+     it, and no force of any size ever got as far as the palisade.
+
+     So it is on a leash. Pulled past the wall it drops whatever it was doing
+     and goes back, which also means the fight it is in is the one INSIDE the
+     camp: you have to come to it. */
+  if(u.p === P_GOB && (u.gobBossOf || u.guardOf) && u.gobHome){
+    const leash = (GOBLIN_WALL_R + 0.5) * TILE;
+    const dh = Math.hypot(u.x - u.gobHome.x, u.y - u.gobHome.y);
+    if(dh > leash){
+      u.target = null;
+      u.order = "move";
+      u.dest = { x: u.gobHome.x, y: u.gobHome.y };
+      u.path = null;
+    } else if(u.target && Math.hypot(u.target.x - u.gobHome.x, u.target.y - u.gobHome.y) > leash){
+      // and it will not be drawn out after something standing off the wall
+      u.target = null;
+      u.order = null;
+    }
+  }
+  /* ---------- knocked over by the warlord's slam ----------
+     Carried back along the way they were thrown, rising and settling on a sine
+     so it reads as being thrown rather than sliding, and unable to act until
+     they are back on their feet. blocked() is still respected - a unit thrown
+     into a wall stops at it rather than through it. (bossSwing, 04a) */
+  if(u.kbT > 0){
+    u.kbT -= dt;
+    const p = Math.max(0, u.kbT / (u.kbLen || 0.4));
+    const step = (u.kbSpd || 150) * p * dt;
+    const nx = u.x + (u.kbx||0)*step, ny = u.y + (u.kby||0)*step;
+    if(!blocked(nx, ny, null, !!UNITS[u.type].naval, u.r*0.5)){ u.x = nx; u.y = ny; }
+    u.air = Math.sin(p*Math.PI) * (u.kbAir || 5);
+    u.moving = false;
+    if(u.kbT > 0) return;
+    u.kbT = 0; u.air = 0;
+  }
   if(u.foxAway) return;              // off at the fox's den - see updateFoxAway
   /* Stopped for a word with a neighbour who came over (maybeStopForAWord,
      05-wildlife.js). Only ever set on an idle or gathering villager, never
@@ -11792,6 +12189,17 @@ function updateUnit(u, dt){
             * (((u.breadT||0) > 0) ? BREAD_BOOST : 1);                // and better again for a day after the baker calls
   u.cd -= dt;
   if(u.atkAnim>0) u.atkAnim -= dt;
+  /* The warlord's big hit runs on its own clock, and the blow lands part way
+     through it rather than at the start - the axes go up, and everything goes
+     over when they come down. (bossSwing / bossSlamLands, 04a) */
+  if(u.slamAnim > 0){
+    u.slamAnim -= dt;
+    if(!u.slamHit && u.slamAnim <= BOSS_SLAM_ANIM - BOSS_SLAM_HIT){
+      u.slamHit = true;
+      bossSlamLands(u);
+    }
+    if(u.slamAnim < 0) u.slamAnim = 0;
+  }
   if(u.working>0) u.working -= dt;
   if(u.inspired>0) u.inspired -= dt;
   // the baker's loaf, good for a day (`||0` - a unit from a save written
@@ -12312,12 +12720,19 @@ function updateUnit(u, dt){
         }
         faceToward(u, t.x - u.x, dt);       // keep facing the enemy
         if(u.cd<=0){
-          u.cd = civStat(u.p,u.type,"cd",d.cd);
+          /* An enraged warlord swings faster and sweeps wider. Applied here
+             rather than on the def, because the def is shared by every one of
+             them and only this individual is furious. (GOB_BOSS_RAGE_CD) */
+          u.cd = civStat(u.p,u.type,"cd",d.cd) * (u.enraged ? GOB_BOSS_RAGE_CD : 1);
           u.atkAnim = 0.22;
+          // and it swings the other arm this time - see drawGoblin
+          u.swingArm = u.swingArm ? 0 : 1;
           if(d.ranged) shoot(u, t, atk, u.cls);
           else {
             dealDamage(u, t, atk, u.cls);
-            if(d.cleave) cleaveAround(u, t, atk, u.cls, d.cleave);
+            if(d.cleave) cleaveAround(u, t, atk, u.cls,
+                          d.cleave * (u.enraged ? GOB_BOSS_RAGE_CLEAVE : 1));
+            if(d.gobBoss) bossSwing(u, t);
           }
         }
       }
@@ -12347,12 +12762,18 @@ function updateUnit(u, dt){
       if(e){
         faceToward(u, e.x - u.x, dt);
         if(u.cd<=0){
-          u.cd = civStat(u.p,u.type,"cd",d.cd);
+          /* An enraged warlord swings faster and sweeps wider. Applied here
+             rather than on the def, because the def is shared by every one of
+             them and only this individual is furious. (GOB_BOSS_RAGE_CD) */
+          u.cd = civStat(u.p,u.type,"cd",d.cd) * (u.enraged ? GOB_BOSS_RAGE_CD : 1);
           u.atkAnim = 0.22;
+          // and it swings the other arm this time - see drawGoblin
+          u.swingArm = u.swingArm ? 0 : 1;
           if(d.ranged) shoot(u, e, atk, u.cls);
           else {
             dealDamage(u, e, atk, u.cls);
-            if(d.cleave) cleaveAround(u, e, atk, u.cls, d.cleave);
+            if(d.cleave) cleaveAround(u, e, atk, u.cls,
+                          d.cleave * (u.enraged ? GOB_BOSS_RAGE_CLEAVE : 1));
           }
         }
       }
@@ -13172,13 +13593,106 @@ function PEACE_BROKEN_LINE(){
    Buildings are deliberately NOT caught: a sweep that took a chunk out of
    three walls at once would make the thing a siege engine, which it is not.
    (idea_peaceful_goblins) */
+/* ---------- the warlord's slam ----------
+   Every ten to twelve swings it puts one in properly and everything near it
+   goes backwards, sideways and a little into the air. It does no extra damage:
+   the cost is that the units it catches lose a moment getting up, which in a
+   fight this size is worse than the damage would have been.
+
+   The count is per warlord and the next one is re-rolled each time, so you
+   cannot learn it as "every tenth" and dance round it - only that it is
+   coming, roughly, soon. */
+/* Two patterns, alternating: swing, swing, SLAM - then swing, swing, swing,
+   swing, SLAM - then back to the short one.
+
+   This is deliberately a rhythm you can learn rather than a dice roll you
+   cannot. A boss with a readable pattern is a boss you can fight: you watch it
+   take two, you pull your line back, it hits nothing. Rolled at random every
+   ten to twelve swings instead, which is what this was, the slam only ever
+   happened TO you - and at that spacing most of a fight went by without one,
+   so the thing the warlord is for barely showed up. */
+const BOSS_PATTERNS = [2, 4];
+
+/* ---------- the big hit gets its own animation ----------
+   An ordinary swing is a stroke of the arms and it is over in a fifth of a
+   second. The slam is a different move: both axes go up over its head, it holds
+   there long enough for you to see it coming, and then it brings them down.
+
+   That hold is the point. Everything about the slam is meant to be readable -
+   the pattern tells you it is due, and the wind-up tells you it is NOW - so the
+   knockback deliberately does not happen when the swing is counted. It waits
+   for the axes to actually land (bossSlamLands, called from the tick). */
+const BOSS_SLAM_ANIM = 0.62;      // the whole move, wind-up and all
+const BOSS_SLAM_HIT  = 0.42;      // how far through it the axes come down
+
+function bossSwing(u, t){
+  u.swings = (u.swings || 0) + 1;
+  if(u.patIdx === undefined) u.patIdx = 0;
+  if(u.swings <= BOSS_PATTERNS[u.patIdx % BOSS_PATTERNS.length]) return false;
+  u.swings = 0;
+  u.patIdx = (u.patIdx + 1) % BOSS_PATTERNS.length;
+  // wind up. The blow itself lands part way through - see bossSlamLands.
+  u.slamAnim = BOSS_SLAM_ANIM;
+  u.slamHit = false;
+  u.atkAnim = 0;                   // this move replaces the ordinary swing
+  if(visibleTo(P_YOU, u.x, u.y))
+    hint("The warlord takes both axes up over its head.");
+  return true;
+}
+
+/* The moment the axes come down. */
+function bossSlamLands(u){
+  const reach = (UNITS[u.type].cleave || 30) * 1.8;
+  let caught = 0;
+  for(const o of G.units){
+    if(o.hp <= 0 || !hostile(u.p, o.p)) continue;
+    if(o.indoors) continue;
+    const dx = o.x - u.x, dy = o.y - u.y;
+    const d = Math.hypot(dx, dy);
+    if(d > reach) continue;
+    /* Away from the warlord, and thrown off to one side as well - straight
+       back from a single point sends the whole line out along the same
+       spokes, which reads as a shockwave diagram rather than as bodies. */
+    const a = Math.atan2(dy, dx) + (Math.random()-0.5)*1.5;
+    o.kbx = Math.cos(a); o.kby = Math.sin(a);
+    /* Thrown properly. The first pass lifted them four or five pixels, which
+       at this scale is a stumble - and the point of the slam is that the whole
+       line goes over and has to pick itself up. */
+    o.kbLen = 0.52 + Math.random()*0.22;
+    o.kbT = o.kbLen;
+    o.kbSpd = 210 + Math.random()*90;
+    o.kbAir = 11 + Math.random()*6;
+    o.cd = Math.max(o.cd || 0, o.kbLen + 0.12);      // and a moment to get up
+    caught++;
+  }
+  G.fx.push({ type:"cleave", x:u.x, y:u.y, r:reach, t:0, life:0.5 });
+  if(caught && visibleTo(P_YOU, u.x, u.y))
+    hint("Both axes come down together \u2014 your line goes over backwards.");
+  return caught;
+}
+
+/* A sweep catches at most this many others. Uncapped it is quietly the most
+   damaging thing in the game: at a gate, where a line is packed into a gap, the
+   warlord's sweep was landing on five or six units every two seconds, and no
+   force of any size - twenty-seven upgraded units included - ever cleared a
+   level three camp. A cap keeps the sweep frightening and makes bunching a
+   mistake rather than a death sentence. */
+const CLEAVE_MAX = 3;
 function cleaveAround(src, t, dmg, cls, reach){
   let caught = 0;
+  /* Nearest first, so the cap takes the ones actually beside the blow rather
+     than whoever happens to come first in the unit list. */
+  const near = [];
   for(const o of G.units){
     if(o === t || o.hp <= 0) continue;
     if(!hostile(src.p, o.p)) continue;
-    if(Math.hypot(o.x - t.x, o.y - t.y) > reach) continue;
-    dealDamage(src, o, dmg*GOB_CLEAVE_SHARE, cls);
+    const d = Math.hypot(o.x - t.x, o.y - t.y);
+    if(d > reach) continue;
+    near.push([d, o]);
+  }
+  near.sort((a,b)=>a[0]-b[0]);
+  for(let i=0;i<near.length && i<CLEAVE_MAX;i++){
+    dealDamage(src, near[i][1], dmg*GOB_CLEAVE_SHARE, cls);
     caught++;
   }
   if(caught) G.fx.push({ type:"cleave", x:t.x, y:t.y, r:reach, t:0, life:0.32 });
@@ -13216,6 +13730,29 @@ function dealDamage(src, t, dmg, cls){
   if(t.kind==="unit" && hasSeasonalBuff(t.p,"defence")) m *= (2 - SEASONAL_BUFF);
   // moonstruck: everything lands harder on them while the crystal is in them
   if(t.kind==="unit" && (t.moonstruck||0) > 0) m *= MOONSTRUCK_DEF;
+  /* ---------- the warlord's ward ----------
+     While one of its four guards is still standing it barely feels a blow. It
+     is the whole shape of the level three fight: you cannot win it by walking
+     up to the biggest thing and swinging, you have to take the escort off it
+     first. Counted here, at the moment of the hit, rather than tracked on the
+     boss - so a guard dying to anything at all (a cleave, a tower, a wolf)
+     counts, and there is no bookkeeping to get out of step. */
+  if(t.kind==="unit" && UNITS[t.type] && UNITS[t.type].gobBoss){
+    let guarded = false;
+    for(const g of G.units){
+      if(g.guardOf === t.id && g.hp > 0){ guarded = true; break; }
+    }
+    if(guarded){ m *= (1 - GOB_BOSS_WARD); }
+    else if(!t.enraged){
+      /* The last guard is down. It stops shrugging off blows and starts
+         swinging faster and wider - so the moment the fight becomes winnable
+         is also the moment it becomes dangerous. */
+      t.enraged = true;
+      if(visibleTo(P_YOU, t.x, t.y))
+        hint("The warlord's guard is down \u2014 and it has stopped holding back.");
+    }
+    t.bossWarded = guarded;
+  }
   const dealt = dmg*m;
   t.hp -= dealt;
   /* Peaceful: the Ashkin leave you alone until you GO FOR them. Only a blow
@@ -13375,7 +13912,17 @@ function cleanup(){
 function checkEnd(){
   const you = G.bldgs.some(b=>b.p===P_YOU);
   const ai  = G.bldgs.some(b=>b.p===P_AI);
-  if(!ai){ endGame(true); return; }
+  /* ---------- peaceful does not end when the neighbours do ----------
+
+     On every other difficulty, levelling the rival IS the match. Peaceful is
+     not a match - it is a village you keep, and the thing being played is the
+     goblin campaign: four seasons, five levels each. So razing the Ashkin ends
+     nothing here. If you go and do it, the ground is yours and the game carries
+     on, and what finishes is finishing the campaign (checkCampaignDone).
+
+     Losing still loses. A village with nothing left standing is over whatever
+     mode it is in. */
+  if(!ai && !goblinsEnabled()){ endGame(true); return; }
   if(!you){ endGame(false); return; }
   /* The Wandering Age has its own way of being over, and without this it is
      not an ending at all, it is a stall. A side that has lost its last
@@ -13391,6 +13938,8 @@ function checkEnd(){
     if(G.players[p].settled) continue;
     if(G.units.some(u=>u.p===p && u.hp>0)) continue;
     if(G.bldgs.some(b=>b.p===p && b.done && b.hp>0)) continue;
+    // and in peaceful, an Ashkin side that stalls out is simply gone
+    if(p === P_AI && goblinsEnabled()) continue;
     endGame(p !== P_YOU);
     return;
   }
@@ -14422,9 +14971,10 @@ function aiThink(dt){
 
   // 6. age up when affordable - but the Stone Age comes first, and that is
   //    handled at the top of aiThink (WANDERING_AGE)
-  if(pl.stoneAge && pl.age<2){
+  if(pl.stoneAge && pl.age<2 && pl.ageUpTo == null){
     const c = AGE_COST[pl.age+1];
-    if(canAfford(pl,c)){ pay(pl,c); pl.age++; fxAge(P_AI); }
+    // the same half day the player waits - see beginAgeUp
+    if(canAfford(pl,c)){ pay(pl,c); beginAgeUp(pl); }
   }
 
   // 7. train army — but hold back resources when an age-up is nearly in reach,
@@ -15378,17 +15928,36 @@ function draw(){
          over has no business showing insect life above it. */
       if(bg.dragonfly){
         if(G.season === "winter") continue;
-        ctx.globalAlpha = 1;
-        const wingT = Math.abs(Math.sin(G.t*22+bg.seed));
-        ctx.strokeStyle = "rgba(220,240,235,.55)"; ctx.lineWidth = 0.6;
-        ctx.beginPath();
-        ctx.moveTo(bg.x-3, bg.y-2*wingT); ctx.lineTo(bg.x+3, bg.y-2*wingT);
-        ctx.moveTo(bg.x-3, bg.y+1.5*wingT); ctx.lineTo(bg.x+3, bg.y+1.5*wingT);
-        ctx.stroke();
+        /* Drawn the way the fireflies are: a small hard mark with a soft halo
+           round it. That halo is the whole trick - it is what makes something
+           this size read as being IN THE AIR rather than as a mark on the
+           ground, and the old version had none, so a dragonfly was two grey
+           dashes and a sliver lying flat on the water.
+
+           It keeps a dragonfly's own body - long, lying along its heading, and
+           twice the fireflies' length - and it keeps its wings, but as a
+           shimmer across the middle instead of two drawn lines. */
+        ctx.save();
+        ctx.translate(bg.x, bg.y);
+        ctx.rotate(bg.a);
+        const shine = 0.72 + Math.sin((bg.shine||0)*3.4 + bg.seed)*0.28;
+        // the halo
         ctx.fillStyle = bg.col;
-        ctx.beginPath();
-        ctx.ellipse(bg.x, bg.y, 3.2, 0.8, bg.a, 0, 6.283);
-        ctx.fill();
+        ctx.globalAlpha = 0.20*shine;
+        ctx.beginPath(); ctx.arc(0, 0, 5.0, 0, 6.283); ctx.fill();
+        // the wing blur - a pale disc across the middle, widening on the beat
+        const beat = 0.55 + Math.abs(Math.sin(G.t*26 + bg.seed))*0.45;
+        ctx.fillStyle = "rgba(226,242,240,.30)";
+        ctx.globalAlpha = 0.55;
+        ctx.beginPath(); ctx.ellipse(-0.4, 0, 2.0, 3.4*beat, 0, 0, 6.283); ctx.fill();
+        // and the body: a hard bright core, long rather than round
+        ctx.globalAlpha = 0.95*shine;
+        ctx.fillStyle = bg.col;
+        ctx.beginPath(); ctx.ellipse(0, 0, 3.4, 0.95, 0, 0, 6.283); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "rgba(255,255,255,.55)";
+        ctx.beginPath(); ctx.ellipse(1.5, 0, 1.0, 0.75, 0, 0, 6.283); ctx.fill();
+        ctx.restore();
         ctx.globalAlpha = 1;
         continue;
       }
@@ -16063,7 +16632,7 @@ function draw(){
         if(!carriesTorch(u)) continue;
         if(u.p!==P_YOU && !visibleTo(P_YOU,u.x,u.y)) continue;
         const guttr = 0.90 + 0.10*Math.sin(G.t*0.9 + u.id*1.9);
-        const rad = TORCH_RADIUS * guttr;
+        const rad = torchRadius(u) * guttr;
         const sp = w2s(u.x, u.y);
         const rx = rad*c.z, ry = rad*0.72*c.z;
         if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
@@ -16883,6 +17452,66 @@ function drawWaterFX(x0,y0,x1,y1){
         ctx.stroke();
       }
 
+      /* ---------- the sets further out ----------
+
+         A shore is not one line of water, it is sets of swell arriving one
+         behind another. Two more lines are drawn further out on the same
+         contour, each with its phase running AHEAD of the shore's - so the
+         outer one peaks first, then the middle, then the beach, and the eye
+         reads three lines rolling in rather than three lines sitting still.
+
+         Fainter and thinner the further out they are, because a swell that
+         has not broken yet has no white in it; no foam on them at all for the
+         same reason. And drawn as one stroke each rather than in chunks - out
+         there the water is even, so there is nothing to vary.
+
+         Each set breaks its path wherever the offset point would land on dry
+         ground. Without that, a line a tile out crosses the far bank of every
+         narrow inlet and lies across the land. */
+      /* dist in tiles, phase lead, colour, width, and how many tiles of water
+         the spot needs to have around it. seaDepth counts 1 for a tile
+         touching land, so a set half a tile out needs 1 and a set a tile out
+         needs 2 - ask for more and they simply never appear on a lake. */
+      /* Both sets are PALE, and paler the further out they are.
+
+         A dark line was tried out here and it is wrong: on flat-shaded water
+         the only vocabulary the sea already has for movement is a pale stroke,
+         so a thin dark one reads as a scratch on the picture rather than as a
+         swell. Distance is carried by fading, not by darkening. */
+      const SETS = [[0.50, 0.95, "rgba(226,238,242,.13)", 1.0, 1],
+                    [1.00, 1.80, "rgba(220,234,240,.085)", 1.0, 2]];
+      const sd = G.seaDepth;
+      for(const [dist, lead, col, lw, need] of SETS){
+        const setAt = i => heel + TILE*dist +
+              reach*(0.5 + 0.5*Math.sin(G.t*1.05 - A[i]*0.011 + lead));
+        ctx.strokeStyle = col;
+        ctx.lineWidth = lw;
+        ctx.beginPath();
+        let open = false;
+        for(let i=0; i<n; i++){
+          const o = setAt(i);
+          const px = P[i*2] + N[i*2]*o, py = P[i*2+1] + N[i*2+1]*o;
+          const tx = (px/TILE)|0, ty = (py/TILE)|0;
+          const inside = tx>=0 && ty>=0 && tx<MAPW && ty<MAPH;
+          /* Not merely "is this water" but "is there this much water here".
+             An offset line in a channel two tiles wide meets the line offset
+             from the far bank and the two cross in the middle, which is the
+             one thing that gives the trick away. seaDepth is the distance to
+             the nearest land in tiles, kept by the terrain bake for this. */
+          const room = inside && sd && sd[ty*MAPW+tx] >= need;
+          /* And break at a sharp bend. Offsetting a wiggly line outward folds
+             it over itself wherever it turns tighter than the offset distance,
+             which came out as loops and crossings sitting in open water. If
+             the coast has swung more than about 45 degrees across the next few
+             points, this set simply does not carry round the corner. */
+          const k = Math.min(n-1, i+4);
+          const turn = N[i*2]*N[k*2] + N[i*2+1]*N[k*2+1];
+          if(!room || turn < 0.72 || px<lx0||py<ly0||px>lx1||py>ly1){ open = false; continue; }
+          if(open) ctx.lineTo(px, py); else { ctx.moveTo(px, py); open = true; }
+        }
+        ctx.stroke();
+      }
+
       /* Foam, at the top of the run only, torn into scraps rather than laid on
          as a second line - it is the one part of a wave that is not a curve,
          and drawing it as one gives the whole thing away. */
@@ -17383,21 +18012,52 @@ function drawNode(n){
        Three ways a shoal behaves, picked per node so the sea is not all one
        motion: a slow circling ring, a tight school that darts as one, and a
        lazy mill that now and then throws a fish clear of the water. */
+    /* An emptied shoal is still a place - the fish come back to it in a couple
+       of days (updateShoalReturn) - but there is nothing swimming there now.
+       All that is left is the slick of disturbed water, fading. */
+    if(n.amt <= 0){
+      ctx.globalAlpha = 0.5;
+      ctx.drawImage(waterBlob(), n.x - n.r*1.3, n.y - n.r*0.85, n.r*2.6, n.r*1.7);
+      ctx.globalAlpha = 1;
+      return;
+    }
+
     const wet = Math.max(0.3, n.amt/n.max);
     const style = ((n.id*7)|0) % 3;
-    // the darker water the shoal churns up
-    ctx.fillStyle = "rgba(24,60,80,.22)";
-    ctx.beginPath(); ctx.ellipse(n.x, n.y, n.r*1.15, n.r*0.72, 0, 0, 6.283); ctx.fill();
 
-    const cnt = Math.max(3, Math.round(7*wet));
+    /* The churn the shoal makes, as a feathered patch rather than a hard-edged
+       ellipse - the rim of the old one read as a plate lying on the water. */
+    ctx.globalAlpha = 0.16;
+    ctx.drawImage(waterBlob(), n.x - n.r*1.5, n.y - n.r*0.95, n.r*3.0, n.r*1.9);
+    ctx.globalAlpha = 1;
+
+    /* Fewer fish, a little bigger, and read as being UNDER the water rather
+       than sitting on it.
+
+       Halfway between what this was and how the genre usually draws a shoal:
+       theirs are small dark silhouettes with a pale underside, low contrast,
+       all pointing much the same way, with a shadow beneath. Ours were pale
+       blue with a bright white scale on top - lively, but they read as
+       ornaments floating on the surface. So: the body darkens and desaturates,
+       the white scale becomes a soft pale belly, and each fish gets a shadow
+       offset below it. Not as dark as theirs - at this zoom a true silhouette
+       on dark water disappears - and the darting motion stays, because that is
+       the part that was already better. */
+    const cnt = Math.max(3, Math.round(5*wet));
     const drawFish = (fx, fy, dir, s, col) => {
       ctx.save(); ctx.translate(fx, fy); ctx.scale(dir*s, s);
+      // its shadow in the water below it, which is what puts it under the surface
+      ctx.fillStyle = "rgba(16,40,56,.30)";
+      ctx.beginPath(); ctx.ellipse(-0.6, 2.2, 4.4, 1.9, 0, 0, 6.283); ctx.fill();
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.ellipse(0, 0, 4.2, 1.9, 0, 0, 6.283); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-3.4, 0); ctx.lineTo(-6.0, -2.0); ctx.lineTo(-6.0, 2.0);
+      ctx.beginPath(); ctx.ellipse(0, 0, 4.6, 2.1, 0, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-3.7, 0); ctx.lineTo(-6.6, -2.3); ctx.lineTo(-6.6, 2.3);
       ctx.closePath(); ctx.fill();
-      ctx.fillStyle = "rgba(232,244,250,.55)";           // a scale catching the light
-      ctx.beginPath(); ctx.ellipse(0.6, -0.5, 1.6, 0.7, 0, 0, 6.283); ctx.fill();
+      /* A narrow pale belly low on the body, not a wash across it. At the
+         width this started at it covered most of the fish and the whole thing
+         read as a pale blob with a tail stuck on. */
+      ctx.fillStyle = "rgba(198,224,234,.50)";
+      ctx.beginPath(); ctx.ellipse(0.5, 1.05, 2.0, 0.62, 0, 0, 6.283); ctx.fill();
       ctx.restore();
     };
 
@@ -17406,7 +18066,7 @@ function drawNode(n){
       for(let i=0;i<cnt;i++){
         const a = n.seed + i*(6.283/cnt) + G.t*0.5;
         drawFish(n.x + Math.cos(a)*n.r*0.62, n.y + Math.sin(a)*n.r*0.40,
-                 -Math.sin(a) > 0 ? 1 : -1, 1, "#7fa9bd");
+                 -Math.sin(a) > 0 ? 1 : -1, 1, "#2f5064");
       }
     } else if(style === 1){
       // a tight school, all one way, changing its mind every few seconds
@@ -17416,33 +18076,49 @@ function drawNode(n){
       const dir = Math.cos(ang) > 0 ? 1 : -1;
       for(let i=0;i<cnt;i++){
         const row = (i%3) - 1, col2 = ((i/3)|0);
-        const off = col2*5.2 + Math.sin(G.t*4 + i)*0.6;
-        const px = n.x + Math.cos(ang+sway)*(n.r*0.35 - off) + row*2.2;
-        const py = n.y + Math.sin(ang+sway)*(n.r*0.24 - off*0.5) + row*3.4;
-        drawFish(px, py, dir, 0.95, "#86b3c6");
+        /* Spread along the line of travel and across it. At the old spacing
+           five fish sat almost on top of each other and read as one pile. */
+        const off = col2*8.5 + Math.sin(G.t*4 + i)*0.6;
+        const ax2 = Math.cos(ang+sway), ay2 = Math.sin(ang+sway);
+        const px = n.x + ax2*(n.r*0.45 - off) - ay2*row*4.6;
+        const py = n.y + ay2*(n.r*0.30 - off*0.5) + ax2*row*4.6;
+        drawFish(px, py, dir, 1.0, "#33556a");
       }
     } else {
       // milling about, and every so often one clears the water
       for(let i=0;i<cnt;i++){
         const a = n.seed + i*2.1 + Math.sin(G.t*0.7 + i)*0.8;
         drawFish(n.x + Math.cos(a)*n.r*0.55, n.y + Math.sin(a*1.4)*n.r*0.38,
-                 Math.cos(a) > 0 ? 1 : -1, 0.9, "#7aa6bb");
+                 Math.cos(a) > 0 ? 1 : -1, 0.95, "#2d4e61");
       }
       const jumpT = (G.t*0.55 + n.seed) % 4;        // one jump every four seconds
       if(jumpT < 0.6){
         const k = jumpT/0.6;
         const jx = n.x + Math.cos(n.seed*3.1)*n.r*0.5;
         const jy = n.y + Math.sin(n.seed*3.1)*n.r*0.3 - Math.sin(k*Math.PI)*7;
-        drawFish(jx, jy, 1, 0.85, "#a9cede");
+        drawFish(jx, jy, 1, 0.9, "#4a7186");
         ctx.strokeStyle = "rgba(220,240,248,.35)"; ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.ellipse(jx, n.y + Math.sin(n.seed*3.1)*n.r*0.3, 3+k*5, 1.2+k*2, 0, 0, 6.283);
         ctx.stroke();
       }
     }
-    // and the ring of disturbed water over the top of it
-    ctx.strokeStyle = "rgba(200,225,235,.16)"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(n.x, n.y, n.r*0.5 + Math.sin(G.t*1.5+n.seed)*3, 0, 6.283); ctx.stroke();
+    /* And the water they disturb - two torn arcs, not a ring.
+
+       This was a full circle, and a perfect circle is the one shape that never
+       appears on water: the same note that got the foam redrawn as scraps.
+       Each arc drifts and breathes on its own, so what is left reads as
+       something moving under the surface rather than a target painted on it. */
+    ctx.strokeStyle = "rgba(200,225,235,.15)"; ctx.lineWidth = 1;
+    for(let k=0;k<2;k++){
+      const ph = G.t*(0.9 + k*0.5) + n.seed + k*2.3;
+      const rr = n.r*(0.44 + k*0.22) + Math.sin(ph)*2.6;
+      const a0 = n.seed*1.7 + k*2.1 + G.t*0.18;
+      ctx.beginPath();
+      ctx.ellipse(n.x + Math.cos(ph*0.4)*1.6, n.y + Math.sin(ph*0.5)*1.1,
+                  rr, rr*0.62, a0, a0 + 0.7, a0 + 0.7 + (1.5 + Math.sin(ph)*0.4));
+      ctx.stroke();
+    }
   } else if(n.kind===RES.FOOD){
     drawBerryBush(n, frac, wob);
   } else if(n.vein){
@@ -18134,8 +18810,43 @@ function drawBuilding(b){
     return;
   }
 
+  /* The goblins' palisade and gate draw themselves and skip the ordinary wall
+     pipeline entirely - a stake fence has no wall face, no roof and no pad, and
+     run through the generic shell it came out as a small grey crate. */
+  if(d.gobDef){
+    drawGoblinDefence({ x, y, w, dep, gate: b.type === "goblingate",
+                        season: goblinSeasonOf(b) });
+    drawBuildingFire(b, x, y, w, dep, H);
+    if(b.hp < b.maxhp){
+      ctx.fillStyle = "rgba(0,0,0,.6)"; ctx.fillRect(x, y-11, w, 4);
+      ctx.fillStyle = "#c9573f";
+      ctx.fillRect(x+1, y-10, (w-2)*(b.hp/b.maxhp), 2);
+    }
+    ctx.globalAlpha = 1;
+    return;
+  }
+
   const civ = CIVS[pl.civ] || CIVS.sunfolk;
-  const wallBase = civ.wall;
+  /* ---------- what age this building is built in ----------
+
+     Same shape, same building, but the materials move on: thatch and wattle,
+     then tile and stone, then slate and dressed ashlar. It reads off the
+     owner rather than off anything stored on the building, so an age-up
+     re-clads the whole village at once - which is the point of it. */
+  const bage = pl.stoneAge ? Math.min(2, pl.age|0) : -1;
+  /* ---------- what each building is MADE of ----------
+
+     Every building used to be the civ's one wall colour, so a bakery, a
+     war college and a caretaker's cottage were the same box in the same
+     paint and you had to read the little details to tell them apart. Each
+     type now mixes its own material INTO the civ colour rather than
+     replacing it: the palette still holds the village together, but a
+     bakery is red brick, a smithy is sooted, an armoury is cold steel.
+
+     Mixed with mixHex, not mixCol: the result is shaded downstream a dozen
+     times over and shade() only understands #hex. */
+  const mat = BLDG_MATERIAL[b.type];
+  const wallBase = mat ? mixHex(civ.wall, mat[0], mat[1]) : civ.wall;
   const wallLit  = shade(wallBase, 0.16);
   const wallDim  = shade(wallBase, -0.30);
   const isMil = !!d.mil;
@@ -18143,16 +18854,43 @@ function drawBuilding(b){
   // they read as military at a glance rather than blending in with the
   // village and gathering buildings
   const METAL = "#787e87";
-  const roofBase = isMil ? METAL : pl.col;
+  /* The roof takes a little of the material too - about half as much as the
+     wall does. From above, a roof is most of what you see of a building, so a
+     tint that stops at the wall barely registers; and mixed this lightly the
+     team colour is still plainly the team colour, which is what the roof is
+     for. Military roofs are already grey and stay out of it. */
+  /* Military roofs take the tint too. They were all one flat METAL grey, so
+     the barracks, the range, the stable, the siege yard, the smithy and the
+     fortress were six identical slate boxes - the worst look-alike group in
+     the game. Mixed at the same strength they stay obviously metal, but a
+     stable's is browner and an armoury's colder. */
+  /* mat[2] is how hard the ROOF takes it, where 1 means the material wins
+     outright. Military roofs are grey rather than team-coloured, so they can
+     go all the way for nothing; the domes need most of the way or four
+     different colleges come out four shades of the same gold. Team colour is
+     still carried by the trim band, the pennants and the flag. */
+  const roofMix = mat ? (mat[2] !== undefined ? mat[2] : 0.55) : 0;
+  const roofBase = mat
+    ? mixHex(isMil ? METAL : pl.col, mat[0], Math.min(1, mat[1]*roofMix + (isMil?0.25:0)*roofMix))
+    : (isMil ? METAL : pl.col);
   const roofLit  = shade(roofBase, isMil ? 0.24 : 0.18);
   const roofDim  = shade(roofBase, isMil ? -0.32 : -0.26);
   const edge     = "rgba(32,26,20,.55)";
 
-  // ---- packed-earth pad the building sits on, grounds it in the world ----
+  // ---- the ground it stands on: packed earth to begin with, and cobbles
+  // once there is anyone about who lays cobbles ----
   ctx.fillStyle = "rgba(84,70,50,.55)";
   ctx.fillRect(x-3, y+dep-3, w+6, 7);
-  ctx.fillStyle = "rgba(104,88,64,.45)";
+  ctx.fillStyle = bage >= 2 ? "rgba(122,118,110,.50)" : "rgba(104,88,64,.45)";
   ctx.fillRect(x-2, y+dep-2, w+4, 4);
+  if(bage >= 2 && G.cam.z > 0.95){
+    ctx.strokeStyle = "rgba(40,36,30,.30)"; ctx.lineWidth = 1;
+    const n = Math.max(3, Math.round(w/9));
+    for(let i=1;i<n;i++){
+      const px = x-2 + (w+4)*i/n;
+      ctx.beginPath(); ctx.moveTo(px, y+dep-2); ctx.lineTo(px+1, y+dep+2); ctx.stroke();
+    }
+  }
 
   // ---- front wall (the face between the roof slab and the ground) ----
   ctx.fillStyle = wallBase;
@@ -18194,7 +18932,13 @@ function drawBuilding(b){
   // the Ashkin roof everything in the same steep gable; the Sunfolk keep the
   // varied roofs their buildings were designed with
   const roofKind = (civ.roofShape && d.roof!=="none" && !d.farm) ? civ.roofShape : (d.roof||"gable");
-  drawRoof(x, y, w, dep, H, roofKind, roofBase, roofLit, roofDim, edge, b, d.roofScale);
+  /* The town centre draws its own roof for its first two ages - a plain
+     pitched triangle with nothing either side of it. Drawing the standard lid
+     first and covering the middle left the flat corners showing as two square
+     shoulders, which is the opposite of the shape wanted. */
+  const ownRoof = b.type==="town" && !(pl.stoneAge && (pl.age|0) >= 1);
+  if(!ownRoof)
+    drawRoof(x, y, w, dep, H, roofKind, roofBase, roofLit, roofDim, edge, b, d.roofScale, bage);
 
   // ---- a few corrugated metal seams across a military roof, so it reads
   // as sheet metal rather than a flat colour swap ----
@@ -18216,21 +18960,56 @@ function drawBuilding(b){
     ctx.restore();
   }
 
-  // ---- brick/stone coursing across the whole wall face - more texture
-  // than a single frame line, especially worth it now there are enough
-  // distinct building types that colour alone doesn't tell them apart ----
-  ctx.strokeStyle = "rgba(20,16,12,.22)"; ctx.lineWidth = 1;
-  const courseH = 6.5;
-  const courseCols = Math.max(2, Math.round(w/16));
-  for(let ry = y+dep; ry > y+dep-H; ry -= courseH){
-    ctx.beginPath(); ctx.moveTo(x, ry); ctx.lineTo(x+w, ry); ctx.stroke();
-    const row = Math.round((y+dep-ry)/courseH);
-    const stagger = (row%2===0) ? 0 : (w/courseCols)/2;
-    for(let c=0; c<=courseCols; c++){
-      const jx = x + stagger + c*(w/courseCols);
-      if(jx < x || jx > x+w) continue;
-      ctx.beginPath(); ctx.moveTo(jx, ry); ctx.lineTo(jx, ry-courseH); ctx.stroke();
+  /* ---------- what the wall is made of, by age ----------
+
+     Wattle and daub, then coursed stone, then dressed ashlar. Same wall in
+     the same place - it is the surface that moves on, and because it is keyed
+     on the owner's age the whole village is re-clad the moment one is
+     reached, which is what makes an age-up feel like something happened. */
+  if(bage <= 0){
+    // wattle: woven panels between the timbers, and a daubed base
+    ctx.strokeStyle = "rgba(96,76,48,.30)"; ctx.lineWidth = 1;
+    const panels = Math.max(2, Math.round(w/26));
+    for(let ry = y+dep-3; ry > y+dep-H+2; ry -= 4.5){
+      ctx.beginPath(); ctx.moveTo(x+1, ry); ctx.lineTo(x+w-1, ry); ctx.stroke();
     }
+    if(G.cam.z > 1.0){
+      ctx.strokeStyle = "rgba(96,76,48,.22)";
+      for(let i=1;i<panels*3;i++){
+        const px = x + w*i/(panels*3);
+        ctx.beginPath(); ctx.moveTo(px, y+dep-H+2); ctx.lineTo(px, y+dep-2); ctx.stroke();
+      }
+    }
+    // a daub skim over the bottom third, which is where the weather hits
+    ctx.fillStyle = "rgba(196,178,142,.16)";
+    ctx.fillRect(x+1, y+dep-H*0.34, w-2, H*0.34-1);
+  } else {
+    const ashlar = bage >= 2;
+    ctx.strokeStyle = ashlar ? "rgba(20,16,12,.26)" : "rgba(20,16,12,.22)";
+    ctx.lineWidth = 1;
+    const courseH = ashlar ? 8.5 : 6.5;              // dressed stone is cut bigger
+    const courseCols = Math.max(2, Math.round(w/(ashlar ? 22 : 16)));
+    for(let ry = y+dep; ry > y+dep-H; ry -= courseH){
+      ctx.beginPath(); ctx.moveTo(x, ry); ctx.lineTo(x+w, ry); ctx.stroke();
+      const row = Math.round((y+dep-ry)/courseH);
+      const stagger = (row%2===0) ? 0 : (w/courseCols)/2;
+      for(let c=0; c<=courseCols; c++){
+        const jx = x + stagger + c*(w/courseCols);
+        if(jx < x || jx > x+w) continue;
+        ctx.beginPath(); ctx.moveTo(jx, ry); ctx.lineTo(jx, ry-courseH); ctx.stroke();
+      }
+      // dressed stone catches the light along the top edge of every course
+      if(ashlar && G.cam.z > 0.95){
+        ctx.strokeStyle = "rgba(255,248,232,.10)";
+        ctx.beginPath(); ctx.moveTo(x+1, ry-courseH+1); ctx.lineTo(x+w-1, ry-courseH+1); ctx.stroke();
+        ctx.strokeStyle = "rgba(20,16,12,.26)";
+      }
+    }
+    // a plinth of larger blocks the whole thing stands on
+    ctx.fillStyle = ashlar ? "rgba(122,120,112,.40)" : "rgba(112,106,94,.30)";
+    ctx.fillRect(x, y+dep-(ashlar?7:5), w, ashlar?7:5);
+    ctx.strokeStyle = "rgba(30,26,20,.30)"; ctx.lineWidth = 1;
+    ctx.strokeRect(x, y+dep-(ashlar?7:5), w, ashlar?7:5);
   }
 
   // ---- the named/special buildings get a bit more flourish: corner
@@ -18253,9 +19032,13 @@ function drawBuilding(b){
     ctx.globalAlpha = vis?1:0.72;
 
     const ridgeAp = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
-    const poleX = x+w/2, poleTop = y-H-ridgeAp*1.15;
+    /* Clear of whatever roof is actually there. The town centre's first two
+       ages draw their own, taller pitch (see ownRoof), and a pole sized to
+       the standard lid ends up buried inside it. */
+    const poleRise = ownRoof ? ridgeAp*2.2 : ridgeAp*1.15;
+    const poleX = x+w/2, poleTop = y-H-poleRise;
     ctx.strokeStyle = "#3a3226"; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(poleX, y-H-ridgeAp*0.5); ctx.lineTo(poleX, poleTop); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(poleX, poleTop + (ownRoof?7:ridgeAp*0.65)); ctx.lineTo(poleX, poleTop); ctx.stroke();
     ctx.fillStyle = pl.col;
     ctx.beginPath();
     ctx.moveTo(poleX, poleTop); ctx.lineTo(poleX+9, poleTop+3); ctx.lineTo(poleX, poleTop+6);
@@ -18263,7 +19046,7 @@ function drawBuilding(b){
   }
 
   // ---- snow lying on the roof ----
-  if(G.snow > 0.15 && !d.farm){
+  if(G.snow > 0.15 && !d.farm && !ownRoof){
     const ridgeA2 = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
     const rTop = y - H - ridgeA2*0.55;
     ctx.save();
@@ -18460,19 +19243,14 @@ function drawBuilding(b){
       const porch  = ta === 0;          // posts and a lean-to over the door
 
       if(ta < 1){
-        /* A steeper roof for the two early ages, drawn straight over the
-           shallow one. A big house is mostly roof - that is what makes it
-           read as a house rather than a hall - and the extra pitch is the
-           cheapest way to say so without touching the footprint.
-
-           The whole old roof is painted out first. Covering only the pitch
-           left the flat lid's two top corners showing past the new slope as a
-           pair of pale ears, which is exactly the sort of thing you only see
-           once somebody points at it. */
+        /* Its own roof, and nothing but: one pitch from eave to eave with a
+           point in the middle. The standard lid is skipped for these two ages
+           (see ownRoof above) rather than painted over, so there is no flat
+           shoulder either side - a big house is a triangle, and the moment you
+           put square corners on it it goes back to being a hall. */
         const pitch = ridgeA*1.6;
         const eave = y+dep-H+1;
         ctx.fillStyle = shade(pl.col, 0.10);
-        ctx.fillRect(x-3, y-H-1, w+6, eave-(y-H-1));
         ctx.beginPath();
         ctx.moveTo(x-3, eave);
         ctx.lineTo(cx, y-H-pitch);
@@ -18503,6 +19281,22 @@ function drawBuilding(b){
         ctx.moveTo(cx-5, y-H-pitch+7); ctx.lineTo(cx+4, y-H-pitch-1);
         ctx.moveTo(cx+5, y-H-pitch+7); ctx.lineTo(cx-4, y-H-pitch-1);
         ctx.stroke();
+        /* Snow on it. The shared roof-snow pass upstream is skipped for this
+           roof because it only knows the standard shapes, so the cap is cut
+           to the pitch here: it lies along the top of the slope and stops
+           well short of the eaves, the way it does on every other roof. */
+        if(G.snow > 0.15){
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, G.snow*1.15);
+          ctx.fillStyle = "#eef2f6";
+          const t = 0.46;                       // how far down the slope it lies
+          ctx.beginPath();
+          ctx.moveTo(cx, y-H-pitch);
+          ctx.lineTo(x-3 + (cx-(x-3))*(1-t), eave - (eave-(y-H-pitch))*t);
+          ctx.lineTo(x+w+3 - ((x+w+3)-cx)*(1-t), eave - (eave-(y-H-pitch))*t);
+          ctx.closePath(); ctx.fill();
+          ctx.restore();
+        }
       }
 
       if(civic){
@@ -18838,9 +19632,11 @@ function drawBuilding(b){
         }
       }
 
-      // pennants on the roof corners
+      /* Pennants on the roof corners - but only where there ARE roof corners.
+         The first two ages are one plain pitch from eave to eave, and these
+         were left hanging in the air to either side of it. */
       ctx.strokeStyle="#4a3c2a"; ctx.lineWidth=1.4;
-      [[x+4, roofTop+4],[x+w-4, roofTop+4]].forEach(([px,py],i)=>{
+      (ta < 1 ? [] : [[x+4, roofTop+4],[x+w-4, roofTop+4]]).forEach(([px,py],i)=>{
         ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py-6); ctx.stroke();
         ctx.fillStyle=pl.col;
         const fl = Math.sin(G.t*2.6 + i*1.7)*1.4;
@@ -18853,6 +19649,313 @@ function drawBuilding(b){
         }
         ctx.closePath(); ctx.fill();
       });
+      break;
+    }
+    /* ---------- the buildings that had no face of their own ----------
+
+       These all fell through to the bare shell: no door, no props, nothing
+       but the roof shape to tell them apart - so an armoury, a trading post
+       and a war college were three identical boxes. Colour does half the job
+       now (BLDG_MATERIAL); this is the other half. Detail only, no structure:
+       every one of them keeps exactly the shape and footprint it had.
+
+       A door first, in each case, because a building without one reads as a
+       shed. */
+    case "armoury": {
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.6, y+dep-doorH*0.9, doorW*1.2, doorH*0.9);
+      ctx.strokeStyle="#8f959e"; ctx.lineWidth=1.4;         // iron banding
+      for(const t of [0.30, 0.68]){
+        ctx.beginPath();
+        ctx.moveTo(cx-doorW*0.6, y+dep-doorH*0.9*t); ctx.lineTo(cx+doorW*0.6, y+dep-doorH*0.9*t);
+        ctx.stroke();
+      }
+      // a spear rack down one side, and shields stacked against the wall
+      const rx = x + w*0.18;
+      ctx.strokeStyle="#7d6242"; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(rx-6, y+dep-11); ctx.lineTo(rx+7, y+dep-11); ctx.stroke();
+      for(let i=0;i<4;i++){
+        const sx2 = rx-5 + i*3.4;
+        ctx.strokeStyle="#6d5638"; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(sx2, y+dep-2); ctx.lineTo(sx2+1, y+dep-17); ctx.stroke();
+        ctx.fillStyle="#b9bfc7";
+        ctx.beginPath();
+        ctx.moveTo(sx2+1, y+dep-20); ctx.lineTo(sx2-0.9, y+dep-16.5);
+        ctx.lineTo(sx2+2.9, y+dep-16.5); ctx.closePath(); ctx.fill();
+      }
+      const sh = x + w*0.80;
+      for(let i=0;i<2;i++){
+        ctx.fillStyle = i ? "#8a9098" : "#767c85";
+        ctx.beginPath();
+        ctx.ellipse(sh+i*3, y+dep-5-i*2.5, 5, 6, 0.25, 0, 6.283); ctx.fill();
+        ctx.strokeStyle="rgba(30,32,36,.5)"; ctx.lineWidth=0.8; ctx.stroke();
+        ctx.fillStyle="#c8ccd2";
+        ctx.beginPath(); ctx.arc(sh+i*3, y+dep-5-i*2.5, 1.3, 0, 6.283); ctx.fill();
+      }
+      break;
+    }
+    case "tradingpost": {
+      // double doors, thrown open - it is a shop
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.85, y+dep-doorH*0.9, doorW*1.7, doorH*0.9);
+      ctx.strokeStyle="rgba(180,160,120,.5)"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(cx, y+dep-doorH*0.9); ctx.lineTo(cx, y+dep); ctx.stroke();
+      // a hanging sign with a set of scales on it - the trade itself
+      const sgx = cx + doorW*1.5, sgy = y+dep-H*0.56;
+      ctx.strokeStyle="#5c4630"; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(sgx-7, sgy); ctx.lineTo(sgx+1, sgy); ctx.stroke();
+      ctx.fillStyle="#8a6a3c";
+      ctx.fillRect(sgx-5, sgy+1, 9, 8);
+      ctx.strokeStyle="rgba(30,24,16,.6)"; ctx.lineWidth=0.8;
+      ctx.strokeRect(sgx-5, sgy+1, 9, 8);
+      ctx.strokeStyle="#d9c07a"; ctx.lineWidth=0.9;
+      ctx.beginPath();
+      ctx.moveTo(sgx-0.5, sgy+2.5); ctx.lineTo(sgx-0.5, sgy+5.5);
+      ctx.moveTo(sgx-3.4, sgy+5.5); ctx.lineTo(sgx+2.4, sgy+5.5);
+      ctx.moveTo(sgx-3.4, sgy+5.5); ctx.lineTo(sgx-3.4, sgy+7);
+      ctx.moveTo(sgx+2.4, sgy+5.5); ctx.lineTo(sgx+2.4, sgy+7);
+      ctx.stroke();
+      // crates and a bolt of cloth stacked out the front
+      const cxr = x + w*0.20;
+      for(const [ox,oy,cw] of [[0,0,7],[7.5,0,6],[3,-6,6]]){
+        ctx.fillStyle="#9a7a4a";
+        ctx.fillRect(cxr+ox, y+dep-5+oy, cw, 5);
+        ctx.strokeStyle="rgba(40,30,18,.5)"; ctx.lineWidth=0.8;
+        ctx.strokeRect(cxr+ox, y+dep-5+oy, cw, 5);
+        ctx.beginPath();
+        ctx.moveTo(cxr+ox, y+dep-2.5+oy); ctx.lineTo(cxr+ox+cw, y+dep-2.5+oy); ctx.stroke();
+      }
+      ctx.fillStyle="#b0565c";
+      ctx.fillRect(x+w*0.76, y+dep-7, 4, 7);
+      ctx.fillStyle="#5c7ba8";
+      ctx.fillRect(x+w*0.82, y+dep-6, 4, 6);
+      break;
+    }
+    case "warcollege": {
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.6, y+dep-doorH*0.9, doorW*1.2, doorH*0.9);
+      // a pell - the post soldiers hack at - wrapped in straw, and a rack of
+      // practice swords. Nothing sharp: this is a school.
+      const px2 = x + w*0.20;
+      ctx.fillStyle="#7a6240";
+      ctx.fillRect(px2-1.6, y+dep-19, 3.2, 19);
+      ctx.fillStyle="#c9a24a";
+      ctx.beginPath(); ctx.ellipse(px2, y+dep-16, 4.4, 3.2, 0, 0, 6.283); ctx.fill();
+      ctx.strokeStyle="rgba(90,70,30,.55)"; ctx.lineWidth=0.8;
+      ctx.beginPath(); ctx.moveTo(px2-4, y+dep-16.6); ctx.lineTo(px2+4, y+dep-15.4); ctx.stroke();
+      const wr = x + w*0.78;
+      ctx.strokeStyle="#6d5638"; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(wr-6, y+dep-9); ctx.lineTo(wr+6, y+dep-9); ctx.stroke();
+      for(let i=0;i<3;i++){
+        ctx.strokeStyle="#8a7250"; ctx.lineWidth=1.4;
+        ctx.beginPath();
+        ctx.moveTo(wr-4+i*4, y+dep-1); ctx.lineTo(wr-4+i*4+1, y+dep-14);
+        ctx.stroke();
+      }
+      // and its colours over the door
+      ctx.fillStyle = shade(pl.col,-0.30);
+      ctx.beginPath();
+      ctx.moveTo(cx-doorW*0.9, y+dep-doorH*1.05);
+      ctx.lineTo(cx+doorW*0.9, y+dep-doorH*1.05);
+      ctx.lineTo(cx+doorW*0.9, y+dep-doorH*0.72);
+      ctx.lineTo(cx, y+dep-doorH*0.86);
+      ctx.lineTo(cx-doorW*0.9, y+dep-doorH*0.72);
+      ctx.closePath(); ctx.fill();
+      break;
+    }
+    case "musiccollege": {
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.6, y+dep-doorH*0.85, doorW*1.2, doorH*0.85);
+      // a horn hung by the door, and a bench for whoever is practising outside
+      const hx2 = cx + doorW*1.3, hy2 = y+dep-H*0.48;
+      ctx.strokeStyle="#c9a24a"; ctx.lineWidth=1.8;
+      ctx.beginPath();
+      ctx.moveTo(hx2-3, hy2+5);
+      ctx.quadraticCurveTo(hx2+4, hy2+3, hx2+2, hy2-3);
+      ctx.stroke();
+      ctx.fillStyle="#d8b45a";
+      ctx.beginPath(); ctx.ellipse(hx2+2, hy2-4.2, 2.6, 1.5, -0.3, 0, 6.283); ctx.fill();
+      const bx2 = x + w*0.20;
+      ctx.fillStyle="#8a6a44";
+      ctx.fillRect(bx2-7, y+dep-6, 14, 2.2);
+      ctx.fillStyle="#6b5030";
+      ctx.fillRect(bx2-6, y+dep-4, 1.6, 4);
+      ctx.fillRect(bx2+4.4, y+dep-4, 1.6, 4);
+      /* Notes drifting off it - the one building in the village you can hear.
+         Straight off G.t, nothing stored. */
+      if(G.cam.z > 0.85){
+        ctx.fillStyle = "rgba(240,236,220,.5)";
+        for(let i=0;i<3;i++){
+          const t=(G.t*0.30+i*0.34)%1;
+          const nx2 = cx + Math.sin(t*5+b.id+i)*6, ny2 = y+dep-H-6-t*20;
+          ctx.globalAlpha = (1-t)*0.75;
+          ctx.beginPath(); ctx.ellipse(nx2, ny2, 1.5, 1.1, 0.4, 0, 6.283); ctx.fill();
+          ctx.strokeStyle="rgba(240,236,220,.5)"; ctx.lineWidth=0.9;
+          ctx.beginPath(); ctx.moveTo(nx2+1.4, ny2); ctx.lineTo(nx2+1.4, ny2-3.4); ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+      break;
+    }
+    case "greathall": {
+      // wide double doors with a heavy lintel - everything about it is "come in"
+      ctx.fillStyle="#6f6250";
+      ctx.fillRect(cx-doorW*1.05, y+dep-doorH-3, doorW*2.1, 3);
+      ctx.fillStyle=dark;
+      ctx.fillRect(cx-doorW, y+dep-doorH, doorW*2, doorH);
+      ctx.strokeStyle="rgba(190,170,130,.45)"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(cx, y+dep-doorH); ctx.lineTo(cx, y+dep); ctx.stroke();
+      // the long table and benches outside, and a barrel at the end of it
+      const tx2 = x + w*0.22;
+      ctx.fillStyle="#8a6a44";
+      ctx.fillRect(tx2-9, y+dep-8, 19, 2.6);
+      ctx.fillStyle="#6b5030";
+      ctx.fillRect(tx2-7, y+dep-5.4, 1.8, 5.4);
+      ctx.fillRect(tx2+7, y+dep-5.4, 1.8, 5.4);
+      ctx.fillStyle="#7a5c3a";
+      ctx.fillRect(tx2-9, y+dep-3, 19, 1.6);
+      ctx.fillStyle="#9a7a4a";
+      ctx.beginPath(); ctx.ellipse(x+w*0.80, y+dep-4, 4, 5, 0, 0, 6.283); ctx.fill();
+      ctx.strokeStyle="rgba(50,36,20,.55)"; ctx.lineWidth=0.9;
+      ctx.beginPath(); ctx.moveTo(x+w*0.80-4, y+dep-4); ctx.lineTo(x+w*0.80+4, y+dep-4); ctx.stroke();
+      break;
+    }
+    case "caretaker": {
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.55, y+dep-doorH*0.85, doorW*1.1, doorH*0.85);
+      // seedling trays, a watering can and a barrow - the tools of the job
+      const sx3 = x + w*0.20;
+      for(let i=0;i<3;i++){
+        ctx.fillStyle="#6b5030";
+        ctx.fillRect(sx3-8+i*6, y+dep-4.5, 5.2, 4.5);
+        ctx.fillStyle="#5d7a44";
+        for(let k=0;k<2;k++){
+          ctx.beginPath();
+          ctx.arc(sx3-6.4+i*6+k*2.4, y+dep-5.4, 1.2, 0, 6.283); ctx.fill();
+        }
+      }
+      const wc = x + w*0.78;
+      ctx.fillStyle="#8d9aa2";
+      ctx.beginPath(); ctx.ellipse(wc, y+dep-4, 3.4, 4, 0, 0, 6.283); ctx.fill();
+      ctx.strokeStyle="#8d9aa2"; ctx.lineWidth=1.4;
+      ctx.beginPath();
+      ctx.moveTo(wc+2.6, y+dep-6); ctx.lineTo(wc+6, y+dep-8);
+      ctx.moveTo(wc-1, y+dep-7.6); ctx.quadraticCurveTo(wc+1.5, y+dep-9.5, wc+3, y+dep-7.5);
+      ctx.stroke();
+      break;
+    }
+    case "moongarden": {
+      ctx.fillStyle="#1d2436"; ctx.fillRect(cx-doorW*0.55, y+dep-doorH*0.85, doorW*1.1, doorH*0.85);
+      /* Beds of pale plants either side, and one shard standing among them.
+         Lit cool like everything moonstone touches, and only after dark -
+         the same rule the Manor and the Cottage follow. */
+      const night = G.dark || 0;
+      const lit = Math.max(0, Math.min(1, (night - 0.06) / 0.32));
+      for(const bx3 of [x+w*0.20, x+w*0.78]){
+        ctx.fillStyle="rgba(58,52,74,.55)";
+        ctx.beginPath(); ctx.ellipse(bx3, y+dep-3, 8, 3.2, 0, 0, 6.283); ctx.fill();
+        for(let i=0;i<4;i++){
+          const px3 = bx3-5.5+i*3.6;
+          ctx.strokeStyle="rgba(126,146,132,.7)"; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(px3, y+dep-3); ctx.lineTo(px3+Math.sin(G.t*0.7+i)*0.8, y+dep-9); ctx.stroke();
+          ctx.fillStyle = lit>0.02 ? "rgba(196,232,244," + (0.45+lit*0.5).toFixed(2) + ")"
+                                   : "rgba(206,212,224,.75)";
+          ctx.beginPath(); ctx.arc(px3+Math.sin(G.t*0.7+i)*0.8, y+dep-9.8, 1.6, 0, 6.283); ctx.fill();
+        }
+      }
+      ctx.fillStyle = lit>0.02 ? "rgba(150,225,245," + (0.5+lit*0.4).toFixed(2) + ")"
+                              : "rgba(168,196,206,.8)";
+      ctx.beginPath();
+      ctx.moveTo(cx-doorW*1.3, y+dep-2); ctx.lineTo(cx-doorW*1.3+2.4, y+dep-12);
+      ctx.lineTo(cx-doorW*1.3+4.6, y+dep-2); ctx.closePath(); ctx.fill();
+      break;
+    }
+    case "scouttower": {
+      /* Not a fort: a ladder up the outside, a horn to blow, and no stone
+         anywhere. The military tower is the one that gets cut stone. */
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.4, y+dep-doorH*0.7, doorW*0.8, doorH*0.7);
+      ctx.strokeStyle="#8a6f48"; ctx.lineWidth=1.2;
+      const lx2 = x + w*0.78;
+      ctx.beginPath();
+      ctx.moveTo(lx2-2.5, y+dep-1); ctx.lineTo(lx2-2.5, y+dep-H+2);
+      ctx.moveTo(lx2+2.5, y+dep-1); ctx.lineTo(lx2+2.5, y+dep-H+2);
+      ctx.stroke();
+      ctx.lineWidth=0.9;
+      for(let ry=y+dep-4; ry>y+dep-H+3; ry-=4){
+        ctx.beginPath(); ctx.moveTo(lx2-2.5, ry); ctx.lineTo(lx2+2.5, ry); ctx.stroke();
+      }
+      ctx.strokeStyle="#c9a24a"; ctx.lineWidth=1.6;
+      ctx.beginPath();
+      ctx.moveTo(x+w*0.20, y+dep-H*0.44);
+      ctx.quadraticCurveTo(x+w*0.20+4, y+dep-H*0.44-3, x+w*0.20+2, y+dep-H*0.44-6);
+      ctx.stroke();
+      break;
+    }
+    case "fortress": {
+      // arrow slits and iron-strapped doors, and a brazier lit by the gate
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.8, y+dep-doorH, doorW*1.6, doorH);
+      ctx.fillStyle="#8f959e";
+      for(const t of [0.28, 0.72]) ctx.fillRect(cx-doorW*0.8, y+dep-doorH*t, doorW*1.6, 1.6);
+      ctx.fillStyle="#241c14";
+      for(const fx3 of [x+w*0.20, x+w*0.80]){
+        ctx.fillRect(fx3-1.2, y+dep-H*0.70, 2.4, 8);
+        ctx.fillRect(fx3-3.4, y+dep-H*0.70+2.6, 6.8, 2.2);
+      }
+      const brx = cx + doorW*1.6;
+      ctx.fillStyle="#5a5a5f";
+      ctx.beginPath();
+      ctx.moveTo(brx-3.4, y+dep-1); ctx.lineTo(brx-2.2, y+dep-7);
+      ctx.lineTo(brx+2.2, y+dep-7); ctx.lineTo(brx+3.4, y+dep-1);
+      ctx.closePath(); ctx.fill();
+      const fl = 0.6 + 0.4*Math.sin(G.t*5 + b.id);
+      ctx.fillStyle = "rgba(246,168,66," + (0.55*fl+0.3).toFixed(2) + ")";
+      ctx.beginPath(); ctx.ellipse(brx, y+dep-9, 2.4, 3.4*fl+1.4, 0, 0, 6.283); ctx.fill();
+      break;
+    }
+    case "wildlingsden": {
+      // hides pegged out to dry, a fire pit, and bones over the door
+      ctx.fillStyle="#241a12"; ctx.fillRect(cx-doorW*0.7, y+dep-doorH*0.8, doorW*1.4, doorH*0.8);
+      ctx.strokeStyle="#cfc4ae"; ctx.lineWidth=1.2;
+      ctx.beginPath();
+      ctx.moveTo(cx-doorW*0.8, y+dep-doorH*0.9); ctx.lineTo(cx+doorW*0.8, y+dep-doorH*0.95);
+      ctx.stroke();
+      for(let i=0;i<3;i++){
+        ctx.beginPath();
+        ctx.moveTo(cx-doorW*0.5+i*doorW*0.5, y+dep-doorH*0.92);
+        ctx.lineTo(cx-doorW*0.5+i*doorW*0.5, y+dep-doorH*0.78);
+        ctx.stroke();
+      }
+      const hd = x + w*0.20;
+      ctx.strokeStyle="#6b5030"; ctx.lineWidth=1.2;
+      ctx.beginPath();
+      ctx.moveTo(hd-7, y+dep-13); ctx.lineTo(hd+7, y+dep-13);
+      ctx.moveTo(hd-7, y+dep-1); ctx.lineTo(hd-7, y+dep-14);
+      ctx.moveTo(hd+7, y+dep-1); ctx.lineTo(hd+7, y+dep-14);
+      ctx.stroke();
+      ctx.fillStyle="rgba(120,92,64,.9)";
+      ctx.beginPath();
+      ctx.moveTo(hd-5, y+dep-12.5); ctx.lineTo(hd+5, y+dep-12.5);
+      ctx.lineTo(hd+3.5, y+dep-5); ctx.lineTo(hd-3.5, y+dep-5);
+      ctx.closePath(); ctx.fill();
+      const fp = x + w*0.80;
+      ctx.fillStyle="rgba(48,42,34,.75)";
+      ctx.beginPath(); ctx.ellipse(fp, y+dep-2.5, 6, 2.6, 0, 0, 6.283); ctx.fill();
+      const wf = 0.6 + 0.4*Math.sin(G.t*4.4 + b.id*1.7);
+      ctx.fillStyle = "rgba(240,150,58," + (0.5*wf+0.28).toFixed(2) + ")";
+      ctx.beginPath(); ctx.ellipse(fp, y+dep-5, 2.6, 3.6*wf+1.2, 0, 0, 6.283); ctx.fill();
+      break;
+    }
+    case "hermithouse": {
+      // herbs drying under the eave, a lantern, and a stool by the door
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.5, y+dep-doorH*0.8, doorW, doorH*0.8);
+      ctx.strokeStyle="rgba(110,124,88,.85)"; ctx.lineWidth=1;
+      for(let i=0;i<4;i++){
+        const px4 = x + w*0.24 + i*3.2;
+        ctx.beginPath();
+        ctx.moveTo(px4, y+dep-H+2); ctx.lineTo(px4, y+dep-H+8);
+        ctx.stroke();
+        ctx.fillStyle="rgba(126,142,96,.8)";
+        ctx.beginPath(); ctx.arc(px4, y+dep-H+8.6, 1.3, 0, 6.283); ctx.fill();
+      }
+      ctx.fillStyle="#7a6242";
+      ctx.fillRect(x+w*0.78-3, y+dep-5, 6, 1.8);
+      ctx.fillRect(x+w*0.78-2.4, y+dep-3.2, 1.4, 3.2);
+      ctx.fillRect(x+w*0.78+1, y+dep-3.2, 1.4, 3.2);
       break;
     }
     case "house": {
@@ -18930,6 +20033,26 @@ function drawBuilding(b){
       ctx.fillRect(x+w*0.62, y+dep-doorH, doorW, doorH);
       ctx.strokeStyle="#6b5636"; ctx.lineWidth=1.4;
       ctx.beginPath(); ctx.moveTo(x+4, y+dep-H*0.52); ctx.lineTo(x+w-4, y+dep-H*0.52); ctx.stroke();
+      /* A trough and a bale outside. The split doors were all it had and they
+         are up on the wall where the roof shades them - from above the stable
+         was a bare box, and it needs something on the ground that says horses
+         live here. */
+      const trx = x + w*0.14;
+      ctx.fillStyle="#6b5030";
+      ctx.fillRect(trx-6, y+dep-5, 12, 4.2);
+      ctx.fillStyle="rgba(120,140,150,.55)";
+      ctx.fillRect(trx-5, y+dep-4.4, 10, 1.6);
+      ctx.strokeStyle="rgba(40,30,18,.5)"; ctx.lineWidth=0.8;
+      ctx.strokeRect(trx-6, y+dep-5, 12, 4.2);
+      const bx4 = x + w*0.84;
+      ctx.fillStyle="#c9a24a";
+      ctx.fillRect(bx4-4.5, y+dep-6, 9, 6);
+      ctx.strokeStyle="rgba(120,92,34,.6)"; ctx.lineWidth=0.9;
+      ctx.beginPath();
+      ctx.moveTo(bx4-4.5, y+dep-4); ctx.lineTo(bx4+4.5, y+dep-4);
+      ctx.moveTo(bx4-1.6, y+dep-6); ctx.lineTo(bx4-1.6, y+dep);
+      ctx.moveTo(bx4+1.6, y+dep-6); ctx.lineTo(bx4+1.6, y+dep);
+      ctx.stroke();
       break;
     }
     case "bakery": {
@@ -18955,6 +20078,27 @@ function drawBuilding(b){
       ctx.strokeStyle="rgba(90,60,30,.5)"; ctx.lineWidth=0.6;
       ctx.beginPath(); ctx.moveTo(cx-2,signY-3); ctx.lineTo(cx+2,signY-3); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx,signY-5); ctx.lineTo(cx,signY-1); ctx.stroke();
+      /* A little table and a chair out the front, with something on it. The
+         bakery is the one building in the village anybody would sit outside,
+         and it says what the place is faster than the loaf on the sign does. */
+      const tb = x + w*0.20;
+      ctx.fillStyle="#8a6a44";
+      ctx.beginPath(); ctx.ellipse(tb, y+dep-7, 5.4, 2.4, 0, 0, 6.283); ctx.fill();
+      ctx.strokeStyle="rgba(40,30,18,.5)"; ctx.lineWidth=0.8; ctx.stroke();
+      ctx.fillStyle="#6b5030";
+      ctx.fillRect(tb-0.9, y+dep-6, 1.8, 6);
+      ctx.fillStyle="#7a5c3a";                       // the chair, side on
+      ctx.fillRect(tb+7, y+dep-5, 4.6, 1.6);
+      ctx.fillRect(tb+7, y+dep-9.5, 1.5, 5.5);
+      ctx.fillRect(tb+7.2, y+dep-3.4, 1.2, 3.4);
+      ctx.fillRect(tb+10.4, y+dep-3.4, 1.2, 3.4);
+      // a cup and a plate with a bun on it
+      ctx.fillStyle="#e4dccb";
+      ctx.beginPath(); ctx.ellipse(tb-2, y+dep-8, 2.2, 1, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle="#c9975a";
+      ctx.beginPath(); ctx.arc(tb-2, y+dep-8.6, 1.2, 0, 6.283); ctx.fill();
+      ctx.fillStyle="#cfd6dc";
+      ctx.fillRect(tb+2, y+dep-10, 2, 2.6);
       break;
     }
     case "grove": {
@@ -19423,20 +20567,65 @@ function drawOwlWatchtowerTheme(x, y, w, dep, H, cx, b){
 
 /* Roofs carry a building's identity more than its walls do, so each type
    gets a real shape rather than a flat slab. */
-function drawRoof(x, y, w, dep, H, kind, base, lit, dim, edge, b, scale){
+function drawRoof(x, y, w, dep, H, kind, base, lit, dim, edge, b, scale, age){
   const top   = y - H;            // back edge of the top face
   const front = y - H + dep;      // front eave
   const o     = 2;                // eaves overhang
   const A     = Math.max(7, Math.min(dep*0.55*(scale||1), 22));  // ridge rise, capped
 
+  const ag = (age===undefined) ? 2 : age;
+
+  /* The covering. Thatch is combed DOWN the slope, tile and slate are laid
+     ACROSS it - that difference in direction is what the eye reads first,
+     before it notices anything about the colour. */
   const shingles = (x0,y0,x1,y1,rows)=>{
-    ctx.strokeStyle="rgba(0,0,0,.13)"; ctx.lineWidth=1;
-    for(let i=1;i<rows;i++){
-      const t=i/rows;
+    if(ag <= 0){
+      // thatch: strokes running down the pitch, and a thick soft eave
+      ctx.strokeStyle="rgba(58,44,26,.26)"; ctx.lineWidth=1;
+      const n = Math.max(4, Math.round((x1-x0)/6));
+      for(let i=1;i<n;i++){
+        const t=i/n, px=x0+(x1-x0)*t;
+        ctx.beginPath();
+        ctx.moveTo(px, y0); ctx.lineTo(px + (t-0.5)*3, y1);
+        ctx.stroke();
+      }
+      // the two binding rods that hold a thatch down, and a heavy soft eave
+      ctx.strokeStyle="rgba(74,58,34,.34)"; ctx.lineWidth=1.4;
+      for(const t of [0.34, 0.68]){
+        ctx.beginPath();
+        ctx.moveTo(x0, y0+(y1-y0)*t); ctx.lineTo(x1, y0+(y1-y0)*t);
+        ctx.stroke();
+      }
+      ctx.strokeStyle="rgba(58,44,26,.30)"; ctx.lineWidth=2.6;
+      ctx.beginPath(); ctx.moveTo(x0, y1-1); ctx.lineTo(x1, y1-1); ctx.stroke();
+      return;
+    }
+    // tile from the Bronze Age, slate from the Iron: same laying, finer
+    // courses and a colder joint as it goes on
+    /* Fine. Laid at a quarter of this the courses came out the size of house
+       bricks and the roof read as a wall lying on its side. */
+    const R = ag>=2 ? rows*4.5 : rows*3.5;
+    ctx.strokeStyle = ag>=2 ? "rgba(18,20,26,.15)" : "rgba(0,0,0,.11)";
+    ctx.lineWidth=1;
+    for(let i=1;i<R;i++){
+      const t=i/R;
       ctx.beginPath();
       ctx.moveTo(x0, y0+(y1-y0)*t);
       ctx.lineTo(x1, y0+(y1-y0)*t);
       ctx.stroke();
+    }
+    // and the joints between the tiles, once you are close enough to see them
+    if(G.cam.z > 1.0){
+      const cols = Math.max(3, Math.round((x1-x0)/6));
+      for(let i=1;i<R;i++){
+        const t=i/R, ry=y0+(y1-y0)*t;
+        const off = (i%2) ? (x1-x0)/cols/2 : 0;
+        for(let c=0;c<cols;c++){
+          const jx = x0 + off + c*(x1-x0)/cols;
+          if(jx<x0||jx>x1) continue;
+          ctx.beginPath(); ctx.moveTo(jx, ry); ctx.lineTo(jx, ry+(y1-y0)/R); ctx.stroke();
+        }
+      }
     }
   };
 
@@ -19469,6 +20658,33 @@ function drawRoof(x, y, w, dep, H, kind, base, lit, dim, edge, b, scale){
     ctx.beginPath();
     ctx.moveTo(x+w/2, apex); ctx.lineTo(x-o, front);
     ctx.lineTo(x+w+o, front); ctx.closePath(); ctx.stroke();
+    /* A spire ages the same way a slope does: combed thatch to begin with,
+       then courses laid round it. Without this the towers were the one thing
+       in the village that looked identical in every age. */
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x+w/2, apex); ctx.lineTo(x-o, front);
+    ctx.lineTo(x+w+o, front); ctx.closePath(); ctx.clip();
+    if(ag <= 0){
+      ctx.strokeStyle="rgba(58,44,26,.24)"; ctx.lineWidth=1;
+      for(let i=1;i<7;i++){
+        const t=i/7;
+        ctx.beginPath();
+        ctx.moveTo(x+w/2, apex);
+        ctx.lineTo(x-o + (w+o*2)*t, front+1);
+        ctx.stroke();
+      }
+    } else {
+      ctx.strokeStyle = ag>=2 ? "rgba(18,20,26,.17)" : "rgba(0,0,0,.13)";
+      ctx.lineWidth=1;
+      const R = ag>=2 ? 11 : 8;
+      for(let i=1;i<R;i++){
+        const t=i/R, yy = apex + (front-apex)*t, hw = (w/2+o)*t;
+        ctx.beginPath();
+        ctx.moveTo(x+w/2-hw, yy); ctx.lineTo(x+w/2+hw, yy); ctx.stroke();
+      }
+    }
+    ctx.restore();
     // finial
     ctx.strokeStyle=shade(base,-0.4); ctx.lineWidth=1.6;
     ctx.beginPath(); ctx.moveTo(x+w/2, apex); ctx.lineTo(x+w/2, apex-6); ctx.stroke();
@@ -19485,13 +20701,28 @@ function drawRoof(x, y, w, dep, H, kind, base, lit, dim, edge, b, scale){
     ctx.beginPath();
     ctx.ellipse(x+w/2-w*0.10, front-dep*0.18, w*0.42, A*0.86, 0, Math.PI, 0);
     ctx.closePath(); ctx.fill();
-    ctx.strokeStyle="rgba(0,0,0,.16)"; ctx.lineWidth=1;
-    for(let i=1;i<5;i++){
-      const a=Math.PI + Math.PI*i/5;
-      ctx.beginPath();
-      ctx.moveTo(x+w/2, front-dep*0.15-A*1.05);
-      ctx.lineTo(x+w/2+Math.cos(a)*(w*0.60+o), front-dep*0.15);
-      ctx.stroke();
+    if(ag <= 0){
+      ctx.strokeStyle="rgba(58,44,26,.22)"; ctx.lineWidth=1;
+      for(let i=1;i<7;i++){
+        const a=Math.PI + Math.PI*i/7;
+        ctx.beginPath();
+        ctx.moveTo(x+w/2, front-dep*0.15-A*1.05);
+        ctx.lineTo(x+w/2+Math.cos(a)*(w*0.60+o), front-dep*0.15);
+        ctx.stroke();
+      }
+    } else {
+      // laid in rings once there is anything to lay
+      /* Three or four rings, not six: any tighter and a thatched dome with
+         tiles on it reads as the rings of a cut tree stump. */
+      ctx.strokeStyle = ag>=2 ? "rgba(18,20,26,.13)" : "rgba(0,0,0,.11)";
+      ctx.lineWidth=1;
+      const R = ag>=2 ? 4 : 3;
+      for(let i=1;i<R;i++){
+        const t=i/R;
+        ctx.beginPath();
+        ctx.ellipse(x+w/2, front-dep*0.15, (w*0.60+o)*t, A*1.15*t, 0, Math.PI, 0);
+        ctx.stroke();
+      }
     }
     ctx.strokeStyle=edge; ctx.lineWidth=1;
     ctx.beginPath();
@@ -19545,6 +20776,39 @@ function drawRoof(x, y, w, dep, H, kind, base, lit, dim, edge, b, scale){
   ctx.strokeStyle = "rgba(0,0,0,.25)"; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(rL, ridgeY+2); ctx.lineTo(rR, ridgeY+2); ctx.stroke();
 
+  /* How the ridge is finished, which is the other thing that dates a roof:
+     a thatch ridge is pegged down under a straw cap, a tiled one carries a
+     row of half-round ridge tiles, and a slate one is leaded and finished
+     off at the ends. */
+  if(ag <= 0){
+    ctx.strokeStyle = "rgba(74,58,34,.55)"; ctx.lineWidth = 1.2;
+    for(let i=0;i<=4;i++){
+      const px = rL + (rR-rL)*i/4;
+      ctx.beginPath();
+      ctx.moveTo(px-2.5, ridgeY+3.5); ctx.lineTo(px+2.5, ridgeY-0.5);
+      ctx.stroke();
+    }
+  } else {
+    ctx.fillStyle = shade(base, ag>=2 ? -0.42 : -0.30);
+    ctx.fillRect(rL-1, ridgeY-2.4, (rR-rL)+2, 3);
+    if(G.cam.z > 1.0){
+      ctx.strokeStyle = "rgba(0,0,0,.22)"; ctx.lineWidth = 1;
+      const n = Math.max(3, Math.round((rR-rL)/7));
+      for(let i=1;i<n;i++){
+        const px = rL + (rR-rL)*i/n;
+        ctx.beginPath(); ctx.moveTo(px, ridgeY-2.4); ctx.lineTo(px, ridgeY+0.6); ctx.stroke();
+      }
+    }
+    if(ag>=2){
+      // a lead flashing highlight, and a stop at each end of the ridge
+      ctx.strokeStyle = "rgba(226,232,240,.30)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(rL, ridgeY-2.0); ctx.lineTo(rR, ridgeY-2.0); ctx.stroke();
+      ctx.fillStyle = shade(base,-0.5);
+      ctx.fillRect(rL-1.5, ridgeY-4.5, 3, 5);
+      ctx.fillRect(rR-1.5, ridgeY-4.5, 3, 5);
+    }
+  }
+
   // eaves shadow under the overhang
   ctx.fillStyle = shade(base,-0.5);
   ctx.fillRect(x-o, front-1, w+o*2, 2.5);
@@ -19575,7 +20839,9 @@ function drawUnit(u){
   ctx.beginPath(); ctx.ellipse(x+u.r*0.18, y+u.r*0.6, u.r*0.85, u.r*0.34, 0,0,6.283); ctx.fill();
 
   ctx.save();
-  ctx.translate(x, y + u.r*0.55);          // origin = the ground under their feet
+  // origin = the ground under their feet - or a little above it, while they are
+  // in the air from the warlord's slam. The shadow above stays on the ground.
+  ctx.translate(x, y + u.r*0.55 - (u.air || 0));
   if(d.naval){
     // a hull is drawn bow-first along +x, so its heading IS the rotation
     ctx.rotate(u.head || 0);
@@ -19586,7 +20852,25 @@ function drawUnit(u){
   if(UNITS[u.type].goblin){
     drawGoblin({ raw:true, variant:UNITS[u.type].gobBody, season:goblinSeasonOf(u),
                  level:u.gobLevel || 1, walk:u.walk||0, moving:!!u.moving,
-                 bow: !!UNITS[u.type].gobBow, big: !!UNITS[u.type].gobBig });
+                 bow: !!UNITS[u.type].gobBow, big: !!UNITS[u.type].gobBig,
+                 /* Left null so warlordKit() picks the kit from the SEASON -
+                    one design per tribe. Only set to force a particular kit,
+                    which is what the design sheet did. */
+                 wl: u.wl || G.warlordKit || null,
+                 /* How far through a swing it is, 1 at the blow and falling to
+                    0. Goblins were never handed this - drawPerson has used it
+                    for the player's units all along - so every goblin in the
+                    game stood perfectly still while it fought, and the warlord,
+                    being big and slow, made it obvious. */
+                 atk: u.atkAnim > 0 ? Math.min(1, u.atkAnim/0.22) : 0,
+                 /* And the big hit's own clock, 1 as the axes start up and 0
+                    when it has straightened again. A different move, not a
+                    bigger version of the swing. */
+                 slam: u.slamAnim > 0 ? Math.min(1, u.slamAnim/BOSS_SLAM_ANIM) : 0,
+                 // which arm is taking this swing - they alternate
+                 arm: u.swingArm ? 1 : -1,
+                 // its escort still standing, so the ward can be drawn on it
+                 warded: !!u.bossWarded, raging: !!u.enraged });
   } else if(u.type==="druid" && u.form){
     drawDruidForm(u, FORMS[u.form].col, pl);
   } else if(UNITS[u.type].naval){
@@ -21136,8 +22420,74 @@ const GOBLIN_VARIANTS = {
      it is recognisable as one of theirs from the body and recognisable as
      the BIG one from across the field. (idea_peaceful_goblins, L2+) */
   warbrute:{ name:"War Brute", h:1.10, tw:0.315, headR:0.270, ear:0.62, belly:1.50, stoop:0.09, arm:1.05, hair:"mohawk", pauldron:true },
-  skulker: { name:"Skulker", h:0.90, tw:0.225, headR:0.275, ear:0.95, belly:1.00, stoop:0.10, arm:1.10, hair:"tuft", hood:true }
+  skulker: { name:"Skulker", h:0.90, tw:0.225, headR:0.275, ear:0.95, belly:1.00, stoop:0.10, arm:1.10, hair:"tuft", hood:true },
+  /* The warlord, level three. The brute's build again, standing up straighter
+     than any of them, and it is the one goblin with real armour and a weapon
+     in each hand. Four looks are drawn from this one entry - see o.wl and
+     WARLORD_KITS below - because the body underneath has to stay the same
+     enemy whichever kit wins. */
+  warlord: { name:"Warlord", h:1.16, tw:0.335, headR:0.272, ear:0.55, belly:1.42, stoop:0.03, arm:1.12, hair:"mohawk", warlord:true }
 };
+
+/* The four designs, all armoured and all two-handed - the difference is what
+   the armour is MADE of and how the head is finished, because at this size
+   material and silhouette are the only things that carry.
+
+     plate   - banded iron over the chest, flat-topped helm with a nose guard
+     horned  - heavy shoulder plates and a bull-horned helm
+     bone    - a ribcage of bone plates and a skull half-mask
+     crested - a gorget and bracers only, and a tall crested helm
+*/
+const WARLORD_KITS = ["plate", "horned", "bone", "crested"];
+
+/* One kit per season, so which warlord you are facing tells you whose camp it
+   is before you are close enough to read anything else - the same job the four
+   warpaints do on the ordinary goblins, done at the scale of a silhouette.
+
+   The pairing is not arbitrary. Spring is the showy one and gets the dyed
+   crest; high summer gets the horns, the loudest kit for the strongest season;
+   autumn wears bone, as everything about autumn here does; and winter is iron,
+   because winter is the cold one and iron is the cold material. */
+const WARLORD_SEASON_KIT = {
+  spring: "crested",
+  summer: "horned",
+  autumn: "bone",
+  winter: "plate"
+};
+function warlordKit(o){
+  if(o && WARLORD_KITS.indexOf(o.wl) >= 0) return o.wl;      // an explicit override
+  return WARLORD_SEASON_KIT[o && o.season] || "plate";
+}
+
+/* And the kit takes the season's own colours rather than one grey for all four.
+
+   `hard` is the armour material - iron for three of them, bone for autumn -
+   and `soft` is the dyed or lashed part. Both are pulled towards the tribe's
+   trim so a warlord is plainly of that tribe, without going so far that iron
+   stops looking like iron: mixed at 1.0 the winter chief came out the same
+   pale grey as its own skin and vanished into itself. */
+function warlordPalette(S, kit){
+  const IRON = "#8b9099", BONE = "#e6dfc9";
+  const base = kit === "bone" ? BONE : IRON;
+  /* Iron takes its cast from the tribe's GEAR, not its trim. Winter's trim is
+     very nearly white, and iron mixed towards it came out the same pale grey
+     as winter's own skin - a suit of armour you could not see. Every gear
+     colour is mid-dark, so iron stays iron and still belongs to the tribe. */
+  const hard = kit === "bone" ? mixHex(base, S.trim, 0.26)
+                              : mixHex(base, S.gear, 0.30);
+  /* And the dyed parts take the tribe's WARPAINT pulled towards a red dye,
+     never its gear: spring's gear is green and a green crest on a green goblin
+     is a hat you cannot see. Warpaint is the one colour on each tribe already
+     chosen to stand off its own skin. */
+  const soft = mixHex(S.paint, "#a8402e", 0.55);
+  return {
+    hard,
+    hardD: shade(hard, -0.34),
+    hardL: shade(hard, 0.26),
+    soft,
+    bone: mixHex(BONE, S.trim, 0.22)
+  };
+}
 
 function drawGoblin(o){
   const V = GOBLIN_VARIANTS[o.variant] || GOBLIN_VARIANTS.runt;
@@ -21148,7 +22498,7 @@ function drawGoblin(o){
      that you can see it is the same enemy, and the same argument applies
      going up the levels. It is bigger. That is the difference, and at this
      size that is plenty. */
-  const H = r*2.35*V.h * (o.big ? GOBLIN_BIG : 1);
+  const H = r*2.35*V.h * (V.warlord ? GOBLIN_BOSS_SCALE : (o.big ? GOBLIN_BIG : 1));
 
   const skin = S.skin, skinDim = shade(skin,-0.26), skinLit = shade(skin,0.18);
   /* A real outline, not just a darker fill. This is most of the Zelda look at
@@ -21159,6 +22509,40 @@ function drawGoblin(o){
 
   const swing = o.moving ? Math.sin(o.walk||0)*0.85 : 0;
   const bob   = o.moving ? Math.abs(Math.sin(o.walk||0))*H*0.05 : 0;
+  /* ---------- the swing ----------
+     1 at the moment the blow lands and falling away to 0, so the arms are
+     through the stroke on the frame it connects and recover after - which is
+     the right way round for a hit you can feel. The whole figure leans into it
+     as well: an arm moving on a body that does not is a puppet. */
+  const chop = Math.max(0, Math.min(1, o.atk || 0));
+
+  /* ---------- and the big hit, which is a different move ----------
+     `o.slam` runs 1 down to 0 across the whole thing. The first stretch is the
+     wind-up: both axes go up over its head and it leans back on its heels,
+     holding there long enough to be seen. Then they come down, hard, and it is
+     left crouched over the blow before it straightens.
+
+     `heave` is the pose: -1 fully wound up, +1 fully followed through. Making
+     the slam a louder version of the ordinary swing was tried first and it does
+     not read - what makes this move different is that it goes the OTHER WAY
+     first, and stops there. */
+  const sl = Math.max(0, Math.min(1, o.slam || 0));
+  const WIND = 0.32;                     // the last third of the clock is recovery
+  let heave = 0, drop = 0;
+  if(sl > 0){
+    if(sl > WIND){
+      // winding up: 1 -> WIND maps to 0 -> -1, easing into the hold
+      const p = (sl - WIND) / (1 - WIND);
+      heave = -Math.min(1, p*1.5);
+      drop  = -0.35*(-heave);
+    } else {
+      // and down: WIND -> 0 maps to -1 -> +1, fast at first
+      const p = 1 - (sl / WIND);
+      heave = -1 + 2*Math.min(1, p*1.35);
+      drop  = Math.max(0, heave)*1.0;
+    }
+  }
+  const lunge = chop*H*0.045 + Math.max(0, heave)*H*0.075;
 
   ctx.save();
   /* `raw` means the caller has already put the origin under their feet and
@@ -21180,6 +22564,40 @@ function drawGoblin(o){
   const outline = (fn) => { ctx.strokeStyle = ink; ctx.lineWidth = lw; fn(); ctx.stroke(); };
 
   ctx.lineCap = "round"; ctx.lineJoin = "round";
+
+  /* ---------- the warlord's ward, shown rather than explained ----------
+     A ring of its guards' colour round its feet while the escort lives, and
+     gone the moment the last of them falls. A player who has hit it twice and
+     watched the numbers barely move needs to be told WHY without a paragraph
+     of text, and a ring that switches off when the guards die teaches it in
+     one fight. The rage that follows gets its own hotter ring instead. */
+  if(V.warlord && (o.warded || o.raging)){
+    const t = G.t*1.6 + (o.seed || 0);
+    const pulse = 0.72 + 0.28*Math.sin(t);
+    const rr = H*0.42;
+    ctx.save();
+    if(o.raging){
+      ctx.strokeStyle = "rgba(226,92,52," + (0.30 + pulse*0.34).toFixed(2) + ")";
+      ctx.lineWidth = Math.max(1.2, H*0.030);
+    } else {
+      ctx.strokeStyle = "rgba(232,214,148," + (0.22 + pulse*0.24).toFixed(2) + ")";
+      ctx.lineWidth = Math.max(0.9, H*0.022);
+    }
+    ctx.beginPath();
+    ctx.ellipse(0, -H*0.012, rr, rr*0.40, 0, 0, 6.283);
+    ctx.stroke();
+    if(!o.raging){
+      // four short marks on it, one for each guard still standing
+      ctx.lineWidth = Math.max(0.8, H*0.018);
+      for(let k=0;k<4;k++){
+        const a = t*0.5 + k*1.5708;
+        ctx.beginPath();
+        ctx.ellipse(0, -H*0.012, rr, rr*0.40, 0, a, a + 0.34);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
 
   // ---- legs: short, thick, splayed, with three blunt toes ----
   const lx1 = swing*H*0.13, lx2 = -swing*H*0.13;
@@ -21203,7 +22621,7 @@ function drawGoblin(o){
   }
 
   ctx.save();
-  ctx.translate(lean, 0);
+  ctx.translate(lean + lunge, -chop*H*0.012 + drop*H*0.045);
 
   // ---- body: a round pot-bellied barrel, widest below the middle ----
   const belly = tw*V.belly;
@@ -21263,6 +22681,139 @@ function drawGoblin(o){
     }
   }
 
+  /* ---------- the warlord's armour ----------
+     Laid over the torso after the body is drawn, so the shape underneath is
+     still the same barrel every other goblin has. Iron reads as iron because
+     nothing else on a goblin is grey; bone reads as bone because the camp is
+     already trimmed with it. */
+  if(V.warlord){
+    const kit = warlordKit(o);
+    const WP = warlordPalette(S, kit);
+    const IRON = WP.hard, IRON_D = WP.hardD, IRON_L = WP.hardL;
+    const BONE = WP.bone;
+    if(kit === "plate"){
+      // three banded plates across the chest, riveted
+      for(let i=0;i<3;i++){
+        const by = shldY + H*0.045 + i*H*0.072;
+        ctx.fillStyle = i%2 ? IRON_D : IRON;
+        const bp = () => { ctx.beginPath();
+          ctx.moveTo(-belly*0.82, by);
+          ctx.quadraticCurveTo(0, by + H*0.030, belly*0.82, by);
+          ctx.lineTo(belly*0.80, by + H*0.062);
+          ctx.quadraticCurveTo(0, by + H*0.092, -belly*0.80, by + H*0.062);
+          ctx.closePath(); };
+        bp(); ctx.fill(); outline(bp);
+        ctx.fillStyle = IRON_L;
+        for(const rx of [-0.5, 0, 0.5]){
+          ctx.beginPath();
+          ctx.arc(belly*rx, by + H*0.030, Math.max(0.5, H*0.011), 0, 6.283); ctx.fill();
+        }
+      }
+      /* ---------- the white hand ----------
+         A hand slapped on the breastplate in white paint - the mark of whoever
+         this one answers to. A palm and four fingers with a thumb off to the
+         side, drawn a little crooked and slightly translucent, because it is
+         meant to look put there by hand and not stencilled.
+
+         It goes over the plates rather than between them, so it stays legible
+         whatever the bands underneath are doing. */
+      ctx.save();
+      ctx.globalAlpha = 0.82;
+      ctx.fillStyle = "#f2f0e8";
+      const pw = belly*0.50;
+      ctx.beginPath();                                   // the palm
+      ctx.ellipse(0, shldY + H*0.150, pw*0.52, H*0.062, 0.06, 0, 6.283);
+      ctx.fill();
+      for(let f=0; f<4; f++){                            // fingers, up and splayed
+        const t = (f - 1.5) / 1.5;
+        const fx2 = t*pw*0.40, fy2 = shldY + H*0.150;
+        const ln = H*(0.088 - Math.abs(t)*0.020);
+        ctx.save();
+        ctx.translate(fx2, fy2);
+        ctx.rotate(t*0.42);
+        ctx.beginPath();
+        ctx.ellipse(0, -ln*0.62, pw*0.115, ln*0.62, 0, 0, 6.283);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.save();                                        // and the thumb
+      ctx.translate(-pw*0.46, shldY + H*0.168);
+      ctx.rotate(-1.05);
+      ctx.beginPath();
+      ctx.ellipse(0, -H*0.030, pw*0.125, H*0.042, 0, 0, 6.283);
+      ctx.fill();
+      ctx.restore();
+      ctx.restore();
+    } else if(kit === "horned"){
+      // one great plate each shoulder and a breastplate between them
+      ctx.fillStyle = IRON;
+      const bp = () => { ctx.beginPath();
+        ctx.moveTo(-tw*0.66, shldY + H*0.03);
+        ctx.quadraticCurveTo(0, shldY - H*0.02, tw*0.66, shldY + H*0.03);
+        ctx.lineTo(belly*0.58, hipY - H*0.02);
+        ctx.quadraticCurveTo(0, hipY + H*0.03, -belly*0.58, hipY - H*0.02);
+        ctx.closePath(); };
+      bp(); ctx.fill(); outline(bp);
+      ctx.strokeStyle = IRON_L; ctx.lineWidth = Math.max(0.6, H*0.016);
+      ctx.beginPath();
+      ctx.moveTo(0, shldY + H*0.02); ctx.lineTo(0, hipY - H*0.01); ctx.stroke();
+      for(const sd of [-1, 1]){
+        const px = sd*tw*0.86, py = shldY - H*0.008;
+        ctx.fillStyle = sd > 0 ? IRON : IRON_D;
+        const pp = () => { ctx.beginPath();
+          ctx.ellipse(px, py, tw*0.40, H*0.078, sd*-0.30, 0, 6.283); };
+        pp(); ctx.fill(); outline(pp);
+        ctx.strokeStyle = IRON_D; ctx.lineWidth = Math.max(0.4, H*0.011);
+        for(const k of [-0.3, 0, 0.3]){
+          ctx.beginPath();
+          ctx.moveTo(px + tw*k*0.7, py - H*0.055);
+          ctx.lineTo(px + tw*k*0.7, py + H*0.055); ctx.stroke();
+        }
+      }
+    } else if(kit === "bone"){
+      // a ribcage lashed over the chest
+      ctx.strokeStyle = BONE; ctx.lineWidth = Math.max(1.4, H*0.032);
+      for(let i=0;i<4;i++){
+        const by = shldY + H*0.055 + i*H*0.062;
+        ctx.beginPath();
+        ctx.moveTo(-belly*0.74, by);
+        ctx.quadraticCurveTo(0, by + H*0.055, belly*0.74, by);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = shade(BONE, -0.30); ctx.lineWidth = Math.max(1.0, H*0.026);
+      ctx.beginPath();
+      ctx.moveTo(0, shldY + H*0.035); ctx.lineTo(0, hipY - H*0.005); ctx.stroke();
+      // and a hide strap holding it on
+      ctx.strokeStyle = shade(S.gear, -0.25); ctx.lineWidth = Math.max(1.0, H*0.026);
+      ctx.beginPath();
+      ctx.moveTo(-tw*0.72, shldY + H*0.02);
+      ctx.lineTo(belly*0.66, hipY - H*0.03); ctx.stroke();
+    } else {
+      // crested: no body plate at all, just a heavy iron collar
+      ctx.fillStyle = IRON;
+      const gp = () => { ctx.beginPath();
+        ctx.moveTo(-tw*0.70, shldY + H*0.015);
+        ctx.quadraticCurveTo(0, shldY - H*0.048, tw*0.70, shldY + H*0.015);
+        ctx.quadraticCurveTo(0, shldY + H*0.072, -tw*0.70, shldY + H*0.015);
+        ctx.closePath(); };
+      gp(); ctx.fill(); outline(gp);
+      ctx.strokeStyle = IRON_L; ctx.lineWidth = Math.max(0.5, H*0.014);
+      ctx.beginPath();
+      ctx.moveTo(-tw*0.5, shldY + H*0.012);
+      ctx.quadraticCurveTo(0, shldY + H*0.044, tw*0.5, shldY + H*0.012);
+      ctx.stroke();
+      // warpaint stripes down the belly, since there is nothing over it
+      ctx.strokeStyle = S.paint; ctx.globalAlpha = 0.55;
+      ctx.lineWidth = Math.max(0.8, H*0.020);
+      for(const sx2 of [-0.34, 0, 0.34]){
+        ctx.beginPath();
+        ctx.moveTo(belly*sx2, shldY + H*0.10);
+        ctx.lineTo(belly*sx2*1.2, hipY - H*0.02); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
   // ---- loincloth, in the season's cloth ----
   ctx.fillStyle = S.gear;
   const clothPath = () => {
@@ -21315,8 +22866,30 @@ function drawGoblin(o){
      round the middle of a round body reads as three arms, and that is exactly
      what it looked like. The front arm reaches out to its own side now, so
      the club hangs clear of the figure. */
-  drawArm(-tw*0.78, -0.46 - swing*0.45, skinDim);
-  const fh = drawArm(tw*0.78, 0.34 + swing*0.45, skin);
+  /* Both arms come through it. On a warlord that reads as the two axes coming
+     down together; on everything else the free arm counterweights the club,
+     which is what stops the swing looking like a wave. */
+  /* ---------- which way the arms go ----------
+
+     An ordinary swing is ONE arm taken across the body, and it is the other arm
+     next time (o.arm alternates on every blow). The hand travels toward the far
+     side of the chest, which is what a swing looks like from above - both arms
+     moving out in sympathy read as a wave, which is what this was.
+
+     The big hit is the opposite motion and both arms at once: they cross in
+     front on the wind-up, hold there, and then sweep OUT to either side. Same
+     limbs, opposite direction, so the two moves can never be mistaken for one
+     another even at a glance. */
+  const front = (o.arm === undefined ? 1 : o.arm) > 0;      // which one is swinging
+  const restB = -0.46 - swing*0.45, restF = 0.34 + swing*0.45;
+  // a cross-body stroke: the front arm sweeps left, the back arm sweeps right
+  const crossF = front ? -chop*1.30 : 0;
+  const crossB = front ?  0 : chop*1.40;
+  // and the slam throws both of them outward from crossed
+  const outF = sl > 0 ?  heave*1.30 : 0;
+  const outB = sl > 0 ? -heave*1.30 : 0;
+  drawArm(-tw*0.78, restB + crossB + outB, skinDim);
+  const fh = drawArm(tw*0.78, restF + crossF + outF, skin);
 
   /* An archer carries a short bow instead of the club: a bent stave with the
      string drawn in, and a couple of arrows over the shoulder. Same body, same
@@ -21354,13 +22927,76 @@ function drawGoblin(o){
     ctx.restore();
   }
 
+  /* ---------- the warlord's two axes ----------
+     One in each hand, and the reason it gets axes rather than a bigger club:
+     iron on a haft is the only weapon in the camp that was MADE rather than
+     found, and two of them says at a glance that this is not another brute.
+     The far hand's is drawn a touch smaller and dimmer, the way the far arm
+     is, so the pair reads as depth rather than as a mirror. */
+  if(V.warlord){
+    const kit = warlordKit(o);
+    const WP = warlordPalette(S, kit);
+    const bAng = restB + crossB + outB;
+    const bh = { x: -tw*0.78 + Math.sin(bAng)*armL,
+                 y: armY + Math.cos(bAng)*armL };
+    const axe = (hx, hy, sc, tilt, dim) => {
+      ctx.save();
+      ctx.translate(hx, hy);
+      ctx.rotate(tilt);
+      ctx.scale(sc, sc);
+      // haft
+      ctx.strokeStyle = dim ? "#4a3620" : "#5f4526";
+      ctx.lineWidth = Math.max(1.0, H*0.030);
+      ctx.beginPath(); ctx.moveTo(0, H*0.16); ctx.lineTo(0, -H*0.34); ctx.stroke();
+      // head - a single bit, or a double one for the bone chieftain
+      const iron = dim ? shade(WP.hard, -0.22) : WP.hard;
+      const edge = dim ? shade(WP.hard, 0.24)  : shade(WP.hard, 0.42);
+      /* A big head on it. At a third of this size the axes read as two grey
+         nubs by the hands - which is no use at all when the whole point of
+         them is to be seen from across the camp. */
+      /* A proper axe head: straight along the haft, flaring out to a curved
+         edge, with a beard hooking back under it. Drawn as a rounded blob it
+         read as a spatula, which is a very hard thing to unsee. */
+      const bit = (dir) => {
+        const shape = () => { ctx.beginPath();
+          ctx.moveTo(0, -H*0.330);                              // top, at the haft
+          ctx.lineTo(dir*H*0.055, -H*0.330);
+          ctx.quadraticCurveTo(dir*H*0.215, -H*0.300,           // shoulder
+                               dir*H*0.205, -H*0.205);          // cutting edge, top
+          ctx.quadraticCurveTo(dir*H*0.190, -H*0.140,           // edge, sweeping in
+                               dir*H*0.095, -H*0.125);          // the beard
+          ctx.quadraticCurveTo(dir*H*0.045, -H*0.170, 0, -H*0.175);
+          ctx.closePath(); };
+        ctx.fillStyle = iron; shape(); ctx.fill(); outline(shape);
+        // the ground edge, bright along the cutting side only
+        ctx.strokeStyle = edge; ctx.lineWidth = Math.max(0.7, H*0.018);
+        ctx.beginPath();
+        ctx.moveTo(dir*H*0.196, -H*0.288);
+        ctx.quadraticCurveTo(dir*H*0.212, -H*0.190, dir*H*0.100, -H*0.132);
+        ctx.stroke();
+      };
+      bit(1);
+      if(kit === "bone") bit(-1);          // double-headed
+      // a binding where the head meets the haft
+      ctx.strokeStyle = shade(S.gear, -0.20);
+      ctx.lineWidth = Math.max(0.7, H*0.018);
+      ctx.beginPath(); ctx.moveTo(-H*0.020, -H*0.140); ctx.lineTo(H*0.020, -H*0.140); ctx.stroke();
+      ctx.restore();
+    };
+    // far hand first, so the near one lies over the body
+    /* Each axe turns with the hand that holds it, so a cross-body stroke drags
+       its blade across the chest and the slam throws both blades outward. */
+    axe(bh.x, bh.y, 0.90, -0.24 - swing*0.18 + crossB*0.95 + outB*1.15, true);
+    axe(fh.x, fh.y, 1.0,   0.28 + swing*0.26 + crossF*0.95 + outF*1.15, false);
+  }
+
   /* A knobbly wooden club - the boko stick. A sharpened stake read as a
      spear, and a spear reads as a soldier; a club reads as a brute who found
      a branch, which is what these are at level one. */
-  if(!o.bow){
+  if(!o.bow && !V.warlord){
   ctx.save();
   ctx.translate(fh.x, fh.y);
-  ctx.rotate(0.34);          // leaning out, away from the body
+  ctx.rotate(0.34 + crossF*0.9);  // leaning out, and carried across on a blow
   /* Dark, so it is not the same colour as the arm holding it. At skin-brown
      the club merged into the goblin the moment either moved, which is half of
      why it was hard to tell what any of them were carrying. */
@@ -21541,6 +23177,88 @@ function drawGoblin(o){
     hoodPath(); ctx.fill(); outline(hoodPath);
   }
 
+  /* ---------- the warlord's helm ----------
+     Last of all, so it sits over the skull and the mohawk both. The face stays
+     visible in every kit - a warlord you cannot see the temper on is just a
+     silhouette - so these are all open-faced, and what changes is the
+     material and what is on top of it. */
+  if(V.warlord){
+    const kit = warlordKit(o);
+    const WP = warlordPalette(S, kit);
+    const IRON = WP.hard, IRON_D = WP.hardD, IRON_L = WP.hardL;
+    const BONE = WP.bone;
+    if(kit === "plate"){
+      // a flat-topped iron cap with a nose guard
+      ctx.fillStyle = IRON;
+      const cap = () => { ctx.beginPath();
+        ctx.moveTo(-headR*1.02, headY-headR*0.34);
+        ctx.quadraticCurveTo(0, headY-headR*1.32, headR*1.02, headY-headR*0.34);
+        ctx.closePath(); };
+      cap(); ctx.fill(); outline(cap);
+      ctx.fillStyle = IRON_D;
+      ctx.fillRect(-headR*1.06, headY-headR*0.40, headR*2.12, headR*0.20);
+      /* No nose guard. A pale bar hanging down the middle of the face read as
+         a little scroll pinned to its nose, which is not the note anybody was
+         going for. What it wears instead is on the chest - see the hand print
+         in the armour block above. */
+    } else if(kit === "horned"){
+      // a round helm with bull horns out of it
+      ctx.fillStyle = IRON;
+      const cap = () => { ctx.beginPath();
+        ctx.ellipse(0, headY-headR*0.30, headR*1.00, headR*0.78, 0, Math.PI, 0); ctx.closePath(); };
+      cap(); ctx.fill(); outline(cap);
+      ctx.fillStyle = BONE;
+      for(const sd of [-1, 1]){
+        const hp = () => { ctx.beginPath();
+          ctx.moveTo(sd*headR*0.80, headY-headR*0.52);
+          ctx.quadraticCurveTo(sd*headR*1.68, headY-headR*0.92,
+                               sd*headR*1.52, headY-headR*1.44);
+          ctx.quadraticCurveTo(sd*headR*1.16, headY-headR*0.86,
+                               sd*headR*0.62, headY-headR*0.66);
+          ctx.closePath(); };
+        hp(); ctx.fill(); outline(hp);
+      }
+    } else if(kit === "bone"){
+      // a skull worn as a half-mask, pushed up off the face
+      ctx.fillStyle = BONE;
+      const sk = () => { ctx.beginPath();
+        ctx.ellipse(0, headY-headR*0.62, headR*0.86, headR*0.66, 0, 0, 6.283); };
+      sk(); ctx.fill(); outline(sk);
+      ctx.fillStyle = "rgba(40,34,26,.75)";
+      for(const ex of [-0.30, 0.26]){
+        ctx.beginPath();
+        ctx.ellipse(headR*ex, headY-headR*0.60, headR*0.17, headR*0.20, 0, 0, 6.283); ctx.fill();
+      }
+      ctx.fillStyle = shade(BONE, -0.18);
+      const jaw = () => { ctx.beginPath();
+        ctx.moveTo(-headR*0.34, headY-headR*0.26);
+        ctx.lineTo(headR*0.34, headY-headR*0.26);
+        ctx.lineTo(headR*0.22, headY-headR*0.06);
+        ctx.lineTo(-headR*0.22, headY-headR*0.06);
+        ctx.closePath(); };
+      jaw(); ctx.fill(); outline(jaw);
+    } else {
+      // crested: a tall comb of dyed hide over an iron browband
+      ctx.fillStyle = IRON_D;
+      ctx.fillRect(-headR*1.02, headY-headR*0.52, headR*2.04, headR*0.24);
+      outline(()=>{ ctx.beginPath();
+        ctx.rect(-headR*1.02, headY-headR*0.52, headR*2.04, headR*0.24); });
+      ctx.fillStyle = WP.soft;
+      const crest = () => { ctx.beginPath();
+        ctx.moveTo(-headR*0.66, headY-headR*0.50);
+        ctx.quadraticCurveTo(-headR*0.20, headY-headR*1.62, headR*0.16, headR*0 + headY-headR*1.48);
+        ctx.quadraticCurveTo(headR*0.52, headY-headR*1.30, headR*0.70, headY-headR*0.50);
+        ctx.closePath(); };
+      crest(); ctx.fill(); outline(crest);
+      ctx.strokeStyle = shade(WP.soft, -0.30); ctx.lineWidth = Math.max(0.4, H*0.010);
+      for(const cx2 of [-0.34, 0, 0.34]){
+        ctx.beginPath();
+        ctx.moveTo(headR*cx2, headY-headR*0.50);
+        ctx.lineTo(headR*cx2*0.7, headY-headR*1.30); ctx.stroke();
+      }
+    }
+  }
+
   ctx.restore();   // head
   ctx.restore();   // figure
 }
@@ -21563,6 +23281,97 @@ function drawGoblin(o){
    sharpened stakes leaning outward, bones and skulls on sticks. It should
    read as thrown together out of what was lying about, in one look, beside
    a village of neat gabled roofs. */
+/* ---------- the camp's palisade and its gate ----------
+   Timber, hide and bone, in the tribe's own colours - the same three materials
+   the hut and the shacks are made of, because a wall that looks like it came
+   from somewhere else stops reading as theirs.
+
+   Drawn from the ground up, with the pointed tops well above the plot: it has
+   to read as something you cannot walk through from a glance, since that is
+   exactly what it is. */
+function drawGoblinDefence(o){
+  const S = GOBLIN_SEASON[o.season] || GOBLIN_SEASON.summer;
+  const x = o.x, y = o.y, w = o.w, dep = o.dep;
+  const cx = x + w/2, base = y + dep;
+  const wood = shade(S.gear, -0.10), woodD = shade(S.gear, -0.42), woodL = shade(S.gear, 0.16);
+  const ink = "rgba(26,20,14,.7)";
+
+  // the ground it is driven into
+  ctx.fillStyle = "rgba(64,54,40,.45)";
+  ctx.beginPath(); ctx.ellipse(cx, base-1, w*0.52, dep*0.28, 0, 0, 6.283); ctx.fill();
+
+  if(o.gate){
+    /* A gate: two heavy posts, a lintel across them, and a door of lashed
+       timber hanging in it. Taller than the palisade either side, so the way in
+       is obvious from a long way off - the player is meant to be able to choose
+       it, or choose to go round the back. */
+    const H = dep*1.55, pw = Math.max(2.4, w*0.15);
+    for(const sd of [-1, 1]){
+      const px = cx + sd*(w*0.40);
+      ctx.fillStyle = sd < 0 ? woodD : wood;
+      ctx.fillRect(px - pw/2, base - H, pw, H);
+      ctx.strokeStyle = ink; ctx.lineWidth = 1;
+      ctx.strokeRect(px - pw/2, base - H, pw, H);
+    }
+    // lintel
+    ctx.fillStyle = woodD;
+    ctx.fillRect(cx - w*0.50, base - H - 3, w*1.00, 4.5);
+    ctx.strokeStyle = ink; ctx.strokeRect(cx - w*0.50, base - H - 3, w*1.00, 4.5);
+    // the door itself - vertical timbers with two lashings across them
+    ctx.fillStyle = shade(S.gear, -0.26);
+    ctx.fillRect(cx - w*0.34, base - H*0.86, w*0.68, H*0.86);
+    ctx.strokeStyle = ink; ctx.strokeRect(cx - w*0.34, base - H*0.86, w*0.68, H*0.86);
+    ctx.strokeStyle = woodL; ctx.lineWidth = 0.8;
+    for(let i=1;i<4;i++){
+      const px = cx - w*0.34 + (w*0.68)*i/4;
+      ctx.beginPath(); ctx.moveTo(px, base - H*0.86); ctx.lineTo(px, base); ctx.stroke();
+    }
+    ctx.strokeStyle = shade(S.trim, -0.20); ctx.lineWidth = 1.6;
+    for(const t of [0.30, 0.70]){
+      ctx.beginPath();
+      ctx.moveTo(cx - w*0.34, base - H*0.86*t); ctx.lineTo(cx + w*0.34, base - H*0.86*t);
+      ctx.stroke();
+    }
+    // and a skull over the door, because of course there is
+    ctx.fillStyle = "#e6dfc9";
+    ctx.beginPath(); ctx.ellipse(cx, base - H - 6, 4.2, 3.4, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = 0.8; ctx.stroke();
+    ctx.fillStyle = "rgba(40,34,26,.8)";
+    for(const ex of [-1.4, 1.4]){
+      ctx.beginPath(); ctx.ellipse(cx+ex, base - H - 6.4, 0.9, 1.1, 0, 0, 6.283); ctx.fill();
+    }
+    return;
+  }
+
+  /* A length of palisade: three sharpened stakes leaning slightly apart, with a
+     rail lashed across them. Three rather than one, so a run of them reads as a
+     continuous fence and not as a row of single posts. */
+  const H = dep*1.15;
+  const stakes = [[-0.34, 0.06], [0, -0.02], [0.34, -0.07]];
+  for(const [ox, tilt] of stakes){
+    const bx = cx + ox*w, tx2 = bx + tilt*w*0.9;
+    ctx.fillStyle = ox < 0 ? woodD : wood;
+    const sp = () => { ctx.beginPath();
+      ctx.moveTo(bx - w*0.085, base);
+      ctx.lineTo(bx + w*0.085, base);
+      ctx.lineTo(tx2 + w*0.070, base - H*0.86);
+      ctx.lineTo(tx2, base - H);                     // the point
+      ctx.lineTo(tx2 - w*0.070, base - H*0.86);
+      ctx.closePath(); };
+    sp(); ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = 1; sp(); ctx.stroke();
+    ctx.strokeStyle = woodL; ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(bx, base - H*0.10); ctx.lineTo(tx2, base - H*0.80); ctx.stroke();
+  }
+  // the rail
+  ctx.strokeStyle = shade(S.trim, -0.28); ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(cx - w*0.46, base - H*0.52);
+  ctx.lineTo(cx + w*0.46, base - H*0.56);
+  ctx.stroke();
+}
+
 function drawGoblinHut(o){
   const S = GOBLIN_SEASON[o.season] || GOBLIN_SEASON.summer;
   /* The plot is 2x2 like a town centre; the DRAWING unit is a good deal
@@ -24426,6 +26235,75 @@ const ANCIENT_RUINS = [
     foundHint:"An abandoned mine out there, the seam around it richer than most, all grown over where it was left.",
     repairedHint:"The old mine is working again - a richer seam than usual means it works faster and hauls more." }
 ];
+/* ---------- how far out a ruin lands ----------
+
+   They were all placed by trySpotNear, which only ever searches a narrow ring
+   380-640px out - eleven to nineteen tiles. Every ruin in a match therefore
+   turned up at much the same distance and often within sight of the last one,
+   which is the opposite of finding something: two abandoned buildings a few
+   tiles apart on your own doorstep.
+
+   A band is rolled first - on the doorstep, a walk away, or right out at the
+   far end of the map - and only then a spot inside it. If a band cannot be
+   satisfied (a lake, a map edge, the wrong landmass) the others are tried in
+   turn, so a ruin still always lands somewhere.
+
+   And they keep away from each other, and from anybody's town centre: no use
+   rolling "far off" and dropping it in the enemy's back garden. */
+/* Tiles: doorstep, a walk, far off. The near band deliberately starts outside
+   the town centre's own vision (7 tiles) - a ruin that is lit the instant it
+   appears has not been found, it has been handed over, which is the one thing
+   this feature exists to avoid. */
+const ANCIENT_BANDS = [[8,13],[13,22],[22,34]];
+const ANCIENT_APART = 9;                          // tiles between two ruins
+const ANCIENT_OFF_TOWN = 8;                       // and clear of any town's sight
+
+function ancientSpotClear(tx, ty){
+  for(const b of G.bldgs){
+    if(b.ruinKey){
+      if(Math.abs(b.tx-tx) < ANCIENT_APART && Math.abs(b.ty-ty) < ANCIENT_APART) return false;
+    } else if(b.type==="town"){
+      if(Math.abs(b.tx-tx) < ANCIENT_OFF_TOWN && Math.abs(b.ty-ty) < ANCIENT_OFF_TOWN) return false;
+    }
+  }
+  return true;
+}
+
+function ancientSpotInBand(town, lo, hi){
+  const oTx = Math.floor(town.x/TILE), oTy = Math.floor(town.y/TILE);
+  const tries = (hi-lo) > 15 ? 200 : 70;      // the wide sweep gets more goes
+  for(let attempt=0; attempt<tries; attempt++){
+    const a = Math.random()*6.283;
+    const r = (lo + Math.random()*(hi-lo)) * TILE;
+    const tx = Math.floor((town.x + Math.cos(a)*r)/TILE);
+    const ty = Math.floor((town.y + Math.sin(a)*r)/TILE);
+    if(tx<1||ty<1||tx>=MAPW-2||ty>=MAPH-2) continue;
+    if(!ancientSpotClear(tx, ty)) continue;
+    if(aiCanPlace(tx, ty, 1, 1, "ruin") && landConnected(oTx, oTy, tx, ty, G.terrain))
+      return { tx, ty, x:(tx+0.5)*TILE, y:(ty+0.5)*TILE };
+  }
+  return null;
+}
+
+function pickAncientSpot(town){
+  // roll a band, then work outward through the rest of them if it will not fit
+  const order = ANCIENT_BANDS.slice();
+  const first = (Math.random()*order.length)|0;
+  const tried = [order[first]].concat(order.filter((_,i)=>i!==first));
+  for(const [lo,hi] of tried){
+    const spot = ancientSpotInBand(town, lo, hi);
+    if(spot) return spot;
+  }
+  /* Then one wide sweep across all three bands at once - and if even that
+     finds nothing, no ruin this time. There is deliberately no last-resort
+     placement that ignores the separation rule: the roll comes round again
+     every season, and a ruin arriving a season late is a far smaller thing
+     than two of them landing on top of each other, which is the complaint
+     this whole change exists to fix. */
+  const lo = ANCIENT_BANDS[0][0], hi = ANCIENT_BANDS[ANCIENT_BANDS.length-1][1];
+  return ancientSpotInBand(town, lo, hi);
+}
+
 function tryAncientRuin(){
   const remaining = ANCIENT_RUINS.filter(r=>!G.disc.ancientRuins[r.key]);
   if(!remaining.length) return false;          // all five found this match already
@@ -24433,7 +26311,7 @@ function tryAncientRuin(){
   const pick = remaining[(Math.random()*remaining.length)|0];
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return false;
-  const spot = trySpotNear(town.x, town.y, town);
+  const spot = pickAncientSpot(town);
   if(!spot) return false;
   const b = makeBuilding(pick.type, P_YOU, spot.tx, spot.ty, true);
   b.hp = Math.max(10, Math.round(b.maxhp * 0.18));
@@ -29816,9 +31694,19 @@ function goblinThings(){
    The camp is meant to be found, so putting one down in explored ground
    would hand it over for free. */
 function goblinCampSpot(){
+  /* A little way in from the edge - but only a little.
+
+     Demanding room for the whole palisade (seven tiles) was tried and it is too
+     much: with 18 tiles kept clear of both villages as well, and the spot
+     needing to be unexplored and dry and clear of every node, some maps had
+     nowhere left at all and produced no camp. A camp against the edge is fine -
+     the edge of the map is itself a wall, and the ring simply stops at it. What
+     matters is that the GATE lands on the map, and that is handled where the
+     gate is placed. */
+  const EDGE = 3;
   for(let i = 0; i < GOBLIN_CAMP_TRIES; i++){
-    const tx = 2 + ((Math.random() * (MAPW - 6)) | 0);
-    const ty = 2 + ((Math.random() * (MAPH - 6)) | 0);
+    const tx = EDGE + ((Math.random() * (MAPW - EDGE*2 - 2)) | 0);
+    const ty = EDGE + ((Math.random() * (MAPH - EDGE*2 - 2)) | 0);
     const x = (tx + 1) * TILE, y = (ty + 1) * TILE;
     if(!aiCanPlace(tx, ty, 2, 2, "goblinhut")) continue;
     if(exploredTo(P_YOU, x, y)) continue;
@@ -29851,10 +31739,103 @@ function spawnGoblinCamp(season, level){
     shacks++;
   }
 
+  /* ---------- the palisade, from level three ----------
+
+     A ring of stakes with ONE gap in it. That gap is the whole point: it puts
+     a front door on the camp, so an attack becomes a decision about where to
+     go in rather than a walk up to a pile of huts. Break the wall somewhere
+     else if you would rather - it is an ordinary building and comes down like
+     one - but the gate is the cheap way in and the lookouts are put on it.
+
+     The gate faces a random direction, so a camp is not always approached the
+     same way, and it is remembered on the hut so the drums and the lookouts
+     can both refer to it. */
+  const gateA = Math.random() * 6.283;
+  hut.gobGate = gateA;
+  if(level >= GOBLIN_WALL_LEVEL){
+    /* A CLOSED ring. Every step of it gets a stake, and the gateway gets a
+       gate - so there is no walking in: the player breaks the gate, which is
+       tough and watched by both lookouts, or breaks a length of palisade round
+       the back, which is weaker and watched by nothing. That choice is the
+       whole reason the wall is here.
+
+       Stakes are placed with their own rule rather than aiCanPlace. That
+       insists on 12px of clearance from every resource node, and a camp in
+       woodland failed it on two thirds of the ring - which left a "wall" with
+       nine posts in it and twenty gaps. A stake driven in between two trees is
+       exactly what a palisade is. */
+    const R = GOBLIN_WALL_R;
+    const canStake = (tx, ty) => {
+      if(tx < 1 || ty < 1 || tx >= MAPW-1 || ty >= MAPH-1) return false;
+      if(G.terrain[ty*MAPW+tx] === 5) return false;              // not over water
+      for(const b of G.bldgs){
+        if(tx < b.tx+b.w && tx+1 > b.tx && ty < b.ty+b.h && ty+1 > b.ty) return false;
+      }
+      return true;
+    };
+    const done = new Set();
+    /* The gate goes in FIRST, at the gateway angle, and the ring is walked
+       afterwards round it. Done the other way about, a stake from a step just
+       outside the gateway claimed the gate's own tile - the ring rounds several
+       steps onto the same square - and the camp came out with a complete wall
+       and no gate in it at all. */
+    /* Find an angle where the gate will actually stand. A camp pitched near an
+       edge has a stretch of its ring off the map, and the first gate went in at
+       whatever angle was rolled - which put it at ty -2 and left a fort with a
+       complete wall and no way in. Twelve tries, then the ring goes up without
+       one and the palisade is simply solid, which is still a fair fight. */
+    let gateAt = null;
+    for(let k = 0; k < 12 && !gateAt; k++){
+      const a = k === 0 ? gateA : Math.random() * 6.283;
+      const gtx = spot.tx + Math.round(Math.cos(a) * R);
+      const gty = spot.ty + Math.round(Math.sin(a) * R);
+      if(canStake(gtx, gty)) gateAt = { a, gtx, gty };
+    }
+    if(gateAt){
+      hut.gobGate = gateAt.a;
+      done.add(gateAt.gtx + "," + gateAt.gty);
+      const gt = makeBuilding("goblingate", P_GOB, gateAt.gtx, gateAt.gty, true);
+      gt.gobSeason = season; gt.gobLevel = level; gt.gobIsGate = true;
+    }
+    const steps = Math.max(24, Math.round(6.283 * R * 1.6));
+    for(let i = 0; i < steps; i++){
+      const a = (i / steps) * 6.283;
+      const wtx = spot.tx + Math.round(Math.cos(a) * R);
+      const wty = spot.ty + Math.round(Math.sin(a) * R);
+      const key = wtx + "," + wty;
+      if(done.has(key)) continue;                                // one per tile
+      if(!canStake(wtx, wty)) continue;
+      done.add(key);
+      const wl = makeBuilding("goblinwall", P_GOB, wtx, wty, true);
+      wl.gobSeason = season; wl.gobLevel = level;
+    }
+  }
+
   /* Lookouts, from level two. Set further out than the shacks - a tower in
      the middle of the camp covers nothing - and they are ordinary goblin
-     buildings, so clearing the camp means clearing them too. */
+     buildings, so clearing the camp means clearing them too.
+
+     From level three the first two are put ON THE GATE, one either side. A
+     wall with a hole in it and nothing watching the hole is not a defence. */
   let towers = 0;
+  const towerSpots = [];
+  if(level >= GOBLIN_WALL_LEVEL){
+    /* Just INSIDE the gateway, one either side. Set out on the ring itself they
+       landed on tiles the palisade had already taken, aiCanPlace refused them,
+       and both lookouts fell back to a random spot somewhere behind the camp -
+       leaving the one way in watched by nothing. */
+    for(const off of [-0.85, 0.85])
+      towerSpots.push([hut.gobGate + off, GOBLIN_WALL_R - 1.7]);
+  }
+  for(const [a, r] of towerSpots){
+    if(towers >= goblinTowersFor(level)) break;
+    const ttx = spot.tx + Math.round(Math.cos(a) * r);
+    const tty = spot.ty + Math.round(Math.sin(a) * r);
+    if(!aiCanPlace(ttx, tty, 1, 1, "goblintower")) continue;
+    const tw = makeBuilding("goblintower", P_GOB, ttx, tty, true);
+    tw.gobSeason = season; tw.gobLevel = level; tw.gobGateTower = true;
+    towers++;
+  }
   for(let i = 0; i < 60 && towers < goblinTowersFor(level); i++){
     const a = Math.random() * 6.283, r = 3.5 + Math.random() * 2.2;
     const ttx = spot.tx + Math.round(Math.cos(a) * r);
@@ -29883,6 +31864,41 @@ function spawnGoblinCamp(season, level){
     u.gobLevel = level;
     u.gobSeason = season;
     u.gobHome = { x: spot.x, y: spot.y };
+  }
+
+  /* ---------- the warlord and its escort ----------
+     Both stand right at the hut rather than out with the garrison: the fight
+     the camp is built around should be the LAST one, past the wall and past
+     everyone else, not the first thing that wanders into range.
+
+     Each guard remembers whose it is, and the warlord counts them rather than
+     the other way round, so a guard dying anywhere - shot from a wall, caught
+     in a cleave, killed by a wolf - just leaves one fewer alive to find. */
+  if(level >= GOBLIN_BOSS_LEVEL){
+    const boss = makeUnit("gobwarlord", P_GOB, spot.x, spot.y);
+    boss.gobLevel = level;
+    boss.gobSeason = season;
+    boss.gobHome = { x: spot.x, y: spot.y };
+    boss.gobBossOf = season;
+    for(let i = 0; i < GOB_BOSS_GUARDS; i++){
+      const a = (i / GOB_BOSS_GUARDS) * 6.283 + 0.4;
+      /* Plain brutes, not war brutes. The escort was four war brutes, and a war
+         brute cleaves - so at the gate, where the player's line is packed into
+         a gap, five cleaving goblins and the warlord's own sweep killed sixteen
+         units in fifteen seconds and no force of any size ever got in. A
+         bodyguard's job is to stand in front of the warlord, and that is what
+         these do; the sweeping is the warlord's. */
+      const g = makeUnit("gobbrute", P_GOB,
+                         spot.x + Math.cos(a) * 22, spot.y + Math.sin(a) * 22);
+      g.gobLevel = level;
+      g.gobSeason = season;
+      g.gobHome = { x: spot.x, y: spot.y };
+      g.guardOf = boss.id;
+    }
+    /* Set now rather than on the first blow. dealDamage keeps this up to date
+       from then on - but the ring has to be there when the player first SEES
+       the warlord, not only after they have already wasted an attack on it. */
+    boss.bossWarded = true;
   }
 
   G.goblinCamp = { season, level, x: spot.x, y: spot.y,
@@ -30042,6 +32058,9 @@ function updateGoblinCamp(dt){
   // ---- found at last ----
   if(!camp.found && exploredTo(P_YOU, camp.x, camp.y)){
     camp.found = true;
+    if(camp.level >= GOBLIN_BOSS_LEVEL) hint(
+      "A stockade, and a warlord inside it with four of them stood round it. "+
+      "Blows glance off it while its guard is on its feet \u2014 take them first.");
     hint("You have found a goblin camp — " + camp.season + " tribe, level " + camp.level +
          ". They have not seen you yet. Nothing here will come for you unless you start it.");
   }
@@ -30098,7 +32117,25 @@ function updateGoblinCamp(dt){
             ? " Next " + season2 + " they will come back stronger."
             : " That is the last of them: " + season2 + " is yours."));
     refreshUI();
+    checkCampaignDone();
   }
+}
+
+/* ---------- the campaign, and the end of it ----------
+
+   Twenty camps: four seasons, five levels each. Clearing the last one is the
+   only thing in peaceful that finishes anything - and even then it asks rather
+   than deciding, because a village somebody has kept for months is not a match
+   to be closed on them. Say the word and it ends; say carry on and it never
+   asks again, and the seasons keep turning with nothing left out there. */
+function campaignComplete(){
+  return GOBLIN_SEASON_ORDER.every(s => (G.goblinBeaten[s] || 0) >= GOBLIN_MAX_LEVEL);
+}
+function checkCampaignDone(){
+  if(!goblinsEnabled() || G.campaignAsked || !campaignComplete()) return;
+  G.campaignAsked = true;
+  G.campaignDone = true;
+  showCampaignChoice();
 }
 
 /* ---------- what the Noticeboard reports ----------
@@ -30179,6 +32216,14 @@ const DAY_AT     = 0.99;  // and it is full day again
 const NIGHT_TINT = "#101a2e";
 const LAMP_SCALE = 0.90;  // trims every building's light together
 const TORCH_RADIUS = 32;  // how far a soldier's torch reaches
+/* The founder's reaches further - they are the only person you have, out on a
+   map you have not walked, at dusk, and how far they can see IS the opening.
+   Same flame, held higher. Used by both the light that is drawn (04c) and the
+   light the night creatures respect (01c), so the two can never disagree. */
+const FOUNDER_TORCH = 1.3;
+function torchRadius(u){
+  return TORCH_RADIUS * (u && u.firstVillager ? FOUNDER_TORCH : 1);
+}
 /* A small hand-hung lamp, dimmer than a carried torch - and wider than its
    size alone would suggest, because the hole this punches in the night is
    centred on the BOAT (u.x/u.y, the only position this loop has), while the
@@ -32606,6 +34651,8 @@ function buildSave(){
     seed: G.seed,
     rng: rngState(),
     difficulty: DIFFICULTY,
+    // the world's size, because it is no longer the same for every mode
+    mapw: MAPW, maph: MAPH,
     forcedMap: FORCED_MAP ? FORCED_MAP.name : null,
     dropped: __saveDropped.slice(),
     ents: entOut,
@@ -32721,6 +34768,20 @@ function loadGame(){
 
   // Settings live outside G and have to come back before it is swapped in
   if(DIFF[payload.difficulty]) DIFFICULTY = payload.difficulty;
+  /* And the world's size, before anything is read out of the terrain.
+
+     Saves from before peaceful had its own map carry no size at all, so it is
+     taken from the terrain itself - which is square and is the one thing in
+     the payload that always knew how big the world was. Getting this wrong
+     does not fail loudly: every index into terrain, fog and nav is computed as
+     y*MAPW+x, so a village would load with its map sheared diagonally. */
+  {
+    const t = built && built.terrain;
+    let w = payload.mapw|0, h = payload.maph|0;
+    if((!w || !h) && t && t.length){ w = h = Math.round(Math.sqrt(t.length)); }
+    if(w > 0 && h > 0 && (!t || w*h === t.length)) sizeMap(w, h);
+    else sizeMapFor(DIFFICULTY);
+  }
   FORCED_MAP = payload.forcedMap ? (MAP_TYPES.find(m=>m.name===payload.forcedMap) || null) : null;
 
   /* newGame() replaces G wholesale rather than mutating it, and so does this
@@ -33904,6 +35965,15 @@ function refreshUI(){
         const c0=AGE_COST[0];
         addBtn("\u2191 "+AGES[0], costStr(c0), canAfford(pl,c0), tryAgeUp, null, true);
       }
+    } else if(d.ageup && pl.ageUpTo != null){
+      /* Already paid for and on its way. The button stays where it was rather
+         than vanishing, so the place you tapped tells you what you tapped it
+         for - the strip above the group bar has the clock. */
+      const pc = Math.round(ageUpProgress(pl)*100);
+      /* Short: addBtn prints the lock message in place of the caption, so a
+         sentence here is a sentence clipped mid-word in a narrow button. */
+      addBtn("\u2191 "+AGES[pl.ageUpTo], null, false, null,
+             "on its way \u2013 "+pc+"%", true);
     } else if(d.ageup && pl.age<2){
       const c=AGE_COST[pl.age+1];
       addBtn("\u2191 "+AGES[pl.age+1], costStr(c), canAfford(pl,c), tryAgeUp, null, true);
@@ -33973,6 +36043,31 @@ function groupIcon(n){
   // (idea_discovery_events)
   if(best==="villager" && units.some(u=>u.wildlingTouched)) return "🐾";
   return GROUP_ICONS[best] || null;
+}
+
+/* The age-up strip. Hidden unless an age is actually on its way, which is the
+   whole reason it can afford to sit above the group bar at all - it costs no
+   room the rest of the match. Driven straight off the player's own clock, so
+   it needs nothing stored for it and a save reloaded mid-age-up picks the bar
+   back up where it left off. */
+function refreshAgeBar(){
+  const bar = $("agebar");
+  if(!bar) return;
+  const pl = G.players && G.players[P_YOU];
+  const p = ageUpProgress(pl);
+  if(p == null){
+    if(!bar.classList.contains("hide")) bar.classList.add("hide");
+    return;
+  }
+  if(bar.classList.contains("hide")) bar.classList.remove("hide");
+  const fill = $("agefill"), label = $("agelabel");
+  if(fill) fill.style.width = (p*100).toFixed(1) + "%";
+  if(label){
+    const left = Math.max(0, Math.ceil(AGE_UP_TIME() - (pl.ageUpT || 0)));
+    const html = AGES[pl.ageUpTo].toUpperCase() +
+                 ' <span class="agetime">' + left + 's</span>';
+    if(label.innerHTML !== html) label.innerHTML = html;
+  }
 }
 
 function refreshGroups(){
@@ -34054,16 +36149,51 @@ function refreshQueue(){
 /* ============================================================
    END STATES
    ============================================================ */
-function endGame(win){
+function endGame(win, why){
   if(G.over) return;
   G.over=true; G.running=false;
   const mins = Math.floor(G.t/60), secs = Math.floor(G.t%60);
-  $("endtitle").textContent = win?"Victory":"Defeat";
-  $("endkicker").textContent = win?"Rival civilization razed":"Your settlement has fallen";
-  $("endtext").textContent = win
-    ? "You levelled every enemy building in "+mins+"m "+secs+"s, reaching the "+AGES[G.players[P_YOU].age]+"."
-    : "Your last building fell after "+mins+"m "+secs+"s. The rival reached the "+AGES[G.players[P_AI].age]+".";
+  if(why === "campaign"){
+    /* Peaceful's own ending, and the only one it has. Nothing was razed and
+       nothing fell - the player finished the thing they were playing and then
+       chose to stop, which deserves its own words rather than "Victory". */
+    $("endtitle").textContent = "Finished";
+    $("endkicker").textContent = "Four seasons, twenty camps";
+    $("endtext").textContent =
+      "You cleared every goblin camp in every season over " + mins + "m " + secs + "s, " +
+      "and left the village standing in the " + AGES[G.players[P_YOU].age] + ".";
+  } else {
+    $("endtitle").textContent = win?"Victory":"Defeat";
+    $("endkicker").textContent = win?"Rival civilization razed":"Your settlement has fallen";
+    $("endtext").textContent = win
+      ? "You levelled every enemy building in "+mins+"m "+secs+"s, reaching the "+AGES[G.players[P_YOU].age]+"."
+      : "Your last building fell after "+mins+"m "+secs+"s. The rival reached the "+AGES[G.players[P_AI].age]+".";
+  }
   $("endscreen").classList.remove("hide");
+}
+
+/* ---------- the campaign asks ----------
+   Held, not ended: the world stops while the question is on screen, exactly as
+   the opening brief does, and starts again the moment it is answered. */
+function showCampaignChoice(){
+  const box = $("donescreen");
+  if(!box) return;
+  const mins = Math.floor(G.t/60), secs = Math.floor(G.t%60);
+  const txt = $("donetext");
+  if(txt) txt.textContent =
+    "Spring, summer, autumn and winter, all five levels of each, in " +
+    mins + "m " + secs + "s. There is nothing left out there. " +
+    "You can stop here, or keep the village and carry on \u2014 the seasons " +
+    "will turn either way.";
+  G.running = false;
+  box.classList.remove("hide");
+}
+function answerCampaign(finish){
+  const box = $("donescreen");
+  if(box) box.classList.add("hide");
+  if(finish){ endGame(true, "campaign"); return; }
+  G.running = true;
+  hint("The village carries on. Nothing is coming.");
 }
 
 /* ============================================================
@@ -34100,7 +36230,7 @@ function frame(ts){
     }
   }catch(e){ reportError(e, "the game update"); }
   try{ if(G) draw(); }catch(e){ reportError(e, "drawing the world"); }
-  try{ if(G){ refreshTop(); refreshQueue(); refreshGroups(); updateQueueScrollHint(); } }catch(e){ reportError(e, "the interface"); }
+  try{ if(G){ refreshTop(); refreshQueue(); refreshGroups(); refreshAgeBar(); updateQueueScrollHint(); } }catch(e){ reportError(e, "the interface"); }
   requestAnimationFrame(frame);
 }
 
@@ -34435,6 +36565,8 @@ $("btnclose").addEventListener("click", ()=>{
   $("startscreen").classList.add("hide");
   if(G && !G.running && !G.over && G.t < 1) showOpening(); else G.running = true;
 });
+$("btncarryon").addEventListener("click", ()=> answerCampaign(false));
+$("btnfinish").addEventListener("click", ()=> answerCampaign(true));
 $("btnagain").addEventListener("click", ()=>{
   $("endscreen").classList.add("hide");
   newGame(); resize(); refreshUI();
