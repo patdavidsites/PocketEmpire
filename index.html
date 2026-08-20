@@ -302,7 +302,10 @@
   /* a thin strip under the group numbers, the same height as them, so the
      button row keeps the full width for itself */
   #queuewrap{position:relative;flex:none;height:20px;}
-  #queuewrap.hide{visibility:hidden;}
+  /* Gone, not merely invisible. visibility:hidden kept its twenty pixels and
+     the flex gap with them, so an empty queue left a band of nothing sitting
+     over the group numbers all match. */
+  #queuewrap.hide{display:none;}
   #queue{display:flex;gap:4px;height:20px;align-items:stretch;
     overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x;}
   #queue::-webkit-scrollbar{display:none;}
@@ -498,8 +501,8 @@
   <button id="pausebtn" title="Pause">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/></svg>
   </button>
-  <div id="agebar" class="hide"><div id="agefill"></div><span id="agelabel"></span></div>
-  <div id="groupbar"></div>
+  <!-- The training bars sit above the group numbers: what is being made is a
+       thing you watch, and the numbers are a thing you press. -->
   <div id="queuewrap" class="hide">
     <div id="queue"></div>
     <div class="scrollfade" id="queue_fade"></div>
@@ -512,6 +515,9 @@
       <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
     </div>
   </div>
+  <div id="groupbar"></div>
+  <!-- and the age bar goes in the gap under them, right above the almanac -->
+  <div id="agebar" class="hide"><div id="agefill"></div><span id="agelabel"></span></div>
   <div id="cmdrow">
   <div id="selinfo">
     <div id="selname">Nothing selected</div>
@@ -669,6 +675,41 @@
            wants the lot can have the lot. Deliberately native <details> and
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
+      <details class="pn">
+        <summary>Patch 21.16</summary>
+        <div class="sec">The Captain</div>
+        <ul>
+          <li>A new hero-tier unit for the Iron Age: the <strong>Captain</strong>, trained at a new <strong>Captain's Station</strong>. Taller than anyone else in your army, bare-headed on purpose, carrying a kite shield and a blade that always carries a faint moonstone-blue light &mdash; a light-blue hue by day, a proper glow after dark, lighting the ground around him the way a torch would without carrying one</li>
+          <li>Only one can ever be in service at a time &mdash; training a second is refused, whether it would come from the same station or another one, until the first falls</li>
+          <li>His attack cycles through three distinct swings &mdash; from the left, from the right, then an overhead slam that throws whoever he's fighting off their feet. He plants his feet and trades blows rather than circling his target the way the rest of the army does</li>
+          <li>The Captain's Station itself is sized like the Caretaker's Cottage, built in ash-grey stone rather than the usual timber, with a pair of spare blades crossed by the door</li>
+        </ul>
+        <p style="opacity:.7">Stats and training cost are still a placeholder &mdash; the finished unit is meant to cost a real share of every resource, moonstone included. The knock-people-into-the-air slam is in; a leadership buff for nearby soldiers is not built yet.</p>
+      </details>
+      <details class="pn">
+        <summary>Patch 21.15</summary>
+        <div class="sec">Fixed</div>
+        <ul>
+          <li>Some Ashkin villages could get permanently stuck before ever reaching the Stone Age &mdash; a small enough economy meant nobody was ever put to gathering wood specifically, so the settlement sat on plenty of everything else and never quite the timber the next step needed. They now always keep enough hands free early on to actually get past it, whichever way they otherwise like to play</li>
+          <li>A small-economy Ashkin could field a real army on Peaceful but never build a single wall or tower, since that only used to kick in with a bigger village than that kind of side ever keeps. Now it doesn't take nearly as much</li>
+        </ul>
+      </details>
+      <details class="pn">
+        <summary>Patch 21.14</summary>
+        <div class="sec">Floyd</div>
+        <ul>
+          <li>Gumby has company &mdash; <strong>Floyd</strong>, a second little dog, smaller again and after something different: where Gumby raids a farm, Floyd makes off with a sock from the nearest house. Tap either one to see who they are</li>
+        </ul>
+        <div class="sec">Peaceful keeps growing</div>
+        <ul>
+          <li>The Ashkin on Peaceful now keep building the whole match through &mdash; more villagers, more soldiers, a wall or two, a watchtower, an armoury &mdash; instead of stalling out partway. They still never march on you first: leave them be and they simply become a steadily bigger, better-defended village, so the longer a match runs the more there eventually is to reckon with if you do pick the fight</li>
+        </ul>
+        <div class="sec">Fixed</div>
+        <ul>
+          <li>Gumby could spawn standing on ground he could not actually stand on, and would then never move again for the rest of the match &mdash; about one visit in four. He (and Floyd) now check the ground is clear before trotting in</li>
+          <li>On Peaceful, the Ashkin's army could sit stuck at the same size for a real stretch of the match while resources piled up waiting on the next age &mdash; and on some maps, holding every resource back at once meant they never quite banked enough food to age up at all, however much everything else piled up</li>
+        </ul>
+      </details>
       <details class="pn">
         <summary>Patch 21.13</summary>
         <div class="sec">Ground, sky, and the light between them</div>
@@ -1460,6 +1501,11 @@ function isWorker(u){
   return !!u && (u.type === "villager" || u.type === "moonvillager");
 }
 
+// the game's own established moonstone glow colour (the vein light-pool,
+// the Manor's own wash) - an RGB triple with no "rgb(...)" wrapper, since
+// mixCol/parseCol read the digits out of a string either way and this form
+// drops straight into "rgb("+MOONSTONE_BLUE+")" or a mixCol() call as-is
+const MOONSTONE_BLUE = "130,205,235";
 const TINT = {
   villager:   null,        // null = use the player colour
   // grey cloth for the night shift, with the team colour kept to a panel down
@@ -1479,6 +1525,10 @@ const TINT = {
   barddrum:    "#8a2f1f",
   bardrock:    "#1c1a18",
   legionary:   "#6b5f45",
+  // heavy dark iron rather than any team cloth - a Darknut reads as an
+  // armoured wall of a thing first and a Sunfolk/Ashkin soldier second;
+  // the team sash drawPerson always paints on top is what still says whose
+  captain:     "#33363b",
   // loose fur rather than any woven cloth - team colour still shows
   // through drawWildlingGarb's own trim, the same trick moonvillager uses
   wildling:    "#8a6b4a"
@@ -3777,14 +3827,34 @@ function pickGumbyFarm(){
   const farms = G.bldgs.filter(b=>b.type==="farm" && b.done && b.hp>0);
   return farms.length ? farms[(Math.random()*farms.length)|0] : null;
 }
+/* A ring around the town, retried until it lands somewhere he can actually
+   stand - the first version rolled one angle and distance and used it
+   regardless, which put him inside solid terrain (deep water, a dense
+   cluster of trees) often enough to matter: 11 of 40 seeds, measured, and
+   every one of them never moved again. smallDogStep's own stuck-timer
+   recovery cannot fix this - it only ever tries stepping FROM his current
+   spot, and if that spot itself reads as blocked (with the same padding a
+   step is checked against), a freshly-picked nearby target is just as
+   likely to fail the exact same way, forever. Declining the spawn outright
+   when nothing turns up is the same choice every other spawner in this file
+   makes rather than place him somewhere he cannot leave. */
+function pickSmallDogSpawn(town){
+  for(let i=0;i<20;i++){
+    const a = Math.random()*6.283, d = 280+Math.random()*140;
+    const x = town.x+Math.cos(a)*d, y = town.y+Math.sin(a)*d;
+    if(!blocked(x, y, null, false, SMALL_DOG_PAD)) return {x, y};
+  }
+  return null;
+}
 function trySpawnGumby(force){
   if(G.gumby) return false;
   if(!force && Math.random() > GUMBY_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
-  const a = Math.random()*6.283, d = 280+Math.random()*140;
+  const spot = pickSmallDogSpawn(town);
+  if(!spot) return false;
   G.gumby = {
-    x: town.x+Math.cos(a)*d, y: town.y+Math.sin(a)*d,
+    x: spot.x, y: spot.y,
     tx: town.x, ty: town.y, state:"in", t:0, wanders:0,
     face:1, walk:0, seed:Math.random()*6.283, spd:38,
     barkCd: 2+Math.random()*2, say:null, sayT:0
@@ -3794,23 +3864,24 @@ function trySpawnGumby(force){
 }
 /* Steps g toward (tx,ty), kept out of every building except a farm - the
    same "fields are walkable" rule blocked() already uses for everyone else.
-   Gumby has no path of his own (he's a decoration, not a pathed unit), so a
-   straight line that finds a wall slides along whichever single axis is
-   still clear instead, the simplest way to go round a corner rather than
-   stopping dead against it. Returns the remaining distance to the target,
-   which every caller already wants for its own "have I arrived" check. */
-const GUMBY_PAD = 5;
-function gumbyStep(g, tx, ty, dt){
+   Shared by both little dogs (Gumby and Floyd) - neither has a path of its
+   own (they're decoration, not pathed units), so a straight line that finds
+   a wall slides along whichever single axis is still clear instead, the
+   simplest way to go round a corner rather than stopping dead against it.
+   Returns the remaining distance to the target, which every caller already
+   wants for its own "have I arrived" check. */
+const SMALL_DOG_PAD = 5;
+function smallDogStep(g, tx, ty, dt){
   const dx=tx-g.x, dy=ty-g.y, d=Math.hypot(dx,dy)||1;
   if(Math.abs(dx)>0.1) g.face = dx<0?-1:1;
   const step = Math.min(d, g.spd*dt);
   const nx = g.x+dx/d*step, ny = g.y+dy/d*step;
   let moved = true;
-  if(!blocked(nx, ny, null, false, GUMBY_PAD)){
+  if(!blocked(nx, ny, null, false, SMALL_DOG_PAD)){
     g.x = nx; g.y = ny;
-  } else if(!blocked(nx, g.y, null, false, GUMBY_PAD)){
+  } else if(!blocked(nx, g.y, null, false, SMALL_DOG_PAD)){
     g.x = nx;
-  } else if(!blocked(g.x, ny, null, false, GUMBY_PAD)){
+  } else if(!blocked(g.x, ny, null, false, SMALL_DOG_PAD)){
     g.y = ny;
   } else moved = false;
 
@@ -3832,10 +3903,10 @@ function updateGumby(dt){
   if(g.say){ g.sayT -= dt; if(g.sayT<=0) g.say=null; }
 
   if(g.state==="in"){
-    const d = gumbyStep(g, g.tx, g.ty, dt);
+    const d = smallDogStep(g, g.tx, g.ty, dt);
     if(d<40){ g.state="wander"; pickGumbySpot(g); }
   } else if(g.state==="wander"){
-    const d = gumbyStep(g, g.tx, g.ty, dt);
+    const d = smallDogStep(g, g.tx, g.ty, dt);
     if(d<6){
       g.wanders++;
       if(g.wanders>=5){
@@ -3857,7 +3928,7 @@ function updateGumby(dt){
   } else if(g.state==="toFarm"){
     const farm = g.farm;
     if(!farm || farm.hp<=0){ g.state="wander"; pickGumbySpot(g); return; }
-    const d = gumbyStep(g, farm.x, farm.y, dt);
+    const d = smallDogStep(g, farm.x, farm.y, dt);
     if(d < Math.max(farm.w,farm.h)*TILE/2+14){
       const pl = G.players[farm.p];
       const steal = Math.min(pl.res.food, 6+Math.random()*10);
@@ -3868,8 +3939,84 @@ function updateGumby(dt){
       g.state="wander"; pickGumbySpot(g);
     }
   } else {
-    const d = gumbyStep(g, g.ex, g.ey, dt);
+    const d = smallDogStep(g, g.ex, g.ey, dt);
     if(d<10 || g.t>200){ G.gumby=null; return; }
+  }
+}
+
+/* ---------- Floyd ----------
+   Gumby's own second dog: the same rare, harmless-ish little wanderer, just
+   a little smaller and after something different. Where Gumby raids a farm,
+   Floyd raids a house - there is nothing actually called a "sock" anywhere
+   in the game's economy, so this costs a household nothing at all, purely
+   the joke landing. Independent of Gumby entirely (own G.floyd, own roll),
+   so either, both or neither can be out on a given day. */
+const FLOYD_CHANCE = 0.02;
+function pickFloydSpot(f){
+  const a = Math.random()*6.283, d = 20+Math.random()*70;
+  f.tx = f.x + Math.cos(a)*d; f.ty = f.y + Math.sin(a)*d;
+}
+function pickFloydHouse(){
+  const houses = G.bldgs.filter(b=>b.type==="house" && b.done);
+  return houses.length ? houses[(Math.random()*houses.length)|0] : null;
+}
+function trySpawnFloyd(force){
+  if(G.floyd) return false;
+  if(!force && Math.random() > FLOYD_CHANCE) return false;
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
+  if(!town) return;
+  const spot = pickSmallDogSpawn(town);
+  if(!spot) return false;
+  G.floyd = {
+    x: spot.x, y: spot.y,
+    tx: town.x, ty: town.y, state:"in", t:0, wanders:0,
+    face:1, walk:0, seed:Math.random()*6.283, spd:41,
+    barkCd: 2+Math.random()*2, say:null, sayT:0
+  };
+  hint("An even smaller black dog trots into view.");
+  return true;
+}
+function updateFloyd(dt){
+  const f = G.floyd;
+  if(!f) return;
+  f.t += dt; f.walk += dt;
+  if(f.say){ f.sayT -= dt; if(f.sayT<=0) f.say=null; }
+
+  if(f.state==="in"){
+    const d = smallDogStep(f, f.tx, f.ty, dt);
+    if(d<40){ f.state="wander"; pickFloydSpot(f); }
+  } else if(f.state==="wander"){
+    const d = smallDogStep(f, f.tx, f.ty, dt);
+    if(d<6){
+      f.wanders++;
+      if(f.wanders>=5){
+        const a=Math.random()*6.283, dist=380+Math.random()*160;
+        f.ex = f.x+Math.cos(a)*dist; f.ey = f.y+Math.sin(a)*dist;
+        f.state="out";
+      } else if(Math.random()<0.35){
+        const house = pickFloydHouse();
+        if(house){ f.state="toHouse"; f.house=house; } else pickFloydSpot(f);
+      } else pickFloydSpot(f);
+    }
+    f.barkCd -= dt;
+    if(f.barkCd<=0){
+      f.barkCd = 4+Math.random()*5;
+      const near = G.units.find(u=>u.type==="villager" && u.hp>0 && !u.indoors
+                                    && Math.hypot(u.x-f.x,u.y-f.y)<80);
+      if(near){ f.say="Yip!"; f.sayT=1.4; }
+    }
+  } else if(f.state==="toHouse"){
+    const house = f.house;
+    if(!house || house.hp<=0){ f.state="wander"; pickFloydSpot(f); return; }
+    const d = smallDogStep(f, house.x, house.y, dt);
+    if(d < Math.max(house.w,house.h)*TILE/2+14){
+      f.say = "Yip!"; f.sayT = 1.6;
+      if(house.p===P_YOU) hint("Floyd trots off with someone's sock.");
+      f.state="wander"; pickFloydSpot(f);
+    }
+  } else {
+    const d = smallDogStep(f, f.ex, f.ey, dt);
+    if(d<10 || f.t>200){ G.floyd=null; return; }
   }
 }
 
@@ -4575,10 +4722,27 @@ const CIVS = {
 };
 
 /* ---------- seasons ----------
-   Ten minutes each, starting on a random one. Winter slows everyone down a
-   little, thins the harvest, and buries the map in snow over its first two
-   minutes. Summer is the baseline and changes nothing. */
-const SEASON_LEN   = 268;   // seconds per season - two days (DAY_LEN 134)
+   TEN DAYS each, starting on a random one. Winter slows everyone down a
+   little, thins the harvest, and buries the map in snow. Summer is the
+   baseline and changes nothing.
+
+   It was two days - 268 seconds - and that was the single worst number in the
+   game. Measured: a year ran eighteen minutes, an hour of play was three and a
+   half in-game years, and a week of evenings would have run three decades of
+   village history. Nothing seasonal had room to land: the seasonal drift, meant
+   to be a once-a-season sight, was on screen 23% of the time, and a goblin camp
+   arrived and struck its tents every four and a half minutes whether or not you
+   had gone to look at it.
+
+   At ten days a year is an hour, which is the pace a village kept over weeks
+   actually wants. Everything that was written as a FRACTION of a season scales
+   with it for free; the handful of things that were written as a count per
+   season are dealt with where they stand, and are marked. */
+/* Written out rather than DAY_LEN*10: DAY_LEN is declared in 05b, which the
+   build concatenates AFTER this file, and a const that reads a const declared
+   later throws on load. */
+const SEASON_DAYS  = 10;
+const SEASON_LEN   = 1340;   // ten days, at DAY_LEN 134
 // every third winter gets it - a fixed schedule now, not a roll
 const SOLACE_EVERY = 3;
 const SEASON_ORDER = ["summer","autumn","winter","spring"];
@@ -4586,8 +4750,19 @@ const SEASON_ORDER = ["summer","autumn","winter","spring"];
 // empty selection panel something to say instead of sitting mostly blank
 const DAY_NAMES = ["Sunnadag","Maandag","Tyrsdag","Odensdag","Thorsdag","Freyadag","Hearthdag"];
 const MONTH_NAMES = { summer:"Sunmoot", autumn:"Leaffall", winter:"Frostmoon", spring:"Bloomtide" };
-const SNOW_FALL    = 45;    // seconds for winter to fully cover the ground
-const SNOW_MELT    = 35;    // seconds for it to clear again
+/* ---------- how long a season takes to ARRIVE ----------
+
+   These were absolute seconds - 45 for the snow to cover, 35 for it to clear -
+   which was about a sixth of a two-day season. At ten days that same 45 seconds
+   is three per cent of it: winter would snap on in the first minute and then
+   sit perfectly still for twenty, which is the opposite of making the change
+   impactful.
+
+   So they are fractions of a season now and can never fall out of tune with it
+   again. The fractions are exactly what they used to be, so the arrival looks
+   the way it always did - it just takes as long as a season now takes. */
+const SNOW_FALL    = SEASON_LEN * 0.168;   // winter covering the ground (~3m45)
+const SNOW_MELT    = SEASON_LEN * 0.131;   // and clearing again (~2m55)
 const WINTER_SPEED = 0.88;  // everyone moves a bit slower in the cold
 const WINTER_CROP  = 0.80;  // fields and forage yield less
 /* Night fishing: a shoal bites better in the deep of the night than it
@@ -4602,10 +4777,29 @@ function moonlitCatchActive(){
 }
 // two knobs on overall pace, independent of any per-unit or per-season modifier
 const GATHER_SCALE      = 0.75;  // villagers bring back less per trip - the whole economy runs slower
+
+/* ---------- and peaceful runs slower still ----------
+
+   Thirty per cent less off a tree, a berry patch, an outcrop or a seam - in
+   peaceful only. The timed difficulties are races and are not touched.
+
+   The point is not difficulty, it is weight. Peaceful is the mode kept over
+   weeks, and a village that reaches the Iron Age in forty minutes has nothing
+   left to want; taking half again as long to gather anything means a granary is
+   a decision and an age is an achievement rather than a formality.
+
+   Gold is deliberately NOT in the list. It is the one resource with no seam of
+   its own to work at scale, it gates the Iron Age, and slowing it too would
+   push that age out further than the rest rather than in step with them. */
+const PEACEFUL_YIELD = 0.70;
+const PEACEFUL_SLOWED = { food:true, wood:true, stone:true, moonstone:true };
+function peacefulYield(kind){
+  return (DIFFICULTY === "peaceful" && PEACEFUL_SLOWED[kind]) ? PEACEFUL_YIELD : 1;
+}
 const GLOBAL_SPEED_SCALE = 0.82; // everyone on foot - the elder included - moves a bit more deliberately
-const BLOOM_GROW   = 45;    // seconds for spring flowers to come up
-const BLOOM_FADE   = 35;    // they die back toward the end of the season
-const TURN_GROW    = 50;    // autumn: leaves turn gold over the first stretch
+const BLOOM_GROW   = SEASON_LEN * 0.168;   // spring flowers coming up
+const BLOOM_FADE   = SEASON_LEN * 0.131;   // and dying back toward the end
+const TURN_GROW    = SEASON_LEN * 0.187;   // autumn: leaves turning gold
 const FALL_START   = 0.55;  // and start dropping past this point in the season
 
 /* Autumn. `turn` is how golden the leaves have gone, `fall` is how far they
@@ -5346,6 +5540,7 @@ const BLDG_MATERIAL = {
   observatory: ["#3f4a78", 0.56, 1.5],   // night-blue
   musiccollege:["#5b7fb4", 0.56, 1.5],   // soft blue
   warcollege:  ["#565c66", 0.44],   // dark slate
+  captainstation: ["#585c64", 0.78, 0.65],   // ash-grey stone - a general's house, not a barracks
   greathall:   ["#c0a05c", 0.50, 1.1],   // honeyed stone
   shrine:      ["#c6c0b0", 0.44, 1.7],   // pale limestone
   lodge:       ["#7e7440", 0.44, 1.6],   // mossy timber
@@ -5369,13 +5564,29 @@ const BLDG_MATERIAL = {
   cottage:     ["#8ea8bc", 0.32]    // the moonstone cottage, a hint cooler
 };
 
-/* How long an age takes to arrive once it is paid for: half a day.
+/* ---------- how long an age takes to arrive once it is paid for ----------
 
    It used to be instant - the resources vanished and the whole village was
-   suddenly a age older, which made the biggest decision in the match the
-   least satisfying thing in it. Half a day is long enough that you watch it
-   happen and plan around it, and short enough that it is not a wait. */
-const AGE_UP_TIME = () => DAY_LEN * 0.5;
+   suddenly an age older, which made the biggest decision in the match the
+   least satisfying thing in it. Then it was half a day for every age, which
+   was better but still over in about a minute.
+
+   Every age has its own now, and they get longer as they get bigger: one day
+   to make a camp into a village, two to reach the Bronze Age, three for the
+   Iron. A village turning over three days of work is a thing you plan around
+   and watch, which is the whole point of the bar above the group numbers - and
+   the last age ought to feel like more than the first.
+
+   Indexed by the age being BUILT: 0 is the Wandering Age's own step into the
+   Stone Age, then Bronze, then Iron. */
+const AGE_UP_DAYS = [1, 2, 3];
+function ageUpDaysFor(toAge){
+  const i = Math.max(0, Math.min(AGE_UP_DAYS.length-1, toAge|0));
+  return AGE_UP_DAYS[i];
+}
+/* Kept as a no-argument call as well, because plenty of places just want "how
+   long does an age take" and the ladder's own step is the fair default. */
+const AGE_UP_TIME = (toAge) => DAY_LEN * ageUpDaysFor(toAge === undefined ? 1 : toAge);
 
 /* The five ambient dragonflies at the water's edge take one of these each -
    the same jewel palette the summer drift uses for its own. */
@@ -5634,6 +5845,20 @@ const UNITS = {
                  build:12, r:7, pop:1, cls:"civ", buffKind:"def" },
   legionary: { name:"Iron Legionary", age:2, hp:150, spd:52, atk:22, rng:10, cd:1.1,
                cost:{food:110,iron:40,gold:30}, build:16, r:9, pop:2, cls:"inf" },
+  /* The Captain's Station's own hero-tier unit - a Darknut in spirit: a
+     hulking wall of dark plate, thirty per cent taller than anyone else in
+     the game (r:12 against the Iron Legionary's own r:9, the same "30% up"
+     the Goblin War Brute already uses against the ordinary Goblin Brute),
+     carrying a sword too big for anyone smaller to swing. `cls:"inf"` is
+     what gets it the ordinary torch every non-civilian unit already carries
+     after dark (carriesTorch, 05b) - the sword's own blue glow (drawUnit's
+     weapon switch, 04e) is a second, separate light entirely its own.
+     PLACEHOLDER STATS - visual pass only so far, not balanced yet. */
+  captain: { name:"Captain", age:2, hp:210, spd:48, atk:26, rng:11, cd:1.3,
+             cost:{food:140,iron:70,gold:60}, build:22, r:12, pop:2, cls:"inf",
+             // the pinnacle of the army only ever stands one to a side - see
+             // the unique-unit check in tryTrain (03b-placement-economy-training.js)
+             unique:true },
   /* Trained at the Wildlings' Den, the Playful Fox discovery's unlock
      (idea_discovery_events). A little taller, a little stronger, a little
      faster than a Warrior - the baseline they're built from - and they
@@ -5735,6 +5960,7 @@ const GROUP_ICONS = {
   catapult: "🪨", mage: "🔮", druid: "🐻", warship: "🚢",
   fishingboat: "🎣", transport: "⛴️",
   legionary: "🛡️",
+  captain: "⚔️",
   bardlute: "🎸", bardtrumpet: "🎺", barddrum: "🥁", bardrock: "🎤",
   wildling: "🐾"
 };
@@ -5955,6 +6181,11 @@ const BLDG = {
                  vision:4, trains:["bardlute","bardtrumpet","barddrum","bardrock"] },
   warcollege:{ name:"War College", age:2, hp:360, w:2, h:2, cost:{wood:173,stone:100,food:77}, hgt:12, shrinkW:0.62, shrink:0.60, roof:"gable", build:20,
                vision:4, trains:["legionary"], mil:true },
+  /* Iron Age only, one hero-tier unit (the Captain). PLACEHOLDER: cost and
+     footprint borrowed from the War College's own shape until the unit
+     itself is agreed on - visual pass first. */
+  captainstation:{ name:"Captain's Station", age:2, hp:380, w:2, h:2, cost:{wood:180,stone:120,food:90}, hgt:10, shrinkW:0.62, shrink:0.56, roof:"gable", build:22,
+               vision:4, trains:["captain"], mil:true },
   tradingpost:{ name:"Trading Post", age:2, hp:240, w:2, h:2, cost:{wood:127,gold:60,food:53}, hgt:10, shrinkW:0.62, shrink:0.55, roof:"lean", build:16,
                 vision:3 },
   greathall:{ name:"Great Hall", age:2, hp:500, w:2, h:2, cost:{wood:233,stone:200,gold:150,food:97}, hgt:16, shrinkW:0.70, shrink:0.55, roof:"dome", build:30,
@@ -6557,6 +6788,9 @@ const BLDG_ABOUT = {
             "different.",
   warcollege:  "Drill and doctrine. Sharpens what your soldiers already do "+
             "rather than giving you anything new to build.",
+  captainstation: "Trains a Captain - taller than anyone else in your army, "+
+            "carrying a sword too heavy for smaller hands. Its edge catches "+
+            "a cold blue light after dark.",
   tradingpost: "Sends carts out to trade. Turns whatever you have too much of "+
             "into whatever you are short of.",
   fortress: "A stronghold. Heavy walls, a long reach, and it garrisons your "+
@@ -6598,7 +6832,7 @@ function yardRect(b){
 }
 
 /* build menu order for villagers */
-const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","bakery","granary","well","shrine","noticeboard","grove","armoury","observatory","blacksmith","manor","cottage","musiccollege","warcollege","tradingpost","greathall","fortress","caretaker","moongarden","wall","tower","scouttower","siege","dock","town"];
+const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","bakery","granary","well","shrine","noticeboard","grove","armoury","observatory","blacksmith","manor","cottage","musiccollege","warcollege","captainstation","tradingpost","greathall","fortress","caretaker","moongarden","wall","tower","scouttower","siege","dock","town"];
 
 /* The build menu's own front page: five categories rather than one long
    sideways scroll through all of BUILD_ORDER, so late-alphabet buildings
@@ -6611,7 +6845,7 @@ const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks"
    for the night shift (G.buildMoon, see the build sub-menu, 07). */
 const BUILD_CATEGORIES = [
   { key:"military", label:"Military", types:[
-      "barracks","range","stable","grove","warcollege","siege",
+      "barracks","range","stable","grove","warcollege","captainstation","siege",
       "wall","tower","scouttower","fortress","armoury","blacksmith"
     ] },
   { key:"foodwood", label:"Food & Wood", types:["farm","lumber","bakery","granary","caretaker"] },
@@ -6706,6 +6940,10 @@ function defaultGameState(){
     bakers:[],
     terrain:null, fog:null, decor:[], critters:[], birds:[], crows:[], eyes:[], pets:[],
     storm:null, lightning:null, dragon:null, dracula:null, hackman:null, mcstar:null, gumby:null, puddles:[],
+    // Floyd - Gumby's own second dog, slightly smaller, visits houses
+    // instead of farms. Same shape, own state, so the two can be out at
+    // once without tangling (idea: Floyd).
+    floyd:null,
     aurora:null, shootingStar:null, rainbow:null, tornado:null, scorches:[],
     underAttackCd:0, underAttackFlashT:0,
     invaders:[], invasionSeasonKey:null, invasionAt:0, invasionDone:false,
@@ -7477,11 +7715,33 @@ function plantNear(kind, cx, cy, amount, minTiles, maxTiles){
      second will take a tighter spot rather than come away empty, because a
      start crowded with trees is still a start that must have its berries.
      Coming away empty is the one outcome this exists to prevent. */
+  /* ---------- and it lands somewhere different every game ----------
+
+     This walked the ring from a FIXED angle - `(k/step)*2PI + r*0.7` - and took
+     the first free spot it found, so the three berries and three trees came out
+     in the same order at the same bearings on every start. The map underneath
+     changes and the doorstep does not, which is most of why one opening feels
+     like the last one.
+
+     A random bearing and a random direction round the ring, and the radii tried
+     in a shuffled order rather than always innermost-first, so they are not all
+     dealt at the same distance either. Every guarantee below is untouched: it
+     still refuses water, still keeps its elbow room on the first pass and still
+     takes a tight spot on the second rather than come away empty. */
+  const a0 = Math.random()*Math.PI*2;
+  const spin = Math.random() < 0.5 ? 1 : -1;
+  const radii = [];
+  for(let r=minTiles; r<=maxTiles; r++) radii.push(r);
+  for(let i=radii.length-1; i>0; i--){            // shuffled, then the fallback rings
+    const j = (Math.random()*(i+1))|0;
+    const t = radii[i]; radii[i] = radii[j]; radii[j] = t;
+  }
+  for(let r=maxTiles+1; r<=maxTiles+3; r++) radii.push(r);
   for(const gap of [18, 9]){
-    for(let r=minTiles; r<=maxTiles+3; r++){
+    for(const r of radii){
       const step = Math.max(10, Math.round(r*5));
       for(let k=0;k<step;k++){
-        const a = (k/step)*Math.PI*2 + r*0.7;
+        const a = a0 + spin*(k/step)*Math.PI*2;
         const tx = Math.round(cx + Math.cos(a)*r), ty = Math.round(cy + Math.sin(a)*r);
         if(tx<1||ty<1||tx>=MAPW-1||ty>=MAPH-1) continue;
         if(G.terrain[ty*MAPW+tx] === 5) continue;         // water
@@ -9999,6 +10259,16 @@ function pickAt(wx, wy, prefer, tol){
      && Math.hypot(G.owl.x-wx, G.owl.y-wy) < G.owl.def.r+13+tol){
     return G.owl;
   }
+  // Gumby and Floyd - selectable so a curious tap gets to find out who they
+  // are, the same as the elder/McStar above. Neither takes orders.
+  if(!prefer && G.gumby && visibleTo(P_YOU, G.gumby.x, G.gumby.y)
+     && Math.hypot(G.gumby.x-wx, G.gumby.y-wy) < 13+tol){
+    return G.gumby;
+  }
+  if(!prefer && G.floyd && visibleTo(P_YOU, G.floyd.x, G.floyd.y)
+     && Math.hypot(G.floyd.x-wx, G.floyd.y-wy) < 12+tol){
+    return G.floyd;
+  }
 
   // when an action mode wants a resource node, look for nodes first and
   // ignore any units standing on top of them
@@ -10466,6 +10736,17 @@ function tryTrain(b, type){
   if(d.buffKind && pl.bardChoice && pl.bardChoice !== type){
     hint("Your college already chose the "+UNITS[pl.bardChoice].name+" - that's the only kind you can train now.");
     return;
+  }
+  // a unique unit - the Captain - stands one to a side. Checked across every
+  // building's queue, not just this one, so a second Captain's Station can't
+  // sneak a second one in while the first is still forming up.
+  if(d.unique){
+    const alive = G.units.some(u=>u.p===b.p && u.type===type && u.hp>0);
+    const queued = G.bldgs.some(ob=>ob.p===b.p && ob.queue && ob.queue.includes(type));
+    if(alive || queued){
+      hint("Only one "+d.name+" can serve at a time.");
+      return;
+    }
   }
   /* The night shift is capped by its own housing - the Manor and its
      cottages - and never by the ordinary population. Two villages, two
@@ -11328,10 +11609,15 @@ function tryAgeUp(){
     if(!pl.settled){ hint("The centre is still a ruin - repair it first."); return; }
     const c0 = AGE_COST[0];
     if(!canAfford(pl, c0)){ hint("Need " + costStr(c0) + " to settle properly."); return; }
+    if(pl.ageUpTo != null){ hint("The village is already being raised."); return; }
     pay(pl, c0);
-    pl.stoneAge = true;
-    hint("The camp becomes a village - your people enter the " + AGES[0] + ", and can build in earnest.");
-    fxAge(P_YOU);
+    /* The camp's own step onto the ladder, and it takes a day like every other
+       age does. It used to be the one age that happened instantly - which meant
+       the first and most memorable upgrade in the game was the only one with no
+       progress bar over it. (beginAgeUp, and the strip above the group numbers) */
+    beginAgeUp(pl, 0);
+    hint("The whole camp sets to work raising a proper hall - a day's work, and then the " +
+         AGES[0] + ".");
     refreshUI();
     return;
   }
@@ -11344,28 +11630,45 @@ function tryAgeUp(){
      strip above the group bar - the whole point is that you can watch it
      coming and plan the half day around it. */
   beginAgeUp(pl);
-  hint("Work begins on the " + AGES[pl.ageUpTo] + " - it will be half a day before it arrives.");
+  hint("Work begins on the " + AGES[pl.ageUpTo] + " - " +
+       ageUpDaysFor(pl.ageUpTo) + " days before it arrives.");
   refreshUI();
 }
 
 /* Start the clock on an age. Shared by the player and the AI so both wait the
-   same half day for the same money - it would be a strange thing to charge one
-   side time and not the other. */
-function beginAgeUp(pl){
-  pl.ageUpTo = pl.age + 1;
+   same days for the same money - it would be a strange thing to charge one side
+   time and not the other.
+
+   `to` is the age being built, and is passed explicitly for the Wandering Age's
+   own step: that one does not raise pl.age at all (a camp is already age 0, it
+   simply may not use it), so `pl.age + 1` would have it building the Bronze Age
+   from a camp. Everything else is the ordinary ladder. */
+function beginAgeUp(pl, to){
+  pl.ageUpTo = (to === undefined) ? pl.age + 1 : to;
+  pl.ageUpSettle = (to === 0 && !pl.stoneAge);   // the camp becoming a village
   pl.ageUpT = 0;
 }
 
 /* And the moment it lands. */
 function finishAgeUp(pl, idx){
-  pl.age = pl.ageUpTo;
+  const settling = !!pl.ageUpSettle;
+  if(settling) pl.stoneAge = true;               // the camp is a village now
+  else pl.age = pl.ageUpTo;
   pl.ageUpTo = null;
+  pl.ageUpSettle = false;
   pl.ageUpT = 0;
   fxAge(idx);
   if(idx === P_YOU){
-    hint("Your people enter the " + AGES[pl.age] + ".");
+    hint(settling
+      ? "The hall stands. Your people enter the " + AGES[0] + ", and can build in earnest."
+      : "Your people enter the " + AGES[pl.age] + ".");
     refreshUI();
   }
+}
+
+/* How long the age currently being built takes. */
+function ageUpLength(pl){
+  return AGE_UP_TIME(pl && pl.ageUpTo != null ? pl.ageUpTo : 1);
 }
 
 /* Called once a frame from the tick. */
@@ -11374,14 +11677,14 @@ function updateAgeUp(dt){
     const pl = G.players[i];
     if(pl.goblin || pl.ageUpTo == null) continue;
     pl.ageUpT = (pl.ageUpT || 0) + dt;
-    if(pl.ageUpT >= AGE_UP_TIME()) finishAgeUp(pl, i);
+    if(pl.ageUpT >= ageUpLength(pl)) finishAgeUp(pl, i);
   }
 }
 
 /* How far along, 0..1, or null if this player is not advancing. */
 function ageUpProgress(pl){
   if(!pl || pl.ageUpTo == null) return null;
-  return Math.max(0, Math.min(1, (pl.ageUpT || 0) / AGE_UP_TIME()));
+  return Math.max(0, Math.min(1, (pl.ageUpT || 0) / ageUpLength(pl)));
 }
 
 /* ============================================================
@@ -11900,6 +12203,7 @@ function tick(dt){
   updateHackman(dt);
   updateMcStar(dt);
   updateGumby(dt);
+  updateFloyd(dt);
   updateBardBuffs(dt);
   if(G.underAttackCd>0) G.underAttackCd -= dt;
   if(G.underAttackFlashT>0) G.underAttackFlashT -= dt;
@@ -11987,6 +12291,11 @@ function tick(dt){
   if(G.gumbyCd<=0){
     G.gumbyCd = 40+Math.random()*40;
     trySpawnGumby();
+  }
+  G.floydCd = (G.floydCd===undefined) ? 40+Math.random()*40 : G.floydCd-dt;
+  if(G.floydCd<=0){
+    G.floydCd = 40+Math.random()*40;
+    trySpawnFloyd();
   }
   G.bardCd = (G.bardCd===undefined) ? 40+Math.random()*40 : G.bardCd-dt;
   if(G.bardCd<=0){
@@ -12514,7 +12823,8 @@ function updateUnit(u, dt){
             // just to adjust the gather-rate gate above.
             const ancientMineUp = (!n.farmOf && (n.kind==="stone"||n.kind==="gold")) ?
               (()=>{ const mb = nearestDropFor(u, n.kind); return (mb && mb.ancientBonus) ? mb.ancientBonus : 1; })() : 1;
-            const take = Math.min(2 * GATHER_SCALE * (1 + lvl*0.40) * dg * seasonal * insp
+            const take = Math.min(2 * GATHER_SCALE * peacefulYield(n.kind)
+                                    * (1 + lvl*0.40) * dg * seasonal * insp
                                     * farmYieldUp * ancientFarmUp * ancientMineUp * nightCatch
                                     * dropPlateRate(u, n) * dropWorkMult(u, n), n.amt);   // moonstone plating, and the drop-off's own ladder
             n.amt -= take; u.carry += take; u.carryKind = n.kind;
@@ -12707,7 +13017,7 @@ function updateUnit(u, dt){
           const bx = t.x + Math.cos(away)*reach*0.9;
           const by = t.y + Math.sin(away)*reach*0.9;
           moveToward(u, bx, by, spd*0.85, dt, 5);
-        } else if(!isBldg){
+        } else if(!isBldg && u.type!=="captain"){
           // circle the target slowly, drifting in and out a little
           u.combatA += dt*(d.ranged?0.35:0.75)*(u.id%2?1:-1);
           const band = reach*(d.ranged?0.78:0.82) + Math.sin(u.weave)*4;
@@ -12716,6 +13026,10 @@ function updateUnit(u, dt){
           if(Math.hypot(cx-u.x, cy-u.y) > 5) moveToward(u, cx, cy, spd*0.55, dt, 4);
           else u.moving=false;
         } else {
+          /* The Captain plants his feet and trades blows rather than
+             dancing round his target - a heavy shield-and-blade fighter's
+             stance, not a duellist's, and it also keeps his own three-pose
+             swing readable instead of firing mid-drift. */
           u.moving=false;
         }
         faceToward(u, t.x - u.x, dt);       // keep facing the enemy
@@ -12727,12 +13041,18 @@ function updateUnit(u, dt){
           u.atkAnim = 0.22;
           // and it swings the other arm this time - see drawGoblin
           u.swingArm = u.swingArm ? 0 : 1;
+          // the Captain's own three-pose cycle - left, right, overhead slam
+          // - means nothing to any other unit type (see drawPerson)
+          u.swingCombo = ((u.swingCombo||0) + 1) % 3;
           if(d.ranged) shoot(u, t, atk, u.cls);
           else {
             dealDamage(u, t, atk, u.cls);
             if(d.cleave) cleaveAround(u, t, atk, u.cls,
                           d.cleave * (u.enraged ? GOB_BOSS_RAGE_CLEAVE : 1));
             if(d.gobBoss) bossSwing(u, t);
+            // the third beat of the cycle - the overhead slam - throws
+            // whoever he's fighting off their feet
+            if(u.type==="captain" && u.swingCombo===2) captainSlamHit(u, t);
           }
         }
       }
@@ -12769,11 +13089,15 @@ function updateUnit(u, dt){
           u.atkAnim = 0.22;
           // and it swings the other arm this time - see drawGoblin
           u.swingArm = u.swingArm ? 0 : 1;
+          // the Captain's own three-pose cycle - left, right, overhead slam
+          // - means nothing to any other unit type (see drawPerson)
+          u.swingCombo = ((u.swingCombo||0) + 1) % 3;
           if(d.ranged) shoot(u, e, atk, u.cls);
           else {
             dealDamage(u, e, atk, u.cls);
             if(d.cleave) cleaveAround(u, e, atk, u.cls,
                           d.cleave * (u.enraged ? GOB_BOSS_RAGE_CLEAVE : 1));
+            if(u.type==="captain" && u.swingCombo===2) captainSlamHit(u, e);
           }
         }
       }
@@ -13669,6 +13993,24 @@ function bossSlamLands(u){
   if(caught && visibleTo(P_YOU, u.x, u.y))
     hint("Both axes come down together \u2014 your line goes over backwards.");
   return caught;
+}
+
+/* The Captain's own slam - the third beat of his three-swing cycle (see
+   swingCombo, 03c/04e) sends whoever he's fighting off their feet, the same
+   knockback the Warlord's own slam uses (kbx/kby/kbT, read by the tick),
+   just for the one target already in front of him rather than a cleave
+   around him - there is no line to catch, only whoever he is actually
+   fighting. No wind-up timer of its own: the overhead pose is already the
+   tell, drawn from the ordinary atkAnim the ordinary swing uses. */
+function captainSlamHit(u, t){
+  if(!t || t.kind==="bldg" || t.hp<=0) return;
+  const a = Math.atan2(t.y-u.y, t.x-u.x) + (Math.random()-0.5)*0.4;
+  t.kbx = Math.cos(a); t.kby = Math.sin(a);
+  t.kbLen = 0.40 + Math.random()*0.12;
+  t.kbT = t.kbLen;
+  t.kbSpd = 160 + Math.random()*50;
+  t.kbAir = 8 + Math.random()*4;
+  t.cd = Math.max(t.cd||0, t.kbLen + 0.10);
 }
 
 /* A sweep catches at most this many others. Uncapped it is quietly the most
@@ -14589,12 +14931,13 @@ function aiThink(dt){
      back the cost of this while it is outstanding (see there) - checking it
      last would mean the hold outlived the frame it could have been paid in.
      (WANDERING_AGE) */
-  if(!pl.stoneAge){
+  if(!pl.stoneAge && pl.ageUpTo == null){
     const c0 = AGE_COST[0];
     if(canAfford(pl, c0)){
-      pay(pl, c0); pl.stoneAge = true; fxAge(P_AI);
+      // and it takes them the same day it takes the player (beginAgeUp, 03b)
+      pay(pl, c0); beginAgeUp(pl, 0);
       if(typeof rivalNews === "function")
-        rivalNews("The Ashkin have raised their hall over the old one - their Stone Age has begun.");
+        rivalNews("The Ashkin are raising a hall over the old one.");
     }
   }
 
@@ -14688,7 +15031,23 @@ function aiThink(dt){
 
   // 2. train villagers up to ~14 (leaves pop room for an actual army) -
   // a strategy can shrink that target so more pop goes to the army instead
-  const villCap = Math.round(G.diff.vills * (strat.villsCapMult||1));
+  /* Pre-Stone-Age, that shrink cannot be allowed to bite below the minimum
+     an economy actually needs to escape the Wandering Age at all - and a
+     Rusher's own cap does exactly that on Peaceful (6*0.55 rounds to 3):
+     with nobody ever explicitly assigned to wood (that only happens for a
+     villager with no order or no target - one already gathering food or
+     gold stays there for good), and no room to train a fourth pair of
+     hands to spare for it, the AI sat on a town with 1,400 food and 1,900
+     gold banked and 3 food/food/gold villagers, permanently three short of
+     the wood the second Wandering Age upgrade needs, for the entire rest
+     of a 50-day measured match. Once Stone Age actually lands, Rusher's
+     own small-economy premise is free to bite again as intended - this
+     only guards the stretch where nothing else can be built or trained
+     yet regardless of strategy. (idea: peaceful escalation) */
+  const WANDER_VILLS_MIN = 5;
+  const villCap = pl.stoneAge
+    ? Math.round(G.diff.vills * (strat.villsCapMult||1))
+    : Math.max(WANDER_VILLS_MIN, Math.round(G.diff.vills * (strat.villsCapMult||1)));
   /* Pre-Stone-Age, hold the upgrade's food out of the villager queue as
      well as out of the build list. A villager is 45 food and the upgrade
      wants 50, so an AI that trains one the moment it can afford one sits
@@ -14962,11 +15321,34 @@ function aiThink(dt){
   if(pl.age>=1 && !has("grove") && pl.res.gold>110) aiBuild("grove", town);
   if(pl.age>=2 && !has("siege")) aiBuild("siege", town, 1, true);
 
-  // 5b. a defensively-minded strategy actually puts up walls of its own -
-  // no strategy did this before Turtle
-  if(strat.buildsDefense){
-    if(vills.length>=6 && !has("tower")) aiBuild("tower", town, 1, true);
+  /* 5b. a defensively-minded strategy actually puts up walls of its own -
+     no strategy did this before Turtle. Peaceful gets this regardless of
+     which strategy was rolled: it never attacks first (see the push-timer
+     gate below), but the whole point of leaving it alone is that it should
+     visibly turn into a real defended settlement the longer that goes on -
+     towers, an armoury, and now an actual wall or two rather than just the
+     comment claiming one. (idea: peaceful escalation)
+
+     The villager threshold guarding all three is 4, not the original 6 -
+     a Rusher-strategy Peaceful AI deliberately keeps its economy small
+     (villsCapMult 0.55) and, measured, never once reached 6 villagers in
+     60 simulated days despite fielding a real 25-44 unit army - so it
+     built no defences at all while every other strategy did. 4 matches
+     the "a functioning economy" threshold already used elsewhere in this
+     file (the Wandering Age holds, the barracks hold's own exemption). */
+  if(strat.buildsDefense || DIFFICULTY==="peaceful"){
+    if(vills.length>=4 && !has("tower")) aiBuild("tower", town, 1, true);
     if(pl.age>=1 && !has("armoury")) aiBuild("armoury", town);
+    // a modest ring rather than a real perimeter - aiBuild's own random
+    // near-town placement has no notion of "enclosing", so this reads as
+    // "the place has walls going up" rather than a proper palisade. Counted
+    // against the TOTAL ever built (done or not), not aiBuild's own
+    // concurrent-unfinished cap, so it actually stops at the target instead
+    // of restarting forever as each one finishes.
+    if(pl.age>=1 && vills.length>=4){
+      const wallsSoFar = G.bldgs.filter(b=>b.p===P_AI && b.type==="wall").length;
+      if(wallsSoFar < AI_WALL_TARGET) aiBuild("wall", town, AI_WALL_TARGET-wallsSoFar, true);
+    }
   }
 
   // 6. age up when affordable - but the Stone Age comes first, and that is
@@ -14979,10 +15361,29 @@ function aiThink(dt){
 
   // 7. train army — but hold back resources when an age-up is nearly in reach,
   //    otherwise the AI spends itself out of ever advancing
+  /* Peaceful holds this reserve much later than everyone else. The hold
+     used to start once knowledge passed 65% of the next age's cost, which
+     is a reasonable stretch on a difficulty that gathers fast enough to
+     close it quickly - but on Peaceful's own gather rate (0.38, the
+     slowest there is) that same 35%-of-the-way-there stretch turned into a
+     genuine stall: measured, the army sat dead flat at exactly 4 for about
+     25 in-game days waiting on the age-up alone, exactly the "never builds
+     an army" the difficulty was reported for. Dropping the hold to nothing
+     traded that for a WORSE failure on some seeds: with every resource
+     spent as it lands, whichever single resource the age-up needs most
+     (food, usually - it costs 210 and food is also what every unit and
+     villager eats) can end up permanently a little short, however much
+     knowledge and gold pile up doing nothing, so the age is never reached
+     at all. Starting the hold at 92% instead of 65% keeps the guarantee -
+     there is still a real reserve, so the age-up still lands eventually -
+     while shrinking the stuck window to a fraction of what it was, since a
+     slow climb spends most of its time in the first 92% and comparatively
+     little in the last 8%. (idea: peaceful escalation) */
   let reserve = null;
   if(pl.age < 2){
     const c = AGE_COST[pl.age+1];
-    if(pl.res.know >= c.know*0.65) reserve = c;
+    const holdAt = DIFFICULTY==="peaceful" ? 0.92 : 0.65;
+    if(pl.res.know >= c.know*holdAt) reserve = c;
   }
   /* A crossing needs a hull, and a hull needs a population slot like
      anything else. Fill every last slot with soldiers and the transport can
@@ -15126,6 +15527,9 @@ function aiThink(dt){
 
 // enough to work the water near home; past that it is wood thrown away
 const AI_FISHING_BOATS = 3;
+// how many wall segments a defensively-minded AI (Turtle, or Peaceful
+// regardless of strategy) eventually puts up near its own town
+const AI_WALL_TARGET = 8;
 
 function aiNeed(pl){
   const r = pl.res;
@@ -15206,10 +15610,22 @@ function aiTrain(b,type,reserve,bypassPop){
      is no transport at all. */
   if(!bypassPop && pl.pop + pendingPop(P_AI) + (d.pop ?? 1) > pl.popcap) return false;
   if(!canAfford(pl,d.cost)) return false;
+  /* A reserve holds back what a purchase would SPEND, not what it happens to
+     be short of. This checked every reserved resource whether or not the thing
+     being trained cost any of it - so while the Wandering Age's upgrade held
+     back a hundred wood, an AI on 74 wood could not train a villager, and a
+     villager costs no wood at all. It was left stuck on four pairs of hands
+     with no way to earn the hundred, which is the whole deadlock the "under
+     four villagers there is no hold" exemption was written to avoid: it just
+     never covered the case where the shortfall is in another resource.
+
+     Only a spend can eat into the saving, so only a spend is judged. */
   if(reserve){
     for(const k in reserve){
       if(k==="know") continue;
-      if((pl.res[k]||0) - (d.cost[k]||0) < reserve[k]) return false;
+      const spend = d.cost[k] || 0;
+      if(!spend) continue;
+      if((pl.res[k]||0) - spend < reserve[k]) return false;
     }
   }
   pay(pl,d.cost); b.queue.push(type);
@@ -15231,7 +15647,23 @@ function aiBuild(type, town, concurrent, priority){
   if(!pl.stoneAge){
     if(WANDER_BUILD.indexOf(type) < 0) return;
     const popFull0 = pl.pop >= pl.popcap - 1;
-    if(!(type==="house" && popFull0)){
+    /* ---------- the hold must never block what would satisfy it ----------
+
+       The note above claimed this hold could not deadlock, because aiThink
+       takes the upgrade the moment the reserve is met. That is only true while
+       income keeps rising - and the hold was blocking the LUMBER CAMP, which is
+       the thing that raises wood income. On a slow-gathering difficulty the AI
+       therefore sat on 74 to 96 wood for the whole match: it could not spend on
+       a camp because it was saving a hundred, and it never reached a hundred
+       because it had no camp. Measured on peaceful, where gathering is slowest:
+       the Ashkin never left the Wandering Age at all on two seeds in three, and
+       finished twelve minutes with one building and four villagers.
+
+       So the two drop-offs that earn the very resources being held are exempt,
+       exactly as the house is at full population and for the same reason. It is
+       the same rule the dock hold and the barracks hold already follow. */
+    const earnsItBack = (type==="lumber" || type==="farm");
+    if(!(type==="house" && popFull0) && !earnsItBack){
       const c0 = AGE_COST[0];
       if(pl.res.wood - (d.cost.wood||0) < c0.wood) return;
       if(pl.res.food - (d.cost.food||0) < c0.food) return;
@@ -15704,6 +16136,12 @@ function draw(){
       drawList.push({ e:gb, y:gb.y, kind:14 });
     }
   }
+  if(G.floyd){
+    const fl=G.floyd;
+    if(fl.x>=c0x&&fl.y>=c0y&&fl.x<=c1x&&fl.y<=c1y && visibleTo(P_YOU,fl.x,fl.y)){
+      drawList.push({ e:fl, y:fl.y, kind:25 });
+    }
+  }
 
   // sea life swims under everything - it is in the water, not on the ground
   if(G.sealife) for(const s of G.sealife) drawSealife(s);
@@ -15738,6 +16176,7 @@ function draw(){
       case 12: drawMcStar(it.e); break;
       case 13: drawInvader(it.e); break;
       case 14: drawGumby(it.e); break;
+      case 25: drawFloyd(it.e); break;
       case 16: drawSquirrel(it.e); break;
       case 17: drawDuck(it.e); break;
       case 18: drawLeisureVillager(it.e); break;
@@ -16624,6 +17063,37 @@ function draw(){
         nx.restore();
       }
     }
+    /* ---------- the torch stuck beside a centre still being repaired ----------
+       Its own pass, because the lamp loop above skips anything unfinished - and
+       a ruin is unfinished by definition, so the one building you most need to
+       find in the opening was the only one throwing no light at all.
+
+       Small and warm. It is a mark to steer home by, and it is gone the moment
+       the hall stands. (the settleSite branch in 04d) */
+    if(lit > 0){
+      for(const b of G.bldgs){
+        if(b.done || !b.settleSite || b.type !== "town") continue;
+        if(!exploredTo(P_YOU, b.x, b.y)) continue;
+        const bd = BLDG[b.type];
+        const shrink = bd.shrink || 0.70;
+        const bdep = b.h*TILE*shrink;
+        const tf = 0.90 + 0.10*Math.sin(G.t*5.1 + b.id*2.3);
+        const trad = 34 * LAMP_SCALE * tf;
+        const tp = w2s(b.x - b.w*TILE*0.16, b.y + bdep/2 - bdep*0.55);
+        const trx = trad*c.z, tryy = trad*0.72*c.z;
+        if(tp.x < -trx || tp.y < -tryy || tp.x > VW+trx || tp.y > VH+tryy) continue;
+        lamps.push({x:tp.x, y:tp.y, rx:trx, ry:tryy, col:"255,196,110"});
+        nx.save();
+        nx.translate(tp.x, tp.y);
+        nx.scale(1, tryy/trx);
+        const tg = nx.createRadialGradient(0,0,trx*0.05, 0,0,trx);
+        glowGradient(tg, 0.60*lit, 0.12, 2.1, "0,0,0");
+        nx.fillStyle = tg;
+        nx.beginPath(); nx.arc(0,0,trx,0,6.283); nx.fill();
+        nx.restore();
+      }
+    }
+
     // torches: soldiers abroad after dark carry their own small light
     const torches = [];
     if(lit > 0){
@@ -16636,12 +17106,13 @@ function draw(){
         const sp = w2s(u.x, u.y);
         const rx = rad*c.z, ry = rad*0.72*c.z;
         if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
-        torches.push({x:sp.x, y:sp.y, rx, ry});
+        const bright = torchBright(u);
+        torches.push({x:sp.x, y:sp.y, rx, ry, bright});
         nx.save();
         nx.translate(sp.x, sp.y);
         nx.scale(1, ry/rx);
         const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
-        glowGradient(g, 0.97*lit, 0.14, 2.2, "0,0,0");
+        glowGradient(g, Math.min(1, 0.97*lit*bright), 0.14, 2.2, "0,0,0");
         nx.fillStyle = g;
         nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
         nx.restore();
@@ -16667,6 +17138,35 @@ function draw(){
         nx.scale(1, ry/rx);
         const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
         glowGradient(g, 0.95*lit, 0.14, 2.2, "0,0,0");
+        nx.fillStyle = g;
+        nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
+        nx.restore();
+      }
+      /* The Captain's blade is his light - carriesTorch excludes him on
+         purpose (05b-night-cycle.js), so without this loop he would stand
+         in the dark despite the moonstone glow drawn right on his sword: a
+         sprite drawn in the unit layer still gets cut to a fifth of its
+         brightness by the dark composite above, the same trap that caught
+         the moonstone veins before they got their own punch. Smaller than a
+         carried flame and perfectly steady - it is not burning, so it does
+         not gutter. */
+      for(const u of G.units){
+        if(u.indoors || u.hp<=0 || u.type!=="captain") continue;
+        if(u.p!==P_YOU && !visibleTo(P_YOU,u.x,u.y)) continue;
+        // Big enough, and centred high enough, to reach the raised blade -
+        // held up near head height, a sword this long pokes well clear of a
+        // torch-sized pool at the feet, and a glowing blade half swallowed
+        // by the dark is worse than no glow at all.
+        const rad = TORCH_RADIUS * 1.4;
+        const sp = w2s(u.x, u.y - u.r*1.3);
+        const rx = rad*c.z, ry = rad*0.72*c.z;
+        if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
+        torches.push({x:sp.x, y:sp.y, rx, ry, col:"130,205,235"});
+        nx.save();
+        nx.translate(sp.x, sp.y);
+        nx.scale(1, ry/rx);
+        const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
+        glowGradient(g, 0.90*lit, 0.14, 2.2, "0,0,0");
         nx.fillStyle = g;
         nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
         nx.restore();
@@ -16765,7 +17265,7 @@ function draw(){
         ctx.translate(T.x, T.y);
         ctx.scale(1, T.ry/T.rx);
         const g = ctx.createRadialGradient(0,0,T.rx*0.05, 0,0,T.rx);
-        glowGradient(g, 0.26*lit, 0.10, 2.0, T.col || "255,212,104");
+        glowGradient(g, 0.26*lit*(T.bright||1), 0.10, 2.0, T.col || "255,212,104");
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(0,0,T.rx,0,6.283);
@@ -18684,6 +19184,62 @@ function drawBuilding(b){
         ctx.strokeRect(x+seg*i, y+dep-sh, seg*1.1, sh);
       }
       drawAncientRuinTheme({ id:b.id, repaired: b.prog > 0.55 }, x, y, w, dep, bh);
+
+      /* ---------- a torch stuck in the ground beside the work ----------
+         Only while the centre still needs repairing. That is the whole stretch
+         it is for: one person, no houses, and a ruin somewhere out in the dark
+         that is the only thing on the map worth walking back to. Every finished
+         building throws the same amber pool after dark, but a RUIN throws
+         nothing at all - so without this the one place you need to find is the
+         one place you cannot see.
+
+         It goes out when the hall goes up. By then the building has lamps of
+         its own and a permanent flare beside the town centre would be
+         decoration nobody looks at.
+
+         Deliberately small: a mark to steer home by, not a light to work in.
+         Its own light is added in the night composite (04c) under the same
+         condition. */
+      {
+        const tx3 = x - w*0.16, ty3 = y + dep - 2;
+        const th = 13;
+        ctx.strokeStyle = "#5a4630"; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(tx3, ty3); ctx.lineTo(tx3, ty3 - th); ctx.stroke();
+        ctx.fillStyle = "#4a4a4e";
+        ctx.fillRect(tx3 - 2.4, ty3 - th - 3, 4.8, 3.2);
+        ctx.strokeStyle = "rgba(26,20,14,.6)"; ctx.lineWidth = 0.8;
+        ctx.strokeRect(tx3 - 2.4, ty3 - th - 3, 4.8, 3.2);
+        /* Straight off G.t and the building id, so it needs nothing stored.
+           Fire is taller than it is wide and the glow belongs behind it rather
+           than around it - drawn round with a halo wider than the flame it read
+           as a lollipop on a stick. */
+        const night = G.dark || 0;
+        const fl = 0.62 + 0.38*Math.sin(G.t*5.1 + b.id*2.3)
+                        + 0.10*Math.sin(G.t*11.7 + b.id);
+        const top = ty3 - th - 3;
+        const hgt = (5.4 + fl*2.4) * (0.88 + night*0.30);
+        ctx.globalAlpha = 0.10 + night*0.14;
+        ctx.fillStyle = "#f6a842";
+        ctx.beginPath();
+        ctx.ellipse(tx3, top - hgt*0.42, 3.2, hgt*0.62, 0, 0, 6.283); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#e8791f";
+        ctx.beginPath();
+        ctx.moveTo(tx3 - 1.8, top);
+        ctx.quadraticCurveTo(tx3 - 2.0, top - hgt*0.52, tx3, top - hgt);
+        ctx.quadraticCurveTo(tx3 + 2.0, top - hgt*0.52, tx3 + 1.8, top);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#f9b345";
+        ctx.beginPath();
+        ctx.moveTo(tx3 - 1.1, top);
+        ctx.quadraticCurveTo(tx3 - 1.2, top - hgt*0.40, tx3 + 0.2, top - hgt*0.70);
+        ctx.quadraticCurveTo(tx3 + 1.2, top - hgt*0.40, tx3 + 1.1, top);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#ffe6a8";
+        ctx.beginPath();
+        ctx.ellipse(tx3 + 0.1, top - hgt*0.24, 0.7, hgt*0.26, 0, 0, 6.283); ctx.fill();
+      }
+
       ctx.fillStyle = pl.col;
       ctx.fillRect(x, y+dep-3, w*b.prog, 3);
       ctx.globalAlpha = 1;
@@ -19661,6 +20217,32 @@ function drawBuilding(b){
 
        A door first, in each case, because a building without one reads as a
        shed. */
+    case "captainstation": {
+      // a plain, solid door - a general's house, not a barracks
+      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.55, y+dep-doorH*0.9, doorW*1.1, doorH*0.9);
+      ctx.strokeStyle="#8f959e"; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(cx, y+dep-doorH*0.85); ctx.lineTo(cx, y+dep-1); ctx.stroke();
+      /* A pair of spare blades crossed on the wall beside the door - kept
+         on show rather than in a rack out of sight, the way the armoury's
+         own spears are. */
+      const rx = cx - doorW*1.3, ry = y+dep-doorH*0.62;
+      ctx.strokeStyle = "#3a2c1c"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(rx-3, ry); ctx.lineTo(rx+3, ry); ctx.stroke();
+      for(const s of [-1,1]){
+        ctx.save();
+        ctx.translate(rx, ry);
+        ctx.rotate(s*0.5);
+        ctx.strokeStyle = "#c9ced4"; ctx.lineWidth = 1.3; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(0,1.5); ctx.lineTo(0,-9); ctx.stroke();
+        ctx.strokeStyle = "#8d929a"; ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(-1.9,-1.6); ctx.lineTo(1.9,-1.6); ctx.stroke();
+        ctx.strokeStyle = "#4a3826"; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(0,1.5); ctx.lineTo(0,3.6); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.lineCap = "butt";
+      break;
+    }
     case "armoury": {
       ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.6, y+dep-doorH*0.9, doorW*1.2, doorH*0.9);
       ctx.strokeStyle="#8f959e"; ctx.lineWidth=1.4;         // iron banding
@@ -21446,6 +22028,73 @@ function drawPerson(u, pl, yOff){
       ctx.beginPath(); ctx.ellipse(tw*0.85, shldY+H*0.02, H*0.125, H*0.09, 0.3, 0, 6.283); ctx.stroke();
     }
   }
+  /* The Captain's own plate - the one unit in the game worth this much
+     detail, being the top of the whole tree. Not tied to the Armoury's
+     tiers at all (it isn't one of ARMOR_LINES), always on. Back to the
+     original simple shapes (two pauldrons, one chest plate) rather than
+     the fully-layered version - light steel rather than dark iron, so the
+     dark comes from the seams and rivets picked out on top of it instead
+     of from the base colour itself. No cape - it read as a sword sheath
+     hanging at the hip from most angles, which was never the intent. */
+  if(u.type==="captain"){
+    const capCol = "#d6dbe0";     // light steel - the armour itself is bright
+    const capLit = shade(capCol, 0.18), capDark = "#2c2f34";   // dark seams/rivets
+
+    // chest plate
+    ctx.fillStyle = capCol;
+    ctx.beginPath();
+    ctx.moveTo(-tw*0.88, shldY);
+    ctx.quadraticCurveTo(0, shldY-H*0.05, tw*0.88, shldY);
+    ctx.lineTo(tw*0.74, hipY+H*0.02);
+    ctx.quadraticCurveTo(0, hipY+H*0.10, -tw*0.74, hipY+H*0.02);
+    ctx.closePath(); ctx.fill();
+    ctx.save(); ctx.clip();
+    ctx.fillStyle = shade(capCol,-0.12); ctx.fillRect(-tw, shldY-H*0.05, tw*0.55, H*0.5);
+    ctx.fillStyle = capLit; ctx.fillRect(tw*0.5, shldY-H*0.05, tw*0.6, H*0.5);
+    ctx.restore();
+    ctx.strokeStyle = capDark; ctx.lineWidth = Math.max(0.9, H*0.024);
+    ctx.beginPath();
+    ctx.moveTo(-tw*0.88, shldY); ctx.quadraticCurveTo(0, shldY-H*0.05, tw*0.88, shldY);
+    ctx.lineTo(tw*0.74, hipY+H*0.02); ctx.quadraticCurveTo(0, hipY+H*0.10, -tw*0.74, hipY+H*0.02);
+    ctx.closePath(); ctx.stroke();
+    // a dark centre seam, plus a couple of rivets either side of it - the
+    // "dark detail" against the light plate
+    ctx.strokeStyle = capDark; ctx.lineWidth = Math.max(0.6, H*0.014);
+    ctx.beginPath(); ctx.moveTo(0, shldY+H*0.03); ctx.lineTo(0, hipY-H*0.02); ctx.stroke();
+    ctx.fillStyle = capDark;
+    for(const [dx,dy] of [[-tw*0.32,shldY+H*0.10],[tw*0.32,shldY+H*0.10],
+                           [-tw*0.32,shldY+H*0.26],[tw*0.32,shldY+H*0.26]]){
+      ctx.beginPath(); ctx.arc(dx, dy, H*0.012, 0, 6.283); ctx.fill();
+    }
+
+    // pauldrons - an angular plate, clipped corners rather than a smooth
+    // ellipse, so the shoulder reads as forged metal instead of a rounded pad
+    for(const side of [-1,1]){
+      const sx = side*tw*0.9, sy = shldY+H*0.02;
+      const rw = H*0.13, rh = H*0.10;
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(side*0.3);
+      ctx.fillStyle = capCol;
+      ctx.beginPath();
+      ctx.moveTo(-rw*0.55, -rh);
+      ctx.lineTo(rw*0.55, -rh);
+      ctx.lineTo(rw, -rh*0.2);
+      ctx.lineTo(rw, rh*0.5);
+      ctx.lineTo(rw*0.4, rh);
+      ctx.lineTo(-rw*0.4, rh);
+      ctx.lineTo(-rw, rh*0.5);
+      ctx.lineTo(-rw, -rh*0.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = capDark; ctx.lineWidth = Math.max(0.9, H*0.024);
+      ctx.stroke();
+      // one dark rivet at the centre of each pauldron
+      ctx.fillStyle = capDark;
+      ctx.beginPath(); ctx.arc(0, 0, H*0.014, 0, 6.283); ctx.fill();
+      ctx.restore();
+    }
+  }
   // the Old Blacksmith discovery's own tempering (idea: ancient ruins) - a
   // violet gleam on both shoulders, unrelated to team colour or age metal,
   // so it reads apart from the ordinary tiers above. Drawn regardless of
@@ -21477,8 +22126,15 @@ function drawPerson(u, pl, yOff){
   /* `armA` poses the front arm directly - a raised kite string, a stone
      about to be skipped, a book held up to read. Radians from straight
      down, the same convention the swing and work cycles use. */
+  /* The Captain's swing cycles through three distinct arm positions - left,
+     right, then a high overhead raise for the slam - rather than the one
+     generic swing everyone else shares. u.swingCombo is advanced once per
+     attack alongside the goblins' own swingArm toggle (03c-fog-and-tick.js),
+     wrapping 0/1/2; it means nothing to any other unit type. */
+  const CAPTAIN_SWING_ARM = [-1.55, 1.20, -1.75];
   const frontA = (u.armA !== undefined) ? u.armA
                : hauling ? 1.05
+               : (u.type==="captain") ? atk * CAPTAIN_SWING_ARM[(u.swingCombo||0) % 3]
                : atk ? -1.15 + atk*0.5 : work ? -0.55 + wCyc*0.75 : swing*0.7;
 
   /* Picking sends each hand from its shoulder toward the fruit and back, the
@@ -21507,6 +22163,43 @@ function drawPerson(u, pl, yOff){
   ctx.beginPath(); ctx.moveTo(-tw*0.72, shldY+H*0.03); ctx.lineTo(bhx, bhy); ctx.stroke();
   ctx.fillStyle = skinDim;
   ctx.beginPath(); ctx.arc(bhx, bhy, H*0.055, 0, 6.283); ctx.fill();
+  /* A shield on the off arm - a trial, to see whether it reads well
+     alongside the sword rather than a settled part of the design. Winged
+     top tapering to a point, storied-adventure shape rather than a plain
+     round buckler - a steel-blue body (the same cool metal the plate and
+     blade already use) with a crest set into the face in the player's
+     colour, not a flat wash of it. */
+  if(u.type==="captain"){
+    const shX = bhx - H*0.02, shY = bhy - H*0.02;
+    const shW = H*0.15, shH = H*0.22;
+    const shieldBody = mixCol(ageCol, MOONSTONE_BLUE, 0.20);
+    ctx.save();
+    ctx.translate(shX, shY);
+    const shieldPath = () => {
+      ctx.beginPath();
+      ctx.moveTo(-shW, -shH*0.30);
+      ctx.quadraticCurveTo(-shW*1.05, -shH*0.95, -shW*0.35, -shH*1.05);
+      ctx.quadraticCurveTo(0, -shH*0.85, shW*0.35, -shH*1.05);
+      ctx.quadraticCurveTo(shW*1.05, -shH*0.95, shW, -shH*0.30);
+      ctx.quadraticCurveTo(shW*0.85, shH*0.55, 0, shH*1.10);
+      ctx.quadraticCurveTo(-shW*0.85, shH*0.55, -shW, -shH*0.30);
+      ctx.closePath();
+    };
+    ctx.fillStyle = shieldBody;
+    shieldPath(); ctx.fill();
+    ctx.strokeStyle = shade(ageCol,-0.3); ctx.lineWidth = Math.max(1.2,H*0.028);
+    shieldPath(); ctx.stroke();
+    // the crest, set into the face rather than covering it
+    ctx.fillStyle = pl.col;
+    ctx.beginPath();
+    ctx.moveTo(0,-shH*0.55); ctx.lineTo(shW*0.42,0); ctx.lineTo(0,shH*0.55); ctx.lineTo(-shW*0.42,0);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = shade(ageCol,0.25); ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(0,-shH*0.55); ctx.lineTo(shW*0.42,0); ctx.lineTo(0,shH*0.55); ctx.lineTo(-shW*0.42,0);
+    ctx.closePath(); ctx.stroke();
+    ctx.restore();
+  }
 
   ctx.strokeStyle = tint;
   const fsx = tw*0.72, fsy = shldY+H*0.03;
@@ -21514,6 +22207,17 @@ function drawPerson(u, pl, yOff){
   const hx = picking ? fAim[0] : tw*0.72 + Math.sin(frontA)*armLen*0.78;
   const hy = picking ? fAim[1] : shldY+H*0.03 + Math.cos(frontA)*armLen*0.88;
   ctx.beginPath(); ctx.moveTo(tw*0.72, shldY+H*0.03); ctx.lineTo(hx, hy); ctx.stroke();
+  /* A band of the player's colour round the upper sword-arm - a small mark
+     of rank that echoes the team sash, rather than a whole sleeve of it. */
+  if(u.type==="captain" && !picking){
+    const bt0 = 0.30, bt1 = 0.48;
+    const abx0 = tw*0.72 + (hx-tw*0.72)*bt0, aby0 = (shldY+H*0.03) + (hy-(shldY+H*0.03))*bt0;
+    const abx1 = tw*0.72 + (hx-tw*0.72)*bt1, aby1 = (shldY+H*0.03) + (hy-(shldY+H*0.03))*bt1;
+    ctx.strokeStyle = pl.col; ctx.lineWidth = Math.max(2.2,H*0.10);
+    ctx.beginPath(); ctx.moveTo(abx0,aby0); ctx.lineTo(abx1,aby1); ctx.stroke();
+    ctx.strokeStyle = "rgba(28,24,20,.5)"; ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.moveTo(abx0,aby0); ctx.lineTo(abx1,aby1); ctx.stroke();
+  }
   ctx.fillStyle = skin;
   ctx.beginPath(); ctx.arc(hx, hy, H*0.058, 0, 6.283); ctx.fill();
   /* And something in the hand on the way back out, in the colour the fruit
@@ -21541,7 +22245,27 @@ function drawPerson(u, pl, yOff){
 
   // ---- hair, scarves, hats, beards ----
   const hairCol = look ? look.hair : "rgba(44,32,22,.85)";
-  if(look && look.female && look.scarf){
+  if(u.type==="captain"){
+    /* A tighter, tidier crop than the mop everyone else wears - short at the
+       sides rather than swept round the whole skull, with a few cut lines on
+       top for texture. Reads as deliberately kept rather than just uncovered
+       once the helmet came off. */
+    ctx.fillStyle = hairCol;
+    ctx.beginPath(); ctx.arc(0, headY, headR*0.96, Math.PI*1.10, Math.PI*1.96); ctx.fill();
+    // the fringe's bottom edge sat almost exactly at eye height before - the
+    // eyes read as two stray dots poking out of the hairline rather than
+    // eyes on a face. Shorter, so a clear strip of forehead shows above them.
+    ctx.beginPath();
+    ctx.ellipse(-headR*0.06, headY-headR*0.58, headR*0.80, headR*0.28, 0, 0, 6.283);
+    ctx.fill();
+    ctx.strokeStyle = shade(hairCol,-0.30); ctx.lineWidth = Math.max(0.5,H*0.010);
+    for(const sx of [-0.30,-0.08,0.14,0.36]){
+      ctx.beginPath();
+      ctx.moveTo(headR*sx, headY-headR*0.82);
+      ctx.lineTo(headR*sx*1.18, headY-headR*0.62);
+      ctx.stroke();
+    }
+  } else if(look && look.female && look.scarf){
     ctx.fillStyle = look.accent;                        // headscarf
     ctx.beginPath(); ctx.arc(0, headY, headR*1.04, Math.PI*0.96, Math.PI*2.08); ctx.fill();
     ctx.beginPath();
@@ -21634,7 +22358,11 @@ function drawPerson(u, pl, yOff){
   }
 
   // ---- armour, so a soldier never reads as a villager in a smock ----
-  if(!isVill && u.cls && u.cls!=="civ"){
+  // The Captain keeps this generic helmet off - bare-headed on purpose, the
+  // one face in the whole army you're actually meant to recognise - and
+  // wears its own bespoke plate instead of this shared shape (drawn in the
+  // torso section below, where the rest of the body's layering already is).
+  if(!isVill && u.cls && u.cls!=="civ" && u.type!=="captain"){
     const age = G.players[u.p].age;
     const metal = ["#8f8a82","#c08a3e","#b9c3cb"][age];   // hide, bronze, iron
     const metalDim = shade(metal,-0.28), metalLit = shade(metal,0.28);
@@ -21716,7 +22444,10 @@ function drawPerson(u, pl, yOff){
   }
 
   // ---- winter dress: a heavy coat and fur hat ----
-  if(wint > 0.25){
+  // Not the Captain - a fur hat over his own bare head and plate undid the
+  // one thing that was actually asked for, and the pinnacle of the army
+  // isn't the one who feels the cold.
+  if(wint > 0.25 && u.type!=="captain"){
     const a0 = Math.min(1, (wint-0.25)/0.4);
     ctx.save();
     ctx.globalAlpha = a0;
@@ -22229,6 +22960,123 @@ function drawHeld(u, hx, hy, H, atk, pl){
         ctx.fillStyle=pl.dark;
         ctx.beginPath(); ctx.ellipse(-H*0.16, -H*0.5, H*0.10, H*0.14, 0,0,6.283); ctx.fill();
       }
+      break;
+    }
+    case "captain": {
+      /* A proper blade rather than a stroked line - a real tapered shape
+         with a fuller down the middle, swept wing-shaped quillons instead
+         of a plain crossbar, and a gem set in the guard the way a storied
+         blade in Zelda always seems to have one - Master Sword rather than
+         anything ordinary: moonstone blue is IN the steel itself, faint by
+         day, fully lit after dark, not something that pulses in and out.
+         A real swing still brightens it a touch further, but standing
+         still it just holds - an enchanted blade doesn't flicker. */
+      const night = (G.dark||0) > 0.4;
+      const glowStrength = (night ? 0.8 : 0.16) + atk*0.35;   // steady baseline, day vs night, plus a swing's own lift
+      const bladeCol = mixCol(metal, MOONSTONE_BLUE, night ? 0.55 : 0.22);
+      // three swing shapes - left, right, overhead slam - eased in from the
+      // resting angle by the same atk fraction the rest of the pose uses,
+      // rather than the old single pose that just snapped in and out
+      const SWING_PEAK = [-1.35, 1.35, 0.05];
+      const ang = 0.32 + (SWING_PEAK[(u.swingCombo||0) % 3] - 0.32) * atk;
+      const dx = Math.sin(ang), dy = -Math.cos(ang);
+      const px = -dy, py = dx;                 // perpendicular, across the blade
+      const bladeLen = H*0.88;
+      const tipX = hx+dx*bladeLen, tipY = hy+dy*bladeLen;
+      const baseW = H*0.075, midW = H*0.085;
+      const midX = hx+dx*bladeLen*0.30, midY = hy+dy*bladeLen*0.30;
+
+      // the blade: base -> a slight flare a third of the way up (a proper
+      // fuller-and-taper profile, not a straight-sided wedge) -> a point
+      const drawBlade = (col) => {
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.moveTo(hx-px*baseW, hy-py*baseW);
+        ctx.lineTo(midX-px*midW, midY-py*midW);
+        ctx.lineTo(tipX, tipY);
+        ctx.lineTo(midX+px*midW, midY+py*midW);
+        ctx.lineTo(hx+px*baseW, hy+py*baseW);
+        ctx.closePath();
+        ctx.fill();
+      };
+      drawBlade("#25262a");                    // dark backing, a hair wider
+      ctx.save();
+      ctx.translate(-dx*H*0.006, -dy*H*0.006);  // nudges the bright face in, so the backing shows as an edge
+      drawBlade(bladeCol);
+      ctx.restore();
+      if(night){
+        // the WHOLE blade carries the glow, not just a seam down the middle -
+        // a translucent moonstone wash over the entire blade shape first,
+        // fixed-strength so it never breathes, then a brighter core down the
+        // spine on top of that for the master-sword highlight
+        ctx.save();
+        ctx.globalAlpha = Math.min(0.8, glowStrength);
+        drawBlade("rgb("+MOONSTONE_BLUE+")");
+        ctx.restore();
+        ctx.strokeStyle = "rgba(225,248,255,"+Math.min(0.9,glowStrength*0.85)+")";
+        ctx.lineWidth = Math.max(1.0,H*0.022);
+        ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(tipX,tipY); ctx.stroke();
+      }
+      // the fuller - a single groove line down the centre
+      ctx.strokeStyle = shade(metal,-0.35); ctx.lineWidth = Math.max(0.6,H*0.014);
+      ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(tipX-dx*H*0.05, tipY-dy*H*0.05); ctx.stroke();
+
+      // swept quillons - two curved wings rather than a straight bar,
+      // angled back toward the grip the way a hilt in Zelda always is.
+      // 25% shorter than the first pass - they were reaching past the grip.
+      // The enchantment isn't only in the blade - the guard that touches it
+      // carries the same moonstone light after dark, so the whole sword
+      // reads as one glowing piece rather than a blue blade on a plain hilt.
+      ctx.strokeStyle = night ? mixCol(metal, MOONSTONE_BLUE, 0.6) : shade(metal,0.15);
+      ctx.lineWidth = Math.max(1.6,H*0.045);
+      ctx.lineCap = "round";
+      const quillonPath = (s) => {
+        ctx.beginPath();
+        ctx.moveTo(hx, hy);
+        ctx.quadraticCurveTo(hx+px*s*H*0.12-dx*H*0.015, hy+py*s*H*0.12-dy*H*0.015,
+                              hx+px*s*H*0.15+dx*H*0.075, hy+py*s*H*0.15+dy*H*0.075);
+      };
+      for(const s of [-1,1]){ quillonPath(s); ctx.stroke(); }
+      if(night){
+        ctx.strokeStyle = "rgba("+MOONSTONE_BLUE+","+Math.min(0.8,glowStrength*0.75)+")";
+        ctx.lineWidth = Math.max(0.9,H*0.020);
+        for(const s of [-1,1]){ quillonPath(s); ctx.stroke(); }
+      }
+      ctx.lineCap = "butt";
+      // the grip - a proper handle to hold rather than a stub: wrapped
+      // leather with a couple of binding ticks and a small pommel cap at
+      // the tail, so the hilt reads as its own shape instead of a smear
+      // of brown behind the guard gem.
+      const gripLen = H*0.13;
+      const gx = hx - dx*gripLen, gy = hy - dy*gripLen;
+      ctx.strokeStyle = "#4a3826"; ctx.lineWidth = Math.max(2.2,H*0.052);
+      ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(gx, gy); ctx.stroke();
+      ctx.strokeStyle = "#382a1a"; ctx.lineWidth = Math.max(0.6,H*0.012);
+      for(const t of [0.35, 0.7]){
+        const wx = hx - dx*gripLen*t, wy = hy - dy*gripLen*t;
+        ctx.beginPath();
+        ctx.moveTo(wx-px*H*0.028, wy-py*H*0.028);
+        ctx.lineTo(wx+px*H*0.028, wy+py*H*0.028);
+        ctx.stroke();
+      }
+      ctx.fillStyle = night ? mixCol(metal, MOONSTONE_BLUE, 0.6) : shade(metal,0.08);
+      ctx.beginPath(); ctx.arc(gx, gy, H*0.032, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = night ? "rgba("+MOONSTONE_BLUE+",0.7)" : shade(metal,-0.25);
+      ctx.lineWidth = 0.6;
+      ctx.beginPath(); ctx.arc(gx, gy, H*0.032, 0, 6.283); ctx.stroke();
+      // the gem, set where the quillons meet the grip - the same steady
+      // moonstone light as the blade, not a separate pulse of its own
+      if(night){
+        ctx.globalAlpha = 0.30;
+        ctx.fillStyle = "rgb("+MOONSTONE_BLUE+")";
+        ctx.beginPath(); ctx.arc(hx,hy,H*0.09,0,6.283); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = night ? "rgba("+MOONSTONE_BLUE+",0.95)" : "#2f3a44";
+      ctx.beginPath(); ctx.arc(hx,hy,H*0.032,0,6.283); ctx.fill();
+      ctx.strokeStyle = night ? "rgba(220,245,255,.8)" : shade(metal,-0.2);
+      ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.arc(hx,hy,H*0.032,0,6.283); ctx.stroke();
       break;
     }
     case "archer": {
@@ -24971,6 +25819,61 @@ function drawGumby(g){
     ctx.lineTo(nx-bw/2-5, ny+5); ctx.closePath(); ctx.fill();
     ctx.fillStyle="#3a2f1e"; ctx.textAlign="center"; ctx.textBaseline="middle";
     ctx.fillText(g.say, nx, ny-1);
+    ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* Floyd - Gumby's own second dog, same build but a size down and plain
+   black rather than a schnauzer: no beard, no bushy brows, just a floppier
+   ear. The difference in scale is the main thing that should read at a
+   glance, since the two are otherwise easy to mix up. */
+function drawFloyd(f){
+  const SCALE = 0.8;
+  const gait = Math.sin(f.walk*4.4);
+  const bob = Math.abs(gait)*0.5;
+  const col = "#1c1a18";
+
+  ctx.fillStyle="rgba(0,0,0,.20)";
+  ctx.beginPath(); ctx.ellipse(f.x, f.y+2.8, 5.4, 1.8, 0, 0, 6.283); ctx.fill();
+
+  ctx.save();
+  ctx.translate(f.x, f.y-bob);
+  ctx.scale((f.face<0?-1:1)*SCALE, SCALE);
+
+  ctx.strokeStyle=shade(col,-0.15); ctx.lineWidth=1.3; ctx.lineCap="round";
+  ctx.beginPath();
+  ctx.moveTo(-3.2,1.6); ctx.lineTo(-3.2+gait*1.6, 4.2);
+  ctx.moveTo(3.0,1.6); ctx.lineTo(3.0-gait*1.6, 4.2);
+  ctx.stroke();
+
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.ellipse(0, 0.6, 5.2, 2.6, 0, 0, 6.283); ctx.fill();
+
+  ctx.strokeStyle = col; ctx.lineWidth=1.8; ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(-4.6,0.2); ctx.lineTo(-5.6,-2.2+Math.sin(f.walk*3)*0.6); ctx.stroke();
+
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.ellipse(5.4,-1.2,3.0,2.4,0,0,6.283); ctx.fill();
+  // one floppy ear, hanging rather than pricked up - the one shape
+  // difference from Gumby's alert schnauzer look
+  ctx.fillStyle = shade(col,-0.2);
+  ctx.beginPath(); ctx.ellipse(6.4,-0.2,1.3,2.2,0.5,0,6.283); ctx.fill();
+
+  ctx.restore();
+
+  if(f.say){
+    const nx=f.x, ny=f.y-13-bob;
+    ctx.globalAlpha = Math.min(1,f.sayT);
+    ctx.font="9px 'Avenir Next','Segoe UI',system-ui,sans-serif";
+    const bw = ctx.measureText(f.say).width;
+    ctx.fillStyle="rgba(239,231,210,.92)";
+    ctx.beginPath();
+    ctx.moveTo(nx-bw/2-5, ny-7); ctx.lineTo(nx+bw/2+5, ny-7);
+    ctx.lineTo(nx+bw/2+5, ny+5); ctx.lineTo(nx+2, ny+5); ctx.lineTo(nx, ny+9); ctx.lineTo(nx-2, ny+5);
+    ctx.lineTo(nx-bw/2-5, ny+5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle="#3a2f1e"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(f.say, nx, ny-1);
     ctx.textAlign="left"; ctx.textBaseline="alphabetic";
     ctx.globalAlpha = 1;
   }
@@ -32220,9 +33123,16 @@ const TORCH_RADIUS = 32;  // how far a soldier's torch reaches
    map you have not walked, at dusk, and how far they can see IS the opening.
    Same flame, held higher. Used by both the light that is drawn (04c) and the
    light the night creatures respect (01c), so the two can never disagree. */
-const FOUNDER_TORCH = 1.3;
+const FOUNDER_TORCH = 1.56;      // 1.3, and then twenty per cent again
+const FOUNDER_TORCH_BRIGHT = 1.2;
 function torchRadius(u){
   return TORCH_RADIUS * (u && u.firstVillager ? FOUNDER_TORCH : 1);
+}
+/* And it burns brighter, not just wider. A bigger circle of the same weak light
+   reads as a bigger smudge; the founder's torch is meant to be the one real
+   light on the map on the first night, so the flame itself is stronger too. */
+function torchBright(u){
+  return (u && u.firstVillager) ? FOUNDER_TORCH_BRIGHT : 1;
 }
 /* A small hand-hung lamp, dimmer than a carried torch - and wider than its
    size alone would suggest, because the hole this punches in the night is
@@ -32701,6 +33611,9 @@ function carriesTorch(u){
   const d = UNITS[u.type];
   if(!d || d.naval) return false;
   if(u.torchOut) return false;
+  // the Captain's own blade is its own light, always on - a second, ordinary
+  // torch glow stacked on top of the moonstone one would just be clutter
+  if(u.type==="captain") return false;
   /* The founder has one, and is the only villager who does. You start the
      match with exactly one person, at dusk, on a map you have not walked -
      and a lone civilian carries no light, so the moment it got dark you
@@ -35127,6 +36040,23 @@ function refreshUI(){
     return;
   }
 
+  // ---- Gumby and Floyd: the two little dogs, neither takes orders
+  if(sel.length===1 && G.gumby && first===G.gumby){
+    $("selname").textContent = "Gumby";
+    $("selsub").textContent = "Farm raider";
+    $("selstats").innerHTML = "Wanders near the village, barks at anyone who"
+      + " gets close, and helps himself to a bite from the nearest farm now"
+      + " and then.";
+    return;
+  }
+  if(sel.length===1 && G.floyd && first===G.floyd){
+    $("selname").textContent = "Floyd";
+    $("selsub").textContent = "Sock stealer";
+    $("selstats").innerHTML = "A little smaller than Gumby, and just as"
+      + " light-fingered - houses seem to lose the odd sock when he's been by.";
+    return;
+  }
+
   // ---- multiple units
   if(sel.length>1){
     $("selname").textContent = sel.length+" units";
@@ -35961,7 +36891,12 @@ function refreshUI(){
       /* The way out of the Wandering Age, on the same button as every other
          age-up. Only offered on a centre that is actually standing - while
          it is a ruin there is nothing to upgrade. (WANDERING_AGE) */
-      if(pl.settled){
+      if(pl.ageUpTo != null){
+        // already paid for and being raised - the strip above the group numbers
+        // has the clock, same as every other age
+        const pc = Math.round(ageUpProgress(pl)*100);
+        addBtn("\u2191 "+AGES[0], null, false, null, "raising the hall \u2013 "+pc+"%", true);
+      } else if(pl.settled){
         const c0=AGE_COST[0];
         addBtn("\u2191 "+AGES[0], costStr(c0), canAfford(pl,c0), tryAgeUp, null, true);
       }
@@ -36063,9 +36998,12 @@ function refreshAgeBar(){
   const fill = $("agefill"), label = $("agelabel");
   if(fill) fill.style.width = (p*100).toFixed(1) + "%";
   if(label){
-    const left = Math.max(0, Math.ceil(AGE_UP_TIME() - (pl.ageUpT || 0)));
-    const html = AGES[pl.ageUpTo].toUpperCase() +
-                 ' <span class="agetime">' + left + 's</span>';
+    const left = Math.max(0, Math.ceil(ageUpLength(pl) - (pl.ageUpT || 0)));
+    /* The Wandering Age's step is named for what is being BUILT rather than for
+       the age it unlocks - "raising the hall" is what the village is doing, and
+       it is the only age-up you can watch happen to a building. */
+    const name = pl.ageUpSettle ? "RAISING THE HALL" : AGES[pl.ageUpTo].toUpperCase();
+    const html = name + ' <span class="agetime">' + left + 's</span>';
     if(label.innerHTML !== html) label.innerHTML = html;
   }
 }
