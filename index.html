@@ -676,6 +676,28 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn">
+        <summary>Patch 21.17</summary>
+        <div class="sec">Fixed</div>
+        <ul>
+          <li>Continuing a saved village after actually closing and reopening the game (rather than just staying on the same page) could throw the moment anything with grass on it came into view, and every frame after it. A cache of baked grass images was being written into the save as a set of hollow shells that only look real once the browser has properly forgotten them &mdash; harmless in testing, but not in an actual saved game reopened later. Villages saved before this fix are repaired automatically the next time they load</li>
+          <li>The Captain's Station had no upgrade of its own, the one building that had slipped through when every other building was given one. It now has a Muster Ground rung, training the Captain a little faster</li>
+        </ul>
+        <div class="sec">A few small signs of life</div>
+        <ul>
+          <li>A soldier fighting badly hurt now shows it in how they move &mdash; a slight limp, one arm held a little in &mdash; rather than only in a health bar</li>
+          <li>An idle villager with nothing to do carries a small marker above their head now, so "waiting on you" reads as a question rather than as a villager standing around for no reason</li>
+          <li>A villager with genuinely nothing on &mdash; not working, not walking anywhere, not sat down &mdash; sways gently now and again instead of standing dead still</li>
+          <li>A couple who spent the day together get one warm light at their own door as they turn in for the night</li>
+          <li>The Noticeboard occasionally reports on a couple out and about instead of the day's usual history fact</li>
+          <li>A sleeping villager's dream can now, about half the time, carry a soft hint of tomorrow's weather</li>
+          <li>A fighter right at death's door trembles a little rather than standing perfectly steady through the last of it</li>
+          <li>An earned name keeps meaning something afterwards &mdash; Stonehand mines a touch faster, Timberarm cuts a touch faster, and the same for the field-earned name at their own farm</li>
+          <li>A household that lived through a bad night stays wary of the woods for a while &mdash; still out and about, just not for an afternoon reading under a tree</li>
+          <li>A night event that hasn't turned up in a long while is now a little more likely to be the one that does, rather than a long game leaning on the same handful of common ones forever</li>
+          <li>The Noticeboard can now report on the village's own prosperity &mdash; a running read of population, buildings, named villagers and discoveries, not a target to hit, just something to feel good about</li>
+        </ul>
+      </details>
+      <details class="pn">
         <summary>Patch 21.16</summary>
         <div class="sec">The Captain</div>
         <ul>
@@ -4097,6 +4119,20 @@ function updatePets(dt){
 // far rarer than anything else that happens at night - this is meant to be
 // the kind of thing you might never actually see across a whole game.
 const DREAM_CHANCE = 0.004;
+/* What a dream can honestly hint at: tomorrow's weather, and nothing else -
+   dayForecast(1) is real, already-decided state (rollWeather pre-rolls the
+   season ahead so the almanac can promise a foggy day and be held to it),
+   unlike a discovery, which is a pure in-the-moment dice roll with nothing
+   queued to peek at. Soft and a little dreamlike rather than a plain
+   forecast readout, and only about half the time even then - most dreams
+   stay just the bubble, same as before this. */
+const DREAM_WEATHER_LINES = {
+  blizzard: "Someone dreamed of snow piling against the door.",
+  downpour: "Someone dreamed of rain that would not stop.",
+  squall:   "Someone dreamed the wind tearing at the shutters.",
+  gale:     "Someone dreamed the trees bending nearly double.",
+  fog:      "Someone dreamed they could not find their own doorstep."
+};
 function tryVillagerDream(force){
   if(!force && Math.random() > DREAM_CHANCE) return false;
   const sleepers = G.units.filter(u=>u.p===P_YOU && u.type==="villager" && u.indoors && u.hp>0 && !u.say);
@@ -4105,6 +4141,10 @@ function tryVillagerDream(force){
   u.say = "dream";
   u.sayHot = false;
   u.sayT = 3.5 + Math.random()*2.5;
+  const tomorrow = dayForecast(1);
+  if(tomorrow.has && tomorrow.key && DREAM_WEATHER_LINES[tomorrow.key] && Math.random() < 0.5){
+    hint(DREAM_WEATHER_LINES[tomorrow.key]);
+  }
   return true;
 }
 
@@ -6596,6 +6636,10 @@ const BLDG_UPG = {
     { name:"Tactics Hall",   age:2, cost:{stone:180,iron:90,know:140}, hp:190, train:0.20,
       about:"Where it is worked out on a table first. Legionaries arrive knowing the plan." }
   ],
+  captainstation: [
+    { name:"Muster Ground",  age:2, cost:{stone:150,iron:70,know:120}, hp:160, train:0.20,
+      about:"A yard marked out for drilling, not just standing at ease. The Captain forms up sooner." }
+  ],
   tradingpost: [
     { name:"Weighed Scales", age:2, cost:{gold:120,iron:60,know:110},  hp:140, trade:0.25,
       about:"Your own scales, and your own word on what a thing is worth. Every trade goes further." }
@@ -6948,6 +6992,12 @@ function defaultGameState(){
     underAttackCd:0, underAttackFlashT:0,
     invaders:[], invasionSeasonKey:null, invasionAt:0, invasionDone:false,
     invasionSeasonCount:0, invasionDue:false, lastInvasionSeason:0,
+    // the night-event pool's own memory: which of the last 5 nights picked
+    // what, and which night each entry last actually fired - both were
+    // created lazily where they're used (05b-night-cycle.js) rather than
+    // here, which is exactly the leaks-across-matches shape CLAUDE.md warns
+    // about for an array/object field, so they're declared properly instead
+    recentNights:[], lastFiredNight:{},
     bloodMoon:null, bloodMoonSeasonKey:null, bloodMoonAt:0, bloodMoonDone:false,
     sel:[], placing:null, action:null, uiMode:"main", selectMode:false,
     // which of BUILD_CATEGORIES the build sub-menu is showing, or null for
@@ -12380,6 +12430,10 @@ function wandererGrit(dt){
       // remember who the first night actually came for, so the deed can be
       // credited to the right person once it is over
       if(foe.firstNight) u.firstNightFought = true;
+      // and, more generally, that this one has been through a bad night at
+      // all - read by the leisure system (updateLeisureVillagers) to steer
+      // their own household's leisure wanderer away from the treeline
+      u.wary = true;
       /* One nudge, once, a couple of seconds in - long enough that it is
          clearly not the same line as the warning, early enough to still be
          acted on. After that they are on their own and so are you. */
@@ -12823,10 +12877,22 @@ function updateUnit(u, dt){
             // just to adjust the gather-rate gate above.
             const ancientMineUp = (!n.farmOf && (n.kind==="stone"||n.kind==="gold")) ?
               (()=>{ const mb = nearestDropFor(u, n.kind); return (mb && mb.ancientBonus) ? mb.ancientBonus : 1; })() : 1;
+            /* An earned deed (VILLAGER_DEEDS, 05b-night-cycle.js) keeps
+               meaning something after the moment it named them - a small,
+               personal edge at their OWN trade, nobody else's. Stonehand
+               (the "stone" deed) mines a touch faster; the "timber"/"fields"
+               deeds do the same at their own resource. Self-only by
+               construction - u.deeds lives on the one unit, never read or
+               written anywhere shared. */
+            const deedUp = (u.deeds && (
+              (n.kind==="food"  && u.deeds.includes("fields")) ||
+              (n.kind==="wood"  && u.deeds.includes("timber")) ||
+              (n.kind==="stone" && u.deeds.includes("stone"))
+            )) ? 1.08 : 1;
             const take = Math.min(2 * GATHER_SCALE * peacefulYield(n.kind)
                                     * (1 + lvl*0.40) * dg * seasonal * insp
                                     * farmYieldUp * ancientFarmUp * ancientMineUp * nightCatch
-                                    * dropPlateRate(u, n) * dropWorkMult(u, n), n.amt);   // moonstone plating, and the drop-off's own ladder
+                                    * dropPlateRate(u, n) * dropWorkMult(u, n) * deedUp, n.amt);   // moonstone plating, and the drop-off's own ladder
             n.amt -= take; u.carry += take; u.carryKind = n.kind;
             /* What colour the fruit in the basket is. Taken at the moment it
                is picked rather than worked out again on the walk home, so a
@@ -21005,6 +21071,24 @@ function drawBuilding(b){
     }
   }
 
+  /* A couple arriving home together for the night - one warm pulse at their
+     own door, timestamped rather than counted down, so it needs no tick
+     hook of its own: just read how long ago it happened off G.t. Set on the
+     building itself (b.doorGlowAt, 05-wildlife.js) rather than animated on
+     the two leisure villagers, who are not reliably in step with each other
+     by the time either one reaches the door - the house lighting up once is
+     the same "we're in for the night" beat without needing them synced. */
+  if(b.doorGlowAt !== undefined){
+    const age = G.t - b.doorGlowAt;
+    if(age >= 0 && age < 1.6){
+      const a = Math.sin(Math.min(1, age/1.6) * Math.PI);
+      ctx.globalAlpha = 0.55 * a;
+      ctx.fillStyle = "rgba(255,214,140,1)";
+      ctx.beginPath(); ctx.arc(cx, y+dep-H*0.28, 9, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
   // ---- damage state ----
   if(b.hp < b.maxhp*0.55){
     ctx.strokeStyle="rgba(30,24,18,.5)"; ctx.lineWidth=1.2;
@@ -21494,6 +21578,23 @@ function drawUnit(u){
     ctx.fillStyle= u.p===P_YOU?"#7fbf5f":"#c9573f";
     ctx.fillRect(x-u.r+0.6, y-u.r*2.4+0.7, (u.r*2-1.2)*(u.hp/u.maxhp), 2);
   }
+  /* A villager standing around with nothing to do reads as a bug until you
+     realise it's a question - this is that question made visible. Exactly
+     the same test idleUnits() (07-ui-and-boot.js) uses for the HUD's own
+     idle count, so the marker and the number can never disagree. Leisure
+     villagers are a wholly separate array (G.leisure) and never reach here
+     with order===null, so nothing off-duty gets flagged by mistake. */
+  if(u.p===P_YOU && u.type==="villager" && !u.order && !u.indoors){
+    const bob = Math.sin(G.t*1.6 + u.id)*1.1;
+    const pulse = 0.55 + 0.35*(0.5 + 0.5*Math.sin(G.t*2.4 + u.id*1.7));
+    const iy = y - u.r*2.7 + bob;
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = "#ffe6a0";
+    ctx.beginPath(); ctx.arc(x, iy, 2.1, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(90,68,28,.55)"; ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.arc(x, iy, 2.1, 0, 6.283); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
   /* The carried resource used to be a coloured pip floating by their head
      from the first swing of the axe onwards, which read as a marker rather
      than as anything anybody was holding. It is drawn on the body now, in
@@ -21884,6 +21985,22 @@ function drawPerson(u, pl, yOff){
 
   const swing = u.moving ? Math.sin(u.walk)*0.85 : 0;
   const bob   = u.moving ? Math.abs(Math.sin(u.walk))*H*0.045 : 0;
+  /* A soldier fighting hurt shows it in how they move rather than in a health
+     bar floating over their head - readable danger with no UI element. Only
+     units that actually fight (not villagers, who almost never carry a
+     wound) and only below well under half health, so it reads as "hurt",
+     not as the ordinary bump of taking a hit. The favoured side is fixed per
+     unit (u.id) so the same soldier always limps the same way, rather than
+     flickering between legs frame to frame. */
+  const hpFrac = (!isVill && u.maxhp) ? u.hp / u.maxhp : 1;
+  const wounded = hpFrac < 0.4 ? Math.min(1, (0.4 - hpFrac) / 0.4) : 0;
+  const limpLeg = (u.id % 2) ? 1 : -1;
+  /* A waver short of a full morale system - purely a visual tremor, nothing
+     touches u.cd or when the next blow actually lands. Only right at death's
+     door, well past the limp threshold above, so it reads as "about to
+     break" rather than as the ordinary hurt every wounded fighter already
+     shows. */
+  const nearDeath = hpFrac < 0.15 ? Math.min(1, (0.15 - hpFrac) / 0.15) : 0;
   const atk   = u.atkAnim>0 ? Math.min(1, u.atkAnim/0.22) : 0;
   const work  = (u.working>0 && !u.moving) ? 1 : 0;
   const wCyc  = work ? Math.sin(G.t*7.5 + u.id) : 0;
@@ -21921,9 +22038,21 @@ function drawPerson(u, pl, yOff){
      from the very thing they are picking. */
   ctx.translate(picking ? pickLean*(u.face<0 ? -1 : 1)*(0.5+0.5*pCyc) : 0,
                 yOff - bob + work*H*0.05);
+  /* A villager standing around with genuinely nothing on - not walking, not
+     working, not picking, not sat down - gets a small restless sway rather
+     than holding dead still like a mannequin. No new state and no pathing:
+     a slow sine on G.t, offset per unit so a group of them don't sway in
+     unison, along the exact same whole-body rotate the work/picking leans
+     already use. */
+  const reallyIdle = isVill && !u.moving && !work && !picking && !u.sit;
+  const idleSway = reallyIdle ? Math.sin(G.t*0.6 + u.id*2.3)*0.045 : 0;
   // the axe's whole-body chop, or the picker's much smaller lean
   if(picking) ctx.rotate(0.07 + pCyc*0.05);
   else if(work) ctx.rotate(0.14 + wCyc*0.09);
+  else if(reallyIdle) ctx.rotate(idleSway);
+  // layered on top of whatever else is going on, not exclusive with it - a
+  // fighter at death's door still trembles mid-swing, not only standing still
+  if(nearDeath > 0) ctx.rotate(Math.sin(G.t*9 + u.id*3)*0.05*nearDeath);
 
   // chunky proportions: short legs, stocky torso, big head
   const footY  = 0;
@@ -21937,7 +22066,11 @@ function drawPerson(u, pl, yOff){
 
   // ---- legs, with boots ----
   const legL = H*0.30;
-  const lx1 =  swing*H*0.17, lx2 = -swing*H*0.17;
+  // the limping leg's own stride is shortened rather than both evenly, which
+  // is what actually reads as favouring it instead of just walking smaller
+  const strideL = 1 - (limpLeg>0 ? wounded*0.55 : 0);
+  const strideR = 1 - (limpLeg<0 ? wounded*0.55 : 0);
+  const lx1 =  swing*H*0.17*strideR, lx2 = -swing*H*0.17*strideL;
   ctx.strokeStyle = shade(look ? "#4a3a28" : pl.dark, -0.15);
   ctx.lineWidth = Math.max(2.4, H*0.115);
   if(u.sit){
@@ -22135,7 +22268,10 @@ function drawPerson(u, pl, yOff){
   const frontA = (u.armA !== undefined) ? u.armA
                : hauling ? 1.05
                : (u.type==="captain") ? atk * CAPTAIN_SWING_ARM[(u.swingCombo||0) % 3]
-               : atk ? -1.15 + atk*0.5 : work ? -0.55 + wCyc*0.75 : swing*0.7;
+               : atk ? -1.15 + atk*0.5 : work ? -0.55 + wCyc*0.75
+               // a favoured arm - held a little in, swung a little less,
+               // rather than the ordinary loose swing at the side
+               : swing*0.7*(1-wounded*0.5) + wounded*0.32;
 
   /* Picking sends each hand from its shoulder toward the fruit and back, the
      two half a cycle apart - one in while the other is out. `reach` is how
@@ -27699,6 +27835,14 @@ const LEISURE_RADIUS  = 230;   // how far a house will look for something to do
 function leisureOptionsFor(house){
   const opts = ["home"];       // always available - the yard itself
 
+  /* Not the same identity as the leisure wanderer itself (a fresh synthetic
+     object, see makeLeisureVillager) - a real G.units villager who lives
+     here and lived through a bad night. u.wary is set generally, any beast
+     that actually reaches someone (wandererGrit, 03c-fog-and-tick.js), not
+     only the scripted first night. A whole household reads as touched by
+     it rather than needing to track exactly who was bitten. */
+  const wary = G.units.some(u=>u.p===P_YOU && u.home===house && u.wary);
+
   const farm = G.bldgs.find(b=>b.p===P_YOU && b.type==="farm" && b.done &&
     Math.hypot(b.x-house.x, b.y-house.y) < LEISURE_RADIUS);
   if(farm) opts.push("farm");
@@ -27722,7 +27866,9 @@ function leisureOptionsFor(house){
   const tree = G.nodes.find(n=>n.kind===RES.WOOD && n.amt>0 && !n.burning &&
     Math.hypot(n.x-house.x, n.y-house.y) < LEISURE_RADIUS &&
     !G.units.some(u=>u.order==="gather" && u.target===n));
-  if(tree) opts.push("tree");
+  // wary of the woods after dark - still spend an afternoon in the yard or
+  // about the village, just not at the treeline
+  if(tree && !wary) opts.push("tree");
 
   opts.push("kite");   // needs nothing but a little open ground, checked at spawn
 
@@ -27743,7 +27889,7 @@ function leisureOptionsFor(house){
      while something is in flower. */
   opts.push("guitar", "sing", "yoyo");
   if(G.season==="winter") opts.push("snow");
-  if(G.season==="autumn" && tree) opts.push("leaves");
+  if(G.season==="autumn" && tree && !wary) opts.push("leaves");
   if(G.season==="spring" || G.season==="summer") opts.push("flowers");
   if((G.puddles||[]).length) opts.push("puddle");
 
@@ -28162,7 +28308,12 @@ function updateLeisureVillagers(dt){
     const nightExempt = o.activity==="moonstone" && o.state!=="home";
     const gone = !o.home || o.home.hp<=0 || !G.bldgs.includes(o.home) ||
                  ((G.dark||0) > 0.3 && !nightExempt);
-    if(gone){ G.leisure.splice(i,1); continue; }
+    if(gone){
+      // a couple's own door lights up as the day sends them both in -
+      // see the doorGlowAt read in 04d-render-fire.js
+      if(o.coupleId && o.home && o.home.hp>0) o.home.doorGlowAt = G.t;
+      G.leisure.splice(i,1); continue;
+    }
 
     if(o.state==="out"){
       if(leisureWalk(o, dt)) { o.state = "there"; o.moving = false; o.arriveT = 0; }
@@ -28211,7 +28362,10 @@ function updateLeisureVillagers(dt){
     }
 
     if(o.state==="home"){
-      if(leisureWalk(o, dt)) G.leisure.splice(i,1);
+      if(leisureWalk(o, dt)){
+        if(o.coupleId && o.home && o.home.hp>0) o.home.doorGlowAt = G.t;
+        G.leisure.splice(i,1);
+      }
       else maybeStopForAWord(o, dt);
       continue;
     }
@@ -29683,6 +29837,65 @@ const HISTORY_FACTS = [
 ];
 function historyFactFor(dayNum){
   return HISTORY_FACTS[((dayNum||1)-1) % HISTORY_FACTS.length];
+}
+
+/* Not a hard objective, and not saved anywhere of its own - a live read of
+   how alive the village already is right now, off state that already
+   exists: population, standing buildings, villagers who earned a name, and
+   one-time discoveries actually made. Something for idle browsing of the
+   Noticeboard to feel good about between the ordinary business of the
+   build queue, per the user's own framing of it. */
+const PROSPERITY_TIERS = [
+  [0,   "This is still the beginning of something."],
+  [60,  "The village is finding its feet."],
+  [150, "The village is doing well for itself."],
+  [280, "This is a proper, thriving village now."],
+  [430, "The village will be remembered."]
+];
+function prosperityScore(){
+  const pl = G.players[P_YOU];
+  if(!pl) return 0;
+  const buildings = G.bldgs.filter(b=>b.p===P_YOU && b.done).length;
+  const named = G.units.filter(u=>u.p===P_YOU && u.deeds && u.deeds.length>0).length;
+  const discoveries = ["moonflowerFound","owlFeatherFound","wildlingsUnlocked","hermitMet"]
+      .filter(k=>G.disc[k]).length
+    + (G.disc.farmBoost ? 1 : 0)
+    + Object.values(G.disc.ancientRuins||{}).filter(b=>b && b.repaired).length;
+  return Math.round(pl.pop*3 + buildings*4 + named*10 + discoveries*15);
+}
+function prosperityLine(){
+  const score = prosperityScore();
+  let phrase = PROSPERITY_TIERS[0][1];
+  for(const [t, p] of PROSPERITY_TIERS) if(score >= t) phrase = p;
+  return phrase + " (prosperity " + score + ")";
+}
+
+/* The leisure system already pairs some of its wanderers off (o.coupleId /
+   o.partner) and lets them talk - real state, just never once surfaced
+   anywhere the player would read it. Shown in place of the day's history
+   fact on the Noticeboard about one day in three, so the board still mostly
+   reads as the almanac it always was rather than turning into a gossip
+   column. Stable for the whole day (keyed on dayNum, not re-rolled per tap),
+   and honest about what's actually tracked: two leisure wanderers who found
+   each other, not the same identities as the named, deed-earning villagers
+   in G.units - a different pool entirely (see idea_villager_little_lives). */
+const COUPLE_NOTICE_TEMPLATES = [
+  "{a} and {b} have taken to walking together most afternoons.",
+  "{a} and {b} have been spending their evenings talking, more days than not.",
+  "{a} and {b} seem to keep finding each other about the village."
+];
+function coupleNoticeLine(dayNum){
+  const couples = [];
+  const seen = new Set();
+  for(const o of G.leisure || []){
+    if(!o.partner || seen.has(o)) continue;
+    seen.add(o); seen.add(o.partner);
+    couples.push(o);
+  }
+  if(!couples.length) return null;
+  const pick = couples[dayNum % couples.length];
+  const t = COUPLE_NOTICE_TEMPLATES[dayNum % COUPLE_NOTICE_TEMPLATES.length];
+  return t.replace("{a}", pick.name).replace("{b}", pick.partner.name);
 }
 
 /* ============================================================
@@ -34000,13 +34213,29 @@ const NIGHT_EVENT_WEIGHT = {
   bear:1, zombies:1, dracula:1, dragon:1, storm:1,
   mcstar:1, hackman:1, gumby:1, tornado:1, costumes:1, sealife:1
 };
+/* Nights since this entry last actually fired (not just was picked and
+   declined) - "never this match" counts as a long time, not zero, so a
+   fresh match doesn't treat its whole catalogue as overdue on night one. */
+function nightsSinceFired(name){
+  const last = G.lastFiredNight && G.lastFiredNight[name];
+  return (last===undefined) ? 999 : ((G.nightNo||0) - last);
+}
+/* Weighted draw as before, but a long-starved entry's weight is nudged up
+   rather than leaving the don't-repeat-last-5 window as the only thing
+   standing between it and pure chance forever - a long Peaceful game
+   should feel like it eventually works its way round the catalogue rather
+   than drawing the same handful of common entries indefinitely. Capped at
+   3x its base weight (after ~30 nights unfired) so this never overrides
+   the ordinary common/rare shape of the table, only nudges it. */
 function pickNightEvent(list){
+  const weights = list.map(e =>
+    (NIGHT_EVENT_WEIGHT[e.name] || 1) * (1 + Math.min(2, nightsSinceFired(e.name)/15)));
   let total = 0;
-  for(const e of list) total += NIGHT_EVENT_WEIGHT[e.name] || 1;
+  for(const w of weights) total += w;
   let r = Math.random()*total;
-  for(const e of list){
-    r -= NIGHT_EVENT_WEIGHT[e.name] || 1;
-    if(r <= 0) return e;
+  for(let i=0;i<list.length;i++){
+    r -= weights[i];
+    if(r <= 0) return list[i];
   }
   return list[list.length-1];
 }
@@ -34066,6 +34295,8 @@ function somethingHappensTonight(){
       G.nightEventName = e.name;
       G.recentNights.push(e.name);
       if(G.recentNights.length > 5) G.recentNights.shift();
+      if(!G.lastFiredNight) G.lastFiredNight = {};
+      G.lastFiredNight[e.name] = G.nightNo;
       return true;
     }
   }
@@ -35438,6 +35669,10 @@ const SAVE_SKIP = new Set([
   "fogCanvas", "fogCtx", "fogImg",
   // built lazily on the first minimap draw and the first dark frame
   "mmT", "mmTc", "mmImg", "mmAt", "nightCv", "nightCx",
+  // baked lazily the first time grass/water is actually drawn - an array of
+  // canvases (grassMats) rather than a single field, which is exactly the
+  // shape saveIsLive's own net was missing (see the note on that function)
+  "grassMats", "grassMatSeason", "waterBlobCv", "shallowBlobCv",
   // pathfinding scratch, rebuilt on first use
   "paths", "navLand", "aiRouteCache",
   // mid-animation, one frame from irrelevant
@@ -35491,9 +35726,25 @@ function saveEntities(){
    has been parked on G as a cache. Plain game data never does. This is the
    net under SAVE_SKIP: a cache added later is dropped rather than crashing
    the save, and the path is recorded so a test can say what was thrown away
-   instead of it going unnoticed. */
+   instead of it going unnoticed.
+
+   The `for...in` check only ever caught the test harness's OWN canvas mocks -
+   plain object literals, so their methods are own enumerable properties. A
+   real browser's <canvas>/2D-context methods live on the prototype and are
+   not enumerable, so `for...in` finds nothing and this net let a real one
+   straight through. That is exactly how G.grassMats (an array of real
+   canvases, missing from SAVE_SKIP below) shipped: it silently froze into an
+   array of `{}` instead of being dropped, reloaded as a truthy-but-empty
+   "already baked" cache, and crashed the very first `drawImage` after any
+   save made in an actual browser was loaded back - a failure this function's
+   own job was to prevent, and every automated test passed regardless, because
+   they never touch a real canvas. Checking a couple of the methods directly
+   (which reads the prototype chain fine, unlike `for...in`) catches the real
+   thing the mocks were always standing in for. */
 function saveIsLive(v){
   for(const k in v) if(typeof v[k] === "function") return true;
+  if(typeof v.getContext === "function") return true;   // a real <canvas>
+  if(typeof v.drawImage === "function") return true;    // a real 2D context
   return false;
 }
 
@@ -35701,6 +35952,17 @@ function loadGame(){
      - everything else reads the current G through the shared binding, so the
      swap has to be one assignment and not a field-by-field copy. */
   G = built;
+
+  /* Never trust a cache field out of a save, even though SAVE_SKIP means a
+     freshly-written one should not have any. A save made by a build from
+     before a given cache was added to that list - or before saveIsLive()
+     could actually recognise a real browser canvas at all, which is how
+     G.grassMats got out in the first place - can still be sitting on disk
+     with one baked into it. Every one of these is "rebuilt on first use" by
+     design, so dropping whatever a save happens to hold costs nothing and
+     the alternative is a stale, truthy husk that passes its own lazy-init
+     check and crashes the first real use instead of rebaking. */
+  for(const k of SAVE_SKIP) delete G[k];
   G.diff = DIFF[DIFFICULTY] || DIFF.medium;
   G.projectiles = []; G.fx = []; G.lightning = null;
   G.running = false; G.over = false;
@@ -36179,7 +36441,10 @@ function refreshUI(){
     // "your building"/"enemy" line, same override shape as the crop name
     // above. Same in-match day number the almanac banner already uses.
     if(first.type==="noticeboard" && first.done){
-      $("selsub").textContent = historyFactFor(Math.floor(G.t/DAY_LEN)+1);
+      const dayNum = Math.floor(G.t/DAY_LEN)+1;
+      const couple = (dayNum % 3 === 0) ? coupleNoticeLine(dayNum) : null;
+      const prosperity = (!couple && dayNum % 4 === 0) ? prosperityLine() : null;
+      $("selsub").textContent = couple || prosperity || historyFactFor(dayNum);
     }
     $("selstats").innerHTML="HP "+Math.ceil(first.hp)+"/"+first.maxhp+
       (first.done?"":"<br>"+Math.floor(first.prog*100)+"% built");
