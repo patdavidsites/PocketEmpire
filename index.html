@@ -102,10 +102,20 @@
     font-family:inherit;color:inherit;text-align:left;cursor:default;}
   .alm-block:last-child{border-right:none;}
   .alm-day-block{min-width:150px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;}
+  /* The day/night arc: a thin ellipse traced behind the date, with the sun
+     riding its top half while the sun is up and the moon riding its
+     bottom half once it isn't - one continuous ring, not two separate
+     shapes, so the hand-off at dusk/dawn reads as one thing sweeping
+     round rather than a swap. Sized off the text block itself (not a
+     fixed px box) so mobile's smaller date text still gets a
+     proportionate ring rather than one sized for the desktop text. */
+  .alm-day-text{position:relative;}
+  .alm-dayarc{position:absolute; left:50%; top:50%; width:134px; height:80px;
+    transform:translate(-50%,-50%); overflow:visible; pointer-events:none;}
   .alm-day{font-family:Georgia,serif;font-size:14px;color:var(--parch);line-height:1.2;
-    white-space:nowrap;}
+    white-space:nowrap; position:relative;}
   .alm-month{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--parch-dim);
-    white-space:nowrap;}
+    white-space:nowrap; position:relative;}
   .alm-season-icon{flex:none;width:22px;height:22px;}
   .alm-season-icon svg{width:100%;height:100%;display:block;}
   .alm-lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:1px;color:var(--parch-dim);}
@@ -539,7 +549,26 @@
   <div id="costbox" class="hide"><div class="costlab">Cost</div><div class="costval" id="costval"></div></div>
   <div id="almanac">
     <div class="alm-block alm-day-block">
-      <div>
+      <div class="alm-day-text">
+        <svg class="alm-dayarc" viewBox="0 0 134 80" preserveAspectRatio="xMidYMid meet">
+          <ellipse cx="67" cy="40" rx="63" ry="35" fill="none" stroke="rgba(217,164,65,0.35)" stroke-width="1"/>
+          <g id="alm_sun">
+            <circle r="3.4" fill="#e8c25a"/>
+            <g stroke="#e8c25a" stroke-width="1">
+              <line x1="0" y1="-5.6" x2="0" y2="-4.6"/>
+              <line x1="0" y1="5.6" x2="0" y2="4.6"/>
+              <line x1="-5.6" y1="0" x2="-4.6" y2="0"/>
+              <line x1="5.6" y1="0" x2="4.6" y2="0"/>
+              <line x1="-4" y1="-4" x2="-3.3" y2="-3.3"/>
+              <line x1="4" y1="4" x2="3.3" y2="3.3"/>
+              <line x1="-4" y1="4" x2="-3.3" y2="3.3"/>
+              <line x1="4" y1="-4" x2="3.3" y2="-3.3"/>
+            </g>
+          </g>
+          <g id="alm_moon">
+            <path d="M 2.6 -4.2 A 4.2 4.2 0 1 0 2.6 4.2 A 3.3 3.3 0 0 1 2.6 -4.2 Z" fill="#c3cfe8"/>
+          </g>
+        </svg>
         <div class="alm-day" id="alm_day">—</div>
         <div class="alm-month" id="alm_month">—</div>
       </div>
@@ -605,6 +634,8 @@
           <span class="msub" id="mm_loadsub">No village saved yet</span></button>
         <button class="mrow" id="mm_how">How to play</button>
         <button class="mrow" id="mm_settings">Settings</button>
+        <button class="mrow" id="mm_chronicle">Village Chronicle
+          <span class="msub" id="mm_chroniclesub">No matches chronicled yet</span></button>
         <button class="mrow" id="mm_patch">Patch notes</button>
       </div>
       <p class="mfoot">
@@ -681,11 +712,12 @@
         <ul>
           <li>Continuing a saved village after actually closing and reopening the game (rather than just staying on the same page) could throw the moment anything with grass on it came into view, and every frame after it. A cache of baked grass images was being written into the save as a set of hollow shells that only look real once the browser has properly forgotten them &mdash; harmless in testing, but not in an actual saved game reopened later. Villages saved before this fix are repaired automatically the next time they load</li>
           <li>The Captain's Station had no upgrade of its own, the one building that had slipped through when every other building was given one. It now has a Muster Ground rung, training the Captain a little faster</li>
+          <li>Wandering pilgrims could get wedged against a building or a shoreline and stay there for the rest of their visit. Their own "am I making progress" check was judged frame to frame, which a pilgrim nudged back and forth at a corner could pass on plenty of individual frames while going nowhere overall - the same blind spot villagers themselves had before they were given a check judged over a few seconds instead of one frame at a time. Pilgrims now use that same steadier check</li>
+          <li>Double-tapping the town icon to bring the camera home did nothing during the Wandering Age, right when a lone founder is most likely to need it - it was quietly requiring the town centre to be fully built, not just standing</li>
         </ul>
         <div class="sec">A few small signs of life</div>
         <ul>
           <li>A soldier fighting badly hurt now shows it in how they move &mdash; a slight limp, one arm held a little in &mdash; rather than only in a health bar</li>
-          <li>An idle villager with nothing to do carries a small marker above their head now, so "waiting on you" reads as a question rather than as a villager standing around for no reason</li>
           <li>A villager with genuinely nothing on &mdash; not working, not walking anywhere, not sat down &mdash; sways gently now and again instead of standing dead still</li>
           <li>A couple who spent the day together get one warm light at their own door as they turn in for the night</li>
           <li>The Noticeboard occasionally reports on a couple out and about instead of the day's usual history fact</li>
@@ -695,6 +727,29 @@
           <li>A household that lived through a bad night stays wary of the woods for a while &mdash; still out and about, just not for an afternoon reading under a tree</li>
           <li>A night event that hasn't turned up in a long while is now a little more likely to be the one that does, rather than a long game leaning on the same handful of common ones forever</li>
           <li>The Noticeboard can now report on the village's own prosperity &mdash; a running read of population, buildings, named villagers and discoveries, not a target to hit, just something to feel good about</li>
+          <li>A new "Then&hellip;" order button: arm it and the next order given to a unit that's already busy is remembered rather than replacing what they're doing, and taken up the moment that job actually finishes &mdash; queue "build this, then gather" in two taps instead of waiting for the first to be done</li>
+          <li>The baker's whites no longer darken with the cold like everyone else's clothes &mdash; he's meant to be recognisable at a glance year-round, and winter was quietly working against that</li>
+          <li>The baker doesn't just stand at his own door on a quiet day &mdash; when there's no round to run he ducks inside for a spell, or carries a loaf over to somebody's house, so he's doing something even between rounds</li>
+          <li>The Caretaker's Cottage now banks up to three replenishes in one visit instead of one &mdash; a busy farm could run dry before he walked all the way back round to it again</li>
+          <li>A Granary now sends out its own farmhand, walking out to one of your farms and back &mdash; a sight, not a mechanic, so a farm reads as somewhere someone actually goes</li>
+          <li>The baker has a third thing to do on a quiet day now, besides ducking inside or visiting a house &mdash; pottering about right outside his own oven</li>
+          <li>A soldier who has come through enough fighting now carries a small permanent mark of it &mdash; a pale streak through their helm's crest, never a stat change, so an army isn't purely disposable identical bodies</li>
+          <li>A nightcap at the hearth: most nights now, a handful of villagers pause at the town centre for a few minutes before bed for one last wordless chat &mdash; a light, common cousin of the rare night the elder tells a story by the fire</li>
+          <li>Dusk no longer sends the whole village home on the exact same frame &mdash; everyone gets a few seconds of "just finishing up" first, staggered per villager, so the village winds down rather than snapping over like a light switch</li>
+          <li>Night fishing now has a moment worth reacting to &mdash; watch for the float jerking hard instead of its usual steady bob, and tap your angler quickly for a bonus catch on top of the ordinary moonlit haul. Miss it and it costs nothing</li>
+          <li>The Night Market is no longer a total ambush &mdash; if a cart is coming tonight, the almanac says so a day ahead, so trading with it (and the raid risk that comes with buying) is a decision you can actually plan for</li>
+          <li>Once you've met the hermit, autumn brings a small ask of your own &mdash; a little wood before winter, given by tapping a carrying villager onto the hermit itself. Miss the season and there's always next year</li>
+          <li>A storm passing, or rough weather clearing, can wash a shipwrecked chest up along the water's edge &mdash; a one-off find of gold and salvaged wood, worth a look before someone else's tide takes it back</li>
+          <li>A message in a bottle can wash up too, now and then &mdash; a mysterious note with a genuine playing tip rolled up inside. Leave it too long and it washes back out, but another can always turn up another night</li>
+          <li>A villager claims a house of their own well before dusk now, rather than having nowhere to call home until night sends them looking, and one with truly nothing to do will sometimes wander a few tiles on their own rather than standing dead still all day</li>
+          <li>Repairing one of the five ancient ruins is a real decision now, not a free find &mdash; once fully mended it waits for you to choose and pay for how to finish it: the safe, familiar way, or a costlier, more ambitious one with a bigger payoff</li>
+          <li>A repaired ruin now carries a small plaque set into its own wall &mdash; a quiet mark that this one is found, finished, and someone chose how</li>
+          <li>A new Iron Age building, the Sunstone Cairn: it produces nothing, trains nothing and defends nothing, and costs more than anything else you can build &mdash; a wonder for a village with nothing left to spend on, and nowhere to put it but pride</li>
+          <li>A rare night can now be a proper meteor shower too, not only a lantern festival &mdash; half the village comes out to watch, on top of the ordinary run of falling-star wishes</li>
+          <li>A thriving village now genuinely feels busier, not just older &mdash; how many off-duty villagers you'll ever see out and about at once grows with the village's own prosperity, not a flat number every village was stuck with regardless of size</li>
+          <li>A new Bronze Age order, Fortify: send a villager to a wall, tower or your fortress and pay a little wood and stone for a temporary shield &mdash; real extra protection that soaks up damage before your walls take it, and runs out on its own after a while if it's never needed</li>
+          <li>A new Village Chronicle on the start menu &mdash; a short memory of your last ten matches, win or lose: who founded it, how far it got, and how it ended. Separate from your one saved village, so nothing about it is ever at risk</li>
+          <li>The date at the bottom of the screen now traces the day itself &mdash; a thin ring behind it, with the sun riding the top half while it's up and the moon taking over the bottom half once it isn't, so you can see roughly how much of the day or night has gone at a glance</li>
         </ul>
       </details>
       <details class="pn">
@@ -1166,6 +1221,18 @@
         </ul>
       </details>
       </div>
+      <button class="ghost mback">Back</button>
+    </div>
+
+    <!-- A short memory of matches already over, not a village to resume -
+         see the Village Chronicle note in 06b-save-load.js. Most recent
+         first; the .logrow/.logname/.logstate classes are the Logbook's
+         own, reused rather than inventing a second set of near-identical
+         list styling for what is, visually, the same kind of row. -->
+    <div class="mpage hide" id="mp_chronicle">
+      <div class="sec">Village Chronicle</div>
+      <p id="chroniclecount"></p>
+      <div id="chroniclelist"></div>
       <button class="ghost mback">Back</button>
     </div>
   </div>
@@ -4644,20 +4711,34 @@ function updateWanderers(dt){
       if(Math.abs(dx) > 0.1) w.face = dx<0 ? -1 : 1;
 
       /* A watchdog, because nothing guarantees a spot on the map can be
-         reached: if six seconds go by without gaining ground on it, give up on
-         this leg and take the next one. A pilgrim wedged somewhere for the
-         rest of its visit is the whole complaint. */
-      const gained = (w.lastD === undefined) ? 1 : (w.lastD - d);
-      w.lastD = d;
-      w.noGain = (gained > 0.3) ? 0 : (w.noGain||0) + dt;
-      if(w.noGain > 6){
-        w.noGain = 0; w.path = null; w.pathCd = 0; w.lastD = undefined;
-        if(w.leg===1){ w.leg = 2; continue; }
-        G.wanderers.splice(i,1); continue;
+         reached: if real progress stalls, give up on this leg and take the
+         next one rather than leaving a pilgrim wedged for the rest of its
+         visit.
+
+         Judged over a WINDOW, not frame to frame - the first version reset
+         the instant a single frame gained half a step, which is exactly
+         the trap moveToward's own stuckT had before it got a windowed
+         check too (03d-pathfinding.js, NET_WINDOW): a pilgrim nudged back
+         and forth by the steering scan at a corner is closer on plenty of
+         individual frames even while going nowhere overall, so a per-frame
+         reset can leave it ping-ponging there indefinitely without the
+         watchdog ever seeing a bad enough single frame to fire. */
+      if(w.netD === undefined || w.netTx !== tx || w.netTy !== ty){
+        w.netD = d; w.netT = 0; w.netTx = tx; w.netTy = ty;
+      } else {
+        w.netT += dt;
+        if(w.netT >= 4){
+          if(d > w.netD - 6){
+            w.path = null; w.pathCd = 0; w.netD = undefined;
+            if(w.leg===1){ w.leg = 2; continue; }
+            G.wanderers.splice(i,1); continue;
+          }
+          w.netD = d; w.netT = 0;
+        }
       }
 
       if(d < 8){
-        if(w.leg===1){ w.leg = 2; w.lastD = undefined; w.path = null; }
+        if(w.leg===1){ w.leg = 2; w.netD = undefined; w.path = null; }
         else { G.wanderers.splice(i,1); continue; }
       } else {
         /* Pilgrims used to walk straight at whatever was in front of them and
@@ -4815,6 +4896,19 @@ const NIGHT_CATCH_MULT = 1.5;
 function moonlitCatchActive(){
   return G.phase==="night" && (G.dark||0) >= NIGHT_CATCH_DARK_MIN;
 }
+
+/* A moment worth tapping for, not just a passive multiplier wearing a
+   night costume: the same "quick tap, quick reward" shape as the meteor
+   shower's own catch reflex (grantStargazeWish), but resolved through the
+   ordinary tap-to-select path (selectOne, 03a) rather than the meteor's
+   raw-pointer bypass - a fisher is already a real, selectable unit, so
+   there is no screen-space object to hit-test against. Missing it costs
+   nothing, same as a missed star; it is purely a bonus on top of the
+   ordinary swing. (Aliveness Ledger #18) */
+const FISH_BITE_CHANCE   = 0.15;   // per second, while genuinely waiting on a moonlit shoal
+const FISH_BITE_LIFE     = 1.6;    // seconds the bite is there to catch
+const FISH_BITE_COOLDOWN = 10;     // minimum gap before the same fisher can bite again
+const FISH_BITE_GIFT     = 8;      // bonus food, landed clean, on top of the ordinary catch
 // two knobs on overall pace, independent of any per-unit or per-season modifier
 const GATHER_SCALE      = 0.75;  // villagers bring back less per trip - the whole economy runs slower
 
@@ -5298,7 +5392,13 @@ function updateWeather(dt){
     G.weatherAmt = t < WEATHER_FADE ? t/WEATHER_FADE
                  : t > WEATHER_LEN - WEATHER_FADE
                    ? Math.max(0, (WEATHER_LEN - t)/WEATHER_FADE) : 1;
-    if(t >= WEATHER_LEN){ G.weather = null; G.weatherAmt = 0; G.weatherAt = -1; }
+    if(t >= WEATHER_LEN){
+      // only the wet, wind-driven kinds are storm enough to wash anything
+      // up - a fog or a dry blizzard passing doesn't fit the same picture
+      const wasRough = G.weather.key==="downpour" || G.weather.key==="squall" || G.weather.key==="gale";
+      G.weather = null; G.weatherAmt = 0; G.weatherAt = -1;
+      if(wasRough) trySpawnShipwreckedChest();   // see 05-wildlife.js
+    }
   }
 }
 
@@ -5438,7 +5538,11 @@ function updateStorm(dt){
     G.storm.nextBolt = 5 + Math.random()*9;
     tryLightningBolt();
   }
-  if(G.storm.t >= G.storm.len){ G.storm = null; refreshUI(); }
+  if(G.storm.t >= G.storm.len){
+    G.storm = null;
+    trySpawnShipwreckedChest();   // the storm passing is the whole condition - see 05-wildlife.js
+    refreshUI();
+  }
 }
 
 /* How the weather treats a fire.
@@ -6166,7 +6270,7 @@ const BLDG = {
   siege:{ name:"Siege Workshop", age:2, hp:360, w:2, h:2, cost:{wood:160,stone:120,food:60}, hgt:12, shrinkW:0.62, shrink:0.60, roof:"gable", build:22,
           vision:4, trains:["catapult"], mil:true },
   wall:{ name:"Wall", age:1, hp:420, w:1, h:1, cost:{stone:22}, hgt:13, roof:"none",
-         build:5, vision:2 },
+         build:5, vision:2, fortifiable:true },
   /* A watchtower starts as a timber lookout - quick and cheap to throw up in
      the Bronze Age - and is rebuilt in stone through TOWER_UPGRADES, one
      tier per age. Its own numbers here are the timber ones; the upgrades
@@ -6176,12 +6280,12 @@ const BLDG = {
      archer slots (villagerGarrisonCap) - see updateTowerWatch, 03c. */
   tower:{ name:"Watchtower", age:1, hp:230, w:1, h:1, cost:{wood:95,stone:25,food:15}, hgt:27, roof:"cone", build:16,
           vision:8, atk:10, rng:112, cd:1.5, ranged:true, mil:true,
-          towerLine:true, garrisonCap:4, garrisonCls:"arc", villagerGarrisonCap:1 },
+          towerLine:true, garrisonCap:4, garrisonCls:"arc", villagerGarrisonCap:1, fortifiable:true },
   /* All eyes and no teeth. It sees a great deal further than a watchtower
      and cannot shoot at all, which makes it the cheap way to watch a flank
      or a shoreline rather than a second line of defence. */
   scouttower:{ name:"Scout Tower", age:1, hp:170, w:1, h:1, cost:{wood:70,food:20}, hgt:30, roof:"cone", build:12,
-               vision:15 },
+               vision:15, fortifiable:true },
   brazier:{ name:"Brazier", age:0, hp:70, w:1, h:1, cost:{wood:16,stone:15,food:6}, hgt:9, roof:"none",
             build:5, vision:3, brazier:true },
   armoury:{ name:"Armoury", age:1, hp:260, w:2, h:2, cost:{wood:110,stone:90,food:50}, hgt:11, shrinkW:0.62, shrink:0.58, roof:"lean", build:18,
@@ -6211,6 +6315,23 @@ const BLDG = {
           hgt:18, shrinkW:0.60, shrink:0.42, roof:"gable", build:26,
           vision:5, mil:true, manor:true, drop:true,
           trains:["moonvillager"] },
+  /* A wonder to build for, not to need (Aliveness Ledger #25): genuinely
+     optional, the most expensive single thing in the game by a wide
+     margin, and it does nothing at all - no yield, no training, no
+     defence, not even a knowledge trickle. The whole point is a long
+     Peaceful village with the practical tree exhausted having somewhere
+     left to put a surplus, and something to show for having done it -
+     see the prosperity-score bonus and the logbook entry it sets on
+     completion (updateBuildings, 03c-fog-and-tick.js). Costs more than
+     the Manor's own total, in five different resources including a real
+     moonstone figure, on purpose - nothing else asks for that much of
+     everything at once. Kept to the Manor's own 3x3 footprint (the
+     largest anything else uses) and its same inset-drawing trick
+     (shrinkW/shrink), rather than trying to be the first thing bigger. */
+  cairn:{ name:"The Sunstone Cairn", age:2, hp:600, w:3, h:3,
+          cost:{wood:300, stone:300, gold:200, moonstone:250, food:100},
+          hgt:22, shrinkW:0.60, shrink:0.44, roof:"dome", build:60,
+          vision:5, wonder:true },
   /* Built by moonstone villagers, at night, and only once the Manor stands.
      `moonstone:true` is what keeps it out of the ordinary build menu and out
      of sight until then; it also makes it a night drop-off and a bed. */
@@ -6231,7 +6352,7 @@ const BLDG = {
   greathall:{ name:"Great Hall", age:2, hp:500, w:2, h:2, cost:{wood:233,stone:200,gold:150,food:97}, hgt:16, shrinkW:0.70, shrink:0.55, roof:"dome", build:30,
               vision:5, know:0.9 },
   fortress:{ name:"Fortress", age:2, hp:500, w:2, h:2, cost:{wood:93,stone:220,food:42}, hgt:20, roof:"cone", build:22,
-             vision:9, atk:16, rng:130, cd:1.4, ranged:true, mil:true },
+             vision:9, atk:16, rng:130, cd:1.4, ranged:true, mil:true, fortifiable:true },
   /* Iron Age only, and purely a labour-saver: it does not gather or fight,
      it just keeps your farms reseeded so you no longer have to click
      Replenish yourself. See updateCaretaker (03b) for what it actually does. */
@@ -6315,6 +6436,24 @@ const BLDG = {
   hermithouse:{ name:"Hermit's Cottage", age:0, hp:220, w:1, h:1, cost:{wood:60,food:30}, hgt:8,
                 roof:"gable", roofScale:0.5, build:13, pop:9, vision:4 }
 };
+
+/* ---------- Fortify (idea: one new verb per age) ----------
+   Garrison already existed as a real interactive defence verb (put people
+   inside a building), but nothing let a player actively harden the walls
+   and towers themselves - they just sat there passively once built. This
+   is genuinely new rather than a reskin: a villager sent to a wall, tower,
+   scout tower or fortress (BLDG[type].fortifiable) spends a moment working
+   and a little wood and stone, and the building gets a temporary shield -
+   extra hp that soaks up damage first (dealDamage, 04a) - rather than a
+   permanent stat change, so it reads as reinforcing for a coming fight, not
+   a stealth upgrade. Age-gated the same way every other Bronze Age thing
+   is: ageReached(P_YOU, 1), which is also when the fortifiable buildings
+   themselves first unlock. Expires on its own after FORTIFY_DURATION even
+   if never hit - "temporary" has to mean temporary. */
+const FORTIFY_COST = { wood:25, stone:25 };
+const FORTIFY_BONUS_FRAC = 0.5;    // shield added, as a fraction of the building's own maxhp
+const FORTIFY_DURATION = 180;      // seconds before an unspent shield runs out on its own
+const FORTIFY_WORK_TIME = 4;       // seconds a villager spends actually doing it
 
 /* bard buffs - only while actually playing, and only to allies close by.
    A trumpet's strength bonus and a rock singer's toughness are ongoing
@@ -6628,6 +6767,12 @@ const BLDG_UPG = {
     { name:"Gantry and Crane", age:2, cost:{wood:160,iron:80,know:120}, hp:170, train:0.20,
       about:"A crane over the yard - the heavy parts go together in a fraction of the time." }
   ],
+  /* hp-only, deliberately: the cairn is a wonder with nothing to upgrade
+     into but a sturdier version of itself - see BLDG.cairn's own comment. */
+  cairn: [
+    { name:"Sun-Cut Stone", age:2, cost:{stone:150,gold:100}, hp:850,
+      about:"Blocks recut to close their own seams. It will stand long after everyone who built it." }
+  ],
   cottage: [
     { name:"Moonlit Eaves",  age:2, cost:{moonstone:80,wood:60},       hp:90, moonhouse:1,
       about:"Eaves cut so the moon comes right in. One more of them can live here." }
@@ -6861,7 +7006,10 @@ const BLDG_ABOUT = {
             "soldier, and they fight with nothing but their hands and feet. "+
             "Only the villager the fox led away can raise this.",
   hermithouse: "Room for more than an ordinary house holds, built the way the "+
-            "hermit showed. Only the villager who shared their fire can raise this."
+            "hermit showed. Only the villager who shared their fire can raise this.",
+  cairn: "A wonder, not a want. It produces nothing, trains nothing, and "+
+            "defends nothing - it is simply the most expensive thing you could "+
+            "possibly build, for a village with nothing left to spend on."
 };
 
 /* Some buildings keep a stretch of open ground in front of them - the Elder's
@@ -6876,7 +7024,7 @@ function yardRect(b){
 }
 
 /* build menu order for villagers */
-const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","bakery","granary","well","shrine","noticeboard","grove","armoury","observatory","blacksmith","manor","cottage","musiccollege","warcollege","captainstation","tradingpost","greathall","fortress","caretaker","moongarden","wall","tower","scouttower","siege","dock","town"];
+const BUILD_ORDER = ["house","farm","brazier","lumber","mine","lodge","barracks","stable","range","bakery","granary","well","shrine","noticeboard","grove","armoury","observatory","blacksmith","manor","cottage","musiccollege","warcollege","captainstation","tradingpost","greathall","fortress","caretaker","moongarden","cairn","wall","tower","scouttower","siege","dock","town"];
 
 /* The build menu's own front page: five categories rather than one long
    sideways scroll through all of BUILD_ORDER, so late-alphabet buildings
@@ -6895,7 +7043,7 @@ const BUILD_CATEGORIES = [
   { key:"foodwood", label:"Food & Wood", types:["farm","lumber","bakery","granary","caretaker"] },
   { key:"goldstone", label:"Gold & Stone", types:["mine","tradingpost"] },
   { key:"knowledge", label:"Knowledge", types:["lodge","observatory","greathall","moongarden","manor"] },
-  { key:"village", label:"Village", types:["town","house","dock","shrine","noticeboard","well","brazier","musiccollege"] }
+  { key:"village", label:"Village", types:["town","house","dock","shrine","noticeboard","well","brazier","musiccollege","cairn"] }
 ];
 
 /* ---------- combat multipliers: attacker cls vs target cls ---------- */
@@ -6982,6 +7130,8 @@ function defaultGameState(){
     caretakers:[],
     // the Bakery's baker, one per bakery - see updateBaker (03b)
     bakers:[],
+    // the Granary's farmhand, one per granary - see updateFarmhands (03b)
+    farmhands:[],
     terrain:null, fog:null, decor:[], critters:[], birds:[], crows:[], eyes:[], pets:[],
     storm:null, lightning:null, dragon:null, dracula:null, hackman:null, mcstar:null, gumby:null, puddles:[],
     // Floyd - Gumby's own second dog, slightly smaller, visits houses
@@ -7000,6 +7150,9 @@ function defaultGameState(){
     recentNights:[], lastFiredNight:{},
     bloodMoon:null, bloodMoonSeasonKey:null, bloodMoonAt:0, bloodMoonDone:false,
     sel:[], placing:null, action:null, uiMode:"main", selectMode:false,
+    // "Then..." armed - the next order given to a unit that already has one
+    // is remembered as a follow-up instead of replacing it on the spot
+    queueNext:false,
     // which of BUILD_CATEGORIES the build sub-menu is showing, or null for
     // its own front page (the 5 category buttons). Reset to null every time
     // Build is opened fresh from the main panel (07-ui-and-boot.js), so
@@ -7015,6 +7168,7 @@ function defaultGameState(){
     // event from an occasion (see quietNight)
     nightEventName: null,
     storyNight: null,      // the elder's fireside tale, while one is running
+    nightcap: null,        // its light, common cousin - a few at the town centre
     wolfWarningAt: null,   // seconds left before tonight's warning howl
     moonDogDue: false,     // a moonlit dog is booked for the next nightfall
     windDir: 0.3, windT: 0,   // the shared wind smoke and grass both lean with
@@ -7038,6 +7192,8 @@ function defaultGameState(){
     // found in one match would still count as found in the next
     seasonalCropNode: null, seasonalFound: {}, seasonalHintShown: {},
     moonflowerNode: null,                         // the discovery flower, while one is out
+    chestNode: null,                              // a shipwrecked chest, while one is washed up
+    bottleNode: null,                             // a message in a bottle, while one is washed up
     moonBell: {},                                 // the Manor's bell, per player
     buildMoon: false,                             // is the build menu showing moonstone things?
     // dry-weather scenery. Initialised here rather than lazily, or a windy
@@ -7112,6 +7268,8 @@ function defaultGameState(){
     disc: {
       moonflowerFound: false,     // the flower has been spotted and clicked
       moonGarden: false,          // Moon Garden unlocked and in the build menu
+      chestFound: false,          // the shipwrecked chest has been opened, once and for all
+      bottleSeen: false,          // at least one message in a bottle has ever been read (logbook only - not a one-off, another can still wash up)
       owlSeen: false,             // the special owl has already landed once this match
       owlFeatherFound: false,     // it was followed to the ruin
       ruin: null,                 // the ancient ruin site, once one exists
@@ -7124,6 +7282,8 @@ function defaultGameState(){
       hermitSeen: false,          // the lantern path has already appeared once this match
       hermitMet: false,           // the hut was reached and the hermit spoken to
       hermitHut: null,            // { x, y } - where the hermit lives, once found
+      hermitWant: null,           // { need, have } while a personal want is open - see updateHermitWant, 05
+      hermitWantDone: false,      // true forever once given, ever - a one-off, not a repeating quota
       /* Five more ruins (idea: ancient ruins) - each slot is null until
          that type is placed somewhere on the map (spawnAncientRuin,
          05-wildlife.js), then holds the building reference itself, which
@@ -7132,7 +7292,8 @@ function defaultGameState(){
          flag (set at the moment it swaps type, updateAncientRuins) is
          what actually guards the one-time payout - this object existing
          only means "has been found", not "has been restored". */
-      ancientRuins: { farmhouse:null, blacksmith:null, shrine:null, watchtower:null, mine:null }
+      ancientRuins: { farmhouse:null, blacksmith:null, shrine:null, watchtower:null, mine:null },
+      wonderBuilt: false    // the Sunstone Cairn stands - see BLDG.cairn, 03c-fog-and-tick.js
     },
     // the hermit, while out and about at night (null by day - see
     // updateHermit, 01b-elder-and-home-life.js). Kept separate from G.disc:
@@ -9811,6 +9972,25 @@ function zoomAt(sx, sy, f){
   clampCam();
 }
 
+/* "Then..." armed (G.queueNext): a unit that already has an order remembers
+   the next one instead of dropping what it's doing, and takes it up itself
+   the moment its own order resolves to null - see the hook at the end of
+   updateUnit (03c). A unit that was already idle has nothing to remember it
+   FOR, so it still gets the order at once regardless of the toggle. */
+function giveOrder(u, fields){
+  if(G.queueNext && u.order !== null){
+    u.followUp = fields;
+  } else {
+    Object.assign(u, fields);
+    u.followUp = null;
+  }
+}
+function startFollowUp(u){
+  const f = u.followUp;
+  u.followUp = null;
+  if(f) Object.assign(u, f);
+}
+
 /* ---------- tap handling ---------- */
 function tapAt(sx, sy){
   const w = s2w(sx, sy);
@@ -9884,7 +10064,7 @@ function tapAt(sx, sy){
                         : "Only a fishing boat or a villager on the bank can work a shoal.")
                    : "Only villagers can gather.");
         } else {
-          crew.forEach(u=>{ u.order="gather"; u.target=n; u.site=null; });
+          crew.forEach(u=>{ giveOrder(u, {order:"gather", target:n, site:null}); });
           hint(wet ? "Fishing the shoal." : "Gathering "+n.kind+".");
           fxPing(n.x,n.y);
         }
@@ -9892,12 +10072,12 @@ function tapAt(sx, sy){
     } else if(a==="attack"){
       const t = pickAt(w.x, w.y, "enemy", tol);
       if(t && t.p!==undefined && t.p!==P_YOU){
-        own.forEach(u=>{ u.order="attack"; u.target=t; u.site=null; });
+        own.forEach(u=>{ giveOrder(u, {order:"attack", target:t, site:null}); });
         hint("Attacking."); fxPing(t.x,t.y);
       } else {
         // attack-move to the spot
         own.forEach((u,i)=>{ const o=spreadOffset(i,own.length);
-          u.order="move"; u.target=null; u.tx=w.x+o.x; u.ty=w.y+o.y; });
+          giveOrder(u, {order:"move", target:null, tx:w.x+o.x, ty:w.y+o.y}); });
         hint("Moving to attack."); fxPing(w.x,w.y);
       }
     } else if(a==="assist"){
@@ -9916,7 +10096,7 @@ function tapAt(sx, sy){
         const vs = own.filter(u=>isWorker(u));
         if(!vs.length) hint("Only villagers can build.");
         else {
-          vs.forEach(u=>{ u.order="build"; u.target=site; u.workplace=null; u.path=null; });
+          vs.forEach(u=>{ giveOrder(u, {order:"build", target:site, workplace:null, path:null}); });
           hint(site.done ? vs.length+" villager"+(vs.length>1?"s are":" is")+" repairing the "+BLDG[site.type].name+"."
                          : vs.length+" villager"+(vs.length>1?"s":"")+" joined the build.");
           fxPing(site.x, site.y);
@@ -10043,6 +10223,26 @@ function tapAt(sx, sy){
           G.sel = G.sel.filter(e=>e!==goer);
         }
       }
+    } else if(a==="fortify"){
+      const target = pickAt(w.x, w.y);
+      const ok = target && target.kind==="bldg" && target.p===P_YOU && target.done &&
+                 BLDG[target.type] && BLDG[target.type].fortifiable;
+      if(!ok){
+        hint("Tap one of your walls, towers, scout towers or your fortress.");
+      } else {
+        const crew = own.filter(u=>isWorker(u));
+        if(!crew.length){
+          hint("Only villagers can fortify something.");
+        } else {
+          // one is plenty - this is a single job, not a race several hands
+          // finish faster, so only the nearest is sent even with more selected
+          crew.sort((a2,b2)=>
+            Math.hypot(a2.x-target.x,a2.y-target.y) - Math.hypot(b2.x-target.x,b2.y-target.y));
+          giveOrder(crew[0], {order:"fortify", target, site:null, fortifyT:0});
+          hint("Off to reinforce the "+BLDG[target.type].name.toLowerCase()+".");
+          fxPing(target.x, target.y);
+        }
+      }
     } else if(a==="clear"){
       const n = pickAt(w.x, w.y, "node", tol);
       const why = canClearNode(n);
@@ -10072,10 +10272,11 @@ function tapAt(sx, sy){
       // handled below for buildings, not units
     } else if(a==="move"){
       own.forEach((u,i)=>{ const o=spreadOffset(i,own.length);
-        u.order="move"; u.target=null; u.site=null; u.tx=w.x+o.x; u.ty=w.y+o.y; });
+        giveOrder(u, {order:"move", target:null, site:null, tx:w.x+o.x, ty:w.y+o.y}); });
       fxPing(w.x,w.y);
     }
     G.action=null;
+    G.queueNext=false;
     refreshUI();
     return;
   }
@@ -10117,6 +10318,13 @@ function tapAt(sx, sy){
     if(wnd.kind==="moonstag" && visibleTo(P_YOU,wnd.x,wnd.y) &&
        Math.hypot(wnd.x-w.x, wnd.y-w.y) < 15){
       tapMoonStag(wnd);
+      return;
+    }
+    // the hermit's own personal want - the other way round from every tap
+    // above: the player gives THEM something, not the reverse
+    if(wnd.kind==="hermit" && G.disc.hermitWant && visibleTo(P_YOU,wnd.x,wnd.y) &&
+       Math.hypot(wnd.x-w.x, wnd.y-w.y) < 15){
+      tapHermitWant(wnd, own);
       return;
     }
   }
@@ -10471,7 +10679,11 @@ function groupTap(n){
    mindedly "Join group" their army into the one slot meant to always get
    them home. */
 function recallTownCentre(jump){
-  const hall = G.bldgs.find(b=>b.p===P_YOU && b.type==="town" && b.done);
+  /* No b.done requirement - in the Wandering Age the town centre is a
+     ruin still being repaired (settleSite), not yet "done", and that is
+     exactly when a lone founder is most likely to wander off and need
+     the way home. */
+  const hall = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
   if(!hall){ hint("No Town Centre to go to."); return; }
   resetModes();
   G.sel = [hall];
@@ -10543,10 +10755,54 @@ function tapMoonwright(w){
   }
 }
 
-function resetModes(){ G.action=null; G.uiMode="main"; G.placing=null; G.confirmKill=null; }
+/* The other way round from every tap above: the player gives the hermit
+   something, rather than the reverse. Whichever selected villager is
+   actually carrying wood hands some over - no order, no walk-and-drop,
+   just a tap while standing near enough with the goods already in hand,
+   the same instant-resolve shape tapMoonwright above already uses.
+   See updateHermitWant (05-wildlife.js) for how the want is armed and
+   cleared with the seasons. */
+function tapHermitWant(wnd, own){
+  const want = G.disc.hermitWant;
+  if(!want) return;
+  const carrier = own.find(u=>u.carryKind===RES.WOOD && u.carry>0);
+  if(!carrier){
+    hint("The hermit could use "+(want.need-want.have)+" more wood - send a villager carrying some.");
+    return;
+  }
+  const take = Math.min(carrier.carry, want.need - want.have);
+  carrier.carry -= take;
+  if(carrier.carry<=0) carrier.carryKind = null;
+  want.have += take;
+  fxWork(wnd.x, wnd.y-6, "#c9a24a");
+  if(want.have >= want.need){
+    G.disc.hermitWant = null;
+    G.disc.hermitWantDone = true;
+    G.players[P_YOU].res.know = (G.players[P_YOU].res.know||0) + HERMIT_WANT_GIFT;
+    hint("The hermit settles in before the cold, thanks to the wood - "+HERMIT_WANT_GIFT+" knowledge shared for it.");
+  } else {
+    hint("The hermit takes the wood gladly - "+want.have+"/"+want.need+" gathered so far.");
+  }
+  refreshUI();
+}
+
+function resetModes(){ G.action=null; G.uiMode="main"; G.placing=null; G.confirmKill=null; G.queueNext=false; }
 
 function selectOne(ent){
   resetModes();
+  /* A bite worth reacting to: tapping a fisher while one is live nets a
+     bonus catch on the spot - the meteor shower's own "quick tap, quick
+     reward" reflex, just resolved through the ordinary tap-to-select path
+     since a fisher is already a real, selectable unit rather than a
+     screen-space object. Selection still goes ahead afterward - catching
+     the bonus is no reason not to also select who caught it. */
+  if(ent.bite > 0){
+    ent.bite = 0;
+    const pl = G.players[P_YOU];
+    pl.res.food = (pl.res.food||0) + FISH_BITE_GIFT;
+    hint("A quick tug on the line - " + FISH_BITE_GIFT + " extra food, landed clean.");
+    fxWork(ent.x, ent.y-6, "#bcd9e8");
+  }
   if(ent === G.elder || ent === G.mcstar){ G.sel = [ent]; refreshUI(); return; }
   /* Clicking a soldier grabs the whole squad of that type, so armies move
      together. Anything civilian stays single-select: a worker is given a job,
@@ -10925,6 +11181,12 @@ function updateAncientRuin(){
 const CARETAKER_INTERVAL = 18;   // seconds between each automatic top-up
 const CARETAKER_SPD  = 32;       // an unhurried walk - they are not carrying an order
 const CARETAKER_SOWS = 3.2;      // seconds spent at the field actually sowing
+/* How many reseeds one visit banks, not just one - a farm being worked hard
+   could run dry faster than a single caretaker, walking the whole village
+   and back between rounds, could ever keep pace with one reseed at a time.
+   Still paid per reseed exactly as a manual Replenish is, just several times
+   in the same stop rather than making him walk back for each one. */
+const CARETAKER_BATCH = 3;
 
 /* Whichever of this side's farms is lowest on banked reseeds, or null. */
 function caretakerNeediestFarm(p){
@@ -11029,18 +11291,118 @@ function updateCaretaker(dt){
       if(o.sowT <= 0){
         const farm = o.target;
         const cost = farm ? BLDG[farm.type].reseedCost : null;
-        if(farm && cost && G.bldgs.indexOf(farm) >= 0 && canAfford(pl, cost) &&
-           (farm.reseeds||0) < farmReseedCap(p)){
-          pay(pl, cost);
-          farm.reseeds = (farm.reseeds||0) + 1;
-          if(p===P_YOU) hint("The caretaker sows the " + BLDG[farm.type].name.toLowerCase() +
-                             " back up - " + farm.reseeds + "/" + farmReseedCap(p) + " replenishes stored.");
+        let sown = 0;
+        if(farm && cost && G.bldgs.indexOf(farm) >= 0){
+          const cap = farmReseedCap(p);
+          while(sown < CARETAKER_BATCH && (farm.reseeds||0) < cap && canAfford(pl, cost)){
+            pay(pl, cost);
+            farm.reseeds = (farm.reseeds||0) + 1;
+            sown++;
+          }
         }
+        if(sown && p===P_YOU) hint("The caretaker sows the " + BLDG[farm.type].name.toLowerCase() +
+                           " back up - " + farm.reseeds + "/" + farmReseedCap(p) + " replenishes stored.");
         o.target = null; o.state = "home"; o.legT = 0;
         o.dest = { x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 };
       }
     } else {   // walking home
       if(caretakerWalk(o, dt)){ o.state = "idle"; o.moving = false; }
+    }
+  }
+}
+
+/* ============================================================
+   THE GRANARY'S FARMHAND
+   ============================================================
+   Purely a sight, unlike the Caretaker and the Baker above - this one
+   changes nothing at all. Walks out to one of the side's own farms, works
+   it for a spell, and carries a sack back to the Granary before doing it
+   again, so a farm reads as somewhere people actually go rather than just
+   a resource icon standing in a field. Same shape of thing as the leisure
+   villagers and the Caretaker: no population cost, unselectable,
+   unorderable, unkillable, and nothing in the game reads them.
+   (idea_villager_little_lives) */
+const FARMHAND_INTERVAL = 10;    // seconds back at the granary between trips
+const FARMHAND_SPD  = 30;        // an unhurried walk, same spirit as the others
+const FARMHAND_WORK  = 4.5;      // seconds spent at the field
+
+/* One of this side's own farms, picked at random rather than always the
+   nearest, so a Granary with several farms about doesn't just wear a path
+   to one of them. */
+function farmhandNearbyFarm(p){
+  const farms = G.bldgs.filter(b=>b.p===p && b.type==="farm" && b.done);
+  return farms.length ? farms[(Math.random()*farms.length)|0] : null;
+}
+
+function makeFarmhand(granary){
+  const doorX = granary.x + (Math.random()-0.5)*10;
+  const doorY = granary.y + granary.h*TILE/2 + 6;
+  return {
+    kindTag:"farmhand", id:G.nextId++, p:granary.p, home:granary,
+    activity:"farmhand", state:"idle",
+    x:doorX, y:doorY, tx:doorX, ty:doorY, dest:{x:doorX,y:doorY},
+    target:null, workT:0, legT:0, cd:0,
+    face: Math.random()<0.5?-1:1, walk: Math.random()*6, seed: Math.random()*6.283,
+    skin: (Math.random()*SKINS.length)|0,
+    clothes: LEISURE_CLOTHES[(Math.random()*LEISURE_CLOTHES.length)|0],
+    look: (Math.random()*VILLAGER_LOOKS.length)|0,
+    tall: 0.92 + Math.random()*0.16
+  };
+}
+
+// one leg of their walk - same shape as caretakerWalk/bakerWalk
+function farmhandWalk(o, dt){
+  const bx = o.x, by = o.y;
+  const done = moveToward(o, o.dest.x, o.dest.y, FARMHAND_SPD, dt, 6);
+  const moved = Math.hypot(o.x-bx, o.y-by);
+  o.walk += moved*0.15;
+  if(Math.abs(o.x-bx) > 0.2) o.face = (o.x-bx) < 0 ? -1 : 1;
+  o.moving = moved > 0.01;
+  o.legT = (o.legT||0) + dt;
+  return done || o.legT > 90;
+}
+
+function updateFarmhands(dt){
+  if(!G.farmhands) G.farmhands = [];
+
+  // one farmhand per granary, and none once the granary is gone
+  for(const b of G.bldgs){
+    if(!b.done || !BLDG[b.type].granary) continue;
+    if(!G.farmhands.some(o=>o.home===b)) G.farmhands.push(makeFarmhand(b));
+  }
+  G.farmhands = G.farmhands.filter(o =>
+    o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
+
+  for(const o of G.farmhands){
+    const p = o.p;
+    const doorAt = () => ({ x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 });
+
+    if(o.state === "idle"){
+      o.cd = (o.cd||0) - dt;
+      if(o.cd > 0) continue;
+      const farm = farmhandNearbyFarm(p);
+      if(!farm){ o.cd = FARMHAND_INTERVAL; continue; }
+      o.target = farm; o.legT = 0;
+      o.dest = { x:farm.x, y:farm.y + farm.h*TILE/2 + 4 };
+      o.state = "out";
+    } else if(o.state === "out"){
+      // the farm can be pulled down while they're on their way - simply
+      // turn for home rather than working thin air
+      const farm = o.target;
+      if(!farm || !farm.done || G.bldgs.indexOf(farm) < 0){
+        o.target = null; o.state = "home"; o.legT = 0; o.dest = doorAt();
+        continue;
+      }
+      if(farmhandWalk(o, dt)){ o.state = "working"; o.workT = FARMHAND_WORK; }
+    } else if(o.state === "working"){
+      o.moving = false;
+      o.workT -= dt;
+      if(Math.random() < 0.06) fxWork(o.x, o.y-4, "#c7a95e");
+      if(o.workT <= 0){
+        o.target = null; o.state = "home"; o.legT = 0; o.dest = doorAt();
+      }
+    } else {   // walking home
+      if(farmhandWalk(o, dt)){ o.state = "idle"; o.moving = false; o.cd = FARMHAND_INTERVAL; }
     }
   }
 }
@@ -11095,13 +11457,21 @@ function bakerBestStop(p, from){
   return best;
 }
 
+// where the round goes when there is genuinely nothing for it today - any
+// finished house of his own side, picked at random rather than always the
+// nearest, purely so he has somewhere to be seen going
+function bakerNearbyHouse(p){
+  const houses = G.bldgs.filter(b=>b.p===p && b.type==="house" && b.done);
+  return houses.length ? houses[(Math.random()*houses.length)|0] : null;
+}
+
 function makeBakerVillager(bakery){
   const doorX = bakery.x + (Math.random()-0.5)*10;
   const doorY = bakery.y + bakery.h*TILE/2 + 6;
   return {
     kindTag:"baker", id:G.nextId++, p:bakery.p, home:bakery,
     state:"idle", x:doorX, y:doorY, tx:doorX, ty:doorY,
-    dest:{x:doorX,y:doorY}, stop:null, handT:0, legT:0, cd:0,
+    dest:{x:doorX,y:doorY}, stop:null, handT:0, legT:0, cd:0, indoors:false,
     /* Whether the basket is in his arms. Full on the way out, empty on the
        way back - the same idea as a villager only carrying their load home,
        the other way round. */
@@ -11148,9 +11518,57 @@ function updateBaker(dt){
       o.cd = (o.cd||0) - dt;
       if(o.cd > 0) continue;
       const stop = bakerBestStop(p, o);
-      if(!stop){ o.cd = BAKER_ROUND*0.5; continue; }
+      if(!stop){
+        /* Nothing for the real round today - a quiet stretch, not a
+           villager frozen at his own door. Three ways to spend it, picked
+           at random: step inside for a spell (he's already standing right
+           there), potter about outside the oven, or carry a loaf over to
+           somebody's doorstep. Flavour only - no breadT granted by any of
+           them, so none can ever substitute for the real round above. */
+        o.cd = BAKER_ROUND*0.5;
+        const r = Math.random();
+        if(r < 0.34){
+          o.indoors = true; o.moving = false;
+          o.waitT = 6 + Math.random()*10;
+          o.state = "inside";
+        } else if(r < 0.67){
+          o.moving = false;
+          o.workT = 4 + Math.random()*4;
+          o.state = "tending";
+        } else {
+          const house = bakerNearbyHouse(p);
+          if(house){
+            o.dest = { x:house.x, y:house.y + house.h*TILE/2 + 6 };
+            o.legT = 0; o.laden = true; o.state = "visiting";
+          }
+        }
+        continue;
+      }
       o.stop = stop; o.dest = { x:stop.x, y:stop.y }; o.legT = 0;
       o.laden = true; o.state = "out";
+
+    } else if(o.state === "inside"){
+      o.waitT -= dt;
+      if(o.waitT <= 0){ o.indoors = false; o.state = "idle"; o.cd = BAKER_ROUND*0.5; }
+
+    } else if(o.state === "tending"){
+      // pottering about right outside his own door - stacking crates,
+      // sweeping flour off the step, nothing that needs a destination
+      o.moving = false;
+      o.workT -= dt;
+      if(Math.random() < 0.06) fxWork(o.x, o.y-4, "#e8cf94");
+      if(o.workT <= 0){ o.state = "idle"; o.cd = BAKER_ROUND*0.5; }
+
+    } else if(o.state === "visiting"){
+      if(bakerWalk(o, dt)){ o.moving = false; o.handT = 1.0; o.state = "atDoor"; }
+
+    } else if(o.state === "atDoor"){
+      o.moving = false;
+      o.handT -= dt;
+      if(Math.random() < 0.08) fxWork(o.x, o.y-4, "#e8cf94");
+      if(o.handT <= 0){
+        o.laden = false; o.dest = doorAt(); o.legT = 0; o.state = "home";
+      }
 
     } else if(o.state === "out"){
       /* No stop and yet out on the round. Nothing in this function does
@@ -11783,10 +12201,11 @@ function visionRadius(e){
   // player holds, not just the one repaired - see updateAncientRuin (03b)
   const owlBonus = (e.kind==="bldg" && e.p===P_YOU && G.disc.owlTower &&
                     BLDG[e.type].towerLine) ? 1 : 0;
-  // the Old Watchtower discovery: THIS specific tower only, doubled -
-  // adds another whole `base` rather than all towers getting +1 the way
-  // the owl's own bonus does (idea: ancient ruins)
-  const ancientBonus = (e.kind==="bldg" && e.ancientVision) ? base : 0;
+  // the Old Watchtower discovery: THIS specific tower only, doubled (or
+  // tripled, for whichever of the two repair choices was taken - see
+  // ANCIENT_RUIN_CHOICES, 05-wildlife.js) - adds whole extra `base`s
+  // rather than all towers getting +1 the way the owl's own bonus does
+  const ancientBonus = (e.kind==="bldg" && e.ancientVision) ? base * (e.ancientVisionMult||1) : 0;
   return Math.max(2, Math.round((base+owlBonus+ancientBonus) * weatherVisMult()));
 }
 /* Ground you have seen but cannot currently see fades back to unknown once a
@@ -11959,6 +12378,10 @@ function tick(dt){
           u.hp = Math.min(u.maxhp, u.hp + healRate*dt);
       }
     }
+    // a fortified wall/tower's shield runs out on its own even if nothing
+    // ever hit it - "temporary" has to mean temporary (idea: one new verb
+    // per age - Fortify)
+    if((b.fortifyHp||0) > 0 && G.t >= b.fortifyExpire) b.fortifyHp = 0;
   }
 
   // the day turns faster than the season - several days to a season
@@ -11973,6 +12396,7 @@ function tick(dt){
       hint(pickLine(DUSK_LINES,"dusk")); sendHome();
       moonfolkRise();     // as the village goes to bed, the night shift gets up
       tryStoryNight();   // rarely, the elder settles by the fire instead
+      tryNightcap();     // more often, just a few linger at the town centre a moment
       /* On a night when wolves are even seasonally possible, a howl a few
          seconds into dusk - so a raid, when it comes, has been announced.
          Deliberately not RAID_CHANCE: it is a warning that sometimes comes to
@@ -12052,6 +12476,7 @@ function tick(dt){
       tryMoonflowerHint();   // a one-time discovery, so this only ever does anything once
       tryPlayfulFox();       // same idea - once found or missed, never again this match
       trySpawnLanternGuide();
+      tryMessageBottle();    // repeatable, unlike the above - missed or read, another can wash up another night
     }
     if(ph==="dawn"){
       morningAfterCheck();   // a felt response to a rough night
@@ -12061,6 +12486,7 @@ function tick(dt){
       beastsFlee();
       clearMoonstone();
       clearMoonflower();   // closes at dawn if nobody found it
+      clearMessageBottle();   // washes back out with the tide if nobody read it
       // the farm-boost window (idea_discovery_events #4) closes the same
       // way - open windows come back on the next qualifying storm, so this
       // is a "not today" rather than a "never" for the player
@@ -12164,8 +12590,10 @@ function tick(dt){
   updateVeinRegrowth(dt);
   updateCaretaker(dt);
   updateBaker(dt);
+  updateFarmhands(dt);
   updateGoblinCamp(dt);     // Peaceful's own opt-in war (idea_peaceful_goblins)
   updateVillagerDeeds(dt);  // who has earned a name (idea_villager_little_lives)
+  updateSoldierMarks(dt);   // and who has earned a veteran's plume
   creditFirstNightStand();
   updateTreeRegrowth(dt);
   updateStorm(dt);
@@ -12234,16 +12662,22 @@ function tick(dt){
   updateHomeLife(dt);
   updateLeisureVillagers(dt);
   updateStoryNight(dt);
+  updateNightcap(dt);
   updateFootprints(dt);
   updatePairWalks(dt);
+  updateSoloWanders(dt);
   updateWaves(dt);
   updateChildReactions(dt);
   updateWolfDetours(dt);
   // both on slow timers rather than every frame
   G.pairWalkCd = (G.pairWalkCd===undefined) ? 10 : G.pairWalkCd-dt;
   if(G.pairWalkCd <= 0){ G.pairWalkCd = 12+Math.random()*20; tryPairWalk(); }
+  G.soloWanderCd = (G.soloWanderCd===undefined) ? 8 : G.soloWanderCd-dt;
+  if(G.soloWanderCd <= 0){ G.soloWanderCd = 10+Math.random()*14; trySoloWander(); }
   G.waveCd = (G.waveCd===undefined) ? 4 : G.waveCd-dt;
   if(G.waveCd <= 0){ G.waveCd = 5+Math.random()*9; tryVillagerWave(); }
+  G.homeClaimCd = (G.homeClaimCd===undefined) ? 3 : G.homeClaimCd-dt;
+  if(G.homeClaimCd <= 0){ G.homeClaimCd = 6+Math.random()*4; claimHomesForTheHomeless(); }
   updatePaths(dt);
   updateBeasts(dt);
   updateWanderers(dt);
@@ -12595,8 +13029,32 @@ function updateUnit(u, dt){
     }
   }
 
+  /* Nightcap at the hearth: Story-by-the-Fire's light, common cousin (see
+     tryNightcap/updateNightcap, 05-wildlife.js). Once there they simply
+     stand, same as the story-gathering above - the shared timer decides
+     when they head on to bed, not each villager for itself. The usual
+     daytime chatter (updateChatter) already has no day/night gate of its
+     own, so standing here together is the whole effect - nothing extra to
+     draw. */
+  if(u.order === "nightcap"){
+    if(!u.nightcapDest){ u.order = "home"; }
+    else {
+      const arrived = moveToward(u, u.nightcapDest.x, u.nightcapDest.y, spd, dt, 8);
+      u.moving = !arrived;
+      return;
+    }
+  }
+
   // heading home for the night
   if(u.order === "home"){
+    /* Wind down first, walk after - see sendOneHome (05b) for where this is
+       rolled. Without it every villager's home-walk began on the exact same
+       frame, and the only stagger anyone ever saw was an accident of how
+       far each one's house happened to be. A few seconds of standing still
+       first (read as "just finishing up" by the idle-sway already built
+       this session) turns dusk into a soft few seconds of the village
+       winding down rather than a single-frame snap. */
+    if(u.duskGrace > 0){ u.duskGrace -= dt; u.moving = false; return; }
     const h = u.target;
     if(!h || !h.done){ u.order=null; u.target=null; }
     else {
@@ -12759,6 +13217,40 @@ function updateUnit(u, dt){
         }
         break;
       }
+      /* The shipwrecked chest: same one-time-discovery shape as the
+         moonflower just above, not villager-only for the same reason -
+         there's no carry-it-home step, the gold and wood go straight to
+         the stores on the spot. (Aliveness Ledger #21) */
+      if(n.kind==="chest"){
+        if(moveToward(u, n.x, n.y, spd, dt, n.r+9)){
+          G.nodes = G.nodes.filter(x=>x!==n);
+          if(G.chestNode===n) G.chestNode=null;
+          G.disc.chestFound = true;
+          G.players[u.p].res.gold = (G.players[u.p].res.gold||0) + CHEST_GOLD_GIFT;
+          G.players[u.p].res.wood = (G.players[u.p].res.wood||0) + CHEST_WOOD_GIFT;
+          if(u.p===P_YOU) hint("A sea chest, half-buried in the sand - "+CHEST_GOLD_GIFT+" gold and "+
+                               CHEST_WOOD_GIFT+" salvaged wood, yours for the finding.");
+          u.order = null; u.target = null;
+        }
+        break;
+      }
+      /* A message in a bottle: same one-time-per-instance walk-and-resolve
+         shape as the chest just above, but repeatable rather than a
+         once-ever discovery, and it pays out in a tip rather than
+         resources - see BOTTLE_TIPS. */
+      if(n.kind==="bottle"){
+        if(moveToward(u, n.x, n.y, spd, dt, n.r+9)){
+          G.nodes = G.nodes.filter(x=>x!==n);
+          if(G.bottleNode===n) G.bottleNode=null;
+          G.disc.bottleSeen = true;
+          if(u.p===P_YOU){
+            const tip = BOTTLE_TIPS[(Math.random()*BOTTLE_TIPS.length)|0];
+            hint("A note, rolled up tight inside: “"+tip+"”");
+          }
+          u.order = null; u.target = null;
+        }
+        break;
+      }
       /* A boat cannot beach itself on a berry patch, so that order still goes
          straight in the bin. The other way round is allowed now: a villager
          fishes a shoal from the bank, provided there is a bank to stand on
@@ -12831,6 +13323,22 @@ function updateUnit(u, dt){
             u.fishPhaseT += dt;
             if(u.fishPhase==="cast" && u.fishPhaseT >= FISH_CAST_DUR){ u.fishPhase="wait"; u.fishPhaseT=0; }
             else if(u.fishPhase==="reel" && u.fishPhaseT >= FISH_REEL_DUR){ u.fishPhase="wait"; u.fishPhaseT=0; }
+          }
+          /* A bite worth tapping for - see FISH_BITE_* (01f) and selectOne
+             (03a) for where a catch is actually resolved. Only while
+             genuinely waiting on a moonlit shoal, and player-only: the AI
+             has no tap to react with, so there is nothing here for it. */
+          if(u.fishPhase==="wait" && u.p===P_YOU && moonlitCatchActive()){
+            u.biteCd = (u.biteCd||0) - dt;
+            if(!(u.bite>0) && u.biteCd<=0 && Math.random() < FISH_BITE_CHANCE*dt){
+              u.bite = FISH_BITE_LIFE;
+              u.biteCd = FISH_BITE_COOLDOWN;
+              fxWork(u.x, u.y+6, "#bcd9e8");     // a splash - something's there
+            }
+          }
+          if(u.bite > 0){
+            u.bite -= dt;
+            if(u.bite < 0) u.bite = 0;
           }
           u.gatherT += dt * tiredMult(u);      // dead on their feet, and it shows in the work
           u.working = 0.45;                       // drives the work animation
@@ -12917,6 +13425,30 @@ function updateUnit(u, dt){
               u.target = nn || null;
             }
           }
+        }
+      }
+      break;
+    }
+    case "fortify": {
+      const b = u.target;
+      if(!b || !b.done || b.hp<=0 || !BLDG[b.type].fortifiable){ u.order=null; u.target=null; break; }
+      const rad2 = Math.max(b.w,b.h)*TILE/2 + 8;
+      if(moveToward(u, b.x, b.y, spd, dt, rad2)){
+        u.fortifyT = (u.fortifyT||0) + dt;
+        u.atkAnim = 0.2; u.working = 0.45;
+        if(Math.random()<0.10) fxWork(u.x, u.y-4, "#8a8a78");
+        if(u.fortifyT >= FORTIFY_WORK_TIME){
+          const pl = G.players[u.p];
+          if(!canAfford(pl, FORTIFY_COST)){
+            if(u.p===P_YOU) hint("Not enough wood and stone to fortify the "+BLDG[b.type].name.toLowerCase()+".");
+          } else {
+            pay(pl, FORTIFY_COST);
+            b.fortifyHp = Math.min(b.maxhp, (b.fortifyHp||0) + Math.round(b.maxhp*FORTIFY_BONUS_FRAC));
+            b.fortifyExpire = G.t + FORTIFY_DURATION;
+            if(u.p===P_YOU) hint(BLDG[b.type].name+" fortified — it'll shrug off extra damage for a while.");
+            fxPing(b.x, b.y);
+          }
+          u.order=null; u.target=null; u.fortifyT=0;
         }
       }
       break;
@@ -13014,6 +13546,10 @@ function updateUnit(u, dt){
           if(b.type==="greathall"){
             G.players[b.p].res.know += 150;
             if(b.p===P_YOU) hint("The Great Hall stands - 150 knowledge, all at once, and more flowing in from here on.");
+          }
+          if(BLDG[b.type].wonder && b.p===P_YOU){
+            G.disc.wonderBuilt = true;
+            hint("The Sunstone Cairn stands. It does nothing at all - it was never meant to.");
           }
           // The walls go up around whoever built them. Step them outside at
           // once rather than leaving them standing inside - but by the shortest
@@ -13189,6 +13725,13 @@ function updateUnit(u, dt){
       }
     }
   }
+  /* A "Then..." order given while this unit was still busy: the switch
+     above just settled this frame's order, and null here means the job it
+     was doing is actually finished (or gone), not merely retargeted - every
+     branch that reassigns an order sets it directly, never through null.
+     One check here catches every completion site above instead of hunting
+     down each one. */
+  if(u.order === null && u.followUp) startFollowUp(u);
 }
 
 /* ============================================================
@@ -14161,7 +14704,15 @@ function dealDamage(src, t, dmg, cls){
     }
     t.bossWarded = guarded;
   }
-  const dealt = dmg*m;
+  let dealt = dmg*m;
+  // a fortified wall/tower's shield takes the hit first (idea: one new verb
+  // per age - Fortify) - a real absorb, not a damage-reduction multiplier,
+  // so it visibly runs out rather than just quietly softening every blow
+  if(t.kind==="bldg" && (t.fortifyHp||0) > 0){
+    const absorb = Math.min(t.fortifyHp, dealt);
+    t.fortifyHp -= absorb;
+    dealt -= absorb;
+  }
   t.hp -= dealt;
   /* Peaceful: the Ashkin leave you alone until you GO FOR them. Only a blow
      struck by the player on the Ashkin counts - a wolf or a night beast is
@@ -16138,6 +16689,12 @@ function draw(){
     if(!visibleTo(P_YOU,o.x,o.y)) continue;
     drawList.push({ e:o, y:o.y, kind:18 });
   }
+  // the Granary's farmhand: same shape of thing again, same drawing
+  for(const o of G.farmhands||[]){
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:18 });
+  }
   /* 24: the goblin sprite review (idea_peaceful_goblins). NOTHING spawns
      these - the list is only ever filled by hand from the console so the
      designs can be looked at. It comes out again once one is chosen and the
@@ -16149,6 +16706,7 @@ function draw(){
   // 23: the highest in use was 22. Counted, not guessed - see the note by
   // the tumbleweeds about picking a number that only looks free.
   for(const o of G.bakers||[]){
+    if(o.indoors) continue;            // ducked inside for a spell, see updateBaker
     if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
     if(!visibleTo(P_YOU,o.x,o.y)) continue;
     drawList.push({ e:o, y:o.y, kind:23 });
@@ -18420,6 +18978,8 @@ function drawBerryBush(n, frac, wob){
 function drawNode(n){
   if(n.kind==="seasonalcrop"){ drawSeasonalCropNode(n); return; }
   if(n.kind==="moonflower"){ drawMoonflowerNode(n); return; }
+  if(n.kind==="chest"){ drawChestNode(n); return; }
+  if(n.kind==="bottle"){ drawBottleNode(n); return; }
   /* The canopy's own idle sway, plus whatever the gust crossing the map is
      doing to this particular tree - which is what makes a wood lean in a wave
      rather than all at once. (see gustAt, 05-wildlife) */
@@ -21101,6 +21661,14 @@ function drawBuilding(b){
     ctx.fillStyle= b.p===P_YOU?"#7fbf5f":"#c9573f";
     ctx.fillRect(x+1, y-H-8, (w-2)*(b.hp/b.maxhp), 2);
   }
+  // a Fortify shield reads as its own bar, same convention as the hp bar
+  // just above it - it's a different pool, not extra hp, and it should
+  // look like one (idea: one new verb per age)
+  if((b.fortifyHp||0) > 0){
+    ctx.fillStyle="rgba(0,0,0,.6)"; ctx.fillRect(x, y-H-14, w, 4);
+    ctx.fillStyle="#8fd6e8";
+    ctx.fillRect(x+1, y-H-13, (w-2)*Math.min(1,b.fortifyHp/b.maxhp), 2);
+  }
   drawBuildingFire(b, x, y, w, dep, H);
   drawSeasonalFarmMarker(b, x, y);   // which season's crop this one is
   drawPlating(b, x, y, w, dep, H, d); // and the moonstone grown over it
@@ -21126,6 +21694,24 @@ function drawBuilding(b){
   drawLaundryLine(b, x, y, w, dep, H);
   // moss and flowers gathering with age (world-alive pack 2, feature 9)
   drawBuildingWeathering(b, x, y, w, dep, H);
+  /* The one thing the Sunstone Cairn actually does: catch the light. A soft
+     sun-gold glow on its capstone, steady by day and a little brighter after
+     dark (idea: a wonder to build for, not to need) - the only building in
+     the game with no yield, no training and no defence gets the one thing
+     none of the others need to bother with, which is to simply look like
+     it was worth building. */
+  if(d.wonder && b.done){
+    const pulse = 0.75 + 0.25*Math.sin(G.t*0.6 + b.id);
+    ctx.globalAlpha = (vis?1:0.72) * pulse * (0.85 + (G.dark||0)*0.6);
+    const grad = ctx.createRadialGradient(cx, y+dep-H*1.02, 0, cx, y+dep-H*1.02, w*0.42);
+    grad.addColorStop(0, "rgba(255,224,150,0.85)");
+    grad.addColorStop(1, "rgba(255,224,150,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(cx, y+dep-H*1.02, w*0.42, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = vis?1:0.72;
+    ctx.fillStyle = "#f4d99a";
+    ctx.beginPath(); ctx.arc(cx, y+dep-H*1.02, 3.2, 0, 6.283); ctx.fill();
+  }
   ctx.globalAlpha=1;
 }
 
@@ -21173,6 +21759,28 @@ function drawAncientRuinTheme(b, x, y, w, dep, H){
     const t = s/steps, vy = y+dep - t*H*0.85;
     ctx.beginPath();
     ctx.ellipse(vx+Math.sin(t*7+seed*6)*2.2+1.8, vy-1, 1.8, 1.1, 0.5, 0, 6.283); ctx.fill();
+  }
+
+  /* A discovery leaves a mark in the village (Aliveness Ledger #24): a
+     small plaque set into the wall once it's actually been decided and
+     finished (b.ruinChoice, see ANCIENT_RUIN_CHOICES/chooseRuinOutcome,
+     05-wildlife.js), on the side opposite the vine so the two never
+     compete for the same patch of wall. Purely a badge of "this one is
+     done, and someone chose how" - static, no glint, nothing left to do
+     here. */
+  if(b.repaired && b.ruinChoice){
+    const px = x + w*0.78, py = y + dep - H*0.32;
+    ctx.fillStyle = "rgba(30,26,22,.35)";
+    ctx.fillRect(px-3.2, py-2.6, 7.6, 5.6);
+    ctx.fillStyle = "#c9bfa8";
+    ctx.fillRect(px-3, py-2.4, 7, 5.2);
+    ctx.strokeStyle = "rgba(70,60,45,.6)"; ctx.lineWidth = 0.5;
+    ctx.strokeRect(px-3, py-2.4, 7, 5.2);
+    // two short engraved lines, standing in for an inscription nobody
+    // needs to actually read
+    ctx.strokeStyle = "rgba(70,60,45,.55)"; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(px-1.8, py-0.6); ctx.lineTo(px+1.8, py-0.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px-1.8, py+0.9); ctx.lineTo(px+1.2, py+0.9); ctx.stroke();
   }
 }
 
@@ -21578,23 +22186,6 @@ function drawUnit(u){
     ctx.fillStyle= u.p===P_YOU?"#7fbf5f":"#c9573f";
     ctx.fillRect(x-u.r+0.6, y-u.r*2.4+0.7, (u.r*2-1.2)*(u.hp/u.maxhp), 2);
   }
-  /* A villager standing around with nothing to do reads as a bug until you
-     realise it's a question - this is that question made visible. Exactly
-     the same test idleUnits() (07-ui-and-boot.js) uses for the HUD's own
-     idle count, so the marker and the number can never disagree. Leisure
-     villagers are a wholly separate array (G.leisure) and never reach here
-     with order===null, so nothing off-duty gets flagged by mistake. */
-  if(u.p===P_YOU && u.type==="villager" && !u.order && !u.indoors){
-    const bob = Math.sin(G.t*1.6 + u.id)*1.1;
-    const pulse = 0.55 + 0.35*(0.5 + 0.5*Math.sin(G.t*2.4 + u.id*1.7));
-    const iy = y - u.r*2.7 + bob;
-    ctx.globalAlpha = pulse;
-    ctx.fillStyle = "#ffe6a0";
-    ctx.beginPath(); ctx.arc(x, iy, 2.1, 0, 6.283); ctx.fill();
-    ctx.strokeStyle = "rgba(90,68,28,.55)"; ctx.lineWidth = 0.6;
-    ctx.beginPath(); ctx.arc(x, iy, 2.1, 0, 6.283); ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
   /* The carried resource used to be a coloured pip floating by their head
      from the first swing of the axe onwards, which read as a marker rather
      than as anything anybody was holding. It is drawn on the body now, in
@@ -21981,7 +22572,14 @@ function drawPerson(u, pl, yOff){
      leaves it unset and gets TINT/player colour exactly as before. */
   const job = isVill ? villagerJob(u) : null;
   const baseCloth = u.cloth || (job==="wood" ? FLANNEL : null) || TINT[u.type] || pl.col;
-  const tint = wint>0.2 ? shade(baseCloth, -0.10*wint) : baseCloth;
+  /* The baker's whites are the one outfit whose whole job is to be
+     recognisable at a glance ("always dressed for the one thing he does" -
+     see the toque note below) - winter's own darkening was catching them
+     too, which is exactly the "his clothes changed" report that made him
+     harder to pick out as the season turned. Exempt his cloth specifically
+     rather than every custom `u.cloth` user, since the leisure villagers'
+     own clothes are ordinary and dimming with the cold suits them fine. */
+  const tint = (wint>0.2 && !u.chef) ? shade(baseCloth, -0.10*wint) : baseCloth;
 
   const swing = u.moving ? Math.sin(u.walk)*0.85 : 0;
   const bob   = u.moving ? Math.abs(Math.sin(u.walk))*H*0.045 : 0;
@@ -22542,6 +23140,20 @@ function drawPerson(u, pl, yOff){
     ctx.beginPath();
     ctx.ellipse(0, headY-headR*1.02, headR*0.24, headR*0.46, 0, 0, 6.283);
     ctx.fill();
+    /* A veteran's plume: a warm dyed streak down the middle of the same
+       crest rather than a second colour system layered on top of the civ's
+       own, so it reads at a glance under any team colour without needing
+       to be told what it means. Purely cosmetic - see updateSoldierMarks
+       (05b) for how u.marked is earned; nothing here touches a stat. */
+    if(u.marked){
+      // a pale, near-silver streak - the one colour that reads clearly
+      // against both civs' own crest colours (a warm gold and a cool
+      // purple), rather than a shade close enough to either to vanish
+      ctx.fillStyle = "#e8e2cc";
+      ctx.beginPath();
+      ctx.ellipse(0, headY-headR*1.02, headR*0.10, headR*0.42, 0, 0, 6.283);
+      ctx.fill();
+    }
   }
 
   // ---- a torch, once it is dark enough to want one ----
@@ -23022,13 +23634,21 @@ function drawHeld(u, hx, hy, H, atk, pl){
         ctx.strokeStyle="#6b4f30"; ctx.lineWidth=Math.max(1.0,H*0.032);
         ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(tipX,tipY); ctx.stroke();
         if(lineK > 0){
-          const bobY = (phase==="wait") ? Math.sin(G.t*2.6+u.id)*H*0.02 : 0;
+          /* A bite reads in the float itself, not a marker over anyone's
+             head (see feedback_no_floating_ui_markers_on_units) - it dips
+             and jitters hard rather than its usual steady wobble, exactly
+             the way a real one would with something pulling at the line.
+             u.bite is armed/counted down in the gather tick, 03c. */
+          const biting = phase==="wait" && (u.bite||0) > 0;
+          const bobY = phase==="wait"
+            ? (biting ? H*0.05 + Math.sin(G.t*15+u.id)*H*0.07 : Math.sin(G.t*2.6+u.id)*H*0.02)
+            : 0;
           const fx = tipX + H*0.09*lineK, fy = tipY + H*0.44*lineK + bobY;
           ctx.strokeStyle="rgba(238,243,248,.7)"; ctx.lineWidth=0.55;
           ctx.beginPath(); ctx.moveTo(tipX,tipY);
           ctx.quadraticCurveTo(tipX+H*0.13*lineK, tipY+H*0.20*lineK, fx, fy); ctx.stroke();
           ctx.fillStyle="#c1503f";                       // the float, bobbing
-          ctx.beginPath(); ctx.arc(fx, fy, Math.max(0.8,H*0.042)*Math.max(0.3,lineK), 0, 6.283); ctx.fill();
+          ctx.beginPath(); ctx.arc(fx, fy, Math.max(0.8,H*0.042)*Math.max(0.3,lineK)*(biting?1.25:1), 0, 6.283); ctx.fill();
         }
         break;
       }
@@ -27257,6 +27877,78 @@ const ANCIENT_RUIN_CHANCE = 0.5;      // rolled at the season turn - "one per se
 const ANCIENT_FARM_MULT = 1.30;
 const ANCIENT_MINE_MULT = 1.20;
 const ANCIENT_SHRINE_GIFT = 150;
+/* Some discoveries should be a choice, not a claim (Aliveness Ledger #23):
+   repairing any of the five ruins used to cost nothing beyond a
+   villager's own time and hand out one fixed bonus automatically the
+   instant hp topped out - a free find, not a decision. Each one now
+   offers two mutually exclusive outcomes, picked from the selection
+   panel (07-ui-and-boot.js) once the ruin is found and paid for on the
+   spot (chooseRuinOutcome, below) - a real resource cost either way, one
+   modest and familiar, one bigger and dearer. updateAncientRuins now
+   waits for b.ruinChoice before applying anything at all, however long
+   that takes - fully mended but undecided is a real, stable state, not a
+   bug. Kept to five simple pairs (tend the same way as before, at a
+   price now / go further, for more) rather than five bespoke rewards, so
+   the choice reads the same everywhere: safe and familiar, or ambitious
+   and costly. */
+const ANCIENT_RUIN_CHOICES = {
+  farmhouse: [
+    { key:"tend", name:"Tend it as it was", cost:{food:50},
+      line:"The ground remembers how it was worked - this field yields better than a fresh one, for good.",
+      apply:(b)=>{ b.ancientBonus = ANCIENT_FARM_MULT; } },
+    { key:"break", name:"Break new ground beside it", cost:{food:80,wood:40},
+      line:"Cleared and replanted wider than it ever was - a noticeably richer field for the extra work.",
+      apply:(b)=>{ b.ancientBonus = 1.60; } }
+  ],
+  mine: [
+    { key:"tend", name:"Work the old seam", cost:{stone:50},
+      line:"The old seam gives up more than a fresh one, same as it always did.",
+      apply:(b)=>{ b.ancientBonus = ANCIENT_MINE_MULT; } },
+    { key:"break", name:"Cut a deeper shaft", cost:{stone:80,gold:40},
+      line:"Driven deeper than the old miners ever risked - a markedly richer haul for it.",
+      apply:(b)=>{ b.ancientBonus = 1.45; } }
+  ],
+  shrine: [
+    { key:"tend", name:"Clear it reverently", cost:{gold:60},
+      line:"Whatever was left inside it is yours.",
+      apply:(b)=>{ G.players[P_YOU].res.moonstone = (G.players[P_YOU].res.moonstone||0) + ANCIENT_SHRINE_GIFT; } },
+    { key:"break", name:"Dig beneath the floor", cost:{gold:140},
+      line:"Deeper than whoever built it ever went - twice the moonstone for the risk.",
+      apply:(b)=>{ G.players[P_YOU].res.moonstone = (G.players[P_YOU].res.moonstone||0) + ANCIENT_SHRINE_GIFT*2; } }
+  ],
+  watchtower: [
+    { key:"tend", name:"Rebuild it as it stood", cost:{stone:50},
+      line:"Built to see further than an ordinary one, and it still does.",
+      apply:(b)=>{ b.towerLvl = TOWER_UPGRADES.length; b.ancientVision = true; b.ancientVisionMult = 1; } },
+    { key:"break", name:"Raise it higher still", cost:{stone:90,gold:40},
+      line:"A storey taller than it ever was - sees further again for it.",
+      apply:(b)=>{ b.towerLvl = TOWER_UPGRADES.length; b.ancientVision = true; b.ancientVisionMult = 2; } }
+  ],
+  blacksmith: [
+    { key:"tend", name:"Light the old forge", cost:{gold:60},
+      line:"The only forge in the world that will sell the ancient temper.",
+      apply:(b)=>{ b.ancientForge = true; } },
+    { key:"break", name:"Rebuild the bellows too", cost:{gold:120},
+      line:"The only forge in the world that will sell the ancient temper - and a good store of iron besides, shaken loose from the old flue.",
+      apply:(b)=>{ b.ancientForge = true; G.players[P_YOU].res.iron = (G.players[P_YOU].res.iron||0) + 60; } }
+  ]
+};
+
+// pays the cost and locks in the choice - updateAncientRuins applies it
+// (possibly on this very tick, if hp is already full; possibly later, if
+// the ruin is still being worked on) the moment it next runs
+function chooseRuinOutcome(b, choiceKey){
+  if(!b || !b.ruinKey || b.repaired || b.ruinChoice) return false;
+  const options = ANCIENT_RUIN_CHOICES[b.ruinKey];
+  const choice = options && options.find(c=>c.key===choiceKey);
+  if(!choice) return false;
+  const pl = G.players[b.p];
+  if(!canAfford(pl, choice.cost)) return false;
+  pay(pl, choice.cost);
+  b.ruinChoice = choiceKey;
+  return true;
+}
+
 const ANCIENT_RUINS = [
   { key:"farmhouse", type:"oldfarmhouse", finalType:"farm",
     foundHint:"An old farmhouse out there, half-sunk into its own field and grown over with vines - worth repairing, by the look of it.",
@@ -27391,22 +28083,20 @@ function updateAncientRuins(){
     }
     if(b.repaired) continue;
     if(b.hp < b.maxhp) continue;
+    /* Fully mended, but a decision hasn't been made yet - see
+       chooseRuinOutcome and the selection panel (07-ui-and-boot.js). This
+       is a real, stable state to sit in for as long as it takes, not
+       something to hurry past - the whole point is that nothing is
+       granted until it's actually chosen. */
+    if(!b.ruinChoice) continue;
+    const outcome = ANCIENT_RUIN_CHOICES[r.key].find(c=>c.key===b.ruinChoice);
     const final = BLDG[r.finalType];
     b.type = r.finalType;
     b.maxhp = final.hp; b.hp = final.hp;
     b.repaired = true;
-    if(r.key==="watchtower"){ b.towerLvl = TOWER_UPGRADES.length; b.ancientVision = true; }
-    if(r.key==="farmhouse"){ b.ancientBonus = ANCIENT_FARM_MULT; attachFarm(b); }
-    if(r.key==="mine"){ b.ancientBonus = ANCIENT_MINE_MULT; }
-    if(r.key==="shrine" && b.p===P_YOU){
-      G.players[P_YOU].res.moonstone = (G.players[P_YOU].res.moonstone||0) + ANCIENT_SHRINE_GIFT;
-    }
-    /* The forge does not hand you the ancient temper any more - it is the
-       best armour in the game and it is bought, like every other level of
-       it. What repairing this ruin gives you is the only forge in the world
-       that will sell it. (SPECIAL_ARMOR_COST) */
-    if(r.key==="blacksmith") b.ancientForge = true;
-    if(b.p===P_YOU){ hint(r.repairedHint); refreshUI(); }
+    if(r.key==="farmhouse") attachFarm(b);
+    outcome.apply(b);
+    if(b.p===P_YOU){ hint(outcome.line); refreshUI(); }
   }
 }
 
@@ -27825,7 +28515,19 @@ const LEISURE_CLOTHES = [
   ["#8f7a5a","#c4dce8"], ["#7f6a8a","#a4c98f"], ["#9a7a5f","#8fb4c9"]
 ];
 
-const LEISURE_MAX     = 5;     // couples count as one "slot" toward this
+/* Used to be a flat number regardless of how far the village had actually
+   come (idea: let the village grow up, not just its paint) - a lone
+   Wandering Age hut and a thriving Iron Age town had exactly the same
+   handful of people ever seen out and about. Reads off prosperityScore()
+   (Ledger #13, 05-wildlife.js below) rather than the player's age: a big
+   peaceful village earns a livelier street even if it never ages up, and
+   two small skirmishing bases stay quiet, which is closer to what "grown
+   up" actually means here than an age number would be. */
+const LEISURE_MAX_BASE   = 2;     // couples count as one "slot" toward this
+const LEISURE_MAX_GROWTH = 4;     // added back in as prosperity climbs
+function leisureMaxNow(){
+  return LEISURE_MAX_BASE + Math.min(LEISURE_MAX_GROWTH, Math.floor(prosperityScore()/80));
+}
 const LEISURE_RADIUS  = 230;   // how far a house will look for something to do
 
 /* Where the leisure system will actually send someone from this house,
@@ -28272,7 +28974,7 @@ function updateLeisureVillagers(dt){
     const slots = G.leisure.reduce((s,o)=>s + (o.coupleId?0.5:1), 0);
     const houses = G.bldgs.filter(b=>b.p===P_YOU && b.type==="house" && b.done &&
       !G.leisure.some(o=>o.home===b));
-    if(houses.length && slots < LEISURE_MAX && G.phase==="day" && Math.random() < 0.6){
+    if(houses.length && slots < leisureMaxNow() && G.phase==="day" && Math.random() < 0.6){
       const house = houses[(Math.random()*houses.length)|0];
       const { activity, dest } = pickLeisureErrand(house);
 
@@ -28751,6 +29453,80 @@ function updateStoryNight(dt){
 }
 
 /* ============================================================
+   A NIGHTCAP AT THE HEARTH (Aliveness Ledger #16)
+   Story-by-the-Fire's light, common cousin: no elder, no bonfire, no
+   lodge - just a handful of villagers pausing at the town centre for a
+   few minutes before bed. The same wordless chatter everyone already
+   shows by day (updateChatter has no day/night gate of its own) is the
+   whole effect once they're standing together - nothing new to draw.
+   Deliberately common where Story Night is rare, so the two are kept
+   mutually exclusive on any one dusk rather than ever stacking.
+   ============================================================ */
+const NIGHTCAP_CHANCE    = 0.35;   // rolled once per night - common, unlike Story Night
+const NIGHTCAP_GROUP_MIN = 2;
+const NIGHTCAP_GROUP_MAX = 5;      // "a handful", never the whole village
+const NIGHTCAP_HOLD      = 16;     // a few minutes' worth, short beside Story Night's 34s
+
+function tryNightcap(){
+  if(G.storyNight || G.nightcap) return false;    // the rare version takes precedence
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town" && b.done);
+  if(!town) return false;
+  if(Math.random() > NIGHTCAP_CHANCE) return false;
+
+  const candidates = G.units.filter(u=>
+    u.p===P_YOU && u.type==="villager" && u.hp>0 && u.order==="home");
+  if(candidates.length < NIGHTCAP_GROUP_MIN) return false;   // too early tonight
+
+  const n = Math.min(candidates.length, NIGHTCAP_GROUP_MIN +
+    Math.floor(Math.random() * (NIGHTCAP_GROUP_MAX - NIGHTCAP_GROUP_MIN + 1)));
+  const pool = candidates.slice();
+  const going = [];
+  for(let i=0; i<n; i++){
+    going.push(pool.splice((Math.random()*pool.length)|0, 1)[0]);
+  }
+  /* Clear of the building itself first, or a chunk of the ring lands
+     inside its own solid footprint and moveToward can approach but never
+     truly arrive - measured live: a smaller fixed radius put 3 of 4
+     destinations inside the town centre's own walls. */
+  const clear = Math.max(town.w, town.h)*TILE*0.5 + 12;
+  going.forEach(u=>{
+    const a = Math.random()*6.283, r = clear + Math.random()*30;
+    u.nightcapDest = { x: town.x + Math.cos(a)*r, y: town.y + Math.sin(a)*r };
+    u.order = "nightcap";
+  });
+
+  G.nightcap = { t:0, dur: NIGHTCAP_HOLD, phase:"gathering", waitT:0 };
+  return true;
+}
+
+function updateNightcap(dt){
+  if(!G.nightcap) return;
+  const nc = G.nightcap;
+
+  if(nc.phase === "gathering"){
+    nc.waitT = (nc.waitT||0) + dt;
+    const stillWalking = G.units.some(u=>u.order==="nightcap" && u.hp>0);
+    const allThere = !G.units.some(u=>u.order==="nightcap" && u.nightcapDest &&
+      Math.hypot(u.x-u.nightcapDest.x, u.y-u.nightcapDest.y) > 14);
+    if(!stillWalking || allThere || nc.waitT > 30){ nc.phase = "there"; nc.t = 0; }
+    return;
+  }
+
+  nc.t += dt;
+  if(nc.t < nc.dur) return;
+  let count = 0;
+  for(const u of G.units){
+    if(u.order !== "nightcap") continue;
+    u.order = "home";           // handed back to the existing home walk
+    u.nightcapDest = null;
+    count++;
+  }
+  if(count>0) hint(count===1 ? "One last chat by the town centre before turning in."
+                              : "A few linger by the town centre for a last word before turning in.");
+  G.nightcap = null;
+}
+
+/* ============================================================
    ICE ON THE PONDS  (world-alive pack 5, feature 22)
 
    As shipped this frosted every water tile on the map. That was written for
@@ -28878,6 +29654,64 @@ function updatePairWalks(dt){
     // (someone gave an order, an attack started, whatever) takes over -
     // never fights the player's own commands
     if(u.pairT <= 0 || u.order !== "move"){ u.paired = false; }
+  }
+}
+
+/* ============================================================
+   NO VILLAGER SHOULD EVER BE TRULY INERT  (Aliveness Ledger #22)
+   ============================================================
+   Two real gaps, not the leisure system - G.leisure is a wholly
+   decorative, self-contained layer with no real link to an actual
+   villager's home at all (confirmed by reading it start to finish before
+   touching anything), so there was nothing to fix there. The actual gap:
+   a fresh villager - just trained, or one who somehow lost their
+   assignment - has NO u.home at all until dusk finds them one via
+   sendOneHome (05b-night-cycle.js). During the day that can leave them
+   with nowhere waiting for them even with a bed sitting empty right now.
+   And an idle, jobless villager with nothing else going on had no reason
+   to ever move at all - the idle sway (built earlier this session)
+   already keeps them from reading as a frozen mannequin, but standing
+   dead still in one exact spot all day is still standing dead still.
+
+   Deliberately does NOT touch how leisure pulls a WORKING villager off
+   their job for a while - that's the system doing its job, not a gap
+   (confirmed with the user directly before building either half of this). */
+
+// claims the nearest house with room, exactly as sendOneHome eventually
+// would at dusk - just checked well before then, so a homeless villager
+// doesn't spend the whole day with nowhere to call their own
+function claimHomesForTheHomeless(){
+  for(const u of G.units){
+    if(u.type!=="villager" || u.home || u.indoors || u.hp<=0) continue;
+    const home = findHome(u);
+    if(home) u.home = home;
+  }
+}
+
+const SOLO_WANDER_CHANCE = 0.012;   // rolled on a slow timer, see call site
+const SOLO_WANDER_DIST   = 45;
+
+// tryPairWalk's own shape, minus the partner - an idle villager with
+// nothing else going on gets sent a few tiles and back, never fighting a
+// real order (see updateSoloWanders, which drops it the instant one lands)
+function trySoloWander(){
+  if(Math.random() > SOLO_WANDER_CHANCE) return;
+  const idle = G.units.filter(u=>
+    u.p===P_YOU && u.type==="villager" && !u.order && !u.indoors && !u.paired && !u.wandering);
+  if(!idle.length) return;
+  const u = idle[(Math.random()*idle.length)|0];
+  const ang = Math.random()*6.283;
+  const tx = u.x + Math.cos(ang)*SOLO_WANDER_DIST, ty = u.y + Math.sin(ang)*SOLO_WANDER_DIST;
+  if(blocked(tx,ty,null,false)) return;
+  u.wandering = true; u.wanderT = 5 + Math.random()*4;
+  u.order = "move"; u.tx = tx; u.ty = ty; u.path = null;
+}
+
+function updateSoloWanders(dt){
+  for(const u of G.units){
+    if(!u.wandering) continue;
+    u.wanderT -= dt;
+    if(u.wanderT <= 0 || u.order !== "move"){ u.wandering = false; }
   }
 }
 
@@ -29792,6 +30626,22 @@ function almanacBannerFor(dayNum){
   if(G.almBannerDay === dayNum) return G.almBannerText;
   G.almBannerDay = dayNum;
 
+  /* The Night Market's own risk (better trade, rising raid odds per
+     purchase) used to be a pure ambush - the caravan simply appeared at
+     dusk with no warning at all. G.nightMarketDue is already the game's
+     own one-step-ahead pre-roll for it (tryNightMarket, this file: rolled
+     at the season turn, spent at the very next dusk), previously spent in
+     total silence. Reading it here turns the risk into something the
+     player can actually decide about ahead of time, rather than reacting
+     to it after the fact - and needs no new prediction machinery, just an
+     earlier look at a flag that already existed. Takes priority over the
+     routine weather chatter below: a market is rare (about once a season)
+     and worth knowing regardless of what the sky is doing. */
+  if(G.nightMarketDue){
+    G.almBannerText = "Today's almanac: a cart's lantern was seen on the road toward the village - a market, perhaps, before the night is out.";
+    return G.almBannerText;
+  }
+
   const todayF = dayForecast(0);
   if(todayF.current && G.weather){
     const w = weatherDefFor(G.season, G.weather.key);
@@ -29861,7 +30711,8 @@ function prosperityScore(){
       .filter(k=>G.disc[k]).length
     + (G.disc.farmBoost ? 1 : 0)
     + Object.values(G.disc.ancientRuins||{}).filter(b=>b && b.repaired).length;
-  return Math.round(pl.pop*3 + buildings*4 + named*10 + discoveries*15);
+  const wonder = G.disc.wonderBuilt ? 40 : 0;
+  return Math.round(pl.pop*3 + buildings*4 + named*10 + discoveries*15 + wonder);
 }
 function prosperityLine(){
   const score = prosperityScore();
@@ -29921,16 +30772,26 @@ function coupleNoticeLine(dayNum){
    system each time. */
 const SPECIAL_NIGHT_CHANCE = 0.055;   // same ≈1-in-5-matches cadence as the golden stag
 const SPECIAL_NIGHT_EVENTS = [
-  { name:"lanternfestival", go:()=>startLanternFestival() }
+  { name:"lanternfestival", go:()=>startLanternFestival() },
+  { name:"stargazers",      go:()=>startStargazersNight() }
 ];
 function trySpecialNight(){
   if(Math.random() > SPECIAL_NIGHT_CHANCE) return false;
   G.specialNightDue = true;
   return true;
 }
+/* Tries every member in a random order and stops at the first that actually
+   fires - the same "try a few, since some need conditions we cannot meet
+   tonight" shape somethingHappensTonight uses for NIGHT_EVENTS. Needed the
+   moment a second member existed: the lantern festival never declines, but
+   stargazers night can (cloud cover), and a due special night spent on
+   nothing was a worse outcome than falling back to the other member. */
 function spawnSpecialNight(){
-  const pick = SPECIAL_NIGHT_EVENTS[(Math.random()*SPECIAL_NIGHT_EVENTS.length)|0];
-  pick.go();
+  const order = SPECIAL_NIGHT_EVENTS.slice();
+  for(let i=order.length-1;i>0;i--){
+    const j=(Math.random()*(i+1))|0; const t=order[i]; order[i]=order[j]; order[j]=t;
+  }
+  for(const pick of order) if(pick.go()) return;
 }
 
 /* The pool's first member. Picks a side like every other night event
@@ -29962,6 +30823,42 @@ function startLanternFestival(){
   } else {
     rivalNews("Lanterns are lit all through the Ashkin settlement tonight.");
   }
+  return true;   // never declines - the pool can rely on this one always firing
+}
+
+/* The pool's second member (idea: build out the Special Night pool). Reuses
+   the meteor shower wholesale rather than inventing new sky content -
+   force:true skips ITS OWN separate rare ambient roll, since the pool has
+   already spent the roll that earned this night. Can still decline (a
+   shower already running, or cloud in the way), which is exactly why
+   spawnSpecialNight tries its members in a random order instead of
+   committing to whichever one got picked first. The villagers-gather
+   flourish reuses the lantern festival's own festivalgoer wanderers rather
+   than a new kind - cosmetic dressing on top of an event the sky itself is
+   already carrying. */
+const STARGAZER_GOERS = 3;
+function startStargazersNight(){
+  if(!tryMeteorShower(true)) return false;
+  const side = nightSide();
+  if(side===P_YOU){
+    hint("Half the village has come out for it - a proper meteor shower, not just the odd wish on a falling star.");
+    const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
+    if(town){
+      if(!G.wanderers) G.wanderers = [];
+      for(let i=0;i<STARGAZER_GOERS;i++){
+        const a = Math.random()*6.283, r = 25+Math.random()*45;
+        G.wanderers.push({
+          kindTag:"wanderer", kind:"festivalgoer", name:"a villager",
+          x: town.x+Math.cos(a)*r, y: town.y+Math.sin(a)*r,
+          tx: town.x, ty: town.y, spd: 30+Math.random()*10,
+          t:0, wait:0, face:1, walk:Math.random()*6, seed:Math.random()*6.283
+        });
+      }
+    }
+  } else {
+    rivalNews("The sky's put on a show over the Ashkin's valley tonight, by the look of it.");
+  }
+  return true;
 }
 function updateFestivalgoers(dt){
   for(const w of (G.wanderers||[]).filter(x=>x.kind==="festivalgoer")){
@@ -31068,7 +31965,32 @@ const HERMIT_LINES = [
   "Someone gets a nod from the hermit. That's the whole conversation, and it seems to be enough."
 ];
 
+/* A personal want, not a faceless quota (Aliveness Ledger #20): once met,
+   the hermit could use a little wood before winter closes in - small,
+   one-off, tied to the one character the lantern path already gave the
+   player reason to visit, rather than a generic repeatable system. Armed
+   each autumn until it is either given (once, ever - hermitWantDone) or
+   the season simply passes it by, in which case there is always next
+   year - missing it is never punished, just quietly gone. Fulfilled by
+   tapping a wood-carrying villager onto the hermit itself (tapHermitWant,
+   03a) - the same tap-a-wanderer shape the Moonwright and the pilgrims'
+   flag-bearer already use, just player-to-NPC instead of the other way
+   round. */
+const HERMIT_WANT_NEED = 5;
+const HERMIT_WANT_GIFT = 20;   // smaller than hermitMet's own 60 - a follow-up, not a second discovery
+
+function updateHermitWant(){
+  if(!G.disc.hermitMet || G.disc.hermitWantDone) return;
+  if(G.season==="autumn" && !G.disc.hermitWant){
+    G.disc.hermitWant = { need: HERMIT_WANT_NEED, have: 0 };
+    hint("The hermit could use a little wood before winter closes in.");
+  } else if(G.season==="winter" && G.disc.hermitWant){
+    G.disc.hermitWant = null;
+  }
+}
+
 function updateHermit(dt){
+  updateHermitWant();
   if(!G.disc.hermitMet) return;
   if(!G.wanderers) G.wanderers = [];
   const existing = G.wanderers.find(w=>w.kind==="hermit");
@@ -31911,6 +32833,161 @@ function clearMoonflower(){
   if(!G.moonflowerNode) return;
   G.nodes = G.nodes.filter(n=>n!==G.moonflowerNode);
   G.moonflowerNode = null;
+}
+
+/* ============================================================
+   A SHIPWRECKED CHEST  (Aliveness Ledger #21 - "more discoveries,
+   same proven shape")
+   ============================================================
+   Same shape as the moonflower above: a G.nodes entry, walked to and
+   resolved through the ordinary gather-tick rather than a bespoke tap
+   handler. Two real differences on purpose - it needs to be found near
+   water (a chest washing up inland would make no sense), and once it is
+   placed it simply waits rather than expiring by dawn: driftwood on a
+   shore doesn't disappear overnight the way a moonlit flower does.
+   Triggered by the storm/severe-weather system passing, not a nightly
+   roll - see the calls in 01g-storms-and-fire.js and
+   01f-civs-seasons-weather.js, right where each already nulls itself out. */
+const CHEST_GOLD_GIFT = 60;
+const CHEST_WOOD_GIFT = 40;
+
+/* Reachable AND near water - trySpotNear's own landConnected check keeps
+   it off an island the town can't reach, and nearWater keeps it off a
+   plain inland meadow. Both can fail on a landlocked map, in which case
+   this simply returns null and the chest quietly never appears that
+   time - the same graceful decline pickRuinSpot/trySpotNear already do. */
+function pickChestSpot(){
+  const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
+  if(!town) return null;
+  const oTx = Math.floor(town.x/TILE), oTy = Math.floor(town.y/TILE);
+  for(let attempt=0; attempt<80; attempt++){
+    const a = Math.random()*6.283, r = 60 + Math.random()*500;
+    const tx = Math.floor((town.x + Math.cos(a)*r)/TILE);
+    const ty = Math.floor((town.y + Math.sin(a)*r)/TILE);
+    if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) continue;
+    const x = (tx+0.5)*TILE, y = (ty+0.5)*TILE;
+    if(!nearWater(x,y)) continue;
+    if(!aiCanPlace(tx,ty,1,1,"ruin")) continue;
+    if(!landConnected(oTx,oTy,tx,ty,G.terrain)) continue;
+    return { x, y };
+  }
+  return null;
+}
+
+function trySpawnShipwreckedChest(){
+  if(G.disc.chestFound || G.chestNode) return false;
+  const spot = pickChestSpot();
+  if(!spot) return false;
+  G.chestNode = { id:G.nextId++, isNode:true, kind:"chest",
+                  x:spot.x, y:spot.y, amt:1, max:1, r:8, seed:Math.random()*6.283 };
+  G.nodes.push(G.chestNode);
+  hint("The storm has washed something up along the water's edge - worth a look before the tide takes it back.");
+  return true;
+}
+
+/* A sea chest, half-buried, one long plank washed up beside it. Pale,
+   salt-bleached wood rather than the moonflower's cool glow - this one
+   reads as a find worth digging out, not something magical. */
+function drawChestNode(n){
+  const bob = Math.sin(G.t*0.6 + n.seed)*0.6;
+  ctx.fillStyle = "rgba(0,0,0,.18)";
+  ctx.beginPath(); ctx.ellipse(n.x, n.y+6, 12, 4, 0, 0, 6.283); ctx.fill();
+  // the washed-up plank
+  ctx.strokeStyle = "#8a7355"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(n.x-14, n.y+4); ctx.lineTo(n.x+8, n.y+7); ctx.stroke();
+  // the chest itself
+  ctx.fillStyle = "#6b4f36";
+  ctx.fillRect(n.x-8, n.y-6+bob, 16, 10);
+  ctx.fillStyle = "#543924";
+  ctx.beginPath(); ctx.ellipse(n.x, n.y-6+bob, 8, 3, 0, Math.PI, 0); ctx.fill();
+  ctx.strokeStyle = "rgba(20,14,10,.5)"; ctx.lineWidth = 0.8;
+  ctx.strokeRect(n.x-8, n.y-6+bob, 16, 10);
+  // a band and a small brass clasp
+  ctx.fillStyle = "#8a7048";
+  ctx.fillRect(n.x-8, n.y-2+bob, 16, 1.6);
+  ctx.fillStyle = "#c9a24a";
+  ctx.beginPath(); ctx.arc(n.x, n.y-1+bob, 1.6, 0, 6.283); ctx.fill();
+  // a little glint, so it reads as worth walking toward even half-seen
+  ctx.globalAlpha = 0.5 + 0.4*Math.sin(G.t*2.2 + n.seed);
+  ctx.fillStyle = "rgba(255,240,190,1)";
+  ctx.beginPath(); ctx.arc(n.x+3, n.y-8+bob, 1.4, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+/* ============================================================
+   A MESSAGE IN A BOTTLE
+   ============================================================
+   The chest's own small cousin, same water-adjacent placement
+   (pickChestSpot) but a different shape on purpose: repeatable rather
+   than a once-ever discovery, and it reads out one of a handful of real
+   playing tips rather than paying out anything - the mysterious-note
+   idea doubling as a gentle, in-fiction way to surface things a player
+   might not have found on their own, the way the how-to-play screen
+   already does more bluntly. Expires by dawn like the moonflower, since
+   an unread one is just as easily imagined washing back out with the
+   tide - and unlike the chest, there's no reason it can't try again
+   another night if one goes unread. */
+const BOTTLE_CHANCE = 0.12;
+const BOTTLE_TIPS = [
+  "A villager who has earned a name works a little faster at their own trade afterwards - Stonehand at the quarry, Timberarm in the woods, and so on.",
+  "Double-tap a villager and every tap after that just does whatever makes sense where you tapped - no more picking through the action buttons one at a time.",
+  "Storms are worth a look once they clear. The water's edge sometimes keeps what they brought in.",
+  "The almanac reads the weather a day ahead, and sometimes a good deal more than the weather.",
+  "A soldier who has come through enough fighting carries a mark of it forever after - nothing bought, only earned.",
+  "Arm \"Then...\" before giving an order to a unit that is already busy, and it waits its turn instead of dropping what it was doing.",
+  "Ring the bell and the whole village comes running to the Town Centre. Ring it again and everyone goes back to exactly what they were doing.",
+  "Whatever the night is doing to this village, it is doing to the rival's too - the weather does not play favourites.",
+  "A name, once earned, is never taken back - not by age, not by a bad season, not by anything short of the grave."
+];
+
+function tryMessageBottle(){
+  if(G.bottleNode) return false;
+  if(Math.random() > BOTTLE_CHANCE) return false;
+  const spot = pickChestSpot();
+  if(!spot) return false;
+  G.bottleNode = { id:G.nextId++, isNode:true, kind:"bottle",
+                   x:spot.x, y:spot.y, amt:1, max:1, r:7, seed:Math.random()*6.283 };
+  G.nodes.push(G.bottleNode);
+  hint("A bottle has washed up at the water's edge, something rolled up tight inside it.");
+  return true;
+}
+
+function clearMessageBottle(){
+  if(!G.bottleNode) return;
+  G.nodes = G.nodes.filter(n=>n!==G.bottleNode);
+  G.bottleNode = null;
+}
+
+/* A plain green bottle, corked, with a curled scrap of paper visible
+   through the glass - deliberately smaller and plainer than the chest,
+   since this one is a note, not a find. */
+function drawBottleNode(n){
+  const bob = Math.sin(G.t*0.9 + n.seed)*1.0;
+  ctx.fillStyle = "rgba(0,0,0,.16)";
+  ctx.beginPath(); ctx.ellipse(n.x, n.y+5, 7, 2.6, 0, 0, 6.283); ctx.fill();
+  ctx.save();
+  ctx.translate(n.x, n.y+bob);
+  ctx.rotate(0.35);
+  // the bottle body
+  ctx.fillStyle = "rgba(74,110,78,.88)";
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 3.6, 6.5, 0, 0, 6.283); ctx.fill();
+  // the neck and cork
+  ctx.fillRect(-1.3, -8, 2.6, 4.5);
+  ctx.fillStyle = "#b98a52";
+  ctx.fillRect(-1.3, -9.4, 2.6, 2.0);
+  // the note, curled, glimpsed through the glass
+  ctx.fillStyle = "rgba(232,220,190,.85)";
+  ctx.beginPath(); ctx.ellipse(0, 2.5, 1.6, 4.2, 0, 0, 6.283); ctx.fill();
+  // a highlight down one side, so it still reads as glass, not wood
+  ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(-2, -3); ctx.lineTo(-2, 6); ctx.stroke();
+  ctx.restore();
+  // a little glint, so it reads as worth walking toward even half-seen
+  ctx.globalAlpha = 0.5 + 0.4*Math.sin(G.t*2.4 + n.seed);
+  ctx.fillStyle = "rgba(255,250,220,1)";
+  ctx.beginPath(); ctx.arc(n.x+2, n.y-4+bob, 1.1, 0, 6.283); ctx.fill();
+  ctx.globalAlpha = 1;
 }
 
 function activateSeasonalBuff(p, season){
@@ -33328,6 +34405,12 @@ const DAY_LEN    = 134;
 const DUSK_AT    = 0.56;  // the light starts going at this point in the day
 const NIGHT_AT    = 0.68;  // fully dark by here
 const DAWN_AT    = 0.90;  // light starts returning
+/* A day is 134 seconds here, not real minutes - dusk to full dark is only
+   about 16 of them (see below), so "a couple of minutes to wind down" has
+   to shrink to fit. A handful of seconds, staggered per villager rather
+   than a single-frame mass order, is enough to sell the same idea at this
+   clock. See sendHome() and the "home" order's own grace check (03c). */
+const DUSK_GRACE_MAX = 8;
 const DAY_AT     = 0.99;  // and it is full day again
 const NIGHT_TINT = "#101a2e";
 const LAMP_SCALE = 0.90;  // trims every building's light together
@@ -33591,6 +34674,11 @@ function sendHome(){
     const order = u.order, target = u.target, site = u.site;
     if(!sendOneHome(u)) continue;             // nowhere to go: keep working
     u.dayOrder = order; u.dayTarget = target; u.daySite = site;
+    // a few seconds "just finishing up" before the walk itself begins -
+    // not set inside sendOneHome, since the bell calls that too and a
+    // player ringing off wants their villagers moving at once, not on a
+    // random delay
+    u.duskGrace = Math.random() * DUSK_GRACE_MAX;
   }
 }
 
@@ -34484,6 +35572,37 @@ function updateVillagerDeeds(dt){
       if(u.deedJob !== job){ u.deedJob = job; u.deedJobT = 0; }
       u.deedJobT = (u.deedJobT || 0) + dt;
       if(u.deedJobT >= DEED_SERVICE) creditDeed(u, job);
+    }
+  }
+}
+
+/* A soldier who has come through enough fighting carries a small permanent
+   mark of it - a dyed plume rather than the plain civ colour, never a stat
+   change. Extending the villager-deeds idea to the army without turning it
+   into a min-max layer: nothing here is ever read by damage, speed or any
+   other stat, only by drawPerson (04e) and the selection panel (07).
+
+   "Survived a fight" is read off the same u.atkAnim swing every attack
+   already sets (03c/04a) rather than adding a new combat hook: swinging for
+   a stretch, then nothing for a few seconds, counts as one fight lived
+   through. Both sides get it - a look, not an advantage, so there is no
+   reason to keep it to the player alone the way named villagers are. */
+const SOLDIER_MARK_FIGHTS = 3;   // fights survived before the mark shows
+const SOLDIER_MARK_GRACE  = 3;   // seconds of no swinging before a fight counts as over
+
+function updateSoldierMarks(dt){
+  for(const u of G.units){
+    if(u.hp <= 0 || !u.cls || u.cls === "civ" || u.cls === "scout") continue;
+    if(u.atkAnim > 0){
+      u.inFight = true;
+      u.fightGrace = SOLDIER_MARK_GRACE;
+    } else if(u.inFight){
+      u.fightGrace = (u.fightGrace || 0) - dt;
+      if(u.fightGrace <= 0){
+        u.inFight = false;
+        u.fightsSurvived = (u.fightsSurvived || 0) + 1;
+        if(!u.marked && u.fightsSurvived >= SOLDIER_MARK_FIGHTS) u.marked = true;
+      }
     }
   }
 }
@@ -36038,6 +37157,72 @@ function saveSummary(){
   } catch(e){ return null; }
 }
 
+/* ============================================================
+   THE VILLAGE CHRONICLE  (idea: a cross-match chronicle)
+   ============================================================
+   Everywhere else in this file is one slot, resumed - a village you can
+   still go back to. This is the opposite: nothing to resume, just a short
+   memory of matches that are already over, so finishing one leaves
+   something behind besides an end screen you close and forget. A separate
+   key from SAVE_KEY on purpose - clearing or overwriting the one live save
+   must never touch this, and a corrupt or version-mismatched chronicle must
+   never take the real save down with it. */
+const CHRONICLE_KEY = "cosyempires_chronicle";
+const CHRONICLE_VERSION = 1;
+const CHRONICLE_MAX = 10;   // most recent first; older entries just fall off
+
+function loadChronicle(){
+  const s = saveStore();
+  if(!s) return [];
+  try {
+    const raw = s.getItem(CHRONICLE_KEY);
+    if(!raw) return [];
+    const p = JSON.parse(raw);
+    // dropped rather than half-read, same rule as a mismatched save
+    if(!p || p.version !== CHRONICLE_VERSION || !Array.isArray(p.entries)) return [];
+    return p.entries;
+  } catch(e){ return []; }
+}
+
+function saveChronicle(entries){
+  const s = saveStore();
+  if(!s) return;
+  try { s.setItem(CHRONICLE_KEY, JSON.stringify({ version: CHRONICLE_VERSION, entries })); }
+  catch(e){}
+}
+
+/* The founder may well not have survived to see this - a lost match is the
+   more likely time anyone bothers to look back. Look for whoever currently
+   carries firstVillager (a stranger takes the torch up again if the
+   original founder dies, same flag - see placeStartBase/02d) rather than
+   assuming the one from day one is still standing; fall back to a plain
+   label rather than adding any new tracking just for this one field. */
+function chronicleFounderName(){
+  const u = G.units.find(u=>u.p===P_YOU && u.firstVillager);
+  return (u && villagerName(u)) || "an unnamed founder";
+}
+
+/* Called once, from endGame, right after G.over is set - before anything
+   about this match starts being torn down for the next one. Every field
+   here is already computed elsewhere; nothing new is simulated for this. */
+function recordChronicleEntry(win, why){
+  const pl = G.players[P_YOU];
+  const outcome = why === "campaign" ? "finished" : (win ? "victory" : "defeat");
+  const entry = {
+    founder: chronicleFounderName(),
+    outcome,
+    age: AGES[pl.age],
+    prosperity: prosperityScore(),
+    seconds: Math.round(G.t),
+    difficulty: DIFFICULTY,
+    at: Date.now()
+  };
+  const entries = loadChronicle();
+  entries.unshift(entry);
+  entries.length = Math.min(entries.length, CHRONICLE_MAX);
+  saveChronicle(entries);
+}
+
 /* ---------- minimap ---------- */
 const mm = document.getElementById("minimap");
 const mmc = mm.getContext("2d");
@@ -36148,6 +37333,35 @@ function refreshTop(){
     sl.textContent = (G.mapType||"") + " · " + G.startLayout + " — " + (G.startNote||"");
   const sd=$("startdiff");
   if(sd) sd.textContent = (DIFF[DIFFICULTY]||DIFF.medium).label;
+}
+
+/* The day/night arc behind the date: the sun rides the top half of the
+   ring while it's up, the moon rides the bottom half once it isn't - one
+   continuous sweep, not a hand that shows the hour. Split at DUSK_AT
+   rather than at NIGHT_AT/DAWN_AT: the sun's whole arc is "however much
+   of the daylight portion has gone" and the moon's is "however much of
+   dusk-through-dawn has gone", which reads as a clean day/night split
+   even though dusk and dawn are themselves gradual (darkAt, 05b). */
+const ALM_ARC_CX = 67, ALM_ARC_CY = 40, ALM_ARC_RX = 63, ALM_ARC_RY = 35;
+function almArcPoint(thetaDeg){
+  const r = thetaDeg * Math.PI/180;
+  return { x: ALM_ARC_CX + ALM_ARC_RX*Math.sin(r), y: ALM_ARC_CY - ALM_ARC_RY*Math.cos(r) };
+}
+function refreshDayArc(){
+  const sun = $("alm_sun"), moon = $("alm_moon");
+  if(!sun || !moon || !G) return;
+  const f = G.dayF||0;
+  if(f < DUSK_AT){
+    const p = almArcPoint(-90 + (f/DUSK_AT)*180);
+    sun.setAttribute("transform", "translate("+p.x.toFixed(1)+","+p.y.toFixed(1)+")");
+    sun.style.display = "";
+    moon.style.display = "none";
+  } else {
+    const p = almArcPoint(90 + ((f-DUSK_AT)/(1-DUSK_AT))*180);
+    moon.setAttribute("transform", "translate("+p.x.toFixed(1)+","+p.y.toFixed(1)+")");
+    moon.style.display = "";
+    sun.style.display = "none";
+  }
 }
 
 /* Buttons get torn down and rebuilt by refreshUI() - including from a plain
@@ -36360,6 +37574,11 @@ function refreshUI(){
         s += "<br><span style='color:#e8d9a8'>"+line+"</span>";
       }
     }
+    // the army's own version of a name - no epithet, just the plume it earned
+    if(first.marked){
+      s += "<br><span style='color:#e8d9a8'>A veteran - come through "+
+           (first.fightsSurvived||SOLDIER_MARK_FIGHTS)+" fights</span>";
+    }
     $("selstats").innerHTML=s;
   } else if(first.kindTag==="beast"){
     $("selname").textContent = first.name;
@@ -36447,7 +37666,8 @@ function refreshUI(){
       $("selsub").textContent = couple || prosperity || historyFactFor(dayNum);
     }
     $("selstats").innerHTML="HP "+Math.ceil(first.hp)+"/"+first.maxhp+
-      (first.done?"":"<br>"+Math.floor(first.prog*100)+"% built");
+      (first.done?"":"<br>"+Math.floor(first.prog*100)+"% built")+
+      ((first.fortifyHp||0) > 0 ? "<br>Fortified: +"+Math.ceil(first.fortifyHp)+" shield" : "");
   }
 
   const own = sel.filter(e=>e.p===P_YOU);
@@ -36629,6 +37849,7 @@ function refreshUI(){
         id==="follow" ? "Tap a villager, one of your military, or the elder to follow." :
         id==="garrison" ? "Tap your barracks (soldiers), archery range or watchtower (archers), a fortress, a boat — or a watchtower to post a villager as a lookout." :
         id==="clear" ? "Tap a tree or berry bush to clear it away. Nothing is carried home for it." :
+        id==="fortify" ? "Tap one of your walls, towers or your fortress." :
                         "Tap where you want them to go.");
       refreshUI();
     }, null, G.action===id);
@@ -36642,6 +37863,21 @@ function refreshUI(){
     // targets nothing would ever go for
     if(ownUnits.some(u=>UNITS[u.type] && UNITS[u.type].atk > 0))
       act("attack","Attack","tap a target");
+    /* Queues a follow-up rather than replacing whatever a busy unit is
+       already doing - a way to say "gather wood, then help build" in two
+       taps instead of babysitting the first job to hand out the second.
+       Only worth offering while something selected actually has an order
+       to queue behind; an idle unit would just take the order at once. */
+    if(ownUnits.some(u=>u.order)){
+      addBtn(G.queueNext ? "Then… (armed)" : "Then…",
+             G.queueNext ? "next order waits its turn" : "queue the next order instead of replacing this one",
+             true, ()=>{
+        G.queueNext = !G.queueNext;
+        hint(G.queueNext ? "Next order will wait until this one finishes."
+                          : "Next order will happen right away.");
+        refreshUI();
+      }, null, G.queueNext);
+    }
     const bards = ownUnits.filter(u=>UNITS[u.type] && UNITS[u.type].buffKind);
     const followable = [...military, ...bards];
     if(followable.length){
@@ -36742,6 +37978,12 @@ function refreshUI(){
       /* Sits with Build because that is the job it is for: the plot you
          want is nearly always the one with a tree on it. */
       act("clear","Remove","clears a tree or bush in the way");
+      /* One new verb per age: garrison already let you put people INSIDE a
+         wall or tower, but nothing let you actively harden the wall itself -
+         it just sat there once built. Bronze Age only, the same age its
+         fortifiable buildings first unlock in. */
+      if(ageReached(P_YOU,1))
+        act("fortify","Fortify",costStr(FORTIFY_COST)+" — a temporary shield, tap a wall or tower");
     }
 
     // transports carry land units across the water
@@ -36867,6 +38109,22 @@ function refreshUI(){
   const b = own.find(e=>e.kind==="bldg"&&e.done);
   if(b){
     const d=BLDG[b.type];
+    /* Some discoveries should be a choice, not a claim (Aliveness Ledger
+       #23): a ruin fully mended but not yet decided sits here, waiting -
+       see chooseRuinOutcome/ANCIENT_RUIN_CHOICES (05-wildlife.js) and the
+       matching gate in updateAncientRuins, which grants nothing until one
+       of these is actually tapped and paid for. Shown alongside Demolish
+       (already added above) rather than instead of it - tearing down an
+       undecided ruin instead of finishing it is still a real option. */
+    if(b.ruinKey && !b.repaired && b.hp>=b.maxhp && !b.ruinChoice){
+      $("selstats").innerHTML = "<span style='color:#e8d9a8'>Mended, but not yet decided - "+
+        "choose how to finish it:</span>";
+      for(const opt of ANCIENT_RUIN_CHOICES[b.ruinKey]){
+        addBtn(opt.name, costStr(opt.cost), canAfford(pl, opt.cost),
+               ()=>{ if(chooseRuinOutcome(b, opt.key)) refreshUI(); }, null, true);
+      }
+      return;
+    }
     // rally point, for anything that produces units
     if(d.trains){
       addBtn("Rally point", b.rally?"move it":"where units go", true, ()=>{
@@ -37355,6 +38613,7 @@ function refreshQueue(){
 function endGame(win, why){
   if(G.over) return;
   G.over=true; G.running=false;
+  recordChronicleEntry(win, why);
   const mins = Math.floor(G.t/60), secs = Math.floor(G.t%60);
   if(why === "campaign"){
     /* Peaceful's own ending, and the only one it has. Nothing was razed and
@@ -37433,7 +38692,7 @@ function frame(ts){
     }
   }catch(e){ reportError(e, "the game update"); }
   try{ if(G) draw(); }catch(e){ reportError(e, "drawing the world"); }
-  try{ if(G){ refreshTop(); refreshQueue(); refreshGroups(); refreshAgeBar(); updateQueueScrollHint(); } }catch(e){ reportError(e, "the interface"); }
+  try{ if(G){ refreshTop(); refreshQueue(); refreshGroups(); refreshAgeBar(); refreshDayArc(); updateQueueScrollHint(); } }catch(e){ reportError(e, "the interface"); }
   requestAnimationFrame(frame);
 }
 
@@ -37630,7 +38889,10 @@ const LOGBOOK_ENTRIES = [
   { key:"moonflower", name:"The Moonflower",  check:()=>!!(G.disc&&G.disc.moonflowerFound) },
   { key:"owlfeather", name:"The Owl Feather", check:()=>!!(G.disc&&G.disc.owlFeatherFound) },
   { key:"fox",        name:"The Playful Fox", check:()=>!!(G.disc&&G.disc.foxSeen) },
-  { key:"hermit",     name:"The Lantern Path",check:()=>!!(G.disc&&G.disc.hermitSeen) }
+  { key:"hermit",     name:"The Lantern Path",check:()=>!!(G.disc&&G.disc.hermitSeen) },
+  { key:"chest",      name:"A Shipwrecked Chest", check:()=>!!(G.disc&&G.disc.chestFound) },
+  { key:"bottle",     name:"A Message in a Bottle", check:()=>!!(G.disc&&G.disc.bottleSeen) },
+  { key:"cairn",      name:"The Sunstone Cairn",     check:()=>!!(G.disc&&G.disc.wonderBuilt) }
 ];
 function refreshLogbook(){
   const seenCount = LOGBOOK_ENTRIES.filter(e=>e.check()).length;
@@ -37664,7 +38926,7 @@ window.addEventListener("keydown", e=>{
    instructions and the patch notes are pages within it. Exactly one page is
    visible at a time, and they live inside the same card so that moving
    between them does not resize or re-centre it under the reader. */
-const MENU_PAGES = ["mp_root","mp_new","mp_how","mp_set","mp_patch"];
+const MENU_PAGES = ["mp_root","mp_new","mp_how","mp_set","mp_patch","mp_chronicle"];
 function openMenuPage(id, opts){
   for(const p of MENU_PAGES){
     const el = $(p);
@@ -37688,6 +38950,30 @@ function openMenuPage(id, opts){
     if(back && back.classList) back.classList.toggle("hide", starting);
   }
   if(id === "mp_root" || id === "mp_set") refreshSaveRows();
+  if(id === "mp_root" || id === "mp_chronicle") refreshChronicle();
+}
+
+/* One row per past match, most recent first - see recordChronicleEntry,
+   06b-save-load.js, which is the only thing that ever writes one. The
+   front page's own subtitle is refreshed alongside so "no matches yet"
+   only ever shows when that is actually still true. */
+const CHRONICLE_OUTCOME_LABEL = { victory:"Victory", defeat:"Defeat", finished:"Finished" };
+function chronicleRow(e){
+  const mins = Math.floor((e.seconds||0)/60), secs = (e.seconds||0)%60;
+  const label = CHRONICLE_OUTCOME_LABEL[e.outcome] || e.outcome;
+  const d = DIFF[e.difficulty] ? DIFF[e.difficulty].label : e.difficulty;
+  return "<div class='logrow'>"+
+         "<span class='logname'>"+e.founder+" &mdash; "+e.age+", "+d+"</span>"+
+         "<span class='logstate'>"+label+", "+mins+"m "+secs+"s, prosperity "+e.prosperity+"</span></div>";
+}
+function refreshChronicle(){
+  const entries = loadChronicle();
+  const sub = $("mm_chroniclesub");
+  if(sub) sub.textContent = entries.length ? (entries.length+" match"+(entries.length>1?"es":"")+" chronicled") : "No matches chronicled yet";
+  $("chroniclecount").textContent = entries.length
+    ? "The last "+entries.length+" match"+(entries.length>1?"es":"")+" to end, most recent first."
+    : "No matches chronicled yet - finish one to begin the chronicle.";
+  $("chroniclelist").innerHTML = entries.map(chronicleRow).join("");
 }
 
 /* Picking a difficulty on the menu deals the match but does not start it:
@@ -37732,6 +39018,7 @@ $("mm_new").addEventListener("click", ()=>openMenuPage("mp_new"));
 $("mm_how").addEventListener("click", ()=>openMenuPage("mp_how"));
 $("mm_settings").addEventListener("click", ()=>openMenuPage("mp_set"));
 $("mm_patch").addEventListener("click", ()=>openMenuPage("mp_patch"));
+$("mm_chronicle").addEventListener("click", ()=>openMenuPage("mp_chronicle"));
 if(document.querySelectorAll){
   for(const b of document.querySelectorAll(".mback"))
     b.addEventListener("click", ()=>openMenuPage("mp_root"));
