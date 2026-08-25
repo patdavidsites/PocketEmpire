@@ -410,6 +410,26 @@
   #opening .op_hint{font-size:11.5px;color:#9d9482;margin-top:14px;}
   #pausescreen h1{font-size:22px;}
 
+  /* ---------- the catch book (the Fisherman's House's own page) ---------- */
+  #fishbookscreen .card{max-width:640px;}
+  #fishbooklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));
+    gap:9px;margin:14px 0;max-height:58vh;overflow-y:auto;padding-right:2px;}
+  .fishcard{display:flex;flex-direction:column;align-items:center;text-align:center;
+    background:#2a2319;border:1px solid var(--line);border-radius:3px;padding:6px 4px 7px;}
+  /* position/inset undo the global `canvas{position:absolute;inset:0}` rule
+     (see the #fc_art comment above for the full explanation) - left alone
+     it pulls every portrait out of its card and stacks them all in one
+     corner of the screen. */
+  .fishcard canvas{position:relative;inset:auto;width:100%;height:42px;}
+  .fishcard .fnum{font-size:9px;color:var(--parch-dim);letter-spacing:.05em;margin-top:2px;}
+  .fishcard .fname{font-size:10.5px;color:var(--parch);line-height:1.25;margin-top:1px;}
+  .fishcard.uncaught .fname{color:var(--parch-dim);}
+  .fishcard .fmeta{font-size:8.5px;color:var(--parch-dim);margin-top:2px;}
+  .fishgroup{grid-column:1/-1;font-family:Georgia,serif;font-size:12px;color:var(--gold);
+    text-transform:uppercase;letter-spacing:.09em;margin-top:12px;padding-bottom:4px;
+    border-bottom:1px solid rgba(160,132,86,.30);}
+  .fishgroup:first-child{margin-top:0;}
+
   /* ---------- logbook (the Noticeboard's second job) ---------- */
   #logbooklist{margin:14px 0;}
   .logrow{display:flex;justify-content:space-between;align-items:baseline;
@@ -709,7 +729,7 @@
       <!-- says "close", not "tap": tapping the card does nothing now, the x
            is the only way out, and a line telling you to tap would have you
            poking at a box that ignores you -->
-      <div class="fc-go">Close to cast again</div>
+      <div class="fc-go">Close to go again</div>
     </div>
   </div>
   <button id="pausebtn" title="Pause">
@@ -941,6 +961,39 @@
            wants the lot can have the lot. Deliberately native <details> and
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
+      <details class="pn">
+        <summary>Patch 21.21</summary>
+        <div class="sec">Fishing is a thing you do, not a thing you wait for</div>
+        <ul>
+          <li>Sending somebody to a shoal used to be gathering with a different picture on it: they stood there and food arrived. There is a whole quiet game in it now, and it is deliberately the slowest thing in the village &mdash; something to go and do when you want a break from building, not another job to manage</li>
+          <li><strong>The cast.</strong> Tap an angler at the water and they draw the rod back and wait for you. A gauge runs up the right of the screen with a sweet spot on it that will not stay still, and you flick &mdash; hard, or long, it will take either &mdash; to send the line out. No timer on this half. Nothing is chasing you. Land in the sweet spot and the fish are better before you have caught anything at all</li>
+          <li><strong>Then the reeling in.</strong> The familiar bar, but slower than it was and with twenty real speeds behind it rather than a handful, so no two rounds feel quite the same. Stop it in the green and you have your fish. Miss and you have not lost anything except the cast &mdash; and the rod comes straight back up out of the water, ready to go again, instead of leaving you to work out whether it is your turn</li>
+          <li><strong>Both sweet spots.</strong> A good cast <em>and</em> a good catch is the point of the whole thing: measured, it takes a fish from about half its possible size to over four fifths of it, and roughly doubles the chance of something scarce. It is worth learning, and it is not required</li>
+          <li><strong>Fifty-five things to catch, and they are numbered.</strong> Eighteen ordinary fish that will bite anywhere at any hour. Twenty that only come in one season and only in daylight, five to a season, and none of them common. Thirteen that are night fish. Three that live in genuinely deep water and look like it. And a boot &mdash; one, unnumbered by any season or hour, and hardly ever</li>
+          <li><strong>The catch card.</strong> Every fish you land stops the game and shows itself: drawn, named, weighed, told what kind of thing it is and given a sentence about itself, with its number in the corner so you can see what you are missing. Close it with its x and it asks whether you want to go again. Something scarce arrives with its name running in colour and a scatter of sparkles that fade</li>
+          <li><strong>The book fills up sensibly.</strong> A fish you have never caught is weighted to come up more often than one you already have, which is the difference between a collection that finishes and one that leaves you four fish short for ever. Measured against a decent player's pace: everything caught in about fifteen hours of fishing, and <em>everyone</em> gets there eventually rather than a good share of players stalling out permanently</li>
+          <li><strong>The glowing pool.</strong> After dark, one pool somewhere on your coast comes up lit. It is the only place several fish exist, it moves with the seasons but stays put within one, and it is gone by dawn</li>
+          <li><strong>A creel that fills.</strong> Five fish and the angler takes them home by themselves &mdash; to the Fisherman's House if you have built one, or wherever else will take food &mdash; and then walks back out to the water and carries on. You do not have to watch them</li>
+          <li><strong>Shoals run out now, and come back.</strong> They always had a stock and it was never once spent, because anything empty was swept up before the timer that would have refilled it could be set &mdash; so the code that brings a shoal back had never run, not once, in the whole life of the game. Water is kept when it empties and refills a season later. Fishing a spot to nothing and moving on is now a real thing that happens</li>
+          <li><strong>Shoals sit out in the water.</strong> They were being placed hard against the shoreline &mdash; about a quarter of them looked beached in the sand. Under one in forty now, with the same number of shoals on the map. There are also half as many fish moving in each one; they were packed too tightly to read as anything but a clump</li>
+          <li><strong>Closing a catch card hands you straight back to the ordinary panel.</strong> It used to open a second screen of its own &mdash; <em>"Rod's ready &ndash; go again?"</em> with its own Play and Stop. Now that the ordinary panel carries Gather, Play and Stop itself, that was a second copy of a choice already on screen, asked somewhere else. One panel, one set of buttons, always in the same place. The rod still comes up out of the water ready to go, and they wait on you rather than quietly fishing on while you decide</li>
+          <li><strong>Fixed: pressing Play often did nothing at all.</strong> A villager who reached a shoal started fishing on their own straight away, and that cycles the rod through cast, wait and reel &mdash; but Play can only start from the waiting bob. So the button was flickering between live and greyed about once a second, and since the panel only redraws a few times a second, the button you tapped was frequently already out of date. Measured: <strong>Play was live in only 15% of frames, flipping 19 times in 20 seconds</strong>. Now a villager arriving at the water waits with the line in, and does not fish until you choose Gather or Play &mdash; which holds the rod still and keeps the button honest. It is live 97.5% of the time</li>
+          <li><strong>Sending somebody to the water gives you three buttons and no others.</strong> Tap a villager, tap Gather, tap the shoal &mdash; and the panel becomes <strong>Gather, Play, Stop</strong>. Move, Attack, Build and the rest are gone, because none of them means anything for somebody who is out fishing. <strong>Gather</strong> is lit, because it is what they are already doing: a villager at a shoal brings food in on their own and the game is optional on top. <strong>Play</strong> is the game. <strong>Stop</strong> calls them off and hands the ordinary panel straight back. The three appear the moment you tap the water rather than when they finally arrive &mdash; Play simply waits, greyed, until the line is actually in</li>
+          <li><strong>Every village starts within reach of water,</strong> with one shoal already placed near the town, and the town centre itself can no longer be put on the water. All of this is meant to be available from the first morning of a Peaceful game rather than unlocked into</li>
+        </ul>
+        <div class="sec">The fisherman, and his house</div>
+        <ul>
+          <li><strong>Whoever fishes first becomes the fisherman.</strong> They take a nickname built off their own &mdash; Fishman Joe &mdash; and the clothes to go with it, and they keep both for the rest of the village's life. It is first come, first served: nobody is exempt and nobody is chosen</li>
+          <li>He is <strong>10% quicker on his feet</strong> than anyone else, which is the reason to send him rather than whoever happens to be standing nearest. And the <strong>Fisherman's House can only be built by him</strong></li>
+          <li><strong>The house is a boathouse.</strong> Same ground as an ordinary house &mdash; it takes no more room. A tarred roof rather than thatch, and instead of a door there is a boat bay: an arch with water standing in it and the nose of a boat just inside. Life ring on one side, netting on the other, anchor leaning by the opening</li>
+        </ul>
+        <div class="sec">Elsewhere</div>
+        <ul>
+          <li><strong>The army does not sleep indoors any more.</strong> The wounded still take themselves off to their own quarters to mend, exactly as before. Everyone at full health now stays out all night &mdash; no bed, no barracks, no doorstep &mdash; which is what an army standing over a village ought to look like, and it means a night raid meets soldiers who are awake rather than soldiers who are in bed. This was supposed to be true already: the rule was written when the wounded got their quarters, and only ever covered the barracks, so the beds quietly went on taking everybody. Costs them nothing to be out, and nobody is pulled off a post by it &mdash; sentries stay in their towers and the watch still changes at dusk and dawn</li>
+          <li><strong>Seasons are seven days rather than ten.</strong> Everything seasonal &mdash; the fish, the weather, what is growing &mdash; comes round noticeably sooner</li>
+          <li><strong>Fixed a crash that could kill the picture outright.</strong> A tumbleweed was being handed to the code that draws the village dogs, which went looking for a coat colour on it, found nothing, and took the entire frame down with it &mdash; the game carried on underneath, invisibly. Roughly one match in ten. The suite now reads the drawing code itself and fails if two different things are ever given the same number again</li>
+        </ul>
+      </details>
       <details class="pn">
         <summary>Patch 21.20</summary>
         <div class="sec">Four things to find, and none of them found the same way</div>
@@ -1648,6 +1701,16 @@
   </div>
 </div>
 
+<div class="screen hide" id="fishbookscreen">
+  <div class="card">
+    <button class="cardx" id="btnfishbookclose">×</button>
+    <div class="kicker">The Fisherman's House</div>
+    <h1 id="fishbooktitle">The catch book</h1>
+    <p id="fishbookcount"></p>
+    <div id="fishbooklist"></div>
+  </div>
+</div>
+
 <div class="screen hide" id="logbookscreen">
   <div class="card">
     <button class="cardx" id="btnlogbookclose">×</button>
@@ -2188,6 +2251,50 @@ function updateElder(dt){
       elderPickTarget();
     }
     return;
+  }
+
+  /* Story Night (updateStoryNight, 05-wildlife.js) used to leave her to her
+     own wandering while the whole village gathered without her - the
+     hint said she "settles by the fire", but nothing actually walked her
+     there. She now heads for the front of the gathering the moment one
+     starts, and once everyone's assembled and the telling itself begins,
+     paces gently in front of them rather than standing bolt upright -
+     a few steps one way, then back, the way anyone telling a story to a
+     group actually does. (idea_batch_2026_08_25, item 4) */
+  if(G.storyNight && e.state !== "inside"){
+    const sn = G.storyNight;
+    if(e.state !== "storynight"){
+      if(sn.elderSpot){ e.tx = sn.elderSpot.x; e.ty = sn.elderSpot.y; }
+      const spd = (e.aid==="frame" ? 13 : e.aid==="cane" ? 16 : e.aid==="chair" ? 18 : 19)
+                * GLOBAL_SPEED_SCALE
+                * (1 - (1-WINTER_SPEED)*G.snow)
+                * weatherSpdMult()
+                * puddleSpdMult(e);
+      const arrived = moveToward(e, e.tx, e.ty, spd, dt, 8);
+      if(arrived && sn.phase === "telling"){
+        e.state = "storynight"; e.paceAt = { x:e.x, y:e.y }; e.paceT = 0; e.say = null;
+      }
+      return;
+    }
+    if(sn.phase !== "telling"){
+      // the village has moved on and so does she - back to her own business
+      e.state = "walk"; e.t = 5 + Math.random()*8; elderPickTarget();
+      return;
+    }
+    // a few paces one way, then back - not a lap, just enough that she
+    // isn't a statue with a speech bubble
+    e.paceT += dt;
+    e.x = e.paceAt.x + Math.sin(e.paceT*0.55)*14;
+    e.walk += dt*6.5;
+    e.moving = true;
+    e.face = Math.cos(e.paceT*0.55) < 0 ? -1 : 1;
+    if(!e.say){ e.say = ELDER_TALES[(Math.random()*ELDER_TALES.length)|0]; e.sayT = 2.4+Math.random()*1.6; }
+    return;
+  }
+  if(e.state === "storynight"){
+    // Story Night ended while she was still walking over to it - let go
+    // rather than being stuck heading for a gathering that's already over
+    e.state = "walk"; e.t = 5 + Math.random()*8; elderPickTarget();
   }
 
   // walking
@@ -4423,23 +4530,47 @@ function smallDogStep(g, tx, ty, dt){
   if(Math.abs(dx)>0.1) g.face = dx<0?-1:1;
   const step = Math.min(d, g.spd*dt);
   const nx = g.x+dx/d*step, ny = g.y+dy/d*step;
-  let moved = true;
   if(!blocked(nx, ny, null, false, SMALL_DOG_PAD)){
     g.x = nx; g.y = ny;
   } else if(!blocked(nx, g.y, null, false, SMALL_DOG_PAD)){
     g.x = nx;
   } else if(!blocked(g.x, ny, null, false, SMALL_DOG_PAD)){
     g.y = ny;
-  } else moved = false;
+  }
 
-  // A wander spot or a line to a farm is never checked against buildings
-  // when it's picked, only walked toward - so this is the one place that
-  // can actually notice a target that turned out to be behind a wall on
-  // every side. Wall-sliding gets round a corner; it can't get round being
-  // fully boxed in, and nothing here should stand there barking forever.
-  g.stuckT = moved ? 0 : (g.stuckT||0) + dt;
-  if(g.stuckT > 1.2 && g.state !== "out"){
-    g.stuckT = 0; g.state = "wander"; pickGumbySpot(g);
+  /* A wander spot or a line to a farm is never checked against buildings
+     when it's picked, only walked toward - so this is the one place that
+     can actually notice a target that turned out to be behind a wall on
+     every side.
+
+     Judged over a WINDOW, not frame to frame - this used to reset the
+     instant a single frame gained any ground at all, which is exactly the
+     blind spot moveToward's own stuckT had before NET_WINDOW
+     (03d-pathfinding.js) and the pilgrims' watchdog had before their own
+     fix (01e-moonstone-and-regrowth.js) - the third time this shape has
+     shipped here. A dog wall-sliding back and forth is nearer its target
+     on plenty of individual frames while going nowhere overall, so a
+     per-frame reset never sees a single frame bad enough to fire. */
+  if(g.netD === undefined || g.netTx !== tx || g.netTy !== ty){
+    g.netD = d; g.netT = 0; g.netTx = tx; g.netTy = ty;
+  } else {
+    g.netT = (g.netT||0) + dt;
+    if(g.netT >= 4){
+      if(d > g.netD - 6){
+        g.netD = undefined;
+        if(g.state === "out"){
+          // still leaving, just not this way - pick a fresh line out
+          // rather than abandoning the trip, so a blocked exit doesn't
+          // strand it here for the rest of its own timeout instead
+          const a=Math.random()*6.283, dist=380+Math.random()*160;
+          g.ex = g.x+Math.cos(a)*dist; g.ey = g.y+Math.sin(a)*dist;
+        } else {
+          g.state = "wander"; pickGumbySpot(g);
+        }
+      } else {
+        g.netD = d; g.netT = 0;
+      }
+    }
   }
   return d;
 }
@@ -6425,7 +6556,13 @@ const BLDG_ROOF = {
   gardener:  ["#5f7a3c", 0.82],   // turf, growing whatever is in season
   bakery:    ["#b04a33", 0.78],   // red pantile, the same clay as the oven
   geologist: ["#6b6259", 0.70],   // slate offcuts and spoil, low to the ground
-  herbalist: ["#6b7d4a", 0.82]    // moss - it still takes a dusting of snow, same as any other roof
+  herbalist: ["#6b7d4a", 0.82],   // moss - it still takes a dusting of snow, same as any other roof
+  /* 0.86, not the 0.62 I first wrote. The roof colour is the PLAYER's
+     colour mixed toward this one, so a low number leaves the team gold
+     showing through and the "tarred" roof came out brown - measured as
+     (118,101,69), which is exactly gold mixed 62% toward this. The tin and
+     the turf sit at 0.80-0.82 for the same reason. */
+  fisherhouse:["#3a3f47", 0.86]   // tarred boards, the way a boathouse roof is kept watertight
 };
 
 const BLDG_MATERIAL = {
@@ -7289,8 +7426,24 @@ const BLDG = {
      seasonal farm, the Wildlings' Den and the Hermit's Cottage. No
      abilities or upgrades yet on purpose - just somewhere to keep the
      catch, and something to build toward once the core game is proven. */
-  fisherhouse:{ name:"Fisherman's House", age:0, hp:200, w:1, h:1, cost:{wood:70,food:40}, hgt:8,
-                roof:"gable", roofScale:0.55, build:13, pop:6, vision:3, fisherhouse:true,
+  /* Stands on the same 1x1 plot as an ordinary House and costs the same
+     kind of thing to put up - it is somebody's home, not a warehouse. The
+     BOATHOUSE look is all in the drawing (drawTradeDetail, 04d): a low
+     wide shed with its front open to the water, rather than a cottage
+     painted blue. Hence the lower ridge than a house, not a taller one. */
+  /* Taller in the wall than a house (9 against 7) and NOT because it is a
+     grander building - it stands on the same 1x1 plot and costs the same
+     sort of thing. A boathouse needs a big opening for a boat to go
+     through, and at hgt 7 the wall is only seven units tall against
+     twenty-four wide, which leaves no room for a doorway that reads as
+     anything but a hatch. */
+  fisherhouse:{ name:"Fisherman's House", age:0, hp:200, w:1, h:1, cost:{wood:70,food:40}, hgt:9,
+                /* roofScale 0.5 is the SMALLEST roof this building can have:
+                   the ridge is max(7, min(dep*0.55*roofScale, 22)) and dep is
+                   about 24 for a one-tile plot, so anything below ~0.53 is
+                   clamped to 7 and lowering it further does nothing at all.
+                   Three passes of shrinking this number changed no pixels. */
+                roof:"gable", roofScale:0.5, build:13, pop:6, vision:3, fisherhouse:true,
                 /* takes deliveries, so the fisherman has somewhere of his own
                    to land a catch rather than walking it all the way back to
                    the hall. DROP_ACCEPTS (03d) keeps it to fish. */
@@ -10975,7 +11128,10 @@ document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) resize(
 
 /* Zoom range is deliberately wide so you can pull back and see the whole map.
    When the world is smaller than the viewport the camera simply centres it. */
-const ZOOM_MIN = 0.32, ZOOM_MAX = 2.6;
+// ZOOM_MAX was 2.6. Raised 2026-08-26 - everything here is canvas paths, not
+// sprites, so it scales cleanly; proved at 7-11 while debugging the boathouse
+// with no artefacts. Kept well short of that for touch/pinch usability.
+const ZOOM_MIN = 0.32, ZOOM_MAX = 4.4;
 function minZoom(){ return ZOOM_MIN; }
 
 function clampCam(){
@@ -11318,7 +11474,17 @@ function tapAt(sx, sy){
                         : "Only a fishing boat or a villager on the bank can work a shoal.")
                    : "Only villagers can gather.");
         } else {
-          crew.forEach(u=>{ giveOrder(u, {order:"gather", target:n, site:null}); });
+          /* A fresh trip to a shoal waits on the player rather than fishing
+             on arrival - fishConfirmed gates the gather tick's own accrual
+             (03c) until Gather or Play is actually chosen. Not touched for
+             an ordinary land gather, and not reset on the return leg of an
+             already-confirmed fisher's own haul-and-back cycle (that goes
+             through backToWater in 03c, which never runs through here). */
+          crew.forEach(u=>{
+            const fields = {order:"gather", target:n, site:null};
+            if(wet) fields.fishConfirmed = false;
+            giveOrder(u, fields);
+          });
           hint(wet ? "Fishing the shoal." : "Gathering "+n.kind+".");
           fxPing(n.x,n.y);
         }
@@ -12124,7 +12290,10 @@ function commandUnits(units, ent, w){
   for(const u of units){
     u.site=null; u.workplace=null; u.detour=null; u.stuckT=0; u.path=null; u.pathCd=0;
     if(ent && ent.isNode){
-      if(u.type==="villager"){ u.order="gather"; u.target=ent; }
+      if(u.type==="villager"){
+        u.order="gather"; u.target=ent;
+        if(ent.water) u.fishConfirmed=false;   // see the "gather" action's own tap handler above
+      }
       else { u.order="move"; u.tx=w.x; u.ty=w.y; }
     } else if(ent && (ent.kind==="unit"||ent.kind==="bldg"||ent.kindTag==="beast") && ent.p!==u.p && ent.p!==undefined){
       u.order="attack"; u.target=ent;
@@ -15165,7 +15334,8 @@ function updateUnit(u, dt){
             * tiredMult(u)                             // and a night with no bed slows you to a trudge
             * puddleSpdMult(u)                         // and standing water underfoot bogs you down further
             * (hasSeasonalBuff(u.p,"speed") ? SEASONAL_BUFF : 1)    // winter sweet potato
-            * ((u.moonstruck||0) > 0 ? MOONSTRUCK_SPD : 1);         // a shard in them
+            * ((u.moonstruck||0) > 0 ? MOONSTRUCK_SPD : 1)          // a shard in them
+            * (u.fisherman ? FISHERMAN_SPEED : 1);                  // the settlement's own angler (03e)
   const atk = civStat(u.p,u.type,"atk",d.atk) * (u.buffAtk||1) * (f?f.atk:1) * (u.musicAtk||1)
             * (hasSeasonalBuff(u.p,"strength") ? SEASONAL_BUFF : 1)    // summer sweetcorn
             * ((u.moonstruck||0) > 0 ? MOONSTRUCK_ATK : 1)
@@ -15683,18 +15853,25 @@ function updateUnit(u, dt){
              underneath it, so there's no burst of passive food the instant
              the round ends. Everyone else's gather tick is untouched.
 
-             This holds through the Play-or-Stop question too, and that is
-             deliberate rather than mean. The cast/wait/reel cycle is driven
-             by gatherT; let it run while the question is on screen and the
-             villager cycles endlessly in and out of "wait" - the very state
-             Play depends on - so the Play button flickers between live and
-             greyed several times a second and is unpressable half of them.
-             Tried it that way first and that is exactly what happened.
-             Holding gatherT parks them in the waiting bob instead, which is
-             both a stable button and the right picture: a line in the
-             water, waiting on you. */
+             This holds through the Play-or-Stop question too, now for
+             real - a freshly-arrived angler waits on the player to actually
+             choose Gather or Play rather than fishing on its own the moment
+             it gets there. fishConfirmed is reset false whenever a fresh
+             gather order is given to a shoal (03a) and set true the moment
+             either choice is made (07-ui-and-boot.js/startFishGame, 03e).
+             Without this, the cast/wait/reel cycle is driven by gatherT
+             regardless, and the villager cycles endlessly in and out of
+             "wait" - the very state Play depends on - so the Play button
+             flickers live/greyed several times a second and is unpressable
+             about half of them: a real "click Play, nothing happens"
+             report, not a perception issue. Holding gatherT parks them in
+             the waiting bob instead, which is both a stable button and the
+             right picture: a line in the water, waiting on you. */
           const playingFishGame = !!(G.fishGame && G.fishGame.unit === u);
-          if(!playingFishGame){
+          // player only - the Ashkin never see this panel and never press
+          // Gather, so gating their own fishers on it would starve them
+          const awaitingChoice = fishSpot && u.p===P_YOU && !u.fishConfirmed;
+          if(!playingFishGame && !awaitingChoice){
             u.gatherT += dt * tiredMult(u) * thirstMult(u.p) * honeyBuff(u.p)
                         * (starK ? starBoon(starK) : 1)
                         * (n.kind===RES.FOOD ? dryingMult(u.p) : 1)   // a good drying day
@@ -16654,7 +16831,13 @@ function crewOf(b){
 }
 function staffBuilding(b, u){
   if(crewOf(b) >= 3){ u.workplace=null; u.order=null; return false; }
-  const kinds = b.type==="farm"   ? ["food"]
+  /* A Seasonal Farm is a farm - it carries the same farm:true flag and gets
+     the same attachFarm() food node a plain Farm does (02d-spawning.js) -
+     but this ternary only ever recognised "farm" by name, so whoever built
+     one fell through with no work assigned instead of staying on as crew
+     the way every other farm's builder does. */
+  const isFarm = b.type==="farm" || b.type==="specialfarm";
+  const kinds = isFarm       ? ["food"]
               : b.type==="lumber" ? ["wood"]
               : b.type==="mine"   ? ["stone","gold"]
               : null;
@@ -16663,10 +16846,10 @@ function staffBuilding(b, u){
   for(const n of G.nodes){
     if(n.amt<=0 || n.water) continue;
     if(!kinds.includes(n.kind)) continue;
-    if(b.type==="farm" && n.farmOf!==b) continue;
-    if(b.type!=="farm" && n.farmOf) continue;
+    if(isFarm && n.farmOf!==b) continue;
+    if(!isFarm && n.farmOf) continue;
     const d=Math.hypot(n.x-b.x,n.y-b.y);
-    if(b.type!=="farm" && d>230) continue;
+    if(!isFarm && d>230) continue;
     if(d<bd){ bd=d; best=n; }
   }
   if(!best) return false;
@@ -17707,7 +17890,15 @@ function castPowerFrom(vel, dist){
   const byD = Math.abs(dist) / CAST_FLICK_FULL_D;
   return Math.max(0, Math.min(100, Math.max(byV, byD) * 100));
 }
-const FISHERMAN_YIELD_BONUS = 1.15;
+/* What being THE fisherman is worth. It used to be 15% more food per
+   catch, which is a number you never actually see - the fish looked the
+   same and the stores just crept up. Ten per cent on their feet is felt
+   constantly instead, and especially now the creel sends them home every
+   five fish: their delivery runs are visibly shorter than anyone else's.
+   It makes them the one you WANT on the water without making the fish
+   themselves better, which would have quietly inflated the catch numbers
+   on the card. */
+const FISHERMAN_SPEED = 1.10;
 const FISHERMAN_HOUSE_CATCHES = 5;   // fish landed before the House can be built
 
 /* Is this the one unit the Play/Stop prompt can offer itself to right now?
@@ -17724,6 +17915,22 @@ function canPlayFishGame(u){
          (u.fishPhase==="wait" || u.fishPhase==="ready") &&
          // and there have to be fish left in it to play for
          u.target.amt > 0;
+}
+
+/* Are they ON the fishing job at all - walking to the water, casting, or
+   already bobbing? Broader than canPlayFishGame ON PURPOSE.
+
+   canPlayFishGame asks "can a round start THIS INSTANT", which is false for
+   the whole walk down to the bank and false again when the shoal is empty.
+   Hanging the command panel off that made the buttons appear only once they
+   arrived, so ordering someone to fish left the ordinary Move/Attack/Build
+   panel up for the entire walk and then swapped it under the player's thumb.
+   The panel is meant to change when you click the water, which is when the
+   decision is actually made. Play is simply offered disabled until a cast is
+   possible. */
+function fishingJob(u){
+  return !!u && u.p===P_YOU && u.hp>0 && isWorker(u) &&
+         u.order==="gather" && u.target && u.target.isNode && !!u.target.water;
 }
 
 function fishSweetWidth(t){
@@ -17772,6 +17979,9 @@ function startFishGame(u){
   };
   // wound back, waiting on the flick - see the "ready" pose in drawHeld (04e)
   u.fishPhase = "ready"; u.fishPhaseT = 0;
+  // Play is itself a choice - a fresh arrival can go straight to the
+  // minigame without ever pressing Gather first (03c's awaitingChoice)
+  u.fishConfirmed = true;
   return true;
 }
 
@@ -17865,7 +18075,7 @@ function updateFishGame(dt){
      the round is simply off. Which is also the right behaviour on its own
      terms, since a card about a fishing round nobody is fishing any more
      is just litter on the screen. */
-  if(fg.phase === "card" || fg.phase === "choose"){
+  if(fg.phase === "card"){
     const stillFishing = u.order === "gather" && u.target && u.target.isNode && u.target.water;
     if(!stillFishing){
       restFromReady(u);
@@ -18045,26 +18255,36 @@ function runTheCatchHome(u){
   return true;
 }
 
-/* Done looking. Rather than dropping straight back to the ordinary panel
-   after a wordless "Casting again..." pause, closing the card asks the
-   only question worth asking at that moment: again, or that's enough?
-   Play and Stop, right where the card was.
+/* Done looking - and that is the end of the round. Closing the card hands
+   the player straight back to the ORDINARY panel: Gather, Play, Stop.
 
-   They cast out again either way while you decide - that is the ordinary
-   recast, unchanged, and it is why Play is briefly not available. It is
-   half a second, and it means saying yes to another round always starts
-   from a line that is actually in the water. */
+   This used to open a second screen of its own ("Rod's ready - go again?"
+   with its own Play and Stop) because at the time the ordinary panel had
+   nothing useful to offer a fisher. It does now - the same Play and the
+   same Stop, plus Gather - so that second screen had become a duplicate
+   of a choice already on screen, asked in a different place. One panel,
+   one set of buttons, always in the same spot. */
 function dismissFishCard(){
   const fg = G.fishGame;
   if(!fg || fg.phase !== "card") return;
-  /* Five in the creel: they go, and there is no Play/Stop to answer -
-     asking "again?" of somebody already walking away would be a question
-     with no honest answer. Checked AFTER the card so the fish that filled
-     it still gets its moment. */
+  /* Five in the creel: they are already walking the catch home, and
+     runTheCatchHome has cleared the round itself. Checked AFTER the card
+     so the fish that filled it still gets its moment. */
   if(runTheCatchHome(fg.unit)) return;
-  fg.phase = "choose";
-  fg.btnState = null;   // force the buttons to draw themselves once
   const u = fg.unit;
+  G.fishGame = null;
+  /* Re-arm the same wait a fresh arrival gets. Without this the villager
+     drops straight back into passive gathering, which drives fishPhase
+     round the cast/wait/reel cycle - and Play, which needs "wait" or
+     "ready", starts flickering live/greyed about once a second all over
+     again. Measured 19 flips in 30s the moment this line was missing; the
+     dithering test catches it.
+
+     It is also the right behaviour on its own terms: the card only ever
+     comes from a round you CHOSE to play, so being asked again is the
+     same question you just answered, and the villager stands holding the
+     rod ready rather than quietly fishing on while you decide. */
+  if(u) u.fishConfirmed = false;
   /* Rod up, line out of the water, ready to go again - NOT cast back out.
      There is no point paying the line out only to wind it straight back in
      when the next thing that happens is a cast: the flick IS the cast now,
@@ -18073,31 +18293,13 @@ function dismissFishCard(){
      half second. */
   if(u){ u.fishPhase = "ready"; u.fishPhaseT = 0; }
   renderFishPanel();
-}
-
-/* One button in the panel's own action row, built the way addBtn (07)
-   builds every other button in the game so it looks like one. */
-function fishActionBtn(name, sub, enabled, fn, hi){
-  const el = document.createElement("div");
-  el.className = "btn" + (enabled ? "" : " off") + (hi ? " hi" : "");
-  el.innerHTML = "<span class='n'>"+name+"</span><span class='c'>"+sub+"</span>";
-  if(enabled && fn){
-    // pointerdown and click both, same reason as the card's own x
-    el.addEventListener("pointerdown", e=>{ e.preventDefault(); e.stopPropagation(); fn(); });
-    el.addEventListener("click", e=>{ e.stopPropagation(); fn(); });
-  }
-  return el;
-}
-
-/* Stop fishing altogether: the same thing the selection panel's own Stop
-   does, so the two behave identically wherever you press them. */
-function stopFishingAltogether(u){
-  G.fishGame = null;
-  if(u){ u.order = null; u.target = null; u.fishPhase = null; u.path = null; }
-  hint("They stop fishing.");
-  renderFishPanel();
+  /* Rebuild the ordinary panel NOW rather than waiting on the next
+     refreshUI - it is throttled, and a visible gap where the buttons have
+     gone but not come back is exactly how the panel felt unresponsive
+     before. Play is live immediately because "ready" is castable. */
   refreshUI();
 }
+
 /* The reward. Delivered straight to the stockpile, the same way the
    shipwrecked chest and the night-fishing bite gift both already work,
    rather than routed through u.carry - this is a bonus ON TOP of the
@@ -18219,7 +18421,7 @@ function pickFishSpecies(atPool, tier){
 
 function catchFish(u, tier){
   const mult = tier === "precise" ? FISH_PRECISE_MULT : FISH_SWEET_MULT;
-  const fisherBonus = u.fisherman ? FISHERMAN_YIELD_BONUS : 1;
+  const fisherBonus = 1;   // the fisherman is paid in speed now, not in bigger fish
   const atPool = !!(u.target && u.target.glowPool);
   const species = pickFishSpecies(atPool, tier);
   if(!species) return null;               // nothing in season, nothing on the line
@@ -18405,33 +18607,6 @@ function renderFishPanel(){
     return;
   }
   document.body.classList.remove("casting");
-  /* The choice after the card: go again, or call it a day. Rebuilt only
-     when something about it actually changes - this runs every frame, and
-     replacing the buttons under the player's finger every frame would
-     make them unpressable. */
-  if(fg.phase === "choose"){
-    const cu = fg.unit;
-    const ready = canPlayFishGame(cu);
-    /* No round is running, so the track stands down and the buttons take
-       its room - which is what keeps this panel the same height as every
-       other panel in the game. */
-    $("fishpanel").classList.add("no-track");
-    $("fish_sweet").style.display = "none";
-    $("fish_precise").style.display = "none";
-    $("fish_line").style.left = "50%";
-    $("fish_timefill").style.width = "0%";
-    $("fish_title").textContent = "Rod's ready - go again?";
-    if(fg.btnState !== (ready ? "ready" : "casting")){
-      fg.btnState = ready ? "ready" : "casting";
-      const acts = $("fish_actions");
-      acts.innerHTML = "";
-      acts.appendChild(fishActionBtn("Play", "another cast",
-                                     ready, ()=>{ startFishGame(cu); renderFishPanel(); }, ready));
-      acts.appendChild(fishActionBtn("Stop", "call it off", true,
-                                     ()=>stopFishingAltogether(cu)));
-    }
-    return;
-  }
   if(fg.phase === "card"){
     // the bar underneath just waits - the card is the thing being looked at
     $("fish_sweet").style.display = "none";
@@ -19709,9 +19884,17 @@ function aiThink(dt){
      (WANDERING_AGE) */
   if(!pl.stoneAge && pl.ageUpTo == null){
     const c0 = AGE_COST[0];
-    if(canAfford(pl, c0)){
-      // and it takes them the same day it takes the player (beginAgeUp, 03b)
-      pay(pl, c0); beginAgeUp(pl, 0);
+    /* Peaceful mirrors the player's own age rather than running its own
+       economy for this step - asked for directly: "not opposed to
+       matching the human - once you reach age X they automatically do."
+       A rubber-band catch-up is cheap to reason about in a way that
+       actually copying the player's build orders and gather targets
+       isn't, and it never races ahead - only catches up. (idea:
+       peaceful-ai-growth-and-treaty) */
+    const mirrorReady = DIFFICULTY==="peaceful" && G.players[P_YOU].stoneAge;
+    if(mirrorReady || canAfford(pl, c0)){
+      if(!mirrorReady) pay(pl, c0);
+      beginAgeUp(pl, 0);
       if(typeof rivalNews === "function")
         rivalNews("The Ashkin are raising a hall over the old one.");
     }
@@ -20131,8 +20314,15 @@ function aiThink(dt){
   //    handled at the top of aiThink (WANDERING_AGE)
   if(pl.stoneAge && pl.age<2 && pl.ageUpTo == null){
     const c = AGE_COST[pl.age+1];
+    // Peaceful catches up to the player's age the same way it catches up
+    // to Stone Age above, rather than waiting on its own economy for this
+    // step too (idea: peaceful-ai-growth-and-treaty)
+    const mirrorReady = DIFFICULTY==="peaceful" && G.players[P_YOU].age > pl.age;
     // the same half day the player waits - see beginAgeUp
-    if(canAfford(pl,c)){ pay(pl,c); beginAgeUp(pl); }
+    if(mirrorReady || canAfford(pl,c)){
+      if(!mirrorReady) pay(pl,c);
+      beginAgeUp(pl);
+    }
   }
 
   // 7. train army — but hold back resources when an age-up is nearly in reach,
@@ -23486,14 +23676,29 @@ function drawNode(n){
                   : (cherryTree && bloomAmt>0) ? mixCol("#3f5a34", "#f2b8d4", bloomAmt)
                   : "#3f5a34";
     ctx.beginPath();
-    ctx.moveTo(n.x+wob+lean, n.y-(16+6*frac)*lift);
-    ctx.lineTo(n.x-9*spread, n.y+2); ctx.lineTo(n.x+9*spread, n.y+2);
-    ctx.closePath(); ctx.fill();
+    /* A cherry tree keeps this rounded canopy year-round, not only while in
+       bloom - a real one still LOOKS like a different kind of tree once the
+       flowers are gone, plain green rather than pink. Three overlapping
+       circles rather than the ordinary conifer-ish triangle every other WOOD
+       tree uses, cheap enough for the ~1-in-15 trees that are ever asked to
+       draw it. (idea_batch_2026_08_25, item 2) */
+    if(cherryTree){
+      const cx = n.x+wob+lean, cy = n.y - 8*lift, R = 6.4*spread;
+      ctx.arc(cx, cy - 2*lift, R*0.9, 0, 6.283);
+      ctx.arc(cx - R*0.8, cy + lift, R*0.62, 0, 6.283);
+      ctx.arc(cx + R*0.8, cy + lift, R*0.62, 0, 6.283);
+    } else {
+      ctx.moveTo(n.x+wob+lean, n.y-(16+6*frac)*lift);
+      ctx.lineTo(n.x-9*spread, n.y+2); ctx.lineTo(n.x+9*spread, n.y+2);
+      ctx.closePath();
+    }
+    ctx.fill();
     // A whole bare forest is a lot of strokes. Close in, every tree shows its
     // branches; further out only half of them do, which still reads as a bare
-    // wood but costs half as much.
+    // wood but costs half as much. A cherry tree's own round canopy doesn't
+    // fit the same pointed branch skeleton, so it sits this out.
     const showBranch = G.cam.z > 1.9 || ((n.id*3)|0) % 2 === 0;
-    if(fall>0.25 && G.cam.z > 1.0 && showBranch){
+    if(fall>0.25 && G.cam.z > 1.0 && showBranch && !cherryTree){
       // Queued rather than stroked here. A wood can be hundreds of trees, and
       // a beginPath+stroke each was the single biggest cost in late autumn;
       // batching them by opacity draws the same picture in a few calls.
@@ -23504,8 +23709,9 @@ function drawNode(n){
     }
     if(G.cam.z > 1.9){
       // In autumn the branches are already drawn below, so the inner tier is
-      // simply left off rather than drawn twice.
-      if(turn <= 0.15){
+      // simply left off rather than drawn twice. A cherry tree's round
+      // canopy has no matching inner-triangle shade to give it either.
+      if(turn <= 0.15 && !cherryTree){
 
         ctx.fillStyle = "#4a6b3d";
         ctx.beginPath();
@@ -23780,14 +23986,6 @@ function drawNode(n){
     ctx.fillStyle="#9b9b98";
     ctx.beginPath(); ctx.moveTo(n.x-4,n.y-5); ctx.lineTo(n.x+3,n.y-7);
     ctx.lineTo(n.x+1,n.y-1); ctx.closePath(); ctx.fill();
-  } else if(n.kind===RES.GOLD){
-    ctx.fillStyle="#6e6653";
-    ctx.beginPath(); ctx.ellipse(n.x,n.y+3,10,6,0,0,6.283); ctx.fill();
-    ctx.fillStyle=C.gold;
-    for(let i=0;i<3;i++){
-      const a=n.seed+i*2.1;
-      ctx.beginPath(); ctx.arc(n.x+Math.cos(a)*4.5,n.y+Math.sin(a)*3,2.6,0,6.283); ctx.fill();
-    }
   } else if(n.kind===RES.MOONSTONE){
     /* Its own function so a review page can lift it verbatim and show the
        vein at any darkness without the rest of the map around it - the same
@@ -27145,6 +27343,114 @@ function drawTradeDetail(b, x, y, w, dep, H){
     return;
   }
 
+
+  if(d.fisherhouse){
+    /* THE BOATHOUSE, chosen from three. It stands on the same 1x1 plot as
+       an ordinary House - all of this is drawing, not footprint - and what
+       makes it recognisable at map zoom is the OPENING: a boat-sized
+       doorway with water standing in it, where every other building has a
+       door.
+
+       Mind the units. `w` and `dep` are the footprint in world units (~24
+       for one tile) but `H` is the raw hgt (9) - so the wall is far shorter
+       than it is wide, and anything sized off H is small. The first pass
+       took H for a screen height, drew a bay four units tall over the top
+       of where the door goes, and produced a building with no door at all.
+       There is a comment further up this file from somebody making the
+       same mistake with the door itself. */
+    const base2 = y + dep, wallTop = base2 - H;
+
+    // ---- the opening: full height of the wall, wide enough for a boat ----
+    /* 0.38 of the wall, not 0.52. At half the width there was nothing left
+       either side to hang anything on, and the netting and the life ring
+       both silently skipped their own "is there room?" guard - the
+       building came out as a doorway and nothing else. */
+    const bw = Math.min(w*0.38, 9), bh = H - 1.2;
+    const bx = cx - bw/2, by = base2 - bh;
+    ctx.fillStyle = "#151d24";                       // the dark inside
+    ctx.beginPath();
+    ctx.moveTo(bx, base2);
+    ctx.lineTo(bx, by + bw*0.30);
+    ctx.quadraticCurveTo(cx, by - bw*0.10, bx + bw, by + bw*0.30);   // arched head
+    ctx.lineTo(bx + bw, base2);
+    ctx.closePath(); ctx.fill();
+    // water standing in the bay, catching a little light
+    ctx.fillStyle = "#23404f";
+    ctx.fillRect(bx + 0.6, base2 - bh*0.30, bw - 1.2, bh*0.30);
+    ctx.strokeStyle = "rgba(190,220,232,.30)"; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(bx+1.4, base2-bh*0.20); ctx.lineTo(bx+bw-1.4, base2-bh*0.20); ctx.stroke();
+    // the nose of a boat moored just inside
+    ctx.fillStyle = "#6b4f30";
+    ctx.beginPath(); ctx.ellipse(cx, base2 - bh*0.24, bw*0.28, 1.1, 0, 0, 6.283); ctx.fill();
+    /* A PALE frame round the opening. Dark posts on a dark wall is how the
+       doorway came to be invisible - the hole was there, it just had no
+       edge, so the whole front read as one shadow and the building looked
+       like it had no door at all. Bleached timber against the tarred blue
+       is what makes it read as a way in. */
+    ctx.fillStyle = "#c4ab82";
+    ctx.fillRect(bx - 1.3, by + bw*0.18, 1.3, bh - bw*0.18);      // left post
+    ctx.fillRect(bx + bw,  by + bw*0.18, 1.3, bh - bw*0.18);      // right post
+    ctx.fillRect(bx - 1.3, base2 - 1.0, bw + 2.6, 1.3);           // sill at the waterline
+    // and a lintel across the head of it
+    ctx.fillStyle = "#a8906b";
+    ctx.beginPath();
+    ctx.moveTo(bx - 1.6, by + bw*0.24);
+    ctx.lineTo(cx, by - bw*0.04);
+    ctx.lineTo(bx + bw + 1.6, by + bw*0.24);
+    ctx.lineTo(bx + bw + 1.6, by + bw*0.40);
+    ctx.lineTo(cx, by + bw*0.12);
+    ctx.lineTo(bx - 1.6, by + bw*0.40);
+    ctx.closePath(); ctx.fill();
+
+    // ---- netting, hung on the wall BESIDE the opening, not over it ----
+    const nx1 = bx + bw + 1.6, nx2 = x + w - 0.6, ny = wallTop + 1.4;
+    if(nx2 - nx1 > 2.2){
+      ctx.strokeStyle = "rgba(216,205,170,.85)"; ctx.lineWidth = 0.4;
+      for(let i=0;i<=5;i++){
+        const t=i/5, xx=nx1+(nx2-nx1)*t, sag=1.6*Math.sin(Math.PI*t);
+        ctx.beginPath(); ctx.moveTo(xx, ny); ctx.lineTo(xx, ny+sag+H*0.42); ctx.stroke();
+      }
+      for(let j=0;j<=2;j++){
+        ctx.beginPath();
+        for(let i=0;i<=5;i++){
+          const t=i/5, xx=nx1+(nx2-nx1)*t, sag=1.6*Math.sin(Math.PI*t);
+          const yy=ny+(sag+H*0.42)*(j/2);
+          i? ctx.lineTo(xx,yy) : ctx.moveTo(xx,yy);
+        }
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#b8813f";
+      ctx.beginPath(); ctx.arc(nx1+(nx2-nx1)*0.5, ny+H*0.30, 0.7, 0, 6.283); ctx.fill();
+    }
+
+    // ---- the life ring, on the wall the other side of the opening ----
+    const rr = Math.max(1.5, H*0.17), rx2 = bx - 1.6 - rr, ry2 = wallTop + rr + 1.2;
+    if(rx2 - rr > x - 0.5){
+      ctx.lineWidth = rr*0.46;
+      ctx.strokeStyle = "#f0ece2";
+      ctx.beginPath(); ctx.arc(rx2, ry2, rr, 0, 6.283); ctx.stroke();
+      ctx.strokeStyle = "#d9603f";
+      ctx.beginPath(); ctx.arc(rx2, ry2, rr, -0.35, 0.9); ctx.stroke();
+      ctx.beginPath(); ctx.arc(rx2, ry2, rr, Math.PI-0.35, Math.PI+0.9); ctx.stroke();
+    }
+
+    // ---- the anchor, leaning against the wall by the door ----
+    ctx.save();
+    ctx.translate(x + w + 1.0, base2 - 1.0);
+    ctx.rotate(0.26);
+    const as = Math.max(0.16, H*0.030);
+    ctx.scale(as, as);
+    ctx.strokeStyle = "#4a4f57"; ctx.lineWidth = 3.0; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(0,-15); ctx.lineTo(0,9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-6.5,-10); ctx.lineTo(6.5,-10); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-8,3); ctx.quadraticCurveTo(-8,11, 0,11);
+    ctx.quadraticCurveTo(8,11, 8,3); ctx.stroke();
+    ctx.strokeStyle = "#c2b183"; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(0,-17,2.6,0,6.283); ctx.stroke();
+    ctx.restore();
+  }
+
   if(d.caretaker){
     /* Seed bags stacked by the door, and a barrow leant against the wall.
        Sacks slump - drawn as a rounded pile rather than boxes, or they read
@@ -27449,10 +27755,19 @@ function drawPerson(u, pl, yOff){
      already use. */
   const reallyIdle = isVill && !u.moving && !work && !picking && !u.sit;
   const idleSway = reallyIdle ? Math.sin(G.t*0.6 + u.id*2.3)*0.045 : 0;
+  /* Gathered for the elder's tale (order==="story", see updateStoryNight,
+     05-wildlife.js): the ordinary idle sway is still there underneath, but
+     every so often, on its own slow clock offset per listener so the whole
+     crowd doesn't nod together, one of them gives a bigger forward nod -
+     a real reaction to what's being told rather than the same restless
+     twitch a villager doing nothing in particular gets. */
+  const listening = reallyIdle && u.order === "story";
+  const nodPulse = listening ? Math.max(0, Math.sin(G.t*0.35 + u.id*1.7)) : 0;
+  const nod = nodPulse > 0.9 ? (nodPulse-0.9)*1.4 : 0;
   // the axe's whole-body chop, or the picker's much smaller lean
   if(picking) ctx.rotate(0.07 + pCyc*0.05);
   else if(work) ctx.rotate(0.14 + wCyc*0.09);
-  else if(reallyIdle) ctx.rotate(idleSway);
+  else if(reallyIdle) ctx.rotate(idleSway + nod);
   // layered on top of whatever else is going on, not exclusive with it - a
   // fighter at death's door still trembles mid-swing, not only standing still
   if(nearDeath > 0) ctx.rotate(Math.sin(G.t*9 + u.id*3)*0.05*nearDeath);
@@ -31811,7 +32126,7 @@ function drawElder(){
   const bob = (e.moving && !chair) ? Math.abs(Math.sin(e.walk))*H*0.035 : 0;
   // she stoops a little, and more so when she stops to talk - excepting
   // Wheels, who's seated and doesn't stoop at all
-  const stoop = chair ? 0 : (e.state==="telling") ? 0.10 : 0.06;
+  const stoop = chair ? 0 : (e.state==="telling" || e.state==="storynight") ? 0.10 : 0.06;
 
   ctx.save();
   ctx.translate(e.x, e.y - bob);
@@ -34765,7 +35080,10 @@ function beginStoryNight(msg){
   }
   if(!gathering.length) return false;     // nobody sent home yet - too early tonight
 
-  G.storyNight = { t:0, dur: STORY_HOLD_TIME, phase:"gathering", waitT:0 };
+  // the front of the ring, a little nearer the fire than anyone listening -
+  // see updateElder's own "storynight" state (01b) for what she does with it
+  const elderSpot = { x: yard.x, y: yard.y - 34 };
+  G.storyNight = { t:0, dur: STORY_HOLD_TIME, phase:"gathering", waitT:0, elderSpot };
   hint(msg);
   return true;
 }
@@ -34906,10 +35224,18 @@ function tryNightcap(){
      gives it a consequence that still is not one - the game simply remembers
      who has been through something.
 
-     They are taken from the soldiers who were already going home, so nobody is
-     pulled off a post to sit by a fire. */
+     They are taken from the off-duty soldiers, which soldierOffDuty already
+     defines as nobody garrisoned and nobody under orders - so the watch keeps
+     its sentries and no one is pulled off a post to sit by a fire.
+
+     This used to read u.offDutyNight && u.order==="home", i.e. the soldiers
+     walking home to a bed. Hale soldiers stopped doing that when the army was
+     given the night off indoors (bedtimeSweep, 05b), which left this scene
+     picking from the wounded alone - men who are in the barracks mending, not
+     sitting by a fire. Out and on their feet is the right pool now, and a
+     truer picture of it besides. */
   const vets = G.units.filter(u =>
-    u.p===P_YOU && u.hp>0 && u.marked && u.offDutyNight && u.order==="home");
+    u.p===P_YOU && u.hp>0 && u.marked && !u.indoors && soldierOffDuty(u));
   const sitting = [];
   if(vets.length >= 2){
     for(let i=0; i<2; i++)
@@ -40695,11 +41021,16 @@ function greetAtDoor(h){
 }
 
 function sendHome(){
-  // a ringing bell outranks bedtime: everyone stays at the Town Centre
-  // until it is rung off, which is the whole point of ringing it
-  if(G.bell && G.bell[P_YOU]) return;
   for(const u of G.units){
     if(u.type!=="villager" || u.hp<=0 || u.indoors) continue;
+    // a ringing bell outranks bedtime FOR THAT SIDE: they stay at the Town
+    // Centre until it is rung off, which is the whole point of ringing it.
+    // Was an early return on G.bell[P_YOU] alone, which held the WHOLE
+    // function - the player ringing their own bell at the dusk transition
+    // silently skipped sending the rival's villagers home too, a one-shot
+    // call that never got a second chance. wakeUp() already reads this
+    // correctly per-unit; this now matches it.
+    if(G.bell && G.bell[u.p]) continue;
     // pulled out of their house for the night - they keep working instead
     // of going home, but it costs them: a little health, strength and
     // speed, gone for good, every night they go without a real rest. Two
@@ -40758,15 +41089,30 @@ function sendHome(){
   const offDuty = G.units.filter(soldierOffDuty);
   offDuty.sort((a,b) => (a.hp/a.maxhp) - (b.hp/b.maxhp));
   for(const u of offDuty){
-    /* Anyone carrying a wound makes for their own quarters instead of a bed,
-       and does not dawdle on the way. Only the wounded: a soldier at full
-       health has no business in the barracks overnight and stays out.
-       (quartersFor / mendInQuarters, above.) */
-    if(needsMending(u) && sendOneToQuarters(u)){
+    /* A soldier at full health does not turn in AT ALL - no barracks, no bed,
+       no doorstep. They stay out on their feet all night, which is what an
+       army standing watch over a village actually looks like, and costs them
+       nothing: the exhaustion penalty (awakeAtNight, below) is only ever
+       applied by wakeVillagerForNight to a villager dragged out of bed, never
+       to somebody simply left outdoors.
+
+       Being out is not the same as being idle - soldierOffDuty already
+       excludes anyone garrisoned or under orders, so the watch is still
+       relieved, patrols still run, and nobody is pulled off a post by this.
+
+       Only a wound sends them indoors, and then to their own quarters rather
+       than a bed. needsMending is any damage at all, so this is a low bar
+       deliberately. (quartersFor / mendInQuarters, above.) */
+    if(!needsMending(u)) continue;
+    if(sendOneToQuarters(u)){
       u.duskGrace = 0;
       u.offDutyNight = true;
       continue;
     }
+    /* Wounded, but no barracks standing to mend in - a bed is better than a
+       field, so they take one. Everyone reaching this line is carrying a
+       wound now, and SOLDIER_HURT_FRAC below separates a scratch from
+       something serious rather than the hale from the hurt. */
     if(!sendOneHome(u)) continue;                 // nowhere to sleep: stay out
     const hurt = u.hp < u.maxhp * SOLDIER_HURT_FRAC;
     u.duskGrace = hurt ? 0 : Math.random() * DUSK_GRACE_MAX;
@@ -45569,6 +45915,16 @@ const DOG_BALL_DAYS     = [1.5, 3.5];   // between one ball and the next
 const DOG_BALL_FIRST    = [0.4, 1.6];   // and how soon the first one shows up
 const DOG_PRANCE_TIME   = 5.2;    // how long the invitation lasts
 const DOG_BALL_COLS     = ["#c4562f", "#c9a23f", "#4a7fa8"];
+/* The play bow on its own - the same gesture the ball drops into, but not
+   waiting on one. Offered to whoever's nearest if anyone is, otherwise
+   just done alone; unlike "prance" it never touches the ball, and it ends
+   on its own clock rather than waiting for somebody to notice.
+   (idea_dog_barks_and_jumps) */
+const DOG_BOW_TIME      = 3.0;
+/* One big joyful hop, gone as quick as it came - not the small spring
+   inside a play bow, a proper leap. */
+const DOG_JUMP_TIME     = 0.55;
+const DOG_JUMP_HEIGHT   = 12;
 
 /* Four coats. One body, recoloured - the breed is the same dog throughout,
    which is the point: they read as the village's dogs rather than as four
@@ -45592,10 +45948,22 @@ function kennelsOf(p){
    Picked per dog, so a village of four is very unlikely to show two alike. */
 const DOG_MARKS = ["plain", "piebald", "ticked"];
 
+/* Two rare ones, on top of the ordinary four - same coat/marking pool, same
+   full run of states and animations (trot, dash, sniff, sit, prance, bow,
+   jump - nothing here excludes them from any of it), just a different
+   silhouette. Rare in the spirit of the game's other small rare finds
+   (moonstone trees, the wolf pup, glow bugs): most dogs are never one of
+   these, so running into one is a little moment rather than a coin flip
+   every kennel produces. (idea_special_needs_dogs) */
+const DOG_DISABILITIES = ["threeleg", "cart"];
+const DOG_DISABILITY_CHANCE = 0.05;
+
 function makeVillageDog(home, i){
   const c = DOG_COATS[i % DOG_COATS.length];
   return {
     marks: DOG_MARKS[(Math.random()*DOG_MARKS.length)|0],
+    disability: Math.random() < DOG_DISABILITY_CHANCE
+      ? DOG_DISABILITIES[(Math.random()*DOG_DISABILITIES.length)|0] : null,
     kindTag:"villagedog", id:G.nextId++, p:home.p, home,
     x: home.x + (Math.random()-0.5)*20,
     y: home.y + home.h*TILE/2 + 8 + (Math.random()-0.5)*10,
@@ -45788,8 +46156,12 @@ function updateVillageDogs(dt){
         d.state="tofriend"; d.target=friend; d.dest={x:friend.x, y:friend.y}; d.stateT=8;
       } else if(roll < 0.62){
         d.state="sniff"; d.stateT=1.4+Math.random()*2.2;
-      } else if(roll < 0.72){
+      } else if(roll < 0.70){
         d.state="sit"; d.stateT=2.5+Math.random()*4;
+      } else if(roll < 0.76){
+        d.state="bow"; d.stateT=DOG_BOW_TIME; d.target=friend||null;
+      } else if(roll < 0.81){
+        d.state="jump"; d.stateT=DOG_JUMP_TIME;
       } else {
         const spot = dogPickSpot(d);
         if(spot){ d.dest=spot; d.state = Math.random()<0.22 ? "dash" : "trot"; d.stateT=14; }
@@ -45801,6 +46173,27 @@ function updateVillageDogs(dt){
     if(d.state === "sniff" || d.state === "sit"){
       d.moving = false;
       if(d.stateT <= 0){ d.state="idle"; d.stateT=0.3+Math.random()*1.2; }
+      continue;
+    }
+
+    if(d.state === "bow"){
+      // drawn exactly like "prance" (see drawVillageDog's pranc flag) -
+      // same bounce, just never touches the ball and doesn't need a
+      // person there at all to keep going
+      d.moving = false;
+      d.walk += dt * 3.4;
+      d.tail = 1;
+      const u = d.target;
+      const friendLeft = u && (u.hp<=0 || Math.hypot(u.x-d.x, u.y-d.y) > DOG_PAT_R*2.6);
+      if(d.stateT <= 0 || friendLeft){
+        d.state = "idle"; d.stateT = 0.5+Math.random()*1.6; d.target = null;
+      }
+      continue;
+    }
+
+    if(d.state === "jump"){
+      d.moving = false;
+      if(d.stateT <= 0){ d.state = "idle"; d.stateT = 0.3+Math.random()*1.4; }
       continue;
     }
 
@@ -45864,14 +46257,19 @@ function drawVillageDog(d){
      beat. `pr` runs 0..1 and back over and over; the bow is deepest at the
      bottom of it and the spring is at the top, which is the order a real dog
      does them in. */
-  const pranc = d.state==="prance";
+  const pranc = d.state==="prance" || d.state==="bow";
   /* Slowed right down from 7.2. At that rate the bow and the spring blurred
      into a vibration; at 3.6 you can see it drop, hold for an instant and
      push off, which is what makes it read as playing rather than shivering. */
   const pr    = pranc ? (Math.sin(d.walk*3.6)*0.5 + 0.5) : 0;
   const hop   = pranc ? Math.max(0, Math.sin(d.walk*3.6)) * 4.2 : 0;
   const bow   = pranc ? (1-pr) * 0.46 : 0;      // radians, front end down
+  /* One big hop, not a bounce - a single sine arc across the whole state's
+     lifetime rather than something oscillating off d.walk. */
+  const jump  = d.state==="jump";
+  const jumpArc = jump ? Math.sin(Math.PI * (1 - Math.max(0,d.stateT)/DOG_JUMP_TIME)) * DOG_JUMP_HEIGHT : 0;
   const bob  = pranc ? hop
+             : jump ? jumpArc
              : (d.moving ? Math.abs(gait)*(run?1.1:0.6) : 0);
 
   ctx.fillStyle="rgba(0,0,0,"+(0.22*(1-(G.dark||0)*0.7)).toFixed(3)+")";
@@ -45885,29 +46283,67 @@ function drawVillageDog(d){
 
   // ---- legs. Longer than the terriers', which is most of the breed read.
   ctx.strokeStyle = shade(d.coat,-0.28); ctx.lineWidth=1.35; ctx.lineCap="round";
-  ctx.beginPath();
-  if(sit){
-    // hind legs folded under, front legs straight and proud
-    ctx.moveTo(-3.4, 1.4); ctx.lineTo(-4.4, 4.4);
-    ctx.moveTo( 2.6, 1.0); ctx.lineTo( 2.9, 5.0);
-    ctx.moveTo( 3.6, 1.0); ctx.lineTo( 3.9, 5.0);
-  } else if(pranc){
-    /* Front legs stretched right out in front and flat to the ground at the
-       bottom of the bow; hind legs straight and the rear end high. Then both
-       tuck as it springs. */
-    const stretch = (1-pr);
-    ctx.moveTo(-3.2, 1.2); ctx.lineTo(-3.6, 4.8 - pr*1.6);
-    ctx.moveTo(-2.3, 1.2); ctx.lineTo(-2.0, 4.8 - pr*1.6);
-    ctx.moveTo( 2.9, 1.1); ctx.lineTo( 2.9 + stretch*2.6, 4.6 - pr*2.2);
-    ctx.moveTo( 3.8, 1.1); ctx.lineTo( 3.8 + stretch*3.2, 4.4 - pr*2.2);
-  } else {
+  if(d.disability === "cart"){
+    /* Rare: a wheelchair-cart dog. Front legs step normally; the back end
+       rides a little two-wheeled cart instead of hind legs. Drawn on its
+       own rather than folded into the shared leg stroke below, since the
+       cart needs its own fill/stroke colours. Deliberately the SAME for
+       every state (sit/prance/jump included) rather than a custom variant
+       of each - the point is a different silhouette, not a full second
+       set of poses. */
     const sw = run ? 2.6 : 1.7;
-    ctx.moveTo(-3.4, 1.2); ctx.lineTo(-3.4 + gait*sw, 4.8);
-    ctx.moveTo(-2.4, 1.2); ctx.lineTo(-2.4 - gait*sw*0.7, 4.8);
+    ctx.beginPath();
     ctx.moveTo( 2.8, 1.2); ctx.lineTo( 2.8 - gait*sw, 4.8);
     ctx.moveTo( 3.7, 1.2); ctx.lineTo( 3.7 + gait*sw*0.7, 4.8);
+    ctx.stroke();
+    ctx.strokeStyle = "#5a4a38"; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(-4.4, 2.2); ctx.lineTo(-1.6, 2.2); ctx.stroke();
+    ctx.fillStyle = "#3c332a";
+    ctx.beginPath(); ctx.arc(-4.4, 4.3, 1.7, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(-1.6, 4.3, 1.7, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = shade("#3c332a", 0.35); ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(-4.4,4.3); ctx.lineTo(-4.4,2.3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-1.6,4.3); ctx.lineTo(-1.6,2.3); ctx.stroke();
+    ctx.strokeStyle = shade(d.coat,-0.28); ctx.lineWidth=1.35;
+  } else {
+    ctx.beginPath();
+    if(d.disability === "threeleg"){
+      // one hind leg missing - the rest step normally, same as the ordinary
+      // gait pose regardless of state, for the same reason the cart above
+      // doesn't get a custom variant per state
+      const sw = run ? 2.6 : 1.7;
+      ctx.moveTo(-3.4, 1.2); ctx.lineTo(-3.4 + gait*sw, 4.8);
+      ctx.moveTo( 2.8, 1.2); ctx.lineTo( 2.8 - gait*sw, 4.8);
+      ctx.moveTo( 3.7, 1.2); ctx.lineTo( 3.7 + gait*sw*0.7, 4.8);
+    } else if(sit){
+      // hind legs folded under, front legs straight and proud
+      ctx.moveTo(-3.4, 1.4); ctx.lineTo(-4.4, 4.4);
+      ctx.moveTo( 2.6, 1.0); ctx.lineTo( 2.9, 5.0);
+      ctx.moveTo( 3.6, 1.0); ctx.lineTo( 3.9, 5.0);
+    } else if(pranc){
+      /* Front legs stretched right out in front and flat to the ground at the
+         bottom of the bow; hind legs straight and the rear end high. Then both
+         tuck as it springs. */
+      const stretch = (1-pr);
+      ctx.moveTo(-3.2, 1.2); ctx.lineTo(-3.6, 4.8 - pr*1.6);
+      ctx.moveTo(-2.3, 1.2); ctx.lineTo(-2.0, 4.8 - pr*1.6);
+      ctx.moveTo( 2.9, 1.1); ctx.lineTo( 2.9 + stretch*2.6, 4.6 - pr*2.2);
+      ctx.moveTo( 3.8, 1.1); ctx.lineTo( 3.8 + stretch*3.2, 4.4 - pr*2.2);
+    } else if(jump){
+      // tucked up mid-air, not stretched out for a stride
+      ctx.moveTo(-3.4, 1.2); ctx.lineTo(-3.2, 2.6);
+      ctx.moveTo(-2.4, 1.2); ctx.lineTo(-2.2, 2.6);
+      ctx.moveTo( 2.8, 1.2); ctx.lineTo( 2.6, 2.6);
+      ctx.moveTo( 3.7, 1.2); ctx.lineTo( 3.5, 2.6);
+    } else {
+      const sw = run ? 2.6 : 1.7;
+      ctx.moveTo(-3.4, 1.2); ctx.lineTo(-3.4 + gait*sw, 4.8);
+      ctx.moveTo(-2.4, 1.2); ctx.lineTo(-2.4 - gait*sw*0.7, 4.8);
+      ctx.moveTo( 2.8, 1.2); ctx.lineTo( 2.8 - gait*sw, 4.8);
+      ctx.moveTo( 3.7, 1.2); ctx.lineTo( 3.7 + gait*sw*0.7, 4.8);
+    }
+    ctx.stroke();
   }
-  ctx.stroke();
 
   // ---- body: a deeper chest and a tucked waist, not the terriers' sausage
   ctx.fillStyle = d.coat;
@@ -48316,23 +48752,69 @@ function refreshUI(){
   // order handler (03a) and updateTowerWatch (03b)
   const garrisonables = ownUnits.filter(u=>u.cls==="inf" || u.cls==="arc" || u.type==="villager");
 
-  /* A villager who has actually reached the bank and settled into the
-     waiting bob - offer the timing minigame, and offer ONLY that. While
-     someone is out fishing, Gather/Move/Attack/Garrison/etc make no sense
-     for them - they're already fishing - so this pre-empts the whole rest
-     of the panel with a return, rather than just adding to it. Only for
-     exactly one selected villager: the minigame takes over the whole panel,
-     which makes no sense for a mixed group. Stop hands every other button
-     straight back, because canPlayFishGame goes false the moment the order
-     is cleared. (canPlayFishGame/startFishGame, 03e) */
-  if(!G.fishGame && vills.length===1 && canPlayFishGame(vills[0])){
+  /* SOMEBODY SENT TO THE WATER GETS THREE BUTTONS AND NO OTHERS.
+
+     Gather, Play, Stop, from the moment the shoal is tapped. Move, Attack,
+     Build, Garrison and the rest make no sense for someone who is out
+     fishing, so this pre-empts the whole rest of the panel with a return
+     rather than adding to it. Stop hands every other button straight back,
+     because fishingJob goes false the instant the order is cleared.
+
+     Gathered on fishingJob, not canPlayFishGame: the latter is "can a round
+     begin right now", which is false for the entire walk down to the bank.
+     Keying the panel to it meant ordering someone to fish left the ordinary
+     panel up until they arrived and then swapped it out under the player's
+     thumb. Play is offered disabled instead, and says why.
+
+     Only ever for exactly one selected villager - the minigame takes the
+     whole panel over, which is meaningless for a mixed group.
+     (fishingJob/canPlayFishGame/startFishGame, 03e) */
+  if(!G.fishGame && vills.length===1 && fishingJob(vills[0])){
     const angler = vills[0];
-    addBtn("Play", "try for a bigger catch", true, ()=>{
-      startFishGame(angler);
-      renderFishPanel();   // don't wait a frame - the panel takes over instantly
+    const ready  = canPlayFishGame(angler);
+    const dry    = angler.target && angler.target.amt <= 0;
+
+    /* Gather is what they are ALREADY doing - the ordinary gather tick pays
+       out at a shoal on its own, minigame or no minigame - so this is the
+       standing choice rather than a new order, and it is lit to say so. Its
+       real job is the way back: after a round it puts them on plain fishing
+       again without making the player stop and re-issue anything. */
+    addBtn("Gather", "just fish, no game", true, ()=>{
+      /* "ready" is the between-rounds pose - rod held up out of the water,
+         where landing a fish leaves them. Drop it and the line goes straight
+         back in instead of waiting for the next payout tick to reset the
+         pose. Deliberately NOT a new preference field: the gather tick pays
+         out at a shoal regardless of the game, so plain fishing is the
+         standing state and there is nothing to remember. */
+      if(angler.fishPhase === "ready"){ angler.fishPhase = "cast"; angler.fishPhaseT = 0; }
+      // the one moment this DOES need remembering: a fresh arrival waits on
+      // this tap (or Play's) before the gather tick pays out at all (03c) -
+      // once confirmed once, it's the standing state for the rest of the trip
+      angler.fishConfirmed = true;
+      hint(villagerName(angler)
+             ? villagerName(angler)+" fishes on quietly."
+             : "They fish on quietly.");
+      refreshUI();
     }, null, true);
+
+    addBtn("Play", ready ? "try for a bigger catch"
+                 : dry  ? "this water is fished out"
+                        : "wait until the line is in",
+           ready, ()=>{
+      // startFishGame re-checks canPlayFishGame live rather than trusting
+      // the enabled bit this button was drawn with - normally the same
+      // answer, but refreshUI is throttled (~700ms) and used to let a stale
+      // "ready" go stale-true right as a click landed, which read as the
+      // button doing nothing at all. Told now instead of silently ignored.
+      if(startFishGame(angler)) renderFishPanel();  // don't wait a frame - the panel takes over instantly
+      else hint("Let them get their line in the water first.");
+    }, ready ? null
+       : dry ? "Nothing left in this water - it will come back in a season."
+             : "Let them get their line in the water first.");
+
     addBtn("Stop", "call it off", true, ()=>{
       angler.order = null; angler.target = null; angler.fishPhase = null; angler.path = null;
+      angler.fishConfirmed = false;
       hint("They stop fishing.");
       refreshUI();
     });
@@ -48483,9 +48965,12 @@ function refreshUI(){
                ()=>startPlacing("hermithouse"),
                BLDG_ABOUT.hermithouse, true);
       }
-      // same pattern again, for whoever became the fisherman and has landed
-      // enough of a catch to show for it (03e)
-      if(vills.length===1 && (vills[0].fishCaught||0) >= FISHERMAN_HOUSE_CATCHES){
+      /* Same pattern again - but this one is the FISHERMAN'S, and only
+         theirs. Anyone can be sent to a shoal; only the villager who took
+         it up for good and has a catch to show for it may put the house
+         up. It is their house, so it is their job. */
+      if(vills.length===1 && vills[0].fisherman &&
+         (vills[0].fishCaught||0) >= FISHERMAN_HOUSE_CATCHES){
         const fh = BLDG.fisherhouse;
         addBtn("🎣 "+fh.name, costStr(fh.cost), canAfford(pl, fh.cost),
                ()=>startPlacing("fisherhouse"),
@@ -49122,6 +49607,9 @@ function refreshUI(){
                "peddler", pl.res[trade.give] >= trade.giveAmt, ()=>tryPeddlerTrade(trade));
       }
     }
+    if(b.type==="fisherhouse" && b.done){
+      addBtn("\u{1F4D6} Catch book", "every fish, caught or not", true, ()=>openFishBook(b.p));
+    }
     if(b.type==="tradingpost"){
       for(const trade of TRADES){
         addBtn(trade.giveAmt+" "+trade.give+" \u2192 "+trade.getAmt+" "+trade.get,
@@ -49605,6 +50093,64 @@ window.addEventListener("keydown", e=>{
     }
   }
 });
+
+/* ---------- the catch book (the Fisherman's House's own page) ----------
+   "You can view all your catches eventually in the fisherman's shop" -
+   fisherCatchSummary (03e) was the honest first pass, a text tally too
+   short for the panel's own stats box. The catalogue outgrew it (10 fish
+   to 47) before this ever got built. Grouped the same way the tally
+   already groups them (common/seasonal/night/oddities), sorted by catch
+   number within each - the numbers are how a fish gets looked up, so
+   they stay visible whether it's been caught or not. Missing entries show
+   a silhouette (drawFishPortrait's own opt) and when/season they want,
+   but not the flavour note - caught is caught, found is found. */
+let fishBookForPlayer = 0;
+function refreshFishBook(){
+  const pl = G.players[fishBookForPlayer];
+  const log = pl.fishLog || {};
+  const caught = FISH_TYPES.filter(f=>log[f.key]).length;
+  $("fishbookcount").textContent = caught+" of "+FISH_TYPES.length+" species landed";
+  const groups = [
+    ["Common",      f => f.when==="any" && !f.junk],
+    ["Seasonal",    f => f.when==="day"  && f.season],
+    ["Night pool",  f => f.when==="night"],
+    ["Oddities",    f => f.junk]
+  ];
+  const parts = [];
+  for(const [label, pick] of groups){
+    const of = FISH_TYPES.filter(pick).sort((a,b)=>a.num-b.num);
+    if(!of.length) continue;
+    parts.push("<div class='fishgroup'>"+esc(label)+"</div>");
+    for(const f of of){
+      const entry = log[f.key];
+      const meta = entry
+        ? "Best "+entry.best.toFixed(2)+"kg &middot; caught "+entry.count
+        : (f.season ? cap(f.season) : (f.when==="night" ? "Night" : "Any time"));
+      parts.push("<div class='fishcard"+(entry?"":" uncaught")+"'>"+
+        "<canvas id='fbc"+f.num+"' width='64' height='42'></canvas>"+
+        "<div class='fnum'>#"+f.num+"</div>"+
+        "<div class='fname'>"+(entry?esc(f.name):"???")+"</div>"+
+        "<div class='fmeta'>"+esc(meta)+"</div></div>");
+    }
+  }
+  $("fishbooklist").innerHTML = parts.join("");
+  for(const f of FISH_TYPES){
+    const cv = $("fbc"+f.num);
+    if(!cv) continue;
+    drawFishPortrait(cv.getContext("2d"), f, cv.width, cv.height, {silhouette: !log[f.key]});
+  }
+}
+function openFishBook(p){
+  fishBookForPlayer = p;
+  refreshFishBook();
+  G.running = false;
+  $("fishbookscreen").classList.remove("hide");
+}
+function closeFishBook(){
+  $("fishbookscreen").classList.add("hide");
+  if(G && !G.over) G.running = true;
+}
+$("btnfishbookclose").addEventListener("click", closeFishBook);
 
 /* ---------- the logbook (the Noticeboard's other page) ----------
    Per-match only, deliberately - G.disc/G.seen/G.moonwrightSeen all reset
