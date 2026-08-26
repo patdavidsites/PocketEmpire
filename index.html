@@ -400,6 +400,39 @@
     cursor:pointer;transition:.12s;}
   #pausebtn:hover{background:#3d332a;border-color:#6b5a48;}
   #pausebtn svg{width:13px;height:13px;}
+  /* ---------- the story button ----------
+     Stacked directly on top of the pause button and sharing every one of its
+     numbers, so the two read as one column of controls rather than as a
+     button and a thing somebody added later. 34 + 8 of gap = 42. */
+  #storybtn{position:absolute;right:8px;bottom:calc(100% + 50px);z-index:11;
+    width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
+    cursor:pointer;transition:.12s;color:var(--parch);
+    font-family:Georgia,serif;font-size:15px;font-weight:600;letter-spacing:.02em;}
+  #storybtn:hover{background:#3d332a;border-color:#6b5a48;}
+  /* The story list itself, styled off the logbook's diary rather than
+     inventing a second look for the same kind of content - .logsec for the
+     day headings, --parch for text, and the logbook's own tone colours. */
+  #storyscreen .card{max-width:520px;}
+  #storylist{max-height:min(56vh,460px);overflow-y:auto;text-align:left;
+    margin:14px 0;padding-right:4px;}
+  #storylist .stday{font-family:Georgia,serif;font-size:12px;color:var(--gold);
+    text-transform:uppercase;letter-spacing:.09em;margin:14px 0 6px;
+    padding-bottom:4px;border-bottom:1px solid rgba(160,132,86,.30);}
+  #storylist .stday:first-child{margin-top:0;}
+  #storylist .strow{display:block;padding:5px 0 6px;
+    border-bottom:1px solid rgba(160,132,86,.13);
+    font-size:12px;line-height:1.45;color:var(--parch-dim);}
+  /* A line the village wrote down - an occasion, a discovery, somebody
+     earning a name - reads brighter than the running commentary around it.
+     The distinction already exists in the code (tellAndNote versus a plain
+     hint); this is it made visible. */
+  #storylist .strow.story{color:var(--parch);}
+  #storylist .strow.tone-good.story{color:#cbe0b4;}
+  #storylist .strow.tone-bad.story{color:#e0b4b4;}
+  #storylist .strow.story::before{content:"";display:inline-block;width:4px;height:4px;
+    border-radius:50%;background:var(--gold);vertical-align:middle;margin-right:7px;}
+  #storylist .stempty{font-size:12px;line-height:1.5;color:var(--parch-dim);padding:8px 0;}
   #pausescreen .card{max-width:340px;text-align:center;}
   /* The opening brief: deliberately the smallest card in the game. It is the
      three things you must know before your first night and nothing else, so
@@ -732,6 +765,7 @@
       <div class="fc-go">Close to go again</div>
     </div>
   </div>
+  <button id="storybtn" title="What has been said (last two days)">T</button>
   <button id="pausebtn" title="Pause">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/></svg>
   </button>
@@ -976,6 +1010,16 @@
           <li><strong>A creel that fills.</strong> Five fish and the angler takes them home by themselves &mdash; to the Fisherman's House if you have built one, or wherever else will take food &mdash; and then walks back out to the water and carries on. You do not have to watch them</li>
           <li><strong>Shoals run out now, and come back.</strong> They always had a stock and it was never once spent, because anything empty was swept up before the timer that would have refilled it could be set &mdash; so the code that brings a shoal back had never run, not once, in the whole life of the game. Water is kept when it empties and refills a season later. Fishing a spot to nothing and moving on is now a real thing that happens</li>
           <li><strong>Shoals sit out in the water.</strong> They were being placed hard against the shoreline &mdash; about a quarter of them looked beached in the sand. Under one in forty now, with the same number of shoals on the map. There are also half as many fish moving in each one; they were packed too tightly to read as anything but a clump</li>
+          <li><strong>A new <strong>T</strong> button, just above Pause: what has been said.</strong> The message bar shows one line at a time and the next thing that happens writes over it, so a line could be half-read and then gone for good. Press T and the last two days of it comes back &mdash; scroll it, or close it with the &times;. Grouped under the day it was said on, newest first. The village's own moments &mdash; an occasion, a discovery, somebody earning a name &mdash; are marked and read brighter than the ordinary running commentary, but the commentary is all there too, because the line you lost is just as likely to have been one of those</li>
+          <li><strong>The peddler no longer sets up shop on your town centre.</strong> His rates used to appear among the town centre's own buttons whenever he was in the village &mdash; a second, different set of trades sitting where the building's upgrades go, with none of the Trading Post's context. Trading is the Trading Post's job. He still arrives, still gets his word on the way in and out, and still walks through the village; he is somebody passing through now rather than a shop</li>
+          <li><strong>The village says when the Fisherman's House can be built.</strong> The fifth fish your fisherman lands now brings word that the house is theirs to put up &mdash; who they are, and to select them and open Build. The button has always appeared at exactly that moment, but only while that one villager is selected, and nothing announced it, so it was possible to fish for a season and never learn the house existed. Said once, on the fifth fish, and not at all if a Fisherman's House is already standing</li>
+          <li><strong>One Kennels, one dog &mdash; and a Kennels now costs real money.</strong> It used to hand over the whole pack of four, so there was never a reason to build a second one. Four dogs is four Kennels now, and the price has gone up to <strong>150 wood, 110 food and 30 gold</strong>. A dog is worth having, so it should be a decision rather than a box you tick once</li>
+          <li><strong>Fixed: the grey bands running up either side of a pitched roof.</strong> Every building casts a shadow on the ground, and that shadow was a plain rectangle the size of its footprint &mdash; but a footprint is wider than a roof anywhere above the eaves, so its square corners stuck out either side of the slope as two hard grey stripes. It is loudest in winter, where bright snow turns the same shading into an obvious step with a straight edge belonging to nothing in the picture. The shadow is now a soft oval, the same shape the villagers have always cast, and it fades with the dark like theirs so it no longer sits as a stain over ground a brazier has lit</li>
+          <li><strong>The town centre has taken its flag down.</strong> The little team-coloured pennant on a pole at the very peak is gone. Its roof is a tall clean pitch with a crossed ridge pole at the top, and the flag was one thing too many exactly where the eye goes first. The other grand buildings keep theirs</li>
+          <li><strong>The dusk wind-down is gone &mdash; villagers set off home the moment night falls.</strong> They used to stand about for up to eight seconds first, "just finishing up", staggered so dusk arrived softly rather than all at once. In play it simply read as the village freezing at nightfall, and it measured as the single biggest slice of all the standing-about anyone does at night. Between this and the town-centre fix below, the time a villager spends stood still between dusk and bed is down by a third</li>
+          <li><strong>Fixed: villagers standing about half the night instead of going to bed.</strong> When a few of them stop at the town centre for a last word before turning in, the gathering waited until <em>every</em> guest had reached their exact spot &mdash; but the walk gives up a little short of it, so one villager blocked by a corner or a barrow could never be counted as arrived, and the whole group stood there until a thirty-second backstop ran out. With the chat on top of it that was most of a night stood still. Now anybody who has stopped getting closer counts as arrived, and the backstop is twelve seconds rather than thirty. Also: the gathering can no longer take the <em>whole</em> village, which is what happened in a young settlement of five &mdash; everyone walked to the town centre and stood there, which looked exactly like the village freezing at nightfall</li>
+          <li><strong>You can send somebody to go and play with a dog.</strong> Pick a villager, tap <strong>Gather</strong>, and tap a dog instead of a tree. They will walk over and make a fuss of it &mdash; a pat, and a game with the ball if the dog has one about. Works on all of them: the village dogs, and Gumby and Floyd too. Nothing in the menus mentions it and nothing ever will. Dogs already wandered up to people on their own and got made a fuss of; this is the same thing, asked for rather than waited on. Making a fuss of the same dog over and over is free and always welcome, but only the first one in a while leaves anybody walking taller</li>
+          <li><strong>Fixed: if your fisherman died, nobody could ever take up the rod again.</strong> The post was held by a flag that was set once and never cleared, so losing them to a raid or a wolf meant the Fisherman's House quietly became unbuildable for the rest of the match &mdash; with nothing on screen to say why. Now the game simply asks whether anyone still holds the post, so it falls vacant the moment they do, and the next villager to sit down and play takes it up, with a name and an epithet of their own. Still only ever <strong>one fisherman at a time</strong>. The village is told when the post falls empty. Saves that already got stuck this way mend themselves on loading</li>
           <li><strong>Closing a catch card hands you straight back to the ordinary panel.</strong> It used to open a second screen of its own &mdash; <em>"Rod's ready &ndash; go again?"</em> with its own Play and Stop. Now that the ordinary panel carries Gather, Play and Stop itself, that was a second copy of a choice already on screen, asked somewhere else. One panel, one set of buttons, always in the same place. The rod still comes up out of the water ready to go, and they wait on you rather than quietly fishing on while you decide</li>
           <li><strong>Fixed: pressing Play often did nothing at all.</strong> A villager who reached a shoal started fishing on their own straight away, and that cycles the rod through cast, wait and reel &mdash; but Play can only start from the waiting bob. So the button was flickering between live and greyed about once a second, and since the panel only redraws a few times a second, the button you tapped was frequently already out of date. Measured: <strong>Play was live in only 15% of frames, flipping 19 times in 20 seconds</strong>. Now a villager arriving at the water waits with the line in, and does not fish until you choose Gather or Play &mdash; which holds the rod still and keeps the button honest. It is live 97.5% of the time</li>
           <li><strong>Sending somebody to the water gives you three buttons and no others.</strong> Tap a villager, tap Gather, tap the shoal &mdash; and the panel becomes <strong>Gather, Play, Stop</strong>. Move, Attack, Build and the rest are gone, because none of them means anything for somebody who is out fishing. <strong>Gather</strong> is lit, because it is what they are already doing: a villager at a shoal brings food in on their own and the game is optional on top. <strong>Play</strong> is the game. <strong>Stop</strong> calls them off and hands the ordinary panel straight back. The three appear the moment you tap the water rather than when they finally arrive &mdash; Play simply waits, greyed, until the line is actually in</li>
@@ -1708,6 +1752,16 @@
     <h1 id="fishbooktitle">The catch book</h1>
     <p id="fishbookcount"></p>
     <div id="fishbooklist"></div>
+  </div>
+</div>
+
+<div class="screen hide" id="storyscreen">
+  <div class="card">
+    <button class="cardx" id="btnstoryclose">×</button>
+    <div class="kicker">Lately</div>
+    <h1>What has been said</h1>
+    <p id="storycount"></p>
+    <div id="storylist"></div>
   </div>
 </div>
 
@@ -4524,6 +4578,29 @@ function trySpawnGumby(force){
    simplest way to go round a corner rather than stopping dead against it.
    Returns the remaining distance to the target, which every caller already
    wants for its own "have I arrived" check. */
+/* Being made a fuss of, because somebody was sent over to do it (the
+   secret Gather-on-a-dog - dogPlayArrive, 05i). Shared by Gumby and Floyd
+   because everything else about them already is, and a third copy of the
+   same few lines is how the last handful of bugs in this file got in.
+
+   Answered FIRST in both their loops, and returns true to say "handled":
+   it has to outrank whatever they were up to, or a dog would carry on
+   trotting off toward a farm while somebody was patting it. Holding them
+   still IS the pose - neither little dog has a pat animation of its own,
+   so what reads is that they stopped, and the bark. */
+function smallDogBeingPat(g, dt, respot){
+  if(!g || g.state !== "beingpat") return false;
+  g.patT = (g.patT||0) - dt;
+  const u = g.patWho;
+  const lost = !u || u.hp<=0 || Math.hypot(u.x-g.x, u.y-g.y) > DOG_PAT_R*2.2;
+  if(g.patT <= 0 || lost){
+    g.patWho = null; g.patT = 0;
+    g.state = "wander";
+    if(respot) respot(g);
+  }
+  return true;
+}
+
 const SMALL_DOG_PAD = 5;
 function smallDogStep(g, tx, ty, dt){
   const dx=tx-g.x, dy=ty-g.y, d=Math.hypot(dx,dy)||1;
@@ -4579,6 +4656,8 @@ function updateGumby(dt){
   if(!g) return;
   g.t += dt; g.walk += dt;
   if(g.say){ g.sayT -= dt; if(g.sayT<=0) g.say=null; }
+
+  if(smallDogBeingPat(g, dt, pickGumbySpot)) return;
 
   if(g.state==="in"){
     const d = smallDogStep(g, g.tx, g.ty, dt);
@@ -4659,6 +4738,8 @@ function updateFloyd(dt){
   if(!f) return;
   f.t += dt; f.walk += dt;
   if(f.say){ f.sayT -= dt; if(f.sayT<=0) f.say=null; }
+
+  if(smallDogBeingPat(f, dt, pickFloydSpot)) return;
 
   if(f.state==="in"){
     const d = smallDogStep(f, f.tx, f.ty, dt);
@@ -7314,7 +7395,12 @@ const BLDG = {
               drop:true, vision:4, shore:true, watermill:true },
   fletcher:{ name:"Fletcher's Hut", age:0, hp:180, w:1, h:1, cost:{wood:85,food:40}, hgt:8,
              roof:"lean", roofScale:0.6, build:13, vision:3, fletcher:true },
-  kennels:{ name:"Kennels", age:0, hp:190, w:2, h:1, cost:{wood:95,food:70}, hgt:8,
+  /* Dear on purpose. One Kennels is one dog, so a village of four is four
+     of these - and a dog is worth having (the fuss made of one leaves the
+     villager working better for a while), so it should be a real decision
+     rather than a box you tick once. The gold is what makes it one: wood
+     and food are what a village has, gold is what it has to go and find. */
+  kennels:{ name:"Kennels", age:0, hp:190, w:2, h:1, cost:{wood:150,food:110,gold:30}, hgt:8,
             shrinkW:0.66, shrink:0.58, roof:"lean", build:14, vision:4,
             kennels:true, kennel2:true, trains:["hound"] },
   weatherstone:{ name:"Weather Stone", age:0, hp:400, w:1, h:1, cost:{stone:110,know:60}, hgt:11,
@@ -8273,13 +8359,13 @@ function defaultGameState(){
            hand. See WANDERING_AGE. */
         res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
-        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishermanSet:false, fishLog:{} },
+        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishLog:{} },
       { id:P_AI, civ:"ashkin", col:CIVS.ashkin.col, dark:CIVS.ashkin.dark, ai:true,
         /* Nothing at all to start with - the Wandering Age is gathered for by
            hand. See WANDERING_AGE. */
         res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
-        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishermanSet:false, fishLog:{} },
+        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishLog:{} },
       /* The goblins. A full players[] entry because the whole game indexes
          sides by number - colours, damage, drawing - but they never gather,
          never build and never age. `settled:true` so the wilds treat their
@@ -8290,7 +8376,7 @@ function defaultGameState(){
         age:0, settled:true, stoneAge:true, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
         armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null,
-        seasonalFarms:{}, caretakerCd:0, fishermanSet:false, fishLog:{} }
+        seasonalFarms:{}, caretakerCd:0, fishLog:{} }
     ],
     // the Caretaker's Cottage's own villager, one per cottage - see
     // updateCaretaker (03b). Listed here rather than created lazily so it
@@ -11398,6 +11484,12 @@ function zoomAt(sx, sy, f){
    site the moment it finishes one (carryOn, 03b), which is the same result
    without a mode to arm first. */
 function giveOrder(u, fields){
+  /* Any new order cancels a trip to go and see a dog. It is not enough to
+     overwrite u.order: the dog-play branch (03c) reads u.playWith, and a
+     token left behind would have them wander back to the dog the moment
+     anything else set order to "playdog" again. Cleared here, once, rather
+     than at every call site. */
+  if(u.playWith && fields && fields.order !== "playdog") u.playWith = null;
   Object.assign(u, fields);
 }
 
@@ -11488,7 +11580,25 @@ function tapAt(sx, sy){
           hint(wet ? "Fishing the shoal." : "Gathering "+n.kind+".");
           fxPing(n.x,n.y);
         }
-      } else hint("No resource there — tap a tree, bush, rock, gold or a shoal of fish.");
+      } else {
+        /* THE SECRET ONE. No node there - but there might be a dog, and
+           somebody sent to "gather" a dog goes and makes a fuss of it
+           instead. Deliberately undocumented: nothing in the menus says
+           so, the hint below still describes the ordinary job, and it is
+           only ever found by someone idly tapping their dog. Reached only
+           when the tap missed every node, so it can never shadow a real
+           gather order. (dogAt/beginDogPlay, 05i) */
+        const dog = (typeof dogAt === "function")
+                  ? dogAt(w.x, w.y, Math.max(tol, 14), P_YOU) : null;
+        const pals = dog ? own.filter(u => isWorker(u) && u.hp>0) : [];
+        if(dog && pals.length){
+          // one villager only: four people crowding one dog is a scrum,
+          // and the pat states each expect a single friend
+          beginDogPlay(pals[0], dog);
+          fxPing(dog.x, dog.y);
+        }
+        else hint("No resource there — tap a tree, bush, rock, gold or a shoal of fish.");
+      }
     } else if(a==="attack"){
       const t = pickAt(w.x, w.y, "enemy", tol);
       if(t && t.p!==undefined && t.p!==P_YOU){
@@ -15346,6 +15456,10 @@ function updateUnit(u, dt){
             * (((u.breadT||0) > 0) ? BREAD_BOOST : 1);                // and better again for a day after the baker calls
   u.cd -= dt;
   if(u.atkAnim>0) u.atkAnim -= dt;
+  /* The bend-down over a dog. Runs itself out the same way atkAnim does,
+     so nothing has to remember to clear it - and if the villager is given
+     another order mid-pat they simply straighten up as they walk off. */
+  if(u.patAnim>0){ u.patAnim -= dt; if(u.patAnim<=0){ u.patAnim=0; u.patAt=null; } }
   /* The warlord's big hit runs on its own clock, and the blow lands part way
      through it rather than at the start - the axes go up, and everything goes
      over when they come down. (bossSwing / bossSlamLands, 04a) */
@@ -15389,6 +15503,24 @@ function updateUnit(u, dt){
   /* Gathering for the elder's tale. Once there they simply stand - the shared
      timer in updateStoryNight decides when everyone moves on together, rather
      than each villager deciding for itself. (world-alive pack 7, feature 33) */
+  /* Off to play with a dog (the secret Gather-on-a-dog; beginDogPlay and
+     dogPlayArrive live in 05i). Re-aimed every tick rather than walked to
+     a fixed spot, because a dog does not wait where it was tapped - it
+     trots off, and a villager marching to where it USED to be, then
+     standing there, is the whole feature failing in the most visible way
+     possible. If the dog is gone (wandered off the map, kennel pulled
+     down) the order simply lapses and they stand ready for the next one. */
+  if(u.order === "playdog"){
+    const d = (typeof dogFromToken === "function") ? dogFromToken(u.playWith) : null;
+    if(!d){ u.order = null; u.playWith = null; u.moving = false; }
+    else {
+      const near = moveToward(u, d.x, d.y, spd, dt, DOG_PAT_R*0.75);
+      u.moving = !near;
+      if(near) dogPlayArrive(u, d);
+      return;
+    }
+  }
+
   if(u.order === "story"){
     if(!u.storyDest){ u.order = "home"; }
     else {
@@ -15408,7 +15540,24 @@ function updateUnit(u, dt){
   if(u.order === "nightcap"){
     if(!u.nightcapDest){ u.order = "home"; }
     else {
+      const dNC = Math.hypot(u.nightcapDest.x-u.x, u.nightcapDest.y-u.y);
       const arrived = moveToward(u, u.nightcapDest.x, u.nightcapDest.y, spd, dt, 8);
+      /* ARRIVED, OR STOPPED GETTING ANY CLOSER. The gathering waits for
+         everybody before it starts its clock, so one villager who cannot
+         quite reach their spot on the ring - a barrow in the way, a corner
+         of the town centre, another villager on the exact patch - used to
+         hold the WHOLE group standing about until a 30s backstop expired.
+         With the hold on top that is most of a night stood still, which is
+         precisely what "they walk over and then freeze" looks like.
+
+         Same shape as the home walk's own rescue a little further down:
+         near enough and no longer closing is near enough. */
+      if(arrived) u.nightcapHere = true;
+      else {
+        if(dNC > (u.ncD||1e9) - 0.4) u.ncT = (u.ncT||0) + dt; else u.ncT = 0;
+        u.ncD = dNC;
+        if(u.ncT > 1.5) u.nightcapHere = true;
+      }
       u.moving = !arrived;
       return;
     }
@@ -18493,22 +18642,51 @@ function catchFish(u, tier){
     else if(first) tellAndNote("A "+label+" - the first anyone here has caught. +"+amount+" food.", "good");
     else if(tier==="precise") hint("A fine "+label+" - +"+amount+" food.");
     else hint("A "+label+" - +"+amount+" food.");
+
+    /* THE HOUSE IS NOW THEIRS TO BUILD - say so. The button appears in the
+       build menu the moment their fifth fish is landed, but only while THIS
+       villager is the one selected, and nothing anywhere announced it. A
+       player with no reason to re-select the angler and open Build would
+       never learn the house existed.
+
+       Fired on the exact crossing (=== rather than >=) so it is said once,
+       and checked AFTER the catch's own line so it reads as the thought
+       that follows it rather than talking over it. If a fisherman dies and
+       a successor earns their own five, they get their own telling - which
+       is right, because by then the player has probably forgotten. */
+    if(u.fisherman && u.fishCaught === FISHERMAN_HOUSE_CATCHES &&
+       !G.bldgs.some(b => b.p===u.p && b.type==="fisherhouse")){
+      tellAndNote("That is five for "+(villagerName(u) || "the fisherman")+
+                  ", and they know this water now. Select them and open Build - "+
+                  "the Fisherman's House is theirs to put up, and nobody else's.", "good");
+    }
   }
   return { key:species.key, name:species.name, size, amount, rare, first, record,
            dbl, junk: !!species.junk, creelFull: (u.creel||0) >= FISH_CREEL_FULL };
 }
 
-/* Once, ever, per side - the first villager to press Play, regardless of
-   whether they land the fish. Same shape as creditDeed (05b): a fresh
-   name off the shared pool, an epithet, and here a permanent look on top
-   (the u.fisherman flag drawPerson reads, 04e) that nothing in the game
-   ever clears afterward - they stay dressed for it through every other
-   job they're given, same as a marked veteran keeps their plume. */
+/* ONE AT A TIME, not one ever. Whoever presses Play first takes the name
+   and the look, regardless of whether they land the fish - and keeps both
+   for life, through every other job they are ever given, the way a marked
+   veteran keeps their plume (the u.fisherman flag drawPerson reads, 04e).
+   But if they die, the post opens again, and the next villager to sit
+   down and play the game takes it up.
+
+   ASKED WHETHER ANYONE STILL HOLDS IT rather than kept as a flag on the
+   player. It used to be a sticky `pl.fishermanSet` that nothing ever
+   cleared, so losing your fisherman to a raid or a wolf meant NOBODY
+   could ever take it up again and the Fisherman's House became
+   unbuildable for the rest of the match - silently, with no way to tell
+   why. A flag needs some other piece of code to remember to clear it on
+   every path a villager can die by; a question asked at the moment it
+   matters cannot fall out of step. It also mends saves that already got
+   stuck, with no migration to write. */
+function livingFisherman(p){
+  return G.units.find(u => u.p===p && u.fisherman && u.hp>0) || null;
+}
 function markFisherman(u){
   if(u.fisherman) return;
-  const pl = G.players[u.p];
-  if(pl.fishermanSet) return;
-  pl.fishermanSet = true;
+  if(livingFisherman(u.p)) return;   // the post is taken, and they are alive
   u.fisherman = true;
   if(!u.nightName) u.nightName = pickFreshName();
   const look = VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length];
@@ -19134,6 +19312,12 @@ function cleanup(){
       if(who){
         hint(who + " has been killed.");
         if(typeof noteVillagerDeath === "function") noteVillagerDeath(u, who);
+        /* Losing the fisherman opens the post again - say so, or the only
+           sign is a build button that has quietly stopped appearing.
+           markFisherman (03e) asks whether anyone still holds it rather
+           than reading a flag, so nothing needs clearing here; this is
+           purely the telling. */
+        if(u.fisherman) hint("The village is without a fisherman. Someone else may take up the rod.");
       }
     }
     G.units = G.units.filter(u=>u.hp>0);
@@ -24468,9 +24652,26 @@ function drawBuilding(b){
 
   ctx.globalAlpha = vis?1:0.72;
 
-  // cast shadow on the ground, offset like the unit shadows
-  ctx.fillStyle="rgba(0,0,0,.30)";
-  ctx.fillRect(x+H*0.18, y+H*0.10, w, dep);
+  /* Cast shadow on the ground, offset like the unit shadows - and an
+     ELLIPSE, the way theirs is, rather than the hard rectangle this used
+     to be.
+
+     The rectangle was the building's whole footprint, and a footprint is
+     wider than the roof anywhere above the eaves. So on a pitched roof the
+     shadow's square corners stuck out either side of the slope as two hard
+     grey bands running up the pitch - reported as "a weird glitch on the
+     edge of the pyramid", and quite right. Measured on snow: ground 208
+     against 146 inside the band, a 30% step with a straight vertical edge
+     that belongs to nothing in the picture.
+
+     Worst in winter, which is why it surfaced there: bright snow makes the
+     same 30% far louder than it is on grass. Faded with the dark for the
+     same reason the unit shadow is - a fixed shadow sitting over ground
+     that a brazier has brightened reads as a stain stamped into the light. */
+  ctx.fillStyle = "rgba(0,0,0,"+(0.30*(1-(G.dark||0)*0.75)).toFixed(3)+")";
+  ctx.beginPath();
+  ctx.ellipse(x + w/2 + H*0.18, y + dep/2 + H*0.10, w*0.50, dep*0.52, 0, 0, 6.283);
+  ctx.fill();
 
   if(!b.done){
     /* The Wandering Age's centre is a ruin somebody is putting right, not a
@@ -24914,18 +25115,25 @@ function drawBuilding(b){
     ctx.fillRect(x, y+dep-H*0.74, w, H*0.06);
     ctx.globalAlpha = vis?1:0.72;
 
-    const ridgeAp = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
-    /* Clear of whatever roof is actually there. The town centre's first two
-       ages draw their own, taller pitch (see ownRoof), and a pole sized to
-       the standard lid ends up buried inside it. */
-    const poleRise = ownRoof ? ridgeAp*2.2 : ridgeAp*1.15;
-    const poleX = x+w/2, poleTop = y-H-poleRise;
-    ctx.strokeStyle = "#3a3226"; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(poleX, poleTop + (ownRoof?7:ridgeAp*0.65)); ctx.lineTo(poleX, poleTop); ctx.stroke();
-    ctx.fillStyle = pl.col;
-    ctx.beginPath();
-    ctx.moveTo(poleX, poleTop); ctx.lineTo(poleX+9, poleTop+3); ctx.lineTo(poleX, poleTop+6);
-    ctx.closePath(); ctx.fill();
+    /* NO PENNANT ON THE TOWN CENTRE. The pole and its little team-coloured
+       flag stay on the other special buildings; the town centre asked for
+       it to come off. Its own roof is a tall clean pitch with a crossed
+       ridge pole at the peak, and a flag on top of that was one thing too
+       many right where the eye goes first. */
+    if(b.type !== "town"){
+      const ridgeAp = Math.max(7, Math.min(dep*0.55*(d.roofScale||1), 22));
+      /* Clear of whatever roof is actually there. The town centre's first two
+         ages draw their own, taller pitch (see ownRoof), and a pole sized to
+         the standard lid ends up buried inside it. */
+      const poleRise = ownRoof ? ridgeAp*2.2 : ridgeAp*1.15;
+      const poleX = x+w/2, poleTop = y-H-poleRise;
+      ctx.strokeStyle = "#3a3226"; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(poleX, poleTop + (ownRoof?7:ridgeAp*0.65)); ctx.lineTo(poleX, poleTop); ctx.stroke();
+      ctx.fillStyle = pl.col;
+      ctx.beginPath();
+      ctx.moveTo(poleX, poleTop); ctx.lineTo(poleX+9, poleTop+3); ctx.lineTo(poleX, poleTop+6);
+      ctx.closePath(); ctx.fill();
+    }
   }
 
   // ---- snow lying on the roof ----
@@ -27737,6 +27945,23 @@ function drawPerson(u, pl, yOff){
   const pickLY = pickAt ? (pickAt.y - u.y) : 0;
   const pickLean = pickAt ? Math.max(-3, Math.min(3, pickLX*0.16)) : 0;
 
+  /* MAKING A FUSS OF A DOG. The same reach the picker uses, aimed at the
+     dog instead of a bush and run at about two-thirds the speed - a pat is
+     slower than picking fruit, and the hand comes to rest on the animal
+     rather than darting in and out. It matters that this is a real pose:
+     the villager is stopped for a full second and a bit (and up to five,
+     if a ball comes out) and this project's rule is that anything which
+     pauses a unit has to keep visibly moving, or it reads as a hang.
+     patAnim/patAt are set by dogPlayArrive (05i) and run themselves out in
+     the unit tick, so nothing here needs clearing. */
+  const patting = (u.patAnim||0) > 0 && !u.moving && !!u.patAt;
+  const patCyc  = patting ? Math.sin(G.t*3.1 + u.id) : 0;
+  const reach     = picking || patting;
+  const rCyc      = patting ? patCyc : pCyc;
+  const reachLX   = patting ? (u.patAt.x - u.x) * (u.face < 0 ? -1 : 1) : pickLX;
+  const reachLY   = patting ? (u.patAt.y - u.y) : pickLY;
+  const reachLean = patting ? Math.max(-3, Math.min(3, reachLX*0.16)) : pickLean;
+
   const lit = shade(tint, 0.20), dim = shade(tint, -0.30);
   const skinDim = shade(skin, -0.22), skinLit = shade(skin, 0.14);
   const outline = "rgba(28,24,20,.55)";
@@ -27745,7 +27970,7 @@ function drawPerson(u, pl, yOff){
   /* The lean is in WORLD x, before the facing flip is applied by the caller -
      so it has to be undone by the flip, or a villager facing left leans away
      from the very thing they are picking. */
-  ctx.translate(picking ? pickLean*(u.face<0 ? -1 : 1)*(0.5+0.5*pCyc) : 0,
+  ctx.translate(reach ? reachLean*(u.face<0 ? -1 : 1)*(0.5+0.5*rCyc) : 0,
                 yOff - bob + work*H*0.05);
   /* A villager standing around with genuinely nothing on - not walking, not
      working, not picking, not sat down - gets a small restless sway rather
@@ -27753,7 +27978,7 @@ function drawPerson(u, pl, yOff){
      a slow sine on G.t, offset per unit so a group of them don't sway in
      unison, along the exact same whole-body rotate the work/picking leans
      already use. */
-  const reallyIdle = isVill && !u.moving && !work && !picking && !u.sit;
+  const reallyIdle = isVill && !u.moving && !work && !reach && !u.sit;
   const idleSway = reallyIdle ? Math.sin(G.t*0.6 + u.id*2.3)*0.045 : 0;
   /* Gathered for the elder's tale (order==="story", see updateStoryNight,
      05-wildlife.js): the ordinary idle sway is still there underneath, but
@@ -27765,7 +27990,7 @@ function drawPerson(u, pl, yOff){
   const nodPulse = listening ? Math.max(0, Math.sin(G.t*0.35 + u.id*1.7)) : 0;
   const nod = nodPulse > 0.9 ? (nodPulse-0.9)*1.4 : 0;
   // the axe's whole-body chop, or the picker's much smaller lean
-  if(picking) ctx.rotate(0.07 + pCyc*0.05);
+  if(reach) ctx.rotate(0.07 + rCyc*0.05);
   else if(work) ctx.rotate(0.14 + wCyc*0.09);
   else if(reallyIdle) ctx.rotate(idleSway + nod);
   // layered on top of whatever else is going on, not exclusive with it - a
@@ -28011,20 +28236,20 @@ function drawPerson(u, pl, yOff){
      the hand all the way TO the node instead stretched both arms into
      noodles, because a gatherer stands further from a node than anyone can
      reach. They point and reach in and out; they do not telescope. */
-  const pickIn  = 0.62 + (0.5 + 0.5*pCyc)*0.38;   // this hand is going in
-  const pickOut = 0.62 + (0.5 - 0.5*pCyc)*0.38;   // and this one is coming out
-  const aimAt = (sx, sy, reach) => {
-    const dx = pickLX - sx, dy = pickLY - sy;
+  const pickIn  = 0.62 + (0.5 + 0.5*rCyc)*0.38;   // this hand is going in
+  const pickOut = 0.62 + (0.5 - 0.5*rCyc)*0.38;   // and this one is coming out
+  const aimAt = (sx, sy, reachK) => {
+    const dx = reachLX - sx, dy = reachLY - sy;
     const d  = Math.hypot(dx, dy) || 1;
-    const L  = armLen*0.95*reach;
+    const L  = armLen*0.95*reachK;
     return [sx + dx/d*L, sy + dy/d*L];
   };
 
   ctx.strokeStyle = dim; ctx.lineWidth = Math.max(2, H*0.085);
   const bsx = -tw*0.72, bsy = shldY+H*0.03;
-  const bAim = picking ? aimAt(bsx, bsy, pickOut) : null;
-  const bhx = picking ? bAim[0] : -tw*0.72 - Math.sin(backA)*armLen*0.6;
-  const bhy = picking ? bAim[1] : shldY+H*0.03 + Math.cos(backA)*armLen;
+  const bAim = reach ? aimAt(bsx, bsy, pickOut) : null;
+  const bhx = reach ? bAim[0] : -tw*0.72 - Math.sin(backA)*armLen*0.6;
+  const bhy = reach ? bAim[1] : shldY+H*0.03 + Math.cos(backA)*armLen;
   ctx.beginPath(); ctx.moveTo(-tw*0.72, shldY+H*0.03); ctx.lineTo(bhx, bhy); ctx.stroke();
   ctx.fillStyle = skinDim;
   ctx.beginPath(); ctx.arc(bhx, bhy, H*0.055, 0, 6.283); ctx.fill();
@@ -28068,13 +28293,13 @@ function drawPerson(u, pl, yOff){
 
   ctx.strokeStyle = tint;
   const fsx = tw*0.72, fsy = shldY+H*0.03;
-  const fAim = picking ? aimAt(fsx, fsy, pickIn) : null;
-  const hx = picking ? fAim[0] : tw*0.72 + Math.sin(frontA)*armLen*0.78;
-  const hy = picking ? fAim[1] : shldY+H*0.03 + Math.cos(frontA)*armLen*0.88;
+  const fAim = reach ? aimAt(fsx, fsy, pickIn) : null;
+  const hx = reach ? fAim[0] : tw*0.72 + Math.sin(frontA)*armLen*0.78;
+  const hy = reach ? fAim[1] : shldY+H*0.03 + Math.cos(frontA)*armLen*0.88;
   ctx.beginPath(); ctx.moveTo(tw*0.72, shldY+H*0.03); ctx.lineTo(hx, hy); ctx.stroke();
   /* A band of the player's colour round the upper sword-arm - a small mark
      of rank that echoes the team sash, rather than a whole sleeve of it. */
-  if(u.type==="captain" && !picking){
+  if(u.type==="captain" && !reach){
     const bt0 = 0.30, bt1 = 0.48;
     const abx0 = tw*0.72 + (hx-tw*0.72)*bt0, aby0 = (shldY+H*0.03) + (hy-(shldY+H*0.03))*bt0;
     const abx1 = tw*0.72 + (hx-tw*0.72)*bt1, aby1 = (shldY+H*0.03) + (hy-(shldY+H*0.03))*bt1;
@@ -35186,7 +35411,22 @@ function tryNightcap(){
     u.p===P_YOU && u.type==="villager" && u.hp>0 && u.order==="home");
   if(candidates.length < NIGHTCAP_GROUP_MIN) return false;   // too early tonight
 
-  const n = Math.min(candidates.length, NIGHTCAP_GROUP_MIN +
+  /* NEVER THE WHOLE VILLAGE - which is what the constant above has always
+     said and what the code never actually did. In a grown village taking
+     five is a handful and nobody notices; in a young one of five it took
+     ALL of them, so the entire settlement walked to the town centre and
+     stood there for NIGHTCAP_HOLD seconds instead of going to bed. That
+     reads exactly like the village freezing at nightfall, because from the
+     outside it is indistinguishable from it.
+
+     Counted against every villager, not just tonight's home-bound
+     candidates: the promise is about the village, and one villager still
+     out at a woodpile does not make a gathering of everyone else "a
+     handful". */
+  const villagers = G.units.filter(u => u.p===P_YOU && u.type==="villager" && u.hp>0).length;
+  const room = Math.min(candidates.length, villagers - 1);
+  if(room < NIGHTCAP_GROUP_MIN) return false;      // too small a village tonight
+  const n = Math.min(room, NIGHTCAP_GROUP_MIN +
     Math.floor(Math.random() * (NIGHTCAP_GROUP_MAX - NIGHTCAP_GROUP_MIN + 1)));
   const pool = candidates.slice();
   const going = [];
@@ -35280,10 +35520,17 @@ function updateNightcap(dt){
 
   if(nc.phase === "gathering"){
     nc.waitT = (nc.waitT||0) + dt;
-    const stillWalking = G.units.some(u=>u.order==="nightcap" && u.hp>0);
-    const allThere = !G.units.some(u=>u.order==="nightcap" && u.nightcapDest &&
-      Math.hypot(u.x-u.nightcapDest.x, u.y-u.nightcapDest.y) > 14);
-    if(!stillWalking || allThere || nc.waitT > 30){ nc.phase = "there"; nc.t = 0; }
+    const anyComing = G.units.some(u=>u.order==="nightcap" && u.hp>0);
+    /* Asks whether each of them has SETTLED, not whether they are within
+       14px of an exact spot. The unit tick (03c) sets nightcapHere when
+       they arrive or when they stop getting any closer, so one villager
+       who cannot quite reach their patch of the ring no longer holds
+       everybody else standing about. */
+    const allThere = !G.units.some(u=>u.order==="nightcap" && !u.nightcapHere);
+    /* And the backstop is a backstop, not a schedule. At 30s it was longer
+       than the hold it precedes, so on any night it fired the gathering
+       was most of the evening on its own. */
+    if(!anyComing || allThere || nc.waitT > 12){ nc.phase = "there"; nc.t = 0; }
     return;
   }
 
@@ -35296,7 +35543,8 @@ function updateNightcap(dt){
     let n2 = 0;
     for(const u of G.units){
       if(u.order !== "nightcap" || u.nightcapVet) continue;
-      u.order = "home"; u.nightcapDest = null; n2++;
+      u.order = "home"; u.nightcapDest = null;
+      u.nightcapHere = false; u.ncT = 0; u.ncD = undefined; n2++;
     }
     if(n2 > 0) hint(n2===1 ? "One last chat by the town centre before turning in."
                            : "A few linger by the town centre for a last word before turning in.");
@@ -35309,6 +35557,7 @@ function updateNightcap(dt){
     u.order = "home";           // handed back to the existing home walk
     u.nightcapDest = null;
     u.nightcapVet = false;
+    u.nightcapHere = false; u.ncT = 0; u.ncD = undefined;
     count++;
   }
   if(nc.vets && count > 0){
@@ -40495,12 +40744,22 @@ const DAY_LEN    = 134;
 const DUSK_AT    = 0.56;  // the light starts going at this point in the day
 const NIGHT_AT    = 0.68;  // fully dark by here
 const DAWN_AT    = 0.90;  // light starts returning
-/* A day is 134 seconds here, not real minutes - dusk to full dark is only
-   about 16 of them (see below), so "a couple of minutes to wind down" has
-   to shrink to fit. A handful of seconds, staggered per villager rather
-   than a single-frame mass order, is enough to sell the same idea at this
-   clock. See sendHome() and the "home" order's own grace check (03c). */
-const DUSK_GRACE_MAX = 8;
+/* CUT FOR NOW - set to 0 deliberately, 2026-08-25, at the user's call.
+
+   The idea was a handful of seconds of "just finishing up" before the walk
+   home, staggered per villager so dusk was a soft wind-down rather than a
+   single-frame mass order. It reads differently in play: villagers stood
+   still the moment night fell, and it measured as 42% of ALL the time a
+   villager spends standing still between dusk and bed - the single biggest
+   slice, ahead of the nightcap and everything else. Standing about at
+   nightfall was the whole complaint.
+
+   The MECHANISM is left in place - sendHome still hands the field out, the
+   home order still honours it - so this is one number to put back if the
+   wind-down is ever wanted again, rather than a feature to rebuild. Things
+   that set it explicitly (the wounded, who get 0) are unaffected.
+   See sendHome() and the "home" order's own grace check (03c). */
+const DUSK_GRACE_MAX = 0;
 const DAY_AT     = 0.99;  // and it is full day again
 const NIGHT_TINT = "#101a2e";
 const LAMP_SCALE = 0.90;  // trims every building's light together
@@ -42330,6 +42589,16 @@ function noteInDiary(text, tone){
 function tellAndNote(text, tone){
   hint(text);
   noteInDiary(text, tone);
+  /* And mark the line hint() just logged as one of the village's own -
+     that is what the T panel draws differently from the running
+     commentary around it. Marked here rather than passed into hint()
+     because every other caller in the game says hint(text) and nothing
+     else, and giving it a second argument would mean touching all of
+     them to change nothing. (logMessage, 07) */
+  if(typeof G !== "undefined" && G && G.msgLog && G.msgLog.length){
+    const e = G.msgLog[G.msgLog.length-1];
+    if(e.text === text){ e.story = true; e.tone = tone || "plain"; }
+  }
   return true;
 }
 
@@ -46012,11 +46281,15 @@ function dogFindFriend(d){
 function updateVillageDogs(dt){
   if(!G.villageDogs) G.villageDogs = [];
 
-  // one dog per kennel, up to four, for each side that has any
+  /* ONE DOG PER KENNELS. Literally one - the line below used to read
+     kennels.length * DOGS_MAX, so a single Kennels handed over the whole
+     pack of four at once and there was never a reason to build a second.
+     The comment above it already said "one dog per kennel"; the code did
+     not. Four dogs is now four Kennels, and they are priced accordingly. */
   for(const p of [P_YOU, P_AI]){
     const kennels = kennelsOf(p);
     const mine = G.villageDogs.filter(d => d.p===p);
-    const want = Math.min(DOGS_MAX, kennels.length * DOGS_MAX);
+    const want = Math.min(DOGS_MAX, kennels.length);
     if(kennels.length && mine.length < want){
       G.villageDogs.push(makeVillageDog(kennels[mine.length % kennels.length], mine.length));
     }
@@ -46081,8 +46354,15 @@ function updateVillageDogs(dt){
       }
       if(d.patT <= 0){
         /* The happiness boost. On the VILLAGER, timed, so it goes with them
-           and wears off - not on the dog and not on the player. */
-        u.dogHappy = DOG_HAPPY_TIME;
+           and wears off - not on the dog and not on the player.
+
+           Only if they are off cooldown. An ambient pat cannot happen at
+           all while the cooldown runs (dogFindFriend skips them), so this
+           guard changes nothing there - it is for the ASKED-for one, which
+           is allowed to happen whenever the player likes. Making a fuss of
+           the same dog ten times running should be charming and free, not
+           ten per cent forever. */
+        if(!((u.dogPatCd||0) > 0)) u.dogHappy = DOG_HAPPY_TIME;
         u.dogPatCd = DOG_PAT_COOLDOWN;
         if(d.p===P_YOU && !G.dogPatToldOnce){
           G.dogPatToldOnce = true;
@@ -46092,7 +46372,8 @@ function updateVillageDogs(dt){
         /* And sometimes the fuss turns into a game. The ball is dropped at
            their feet and the dog prances - which is the invitation, and the
            reason the prance exists at all. */
-        if(d.hasBall && Math.random() < DOG_BALL_CHANCE){
+        const asked = !!d.playAsked; d.playAsked = false;
+        if(d.hasBall && (asked || Math.random() < DOG_BALL_CHANCE)){
           d.hasBall = false;
           d.ballAt = { x: u.x + (Math.random()-0.5)*8, y: u.y + 5 + Math.random()*4 };
           d.state = "prance"; d.stateT = DOG_PRANCE_TIME; d.target = u;
@@ -46478,6 +46759,106 @@ function drawVillageDog(d){
     ctx.beginPath(); ctx.arc(d.ballAt.x-0.7, d.ballAt.y-0.8, 0.8, 0, 6.283); ctx.fill();
   }
   // (a ball being CARRIED is drawn up in the head, under the nose - see above)
+}
+
+/* ---------- going to play with a dog, because you asked ----------
+   The secret one. Arm Gather, tap a dog instead of a berry bush, and the
+   villager walks over and makes a fuss of it - a pat, or a game with the
+   ball if the dog has one to hand. Nothing in the build menu says so and
+   nothing ever will; it is there for whoever tries it.
+
+   All of it hangs off the AMBIENT machinery that was already here (the
+   "pat" and "prance" states above), so the animation, the happiness boost
+   and the ball are all the ones the village already used - this only adds
+   a way to ASK for it, rather than waiting to be lucky. */
+
+/* A dog the player could plausibly have meant, at a tapped point. Village
+   dogs, Gumby and Floyd alike - "all dogs", as asked. Only your own side's
+   village dogs: sending somebody to pat the Ashkin's dog would be a walk
+   into a hostile town for a wag. */
+function dogAt(wx, wy, tol, p){
+  let best = null, bd = tol;
+  for(const d of (G.villageDogs||[])){
+    if(d.p !== p || d.state === "gone") continue;
+    const dist = Math.hypot(d.x-wx, d.y-wy);
+    if(dist < bd){ bd = dist; best = d; }
+  }
+  for(const g of [G.gumby, G.floyd]){
+    if(!g) continue;
+    const dist = Math.hypot(g.x-wx, g.y-wy);
+    if(dist < bd){ bd = dist; best = g; }
+  }
+  return best;
+}
+
+/* PLAIN DATA, NEVER THE DOG ITSELF. A village dog has an id and so is a
+   save entity - a reference to one would freeze to {$ref:id} and come back
+   fine. Gumby and Floyd have NO id, so they are not entities: a unit
+   holding one would be deep-copied into the save, and since the dog holds
+   the unit back (d.target) that is a cycle, which saveFreeze can only
+   answer by recursing to its depth cap and dropping the lot. A two-field
+   token sidesteps the whole question and costs nothing. */
+function dogToken(d){
+  if(!d) return null;
+  if(d === G.gumby) return { kind:"gumby" };
+  if(d === G.floyd) return { kind:"floyd" };
+  return typeof d.id === "number" ? { kind:"village", id:d.id } : null;
+}
+function dogFromToken(t){
+  if(!t) return null;
+  if(t.kind === "gumby") return G.gumby || null;
+  if(t.kind === "floyd") return G.floyd || null;
+  return (G.villageDogs||[]).find(d => d.id === t.id) || null;
+}
+
+/* Send them off to it. Deliberately NOT an order the AI can be given and
+   not one that survives being told to do anything else - any other order
+   simply overwrites u.order, and playWith is cleared wherever that
+   happens (giveOrder, 03a). */
+function beginDogPlay(u, d){
+  if(!u || !d || u.hp<=0 || !isWorker(u)) return false;
+  const tok = dogToken(d);
+  if(!tok) return false;
+  u.order = "playdog"; u.playWith = tok;
+  u.target = null; u.site = null; u.workplace = null; u.path = null;
+  u.tx = d.x; u.ty = d.y;
+  return true;
+}
+
+/* They have arrived. Hand straight over to the states the village already
+   had, so a fuss made on purpose looks exactly like one that happened by
+   itself. */
+function dogPlayArrive(u, d){
+  if(!u || !d) return false;
+  u.order = null; u.playWith = null; u.moving = false; u.path = null;
+  if(d === G.gumby || d === G.floyd){
+    /* The little dogs have no ball and no pat state of their own, so they
+       get the short version: they stop, they look at you, and they are
+       very pleased about it. */
+    d.state = "beingpat"; d.patT = DOG_PAT_TIME; d.patWho = u;
+    // each little dog has its own voice already - Gumby woofs, Floyd yips
+    d.say = (d === G.floyd) ? "Yip!" : "Woof!";
+    d.sayT = DOG_PAT_TIME + 0.4;
+  } else {
+    d.state = "pat"; d.patT = DOG_PAT_TIME; d.target = u; d.moving = false;
+    /* A dog with a ball, asked to play, ALWAYS plays. The ambient version
+       rolls DOG_BALL_CHANCE because it is a chance meeting; this one was
+       asked for, and being told "no ball today" would read as the tap
+       having done nothing. */
+    d.playAsked = true;
+  }
+  /* The villager's own bend-down (drawPerson, 04e). A plain {x,y} rather
+     than the dog itself - same reasoning as dogToken above, and the pose
+     wants the spot they reached for anyway, not a dog that has since
+     trotted two feet to the left. */
+  u.patAnim = DOG_PAT_TIME;
+  u.patAt = { x: d.x, y: d.y };
+  u.face = (d.x < u.x) ? -1 : 1;   // turn to face it, or they pat thin air
+  if(u.p === P_YOU && !G.dogPlayToldOnce){
+    G.dogPlayToldOnce = true;
+    hint("There is always time to say hello to a dog.");
+  }
+  return true;
 }
 
 /* ---------- the village's working people, between jobs ----------
@@ -48301,9 +48682,42 @@ let hintT=0;
 function hintDuration(msg){
   return Math.min(13, Math.max(3.25, 2.2 + (msg ? msg.length : 0)/16));
 }
+/* ---------- everything that gets said, kept ----------
+   The hint bar shows one line at a time and the next event overwrites it,
+   so a message could be read half way and then be gone for good. This is
+   the record behind it, read by the T button.
+
+   EVERY line, not just the diary's. The diary (noteInDiary, 05d) only
+   takes what an event thought worth writing down, which is a quarter of
+   what is actually shown - measured at 26 of 106 lines across four
+   match-days. A panel built on the diary alone would therefore be missing
+   three lines in four, and the one you were reading when it vanished is
+   most likely one of the missing ones. The distinction is kept rather than
+   thrown away: story lines are marked and drawn differently. */
+const MSG_LOG_DAYS = 2;      // how far back the T button reaches
+const MSG_LOG_MAX  = 240;    // and a hard ceiling, so a save can never bloat
+function logMessage(text){
+  if(!text || typeof G === "undefined" || !G) return;   // boot-time hints have no G yet
+  if(!G.msgLog) G.msgLog = [];
+  const last = G.msgLog[G.msgLog.length-1];
+  // several systems can say the same thing on one tick; once is enough
+  if(last && last.text === text && (G.t - last.t) < 1) return;
+  G.msgLog.push({ text, t: G.t,
+                  when: (typeof diaryStamp === "function" ? diaryStamp() : ""),
+                  story: false });
+  /* Pruned by AGE first and only then by count. The other way round, a busy
+     couple of minutes would push out lines that are still inside the two
+     days the panel promises. Half a day of slack past the promise so the
+     oldest visible entry is never right on the edge of vanishing. */
+  const cutoff = G.t - (typeof DAY_LEN === "number" ? DAY_LEN : 134) * (MSG_LOG_DAYS + 0.5);
+  while(G.msgLog.length && G.msgLog[0].t < cutoff) G.msgLog.shift();
+  while(G.msgLog.length > MSG_LOG_MAX) G.msgLog.shift();
+}
+
 function hint(msg){
   const h=$("hint"); h.textContent=msg; h.classList.add("show");
   hintT = hintDuration(msg);
+  logMessage(msg);
 }
 
 function idleUnits(){
@@ -49598,15 +50012,18 @@ function refreshUI(){
         : "Stacked " + Math.round(b.wood||0) + " of " + KILN_WOOD +
           " wood. It lights itself at dusk when it is full.");
     }
-    /* The peddler's offers hang on the town centre while he is here. He is a
-       day visitor, not a selectable thing, and making him one would be a great
-       deal of plumbing for a man with a mule. (05d) */
-    if(b.type==="town" && typeof peddlerHere==="function" && peddlerHere()){
-      for(const trade of PEDDLER_TRADES){
-        addBtn(trade.giveAmt+" "+trade.give+" \u2192 "+trade.getAmt+" "+trade.get,
-               "peddler", pl.res[trade.give] >= trade.giveAmt, ()=>tryPeddlerTrade(trade));
-      }
-    }
+    /* The peddler's offers USED TO hang here, on the town centre, because he
+       is a day visitor rather than a selectable thing. Taken off at the
+       user's call: trading is the Trading Post's job (see tradingpost just
+       below), and a second, different set of rates appearing on the town
+       centre whenever a man with a mule happened to be in the village was a
+       duplicate of that with none of its context.
+
+       He still comes, still gets his arrival and departure lines, and is
+       still one of the day's visitors walking through the village - he is
+       simply somebody passing through now rather than a shop. If he is ever
+       wanted as a trader again, tryPeddlerTrade and PEDDLER_TRADES are both
+       still there in 05d, untouched; only this panel went. */
     if(b.type==="fisherhouse" && b.done){
       addBtn("\u{1F4D6} Catch book", "every fish, caught or not", true, ()=>openFishBook(b.p));
     }
@@ -50261,6 +50678,49 @@ function refreshLogbook(){
   }
   $("logbooklist").innerHTML = rows.join("");
 }
+/* ---------- the T button: what has been said lately ----------
+   Two days of it, newest first, grouped under the day it was said on.
+   The village's own lines (an occasion, a discovery, somebody earning a
+   name) are marked; the ordinary running commentary sits quieter beneath
+   them, but it IS there, because the line you half-read before something
+   else knocked it off the bar is as likely to be one of those. */
+function refreshStory(){
+  const cutoff = G.t - DAY_LEN * MSG_LOG_DAYS;
+  const rows = [];
+  const all = (G.msgLog || []).filter(m => m.t >= cutoff);
+  const list = all.slice().reverse();          // newest first: the end you want
+  let day = null, stories = 0;
+  for(const m of list){
+    if(m.story) stories++;
+    if(m.when !== day){
+      day = m.when;
+      rows.push("<div class='stday'>" + esc(day || "") + "</div>");
+    }
+    rows.push("<div class='strow" + (m.story ? " story tone-" + (m.tone || "plain") : "") +
+              "'>" + esc(m.text) + "</div>");
+  }
+  $("storylist").innerHTML = rows.length ? rows.join("")
+    : "<div class='stempty'>Nothing has been said yet. Come back when the village has been about its business a while.</div>";
+  $("storycount").textContent = all.length
+    ? (all.length + (all.length===1 ? " line" : " lines") + " these past two days" +
+       (stories ? ", " + stories + " worth remembering" : ""))
+    : "";
+}
+function openStory(){
+  refreshStory();
+  G.running = false;                 // same as the logbook - it is for reading
+  $("storyscreen").classList.remove("hide");
+}
+function closeStory(){
+  $("storyscreen").classList.add("hide");
+  if(G && !G.over) G.running = true;
+}
+$("btnstoryclose").addEventListener("click", closeStory);
+$("storybtn").addEventListener("click", ()=>{
+  // a second press closes it, the way a toggle should
+  if($("storyscreen").classList.contains("hide")) openStory(); else closeStory();
+});
+
 function openLogbook(){
   refreshLogbook();
   G.running = false;
