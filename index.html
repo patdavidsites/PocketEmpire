@@ -1010,6 +1010,7 @@
           <li><strong>A creel that fills.</strong> Five fish and the angler takes them home by themselves &mdash; to the Fisherman's House if you have built one, or wherever else will take food &mdash; and then walks back out to the water and carries on. You do not have to watch them</li>
           <li><strong>Shoals run out now, and come back.</strong> They always had a stock and it was never once spent, because anything empty was swept up before the timer that would have refilled it could be set &mdash; so the code that brings a shoal back had never run, not once, in the whole life of the game. Water is kept when it empties and refills a season later. Fishing a spot to nothing and moving on is now a real thing that happens</li>
           <li><strong>Shoals sit out in the water.</strong> They were being placed hard against the shoreline &mdash; about a quarter of them looked beached in the sand. Under one in forty now, with the same number of shoals on the map. There are also half as many fish moving in each one; they were packed too tightly to read as anything but a clump</li>
+          <li><strong>Fixed: the baker, the gardener and the rest pacing at their own front door.</strong> They walk to a working spot set at a fixed distance from their building &mdash; five past the right-hand wall, one below the bottom &mdash; and once anything is built next door that spot is inside somebody else's wall. It can never be reached, so they walked at it until a ninety-second timer let them go. In a tightly built village the baker's own spot was inside something in <strong>six seeds out of six</strong>, and the worst spells of walking on the spot ran <strong>85 to 90 seconds</strong>, two thirds of a day, right beside their own door. Now they walk to reachable ground beside the spot instead, and any errand that has gained nothing for eight seconds is given up so they can find something else to do. Worst spell measured after: <strong>nine seconds</strong>. The same fix covers the farmhands, the beekeeper, the caretaker and the villagers out for a wander, who all shared the same five copies of the same walk</li>
           <li><strong>A new <strong>T</strong> button, just above Pause: what has been said.</strong> The message bar shows one line at a time and the next thing that happens writes over it, so a line could be half-read and then gone for good. Press T and the last two days of it comes back &mdash; scroll it, or close it with the &times;. Grouped under the day it was said on, newest first. The village's own moments &mdash; an occasion, a discovery, somebody earning a name &mdash; are marked and read brighter than the ordinary running commentary, but the commentary is all there too, because the line you lost is just as likely to have been one of those</li>
           <li><strong>The peddler no longer sets up shop on your town centre.</strong> His rates used to appear among the town centre's own buttons whenever he was in the village &mdash; a second, different set of trades sitting where the building's upgrades go, with none of the Trading Post's context. Trading is the Trading Post's job. He still arrives, still gets his word on the way in and out, and still walks through the village; he is somebody passing through now rather than a shop</li>
           <li><strong>The village says when the Fisherman's House can be built.</strong> The fifth fish your fisherman lands now brings word that the house is theirs to put up &mdash; who they are, and to select them and open Build. The button has always appeared at exactly that moment, but only while that one villager is selected, and nothing announced it, so it was possible to fish for a season and never learn the house existed. Said once, on the fifth fish, and not at all if a Fisherman's House is already standing</li>
@@ -12949,14 +12950,7 @@ function makeCaretakerVillager(cottage){
    is the leisure villagers' own: a destination that stops being reachable
    would otherwise leave them walking on the spot until nightfall. */
 function caretakerWalk(o, dt){
-  const bx = o.x, by = o.y;
-  const done = moveToward(o, o.dest.x, o.dest.y, CARETAKER_SPD, dt, 6);
-  const moved = Math.hypot(o.x-bx, o.y-by);
-  o.walk += moved*0.15;
-  if(Math.abs(o.x-bx) > 0.2) o.face = (o.x-bx) < 0 ? -1 : 1;
-  o.moving = moved > 0.01;
-  o.legT = (o.legT||0) + dt;
-  return done || o.legT > 90;
+  return workerWalk(o, dt, CARETAKER_SPD);   // shared - see workerWalk below
 }
 
 /* The Caretaker's Cottage: a labour-saver, nothing more. Every so often it
@@ -13148,15 +13142,87 @@ function potterAboutHome(o, dt, spd){
 function stopPottering(o){ o.potterDest = null; o.potterT = undefined; }
 
 // one leg of their walk - same shape as caretakerWalk/bakerWalk, own speed
-function fieldWorkerWalk(o, dt, spd){
+/* ---------- one walk step, for everybody who is not a unit ----------
+   The trades, the farmhands, the baker and the leisure wanderers all live
+   outside G.units and all walked with their own copy of the same eight
+   lines. Five copies, and the same two faults in every one.
+
+   FAULT ONE: NOBODY CHECKED THE DESTINATION WAS STANDABLE. workerStation
+   and the errand pickers hand out a point at a fixed pixel offset from a
+   building - "five past the right-hand wall", "one below the bottom" -
+   and in a village with anything built next door that point is inside
+   solid ground. It can never be arrived at, so they walked at it until a
+   ninety-second timer let them go. Measured in a densely built village:
+   the baker's own spot was inside something in SIX seeds out of six, and
+   the worst spells of walking-without-getting-anywhere ran 85-90 seconds,
+   two thirds of a day, right beside their own front door. That is the
+   "pacing at the side or bottom of their building" this fixes.
+
+   Same shape as the doorstep bug in CLAUDE.md, and the same lesson: a
+   fixed offset is a bet on nothing being built next to you.
+
+   FAULT TWO: THE ONLY WAY OUT WAS NINETY SECONDS. moveToward has its own
+   net-progress rescue, but it needs three failed four-second windows and
+   a wobble that gains twelve pixels resets it - measured strikes of 0 to
+   2 during these stalls, so it almost never fired. A walk that has gained
+   nothing for eight seconds is not going to; give it up and let the
+   caller find something else to do, which is what it does with any other
+   finished errand.
+
+   The ninety-second cap is KEPT as a backstop rather than lowered, because
+   a genuinely long errand across a big map can legitimately take longer
+   than any short timer, and this now bails on lack of progress instead of
+   on the clock. */
+const WORKER_NO_PROGRESS = 8;     // seconds of getting no closer before giving up
+const WORKER_GIVE_UP     = 90;    // and the old absolute backstop, unchanged
+
+/* The nearest ground somebody could actually stand on. Deterministic - the
+   same blocked point always returns the same answer - so re-asking every
+   frame cannot make the target jitter. */
+function standableNear(x, y){
+  if(!blocked(x, y, null, false)) return null;      // it was fine all along
+  for(let r=1; r<=4; r++){
+    for(let i=0; i<16; i++){
+      const a = (i/16)*6.283;
+      const nx = x + Math.cos(a)*TILE*r*0.75, ny = y + Math.sin(a)*TILE*r*0.75;
+      if(!blocked(nx, ny, null, false)) return { x:nx, y:ny };
+    }
+  }
+  return null;                                       // walled in on every side
+}
+
+function workerWalk(o, dt, spd, stop){
+  let dx = o.dest.x, dy = o.dest.y;
+  /* Walk to somewhere reachable NEAR the spot rather than at the spot
+     itself. o.dest is deliberately left alone: the callers measure their
+     own arrival against it (LIFE_STATION_R and friends), and moving it
+     under them would change what "arrived" means. */
+  if(blocked(dx, dy, null, false)){
+    const open = standableNear(dx, dy);
+    if(open){ dx = open.x; dy = open.y; }
+  }
+  // a fresh errand - every caller marks one by zeroing legT
+  if(!o.legT){ o.pgD = undefined; o.pgT = 0; }
+
   const bx = o.x, by = o.y;
-  const done = moveToward(o, o.dest.x, o.dest.y, spd, dt, 6);
+  const done = moveToward(o, dx, dy, spd, dt, stop || 6);
   const moved = Math.hypot(o.x-bx, o.y-by);
   o.walk += moved*0.15;
   if(Math.abs(o.x-bx) > 0.2) o.face = (o.x-bx) < 0 ? -1 : 1;
   o.moving = moved > 0.01;
   o.legT = (o.legT||0) + dt;
-  return done || o.legT > 90;
+
+  // net progress, not per-frame progress - the whole point is that pacing
+  // moves every frame while getting nowhere
+  const left = Math.hypot(dx-o.x, dy-o.y);
+  if(o.pgD === undefined || left < o.pgD - 6){ o.pgD = left; o.pgT = 0; }
+  else o.pgT = (o.pgT||0) + dt;
+
+  return done || o.pgT > WORKER_NO_PROGRESS || o.legT > WORKER_GIVE_UP;
+}
+
+function fieldWorkerWalk(o, dt, spd){
+  return workerWalk(o, dt, spd);
 }
 
 /* Either a real tree in reach that's under strength (topped up in place),
@@ -13624,14 +13690,7 @@ function makeFarmhand(granary){
 
 // one leg of their walk - same shape as caretakerWalk/bakerWalk
 function farmhandWalk(o, dt){
-  const bx = o.x, by = o.y;
-  const done = moveToward(o, o.dest.x, o.dest.y, FARMHAND_SPD, dt, 6);
-  const moved = Math.hypot(o.x-bx, o.y-by);
-  o.walk += moved*0.15;
-  if(Math.abs(o.x-bx) > 0.2) o.face = (o.x-bx) < 0 ? -1 : 1;
-  o.moving = moved > 0.01;
-  o.legT = (o.legT||0) + dt;
-  return done || o.legT > 90;
+  return workerWalk(o, dt, FARMHAND_SPD);
 }
 
 function updateFarmhands(dt){
@@ -13757,16 +13816,7 @@ function makeBakerVillager(bakery){
 }
 
 function bakerWalk(o, dt){
-  const bx = o.x, by = o.y;
-  const done = moveToward(o, o.dest.x, o.dest.y, BAKER_SPD, dt, 6);
-  const moved = Math.hypot(o.x-bx, o.y-by);
-  o.walk += moved*0.15;
-  if(Math.abs(o.x-bx) > 0.2) o.face = (o.x-bx) < 0 ? -1 : 1;
-  o.moving = moved > 0.01;
-  // the leisure villagers' own bail-out: a stop that stops being reachable
-  // would otherwise leave him walking on the spot until nightfall
-  o.legT = (o.legT||0) + dt;
-  return done || o.legT > 90;
+  return workerWalk(o, dt, BAKER_SPD);
 }
 
 function updateBaker(dt){
@@ -34383,17 +34433,9 @@ function makeLeisureVillager(house, activity, dest, coupleId, identity){
    they cross the village to call in somewhere. */
 const LEISURE_SPD = 34;
 function leisureWalk(o, dt){
-  const bx = o.x, by = o.y;
-  const done = moveToward(o, o.dest.x, o.dest.y, LEISURE_SPD, dt, 5);
-  const moved = Math.hypot(o.x-bx, o.y-by);
-  o.walk += moved*0.15;
-  if(Math.abs(o.x-bx) > 0.2) o.face = (o.x-bx) < 0 ? -1 : 1;
-  o.moving = moved > 0.01;
-  /* Nothing else gives up on this walk. A destination that turns out to be
-     unreachable - the building came down, water rose, somebody walled it in
-     - would otherwise leave them walking on the spot until nightfall. */
-  o.legT = (o.legT||0) + dt;
-  return done || o.legT > 90;
+  /* Stop radius 5 rather than the shared default 6 - a leisure walker
+     stands closer to what they came to see. (workerWalk, 03b) */
+  return workerWalk(o, dt, LEISURE_SPD, 5);
 }
 
 /* Passing somebody they know. The leisure villager does the stopping; the
