@@ -13756,6 +13756,7 @@ function updateHerbalist(dt){
 const FARMHAND_INTERVAL = 10;    // seconds back at the granary between trips
 const FARMHAND_SPD  = 30;        // an unhurried walk, same spirit as the others
 const FARMHAND_WORK  = 4.5;      // seconds spent at the field
+const FARMHAND_DELIVER = 2.5;    // seconds spent at a house's door - a drop-off, not a day's work
 
 /* One of this side's own farms, picked at random rather than always the
    nearest, so a Granary with several farms about doesn't just wear a path
@@ -13764,18 +13765,41 @@ function farmhandNearbyFarm(p){
   const farms = G.bldgs.filter(b=>b.p===p && b.type==="farm" && b.done);
   return farms.length ? farms[(Math.random()*farms.length)|0] : null;
 }
+// same idea, for the "moving around the houses" half of the errand
+function farmhandNearbyHouse(p){
+  const houses = G.bldgs.filter(b=>b.p===p && b.type==="house" && b.done);
+  return houses.length ? houses[(Math.random()*houses.length)|0] : null;
+}
+/* Mostly the fields - that is what a granary hand is actually for - but a
+   delivery to a house now and then, so the sack on their shoulder (see the
+   farmhand's own prop, drawLeisureVillager) sometimes reaches an actual
+   family rather than only ever a field and back. Falls back to whichever
+   of the two exists if the dice picks one the village doesn't have. */
+function farmhandFindErrand(p){
+  if(Math.random() < 0.7){
+    const farm = farmhandNearbyFarm(p);
+    if(farm) return { kind:"farm", b:farm };
+  }
+  const house = farmhandNearbyHouse(p);
+  if(house) return { kind:"house", b:house };
+  const farm = farmhandNearbyFarm(p);
+  return farm ? { kind:"farm", b:farm } : null;
+}
 
 function makeFarmhand(granary){
   const doorX = granary.x + (Math.random()-0.5)*10;
   const doorY = granary.y + granary.h*TILE/2 + 6;
   return {
     kindTag:"farmhand", id:G.nextId++, p:granary.p, home:granary,
-    activity:"farmhand", state:"idle",
+    activity:"farmhand", state:"idle", errand:null,
     x:doorX, y:doorY, tx:doorX, ty:doorY, dest:{x:doorX,y:doorY},
     target:null, workT:0, legT:0, cd:0,
     face: Math.random()<0.5?-1:1, walk: Math.random()*6, seed: Math.random()*6.283,
     skin: (Math.random()*SKINS.length)|0,
-    clothes: LEISURE_CLOTHES[(Math.random()*LEISURE_CLOTHES.length)|0],
+    // wheat-sack gold rather than the leisure wardrobe - a trade's own
+    // colour, same reasoning as the gardener/geologist's fixed clothes
+    // just above (idea_gardener_geologist_look_and_work)
+    clothes: ["#b5904a", "#82652f"],
     look: (Math.random()*VILLAGER_LOOKS.length)|0,
     tall: 0.92 + Math.random()*0.16
   };
@@ -13804,30 +13828,39 @@ function updateFarmhands(dt){
     if(o.state === "idle"){
       o.cd = (o.cd||0) - dt;
       if(o.cd > 0){ liveALittle(o, dt, FARMHAND_SPD); continue; }
-      const farm = farmhandNearbyFarm(p);
-      if(!farm){ o.cd = FARMHAND_INTERVAL; liveALittle(o, dt, FARMHAND_SPD); continue; }
+      const errand = farmhandFindErrand(p);
+      if(!errand){ o.cd = FARMHAND_INTERVAL; liveALittle(o, dt, FARMHAND_SPD); continue; }
       stopLiving(o);
-      o.target = farm; o.legT = 0;
-      o.dest = { x:farm.x, y:farm.y + farm.h*TILE/2 + 4 };
+      o.target = errand.b; o.errand = errand.kind; o.legT = 0;
+      o.dest = { x:errand.b.x, y:errand.b.y + errand.b.h*TILE/2 + 4 };
       o.state = "out";
     } else if(o.state === "out"){
-      // the farm can be pulled down while they're on their way - simply
-      // turn for home rather than working thin air
-      const farm = o.target;
-      if(!farm || !farm.done || G.bldgs.indexOf(farm) < 0){
-        o.target = null; o.state = "home"; o.legT = 0; o.dest = doorAt();
+      // the farm or house can be pulled down while they're on their way -
+      // simply turn for home rather than working or knocking at nothing
+      const b = o.target;
+      if(!b || !b.done || G.bldgs.indexOf(b) < 0){
+        o.target = null; o.errand = null; o.state = "home"; o.legT = 0; o.dest = doorAt();
         continue;
       }
-      if(farmhandWalk(o, dt)){ o.state = "working"; o.workT = FARMHAND_WORK; }
+      if(farmhandWalk(o, dt)){
+        o.state = "working";
+        o.workT = o.errand==="house" ? FARMHAND_DELIVER : FARMHAND_WORK;
+      }
     } else if(o.state === "working"){
       o.moving = false;
       o.workT -= dt;
-      if(Math.random() < 0.06) fxWork(o.x, o.y-4, "#c7a95e");
+      // a knock and a hand-off at a house reads oddly with the same dusty
+      // fxWork burst the field gets - a plain pause at the door is enough
+      if(o.errand !== "house" && Math.random() < 0.06) fxWork(o.x, o.y-4, "#c7a95e");
       if(o.workT <= 0){
+        // o.errand is left as-is through the walk home - the farmhand's own
+        // prop (drawLeisureVillager) reads it to know whether they're still
+        // carrying anything on this last leg (full from a farm, empty from
+        // a house), and only clears once they're back and idle, below
         o.target = null; o.state = "home"; o.legT = 0; o.dest = doorAt();
       }
     } else {   // walking home
-      if(farmhandWalk(o, dt)){ o.state = "idle"; o.moving = false; o.cd = FARMHAND_INTERVAL; }
+      if(farmhandWalk(o, dt)){ o.state = "idle"; o.moving = false; o.cd = FARMHAND_INTERVAL; o.errand = null; }
     }
   }
 }
@@ -26897,6 +26930,27 @@ function drawBuilding(b){
     ctx.fillStyle = "#f4d99a";
     ctx.beginPath(); ctx.arc(cx, y+dep-H*1.02, 3.2, 0, 6.283); ctx.fill();
   }
+  /* A building on a sanctioned night shift (the second rung of every
+     ladder - worksAtNight, 02a) used to look no different after dark than
+     one whose crew had simply not been sent home yet. The upgrade's own
+     flavour text promises "the crew works it by lamplight now", but
+     nothing ever actually lit up to back that up - so a farm still going
+     at 2am read as a villager stuck in a loop rather than as a choice the
+     player made and paid for. A warm glow at the door, only once it is
+     actually dark, closes that gap without touching the night-darkness
+     canvas itself - purely additive, the same idiom the Cairn's own glow
+     above uses. */
+  if(worksAtNight(b) && b.done && (G.dark||0) > 0.25){
+    const pulse = 0.85 + 0.15*Math.sin(G.t*1.1 + b.id);
+    ctx.globalAlpha = (vis?1:0.72) * pulse * (G.dark||0);
+    const gy = y+dep-H*0.28;
+    const grad = ctx.createRadialGradient(cx, gy, 0, cx, gy, w*0.55);
+    grad.addColorStop(0, "rgba(255,214,140,0.55)");
+    grad.addColorStop(1, "rgba(255,214,140,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(cx, gy, w*0.55, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = vis?1:0.72;
+  }
   ctx.globalAlpha=1;
 }
 
@@ -32072,6 +32126,53 @@ function drawWanderer(w){
     ctx.restore();
     return;
   }
+  if(w.kind==="penguin"){
+    /* Used to be one black oval with a white smudge and a cap stuck on top
+       - readable as "a small dark bird shape" but not really as a penguin.
+       A separate head is most of the fix: the "bowling pin" silhouette
+       (round head sat on a taller body, not one long blob) is the single
+       biggest thing that was missing. Feet and flippers are the other two
+       - without feet it reads as a pebble that happens to be black and
+       white, since nothing shows it standing on anything. */
+    const r = 4.6;
+    const waddle = Math.sin(w.walk*5.4)*0.16;
+    const flap = Math.sin(w.walk*5.4 + 1.2)*0.35;   // flippers swing opposite the waddle
+    ctx.fillStyle = "rgba(0,0,0,.18)";
+    ctx.beginPath(); ctx.ellipse(w.x, w.y+r*0.72, r*0.72, r*0.24, 0,0,6.283); ctx.fill();
+    ctx.save();
+    ctx.translate(w.x, w.y);
+    ctx.rotate(waddle);
+    ctx.scale(w.face<0?-1:1, 1);
+    // feet, peeking out from under the body
+    ctx.fillStyle = "#d97a2e";
+    ctx.beginPath(); ctx.ellipse(-r*0.20, r*0.80, r*0.28, r*0.13, 0,0,6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( r*0.28, r*0.80, r*0.28, r*0.13, 0,0,6.283); ctx.fill();
+    // flippers, drawn before the body so only their leading edge shows
+    // past the silhouette, each swinging opposite the waddle
+    ctx.fillStyle = "#000000";
+    ctx.save(); ctx.rotate(flap);
+    ctx.beginPath(); ctx.ellipse(-r*0.55, r*0.05, r*0.20, r*0.52, 0.3, 0, 6.283); ctx.fill();
+    ctx.restore();
+    ctx.save(); ctx.rotate(-flap);
+    ctx.beginPath(); ctx.ellipse(r*0.55, r*0.05, r*0.20, r*0.52, -0.3, 0, 6.283); ctx.fill();
+    ctx.restore();
+    // body, shorter than before now the head is its own shape above it
+    ctx.fillStyle = "#000000";
+    ctx.beginPath(); ctx.ellipse(0, r*0.16, r*0.56, r*0.76, 0,0,6.283); ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath(); ctx.ellipse(r*0.04, r*0.28, r*0.30, r*0.50, 0,0,6.283); ctx.fill();
+    // head: its own circle, not a cap smudged onto the body's own top
+    ctx.fillStyle = "#000000";
+    ctx.beginPath(); ctx.arc(0, -r*0.62, r*0.44, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath(); ctx.ellipse(r*0.10, -r*0.55, r*0.19, r*0.28, 0,0,6.283); ctx.fill();
+    ctx.fillStyle = "#e2932f";
+    ctx.beginPath(); ctx.moveTo(r*0.28,-r*0.68); ctx.lineTo(r*0.60,-r*0.60); ctx.lineTo(r*0.28,-r*0.50); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#1a1a1a";
+    ctx.beginPath(); ctx.arc(r*0.10, -r*0.68, r*0.065, 0, 6.283); ctx.fill();
+    ctx.restore();
+    return;
+  }
   const r = 4.6;
   const waddle = Math.sin(w.walk*5.4)*0.16;
   ctx.fillStyle = "rgba(0,0,0,.18)";
@@ -33763,30 +33864,57 @@ function drawSealife(s){
     ctx.globalAlpha = 0.45 + breach*0.55;
     ctx.fillStyle = S.col;
     ctx.beginPath(); ctx.ellipse(0, 0, L, L*0.34*sunk + L*0.10, 0,0,6.283); ctx.fill();
-    // pale underside, only visible as it comes over
-    if(breach > 0.15){
-      ctx.fillStyle = S.belly;
-      ctx.beginPath(); ctx.ellipse(L*0.12, L*0.10, L*0.72, L*0.20, 0,0,6.283); ctx.fill();
-    }
+    /* The countershading is what actually makes either of these read as
+       the real animal instead of a dark blob - a permanent pale strip
+       along the waterline, not something that only ever showed up while
+       breaching, which is a small fraction of the time either is on
+       screen at all. Fainter submerged, full and wide on the way up. */
+    ctx.fillStyle = S.belly;
+    ctx.globalAlpha = (0.45 + breach*0.55) * (0.35 + breach*0.65);
+    ctx.beginPath(); ctx.ellipse(L*0.10, L*0.14 - breach*L*0.04, L*0.78, L*0.14 + breach*L*0.08, 0,0,6.283); ctx.fill();
+    ctx.globalAlpha = 0.45 + breach*0.55;
     if(s.kind==="orca"){
-      // the saddle patch, and a tall straight dorsal
+      // the eye patch and the saddle - two of the three field marks that
+      // actually make an orca an orca rather than any other dark shape in
+      // the water (the third is the belly stripe above, now permanent)
       ctx.fillStyle = S.belly;
-      ctx.beginPath(); ctx.ellipse(-L*0.18, -L*0.10, L*0.22, L*0.11, 0,0,6.283); ctx.fill();
-      ctx.fillStyle = S.col;
-      ctx.beginPath();
-      ctx.moveTo(-L*0.10, -L*0.12); ctx.lineTo(L*0.02, -L*0.72); ctx.lineTo(L*0.14, -L*0.12);
-      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(L*0.58, -L*0.06, L*0.13, L*0.07, -0.15, 0, 6.283); ctx.fill();
+      // grey, not white - a real saddle patch is its own shade, distinct
+      // from the belly/eye-patch white it used to wrongly share
+      ctx.fillStyle = "rgba(172,180,187,.9)";
+      ctx.beginPath(); ctx.ellipse(-L*0.16, -L*0.14, L*0.24, L*0.13, -0.3, 0, 6.283); ctx.fill();
     }
-    // tail flukes, kicked up as it dives or breaches
+    // tail flukes: wider and more deeply notched than before - the old
+    // shape was closer to a thin scrap than the broad paired blades a
+    // real fluke is, which is most of what a diving tail is recognised by
     const kick = Math.sin(G.t*2.2 + s.seed)*0.25 + breach*0.7;
     ctx.fillStyle = S.col;
     ctx.beginPath();
-    ctx.moveTo(-L*0.92, 0);
-    ctx.lineTo(-L*1.35, -L*0.30 - kick*L*0.25);
-    ctx.lineTo(-L*1.12, 0);
-    ctx.lineTo(-L*1.35, L*0.30 + kick*L*0.25);
+    ctx.moveTo(-L*0.90, 0);
+    ctx.lineTo(-L*1.42, -L*0.52 - kick*L*0.28);
+    ctx.lineTo(-L*1.08, 0);
+    ctx.lineTo(-L*1.42, L*0.52 + kick*L*0.28);
     ctx.closePath(); ctx.fill();
+    /* The dorsal fin, at full strength regardless of how submerged the rest
+       of the body is drawn - a dorsal fin is the one part of either animal
+       that is ordinarily ABOVE the waterline even when nothing else is
+       breaching, which is exactly the silhouette people actually recognise
+       out on open water. Orca gets the tall, straight, faintly hooked fin
+       that is its single most identifying feature; the whale's own is
+       small, blunt and set well back, present but not the point of it. */
     ctx.globalAlpha = 1;
+    ctx.fillStyle = S.col;
+    if(s.kind==="orca"){
+      ctx.beginPath();
+      ctx.moveTo(-L*0.14, -L*0.10);
+      ctx.quadraticCurveTo(L*0.00, -L*0.85, L*0.10, -L*0.92);
+      ctx.quadraticCurveTo(L*0.06, -L*0.55, L*0.20, -L*0.10);
+      ctx.closePath(); ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(-L*0.42, -L*0.14); ctx.lineTo(-L*0.30, -L*0.32); ctx.lineTo(-L*0.20, -L*0.14);
+      ctx.closePath(); ctx.fill();
+    }
     // the blow - a little plume of spray off the back
     if(s.blowT > 0){
       const p = 1 - s.blowT/1.2;
@@ -35521,7 +35649,14 @@ function drawLeisureVillager(o){
     type:"villager", p:P_YOU, r, id:o.id,
     skin:o.skin, look:o.look||0,
     moving: o.moving && !sitting, walk: o.walk||0,
-    atkAnim:0, working:0,
+    /* Trade workers (gardener/geologist/beekeeper/farmhand, all driven by
+       their own updateX in 03b) use o.state==="working" for exactly the
+       phase they're bent over the task; this used to be hardcoded to 0
+       regardless, so none of them ever got drawPerson's own lean-into-it
+       pose - just the standing idle sway with an occasional fxWork spark.
+       Leisure wanderers never set o.state to "working" at all, so this
+       leaves every one of their own activities untouched. */
+    atkAnim:0, working: o.state==="working" ? 1 : 0,
     cloth: o.clothes[0], sit: sitting, armA,
     /* The Beehive's own walker goes through this same drawing, and the veil is
        the whole of what makes them read as the beekeeper rather than as
@@ -35626,6 +35761,25 @@ function drawLeisureVillager(o){
       ctx.beginPath(); ctx.moveTo(-H2*0.12, H2*0.02); ctx.lineTo(-H2*0.02, H2*0.14); ctx.stroke();
       ctx.fillStyle = "#3f3428";
       ctx.beginPath(); ctx.arc(-H2*0.02, H2*0.15, H2*0.055, 0, 6.283); ctx.fill();
+      ctx.restore();
+    }
+  } else if(o.kindTag === "farmhand"){
+    const H2 = r*2.35;
+    /* A sack over the shoulder - full on whichever leg of the errand is
+       actually carrying something, hollow-handed the rest of the way, so
+       the round trip the granary's own comment describes (updateFarmhands,
+       03b) actually shows: fetching a harvest comes back full, delivering
+       to a house goes there full and comes home empty. */
+    const carrying = o.errand === "house" ? (o.state==="out" || o.state==="working")
+                                           : (o.state==="working" || o.state==="home");
+    if(carrying){
+      ctx.save();
+      ctx.translate(H2*0.30, -H2*0.42);
+      ctx.rotate(0.35);
+      ctx.fillStyle = "#c2a05a";
+      ctx.beginPath(); ctx.ellipse(0, 0, H2*0.16, H2*0.22, 0, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = "#8a6a3c"; ctx.lineWidth = Math.max(1, H2*0.03);
+      ctx.beginPath(); ctx.moveTo(-H2*0.07, -H2*0.20); ctx.lineTo(H2*0.07, -H2*0.20); ctx.stroke();
       ctx.restore();
     }
   }
@@ -49902,13 +50056,27 @@ function refreshUI(){
       /* Same pattern again - but this one is the FISHERMAN'S, and only
          theirs. Anyone can be sent to a shoal; only the villager who took
          it up for good and has a catch to show for it may put the house
-         up. It is their house, so it is their job. */
+         up. It is their house, so it is their job.
+
+         Unlike the other three, this one used to appear ONLY once the
+         catch count was already met - so a player who missed the single
+         one-time hint fired at the fifth catch (03e) had no way to ever
+         learn the button existed, or how close they were. Shown now the
+         moment the fisherman alone is selected, named and greyed with the
+         catches still owed - the same "goal to work toward" idiom the
+         Manor uses for its own not-yet-buildable self (see the comment
+         block just below this one) - so selecting them is always enough
+         to find it, not just selecting them at exactly the right catch. */
       if(vills.length===1 && vills[0].fisherman &&
-         (vills[0].fishCaught||0) >= FISHERMAN_HOUSE_CATCHES){
+         !G.bldgs.some(b=>b.p===P_YOU && b.type==="fisherhouse")){
         const fh = BLDG.fisherhouse;
-        addBtn("🎣 "+fh.name, costStr(fh.cost), canAfford(pl, fh.cost),
+        const caught = vills[0].fishCaught||0;
+        const ready = caught >= FISHERMAN_HOUSE_CATCHES;
+        addBtn("🎣 "+fh.name, costStr(fh.cost), ready && canAfford(pl, fh.cost),
                ()=>startPlacing("fisherhouse"),
-               BLDG_ABOUT.fisherhouse, true);
+               ready ? BLDG_ABOUT.fisherhouse
+                     : FISHERMAN_HOUSE_CATCHES+" catches lands the house - "+caught+" so far.",
+               true);
       }
       for(const cat of BUILD_CATEGORIES){
         addBtn(cat.label, "choose a building", true, ()=>{
