@@ -1010,6 +1010,9 @@
           <li><strong>A creel that fills.</strong> Five fish and the angler takes them home by themselves &mdash; to the Fisherman's House if you have built one, or wherever else will take food &mdash; and then walks back out to the water and carries on. You do not have to watch them</li>
           <li><strong>Shoals run out now, and come back.</strong> They always had a stock and it was never once spent, because anything empty was swept up before the timer that would have refilled it could be set &mdash; so the code that brings a shoal back had never run, not once, in the whole life of the game. Water is kept when it empties and refills a season later. Fishing a spot to nothing and moving on is now a real thing that happens</li>
           <li><strong>Shoals sit out in the water.</strong> They were being placed hard against the shoreline &mdash; about a quarter of them looked beached in the sand. Under one in forty now, with the same number of shoals on the map. There are also half as many fish moving in each one; they were packed too tightly to read as anything but a clump</li>
+          <li><strong>Fixed: Harvest Home had stopped happening altogether.</strong> The autumn festival was set for the eighth day of the season &mdash; which was fine when a season was ten days long, and impossible from the moment they were shortened to seven. It has quietly not happened since. It is on day five now, properly late in the autumn, and all four of the year's festivals arrive again</li>
+          <li><strong>Fixed: shoals had crowded together out in the water.</strong> When they were told to sit in open water rather than on the shoreline, the rule that keeps them spread out got spent first &mdash; so a stretch of water without much open middle packed its shoals almost on top of each other. The typical gap between the two closest shoals on a map had halved. They are spread out again, at a small cost: a few more sit near the bank than at the strictest setting, though still far fewer than before any of this</li>
+          <li><strong>"An Eel", not "A Eel".</strong> Eight of the fifty-five fish start with a vowel</li>
           <li><strong>Fixed: the baker, the gardener and the rest pacing at their own front door.</strong> They walk to a working spot set at a fixed distance from their building &mdash; five past the right-hand wall, one below the bottom &mdash; and once anything is built next door that spot is inside somebody else's wall. It can never be reached, so they walked at it until a ninety-second timer let them go. In a tightly built village the baker's own spot was inside something in <strong>six seeds out of six</strong>, and the worst spells of walking on the spot ran <strong>85 to 90 seconds</strong>, two thirds of a day, right beside their own door. Now they walk to reachable ground beside the spot instead, and any errand that has gained nothing for eight seconds is given up so they can find something else to do. Worst spell measured after: <strong>nine seconds</strong>. The same fix covers the farmhands, the beekeeper, the caretaker and the villagers out for a wander, who all shared the same five copies of the same walk</li>
           <li><strong>A new <strong>T</strong> button, just above Pause: what has been said.</strong> The message bar shows one line at a time and the next thing that happens writes over it, so a line could be half-read and then gone for good. Press T and the last two days of it comes back &mdash; scroll it, or close it with the &times;. Grouped under the day it was said on, newest first. The village's own moments &mdash; an occasion, a discovery, somebody earning a name &mdash; are marked and read brighter than the ordinary running commentary, but the commentary is all there too, because the line you lost is just as likely to have been one of those</li>
           <li><strong>The peddler no longer sets up shop on your town centre.</strong> His rates used to appear among the town centre's own buttons whenever he was in the village &mdash; a second, different set of trades sitting where the building's upgrades go, with none of the Trading Post's context. Trading is the Trading Post's job. He still arrives, still gets his word on the way in and out, and still walks through the village; he is somebody passing through now rather than a shop</li>
@@ -6172,7 +6175,15 @@ const FESTIVALS = [
   { season:"summer", day:3, name:"The Long Table",
     line:"The Long Table. Everybody eats together, and everybody carries it with them today.",
     ahead:"The Long Table is coming - the whole village will eat together." },
-  { season:"autumn", day:8, name:"Harvest Home",
+  /* Day 5, not 8. It sat on day 8 from when a season was TEN days long;
+     the day seasons were shortened to seven, Harvest Home stopped being
+     late autumn and started being a date that does not exist - so one of
+     the year's four festivals simply never happened again, silently, for
+     however long. Late in the season is the whole point of a harvest
+     festival, and 5 of 0..6 is late. tests/festivals.js checks every
+     festival day against SEASON_DAYS now, so shortening the season again
+     cannot quietly delete another one. */
+  { season:"autumn", day:5, name:"Harvest Home",
     line:"Harvest Home. The year's return is counted in, field by field.",
     ahead:"Harvest Home is coming - what the fields made this year is counted in." },
   { season:"winter", day:5, name:"Midwinter",
@@ -9200,6 +9211,33 @@ function genMap(type){
   if(bodies.length > maxBodies) bodies = bodies.slice(0, maxBodies);
 
   let placed = 0;
+  /* HOW A SHOAL PICKS ITS SPOT, in order of preference. Each rung is
+     [how far from the nearest other node, how many tiles of open water it
+     wants around it]. The first rung that can find somewhere wins.
+
+     THE ORDER IS THE WHOLE THING, and getting it wrong is what crowded
+     the sea. It used to run every OFFSHORE spacing all the way down to
+     sixteen pixels before it would consider a spot nearer the bank at
+     all - so a stretch of water without much open middle packed its
+     shoals almost on top of each other rather than spreading them along
+     the shore. Measured: the median closest pair fell 76px -> 34px the
+     day the offshore rule went in, and neither the test nor I noticed.
+
+     So the two wants are interleaved rather than one being spent entirely
+     before the other is tried. Offshore still wins at any given spacing;
+     it just stops being worth cramming for. Measured over eight seeds:
+     median closest pair back to 68px, and 7.4% of shoals left sitting on
+     a shoreline tile.
+
+     THAT 7.4% IS THE PRICE, and it is worth naming. Keeping offshore
+     absolute gets it down to 0.9% - but only by cramming, which puts the
+     median closest pair straight back to 34px. Before the offshore rule
+     existed 26.2% of shoals sat on a shoreline tile, which is what was
+     complained about; 7.4% is a third of that and the sea is spread out
+     again. Swap the [26,1] rung ahead of [76,0] to trade the other way. */
+  const SHOAL_LADDER = [[76,1],[56,1],[40,1],[76,0],[56,0],[26,1],[40,0],[16,1],[26,0],[16,0]];
+  const SHOAL_LADDER_SPILL = [[56,1],[40,1],[26,1],[56,0],[16,1],[40,0],[26,0],[16,0]];
+
   if(!bodies.length){
     bodies = [[-2, 1]];       // no body qualifies: fall back to the old free-for-all
   }
@@ -9214,7 +9252,7 @@ function genMap(type){
        they look stranded. Open water is tried first and the requirement is
        relaxed only if the body is too cramped to satisfy it - a narrow
        river should still get its fish. */
-    for(const [apart, off] of [[76,1],[56,1],[40,1],[26,1],[16,1],[40,0],[16,0]]){
+    for(const [apart, off] of SHOAL_LADDER){
       for(let tries=0; tries<900*AREA && got<quota && placed<SHOALS; tries++){
         const tx=rnd(2,MAPW-2), ty=rnd(2,MAPH-2);
         if(G.terrain[ty*MAPW+tx]!==5) continue;
@@ -9231,7 +9269,7 @@ function genMap(type){
   }
   /* Whatever the per-body quotas could not place (a body too cramped for its
      share at any spacing), put anywhere - the map still gets its 26. */
-  for(const [apart, off] of [[56,1],[40,1],[26,1],[16,1],[26,0],[16,0]]){
+  for(const [apart, off] of SHOAL_LADDER_SPILL){
     for(let tries=0; tries<900*AREA && placed<SHOALS; tries++){
       const tx=rnd(2,MAPW-2), ty=rnd(2,MAPH-2);
       if(G.terrain[ty*MAPW+tx]!==5) continue;
@@ -10882,6 +10920,7 @@ function makeUnit(type, p, x, y){
     hp:civStat(p,type,"hp",d.hp), maxhp:civStat(p,type,"hp",d.hp),
     tx:x, ty:y, order:null, target:null, cd:0, carry:0, carryKind:null,
     r:d.r, cls:d.cls, form:null, gatherT:0, buildT:0, site:null, atkAnim:0,
+    workStreakT:0, breakActivity:null, _workBreakPosed:false,   // tryWorkBreak/drawPerson, 03c/04e
     /* Off duty for the night, so dawn knows to put them back out. Initialised
        here rather than lazily: `undefined` reads as false well enough, but a
        field that only exists after the first dusk is one more thing that is
@@ -11204,7 +11243,33 @@ function resize(){
   clampCam();
 }
 window.addEventListener("resize", resize);
-window.addEventListener("orientationchange", ()=>setTimeout(resize,150));
+/* A single resize 150ms after orientationchange used to leave a gap at the
+   bottom and right of the screen on a real phone specifically after a
+   round trip - rotate away, then rotate straight back to portrait. The
+   canvas itself tracks VW/VH fine; #cmdbar's own
+   `env(safe-area-inset-bottom)` padding is what was getting stuck on a
+   stale value, a known WKWebView/Safari quirk where the safe-area
+   environment variables don't always re-resolve until something forces a
+   layout pass after the animation settles. One resize at a fixed delay is
+   a bet on how long that settling takes - it clearly lost that bet at
+   least once on a real device. Firing several times over a longer window,
+   with a forced reflow alongside each one, costs nothing on a device that
+   was already fine and catches the one that was not. */
+function forceReflow(){
+  if(!document.body) return;
+  // reading offsetHeight after a throwaway style write forces the browser
+  // to actually recompute layout (and, on the affected devices, re-read
+  // the safe-area insets) rather than reuse whatever it had cached
+  const prev = document.body.style.transform;
+  document.body.style.transform = "translateZ(0)";
+  void document.body.offsetHeight;
+  document.body.style.transform = prev;
+}
+window.addEventListener("orientationchange", ()=>{
+  for(const delay of [50, 150, 400, 800]){
+    setTimeout(()=>{ forceReflow(); resize(); }, delay);
+  }
+});
 document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) resize(); });
 
 // An embedded preview's surrounding frame can still be settling its own
@@ -11491,6 +11556,20 @@ function giveOrder(u, fields){
      anything else set order to "playdog" again. Cleared here, once, rather
      than at every call site. */
   if(u.playWith && fields && fields.order !== "playdog") u.playWith = null;
+  /* And any new order cuts short whatever ambient pause they were in the
+     middle of. chatT is the shared "stand still for a beat" primitive
+     behind the midday break, a worker stopping for a word, watching a
+     building finish, pausing for a festival line and more (grep u.chatT
+     for the full list) - it is checked before any order-specific code
+     runs at all (03c), so a fresh "walk over there" tapped mid-chat used
+     to just sit there ignored until the chat timed out on its own, which
+     reads as the unit being frozen or stuck. Reported from a real game.
+     A direct command from the player always outranks an ambient pause. */
+  u.chatT = 0;
+  // and whatever pose that pause was showing (tryWorkBreak, 03c) goes with
+  // it, plus the streak that earned it - a fresh job starts fresh
+  if(u.breakActivity) u.breakActivity = null;
+  u.workStreakT = 0;
   Object.assign(u, fields);
 }
 
@@ -12399,6 +12478,20 @@ function boxSelect(x0,y0,x1,y1){
 
 function commandUnits(units, ent, w){
   for(const u of units){
+    /* The drag-select/direct-tap sibling of giveOrder's own chokepoint
+       comment above - this sets u.order directly rather than going
+       through giveOrder, so it needs the same two clears repeated here
+       rather than left for whichever order happens to overwrite them on
+       its own. Both are pauses that hold a unit still regardless of
+       u.order (chatT is checked before any order-specific tick code runs
+       at all, 03c) - left alone, a player's fresh "walk over there" could
+       sit ignored for the rest of an ambient chat or a trip to see a dog
+       that started before the tap landed, which reads as the unit being
+       frozen or stuck. A direct command is always the more urgent one. */
+    u.chatT = 0;
+    if(u.playWith) u.playWith = null;
+    if(u.breakActivity) u.breakActivity = null;
+    u.workStreakT = 0;
     u.site=null; u.workplace=null; u.detour=null; u.stuckT=0; u.path=null; u.pathCd=0;
     if(ent && ent.isNode){
       if(u.type==="villager"){
@@ -14604,6 +14697,57 @@ function exploredTo(p,wx,wy){
 const FISH_CAST_DUR = 0.5;
 const FISH_REEL_DUR = 0.35;
 
+/* ---------- a worker's break ----------
+   Asked for directly: the villagers who are CONSTANTLY working a resource -
+   the lumberjack, the miner, the farmer - occasionally down tools for a
+   few seconds. Never the fisher, who already has their own waiting-on-a-
+   bite rhythm and is deliberately skipped at the call site below.
+
+   Rides on chatT rather than a mechanism of its own - it is already the
+   "stand still for a beat" primitive this codebase uses everywhere, it is
+   already cut short the instant a fresh order is given (giveOrder/
+   commandUnits, 03a), and reusing it means a break can never leave anyone
+   standing frozen against the player's own wishes, the exact complaint
+   that gate exists to answer. The pose itself (WORK_BREAK_POSE, 04e) is
+   picked once here and read every DRAW frame, driven by G.t like every
+   other ambient animation - not by a private clock of its own, since
+   chatT already tells the whole story of "how much longer". */
+const WORK_BREAK_MIN_STREAK = 90;    // seconds of unbroken work before eligible
+const WORK_BREAK_CHANCE     = 0.012; // per second once eligible - roughly one break every couple of minutes, not every one
+const WORK_BREAK_ACTIVITIES = ["brow","sit","yoyo","kite","clouds","stretch","drink","skiprope","juggle"];
+/* Four more, one a season, but only offered in their own - a snow angel
+   needs snow on the ground and blowing a dandelion needs one gone to seed,
+   the same reason catching blossom only suits spring and tossing leaves
+   only suits the one season that drops them. Added to the ordinary pool
+   rather than rolled separately, so each is exactly as likely as any other
+   break once its own season is on, and simply never comes up the other
+   three quarters of the year. */
+const WORK_BREAK_SEASONAL = { winter: "angel", summer: "dandelion", spring: "petals", autumn: "leaves" };
+function pickWorkBreakActivity(){
+  const seasonal = WORK_BREAK_SEASONAL[G.season];
+  const pool = seasonal ? WORK_BREAK_ACTIVITIES.concat(seasonal) : WORK_BREAK_ACTIVITIES;
+  return pool[(Math.random()*pool.length)|0];
+}
+function tryWorkBreak(u, dt){
+  if(u.p !== P_YOU) return;   // a flourish for the player's own village - the Ashkin's economy is untouched
+  u.workStreakT = (u.workStreakT||0) + dt;
+  if(u.workStreakT < WORK_BREAK_MIN_STREAK) return;
+  if(Math.random() > WORK_BREAK_CHANCE*dt) return;
+  u.workStreakT = 0;
+  u.breakActivity = pickWorkBreakActivity();
+  u.chatT = 4 + Math.random()*3;
+  /* u.working normally decays on its own (line ~1041, `if(u.working>0)
+     u.working -= dt`) - but that line sits below the chatT check same as
+     everywhere else in this function, so while chatT holds the unit it
+     never runs, and u.working would otherwise sit frozen at its last
+     truthy value for the whole break. drawPerson's whole-body chop-lean
+     rotate keys off `u.working>0` alone, not off u.armA, so left alone
+     every break would show the ordinary chopping lean underneath whatever
+     pose is actually meant to be showing. Zeroed here, once, rather than
+     chased as a visual bug against each of the nine poses separately. */
+  u.working = 0;
+}
+
 /* ============================================================
    UPDATE
    ============================================================ */
@@ -15473,6 +15617,10 @@ function updateUnit(u, dt){
     u.moving = false;
     if(u.chatT > 0) return;
   }
+  // whatever break they were on rode on chatT and has just run out (or was
+  // cut short by a fresh order, giveOrder/commandUnits, 03a) - let go of it
+  // here rather than leaving the pose set with nothing left driving it
+  if(u.breakActivity) u.breakActivity = null;
   // and now and then one of them starts the conversation themselves
   if(u.p === P_YOU) tryWorkerWord(u, dt);
   /* Every side, not only yours - a rival village seen from a hilltop stops
@@ -16080,6 +16228,9 @@ function updateUnit(u, dt){
             tryBuriedHoard(u, n);  // and what a farm's own field sometimes turns up (05g)
           }
           u.working = 0.45;                       // drives the work animation
+          // constant work earns an occasional break - never the fisher, who
+          // has their own waiting rhythm already (tryWorkBreak, below)
+          if(!fishSpot) tryWorkBreak(u, dt);
           /* Turn to what you are working. It matters most for the berry
              pickers, who reach with their hands: a villager standing to the
              right of a bush and facing right was reaching into open air with
@@ -18618,6 +18769,16 @@ function pickFishSpecies(atPool, tier){
   return from[(Math.random()*from.length)|0];
 }
 
+/* "An Eel", not "A Eel". Fifty-five species and a good handful of them
+   start with a vowel - Eel, Ide, Orfe, Arctic Char - so the catch line
+   read wrong several times an hour. Goes by the letter rather than by a
+   list: none of the names start with a silent-h or a long-u ("a European
+   eel", "a unicorn fish") where the letter would mislead, and if one ever
+   does, this is the one place to special-case it. */
+function anA(name){
+  return (/^[aeiou]/i.test(name) ? "An " : "A ") + name;
+}
+
 function catchFish(u, tier){
   const mult = tier === "precise" ? FISH_PRECISE_MULT : FISH_SWEET_MULT;
   const fisherBonus = 1;   // the fisherman is paid in speed now, not in bigger fish
@@ -18687,11 +18848,11 @@ function catchFish(u, tier){
        diary entries would drown everything else in it. */
     if(species.junk) hint(first ? "An old boot. It goes in the book anyway."
                                 : "Another old boot. There must be a pair down there.");
-    else if(rare) tellAndNote("A "+label+" - nobody here has landed one of those before. +"+amount+
+    else if(rare) tellAndNote(anA(label)+" - nobody here has landed one of those before. +"+amount+
                           " food, and a catch worth remembering.", "good");
-    else if(first) tellAndNote("A "+label+" - the first anyone here has caught. +"+amount+" food.", "good");
+    else if(first) tellAndNote(anA(label)+" - the first anyone here has caught. +"+amount+" food.", "good");
     else if(tier==="precise") hint("A fine "+label+" - +"+amount+" food.");
-    else hint("A "+label+" - +"+amount+" food.");
+    else hint(anA(label)+" - +"+amount+" food.");
 
     /* THE HOUSE IS NOW THEIRS TO BUILD - say so. The button appears in the
        build menu the moment their fifth fish is landed, but only while THIS
@@ -27180,7 +27341,18 @@ function drawUnit(u){
   } else if(UNITS[u.type].buffKind){
     drawBard(u, pl);
   } else {
-    drawPerson(u, pl, 0);
+    /* A worker's break (tryWorkBreak, 03c) that puts them on the ground
+       needs the same downward nudge the leisure system already gives its
+       own sitters (05-wildlife.js) - drawPerson poses the legs correctly
+       either way, but the torso/head stay at their ordinary standing
+       height unless the whole figure is shifted down to match. Checked
+       against u.breakActivity rather than u.sit/u.lying because those
+       aren't actually set until WORK_BREAK_POSE runs inside drawPerson
+       itself, a step later than this. */
+    const breakYOff = u.breakActivity==="sit" ? u.r*2.35*0.12
+                     : u.breakActivity==="clouds" ? u.r*2.35*0.40
+                     : 0;
+    drawPerson(u, pl, breakYOff);
     if(UNITS[u.type].moonfolk) drawMoonstoneGrowth(u, pl);
     if(UNITS[u.type].wildling) drawWildlingGarb(u, pl);
   }
@@ -27202,6 +27374,11 @@ function drawUnit(u){
   }
 
   ctx.restore();
+
+  /* A worker's break prop - kite, yo-yo, skipping rope - same reasoning
+     as the breath below: drawn in world space, after the restore, so a
+     string or a rope doesn't mirror oddly the moment they turn around. */
+  if(u.breakActivity) drawWorkBreakProp(u, pl);
 
   /* Breath in the cold. AFTER the restore on purpose: it is drawn in world
      space at the unit's own position, so it does not flip with the sprite -
@@ -27910,7 +28087,130 @@ const FISHERMAN_CLOTH = "#8a8560";
    Chunky proportions in the spirit of The Settlers: a big round head, a short
    stocky body, rounded limbs with visible hands and boots. Reads clearly even
    at a small size, which is the whole point at this zoom. */
+/* ---------- a worker's break (tryWorkBreak, 03c) ----------
+   One pose function per activity, each mutating u.armA/u.sit/u.lying for
+   THIS draw frame only - driven by G.t and u.id like every other ambient
+   animation in this file, not by a private clock, since u.chatT already
+   holds "how much longer" and there is nothing else worth tracking. Kept
+   as a lookup rather than a chain of ifs so tryWorkBreak's own activity
+   list (03c) and this one can be eyeballed against each other. Anything
+   not listed here (there shouldn't be any) simply draws as if it were
+   working normally - a missing entry is a silent no-op, not a crash. */
+const KITE_ARM_A = 2.0;   // shared with the kite string's own hand-position formula, drawWorkBreakProp below
+const WORK_BREAK_POSE = {
+  brow:     u => { u.armA = 1.9 + Math.sin(G.t*3.4 + u.id)*0.14; },      // an arm swept up to the forehead, and back
+  sit:      u => { u.sit = true; u.armA = 0.85; },                       // down on the ground, hands loose in the lap
+  yoyo:     u => { u.armA = 1.35 + Math.sin(G.t*4.2 + u.id)*0.18; },     // exactly the leisure system's own pose (05-wildlife.js)
+  kite:     u => { u.armA = KITE_ARM_A; },                               // held steady - the kite itself does the moving
+  clouds:   u => { u.lying = true; },                                    // flat on their back - see the leg/torso branch below
+  stretch:  u => { u.armA = 1.55 + Math.sin(G.t*1.3 + u.id)*0.10; },     // slow, not a swing - working a stiff back loose
+  drink:    u => { u.armA = 1.5; },                                      // tipped up toward the mouth - 1.7 put
+                                                                          // the hand inside the head's own circle
+                                                                          // (headY-headR..headY+headR), hiding the
+                                                                          // flask behind the face; 1.5 clears it
+  skiprope: u => { u.armA = 0.30 + Math.sin(G.t*6.5 + u.id)*0.55; },     // quick, low, both arms turning the rope
+  juggle:   u => { u.armA = 1.05 + Math.sin(G.t*5 + u.id)*0.30; },       // one hand keeping time with the toss
+  // ---- the four season-only ones, one a season (WORK_BREAK_SEASONAL, 03c) ----
+  angel:    u => { u.lying = true; u.snowAngel = true;                  // sweeping arms and legs - see the
+                    u.armA = 1.2 + Math.sin(G.t*2.5 + u.id)*0.9; },      // lying leg branch below for the legs
+  dandelion:u => { u.armA = 1.55 + Math.sin(G.t*1.4 + u.id)*0.10; },     // held up close to blow
+  petals:   u => { u.armA = 1.6 + Math.sin(G.t*1.8 + u.id)*0.55; },      // reaching up and out, after the drift
+  leaves:   u => { u.armA = 1.2 + Math.sin(G.t*2.2 + u.id)*1.1; }        // low scoop up to a high overhead toss -
+                                                                          // kept positive throughout (unlike a real
+                                                                          // scoop this never reaches behind the
+                                                                          // body), or the hand swings round to the
+                                                                          // BACK of the figure at the low end, since
+                                                                          // frontA's sign is what side of the body
+                                                                          // the hand is on, not just how raised it is
+};
+
+/* ---------- a worker's break, drawn in WORLD space ----------
+   kite: the string and the kite itself, adapted from the leisure system's
+   own drawing (05-wildlife.js) - lifted rather than shared, since that one
+   runs on a synthetic {x,y,face,seed,clothes} body and this one on a real
+   G.units entity, and reconciling the two shapes felt riskier than the
+   duplication. Deliberately outside the unit's own translate/flip (04d
+   calls this after ctx.restore()), the same reason the original is: a
+   kite blowing in the wind is a world phenomenon, and mirroring it every
+   time the flier turns round would look wrong in a way nothing else here
+   needs to worry about.
+   clouds: not asked for as a prop, just a couple of the things actually
+   being watched - a lying-down break with nothing overhead reads as
+   "napping", not "watching the clouds go by". */
+function drawWorkBreakProp(u, pl){
+  const H = u.r*2.35, tw = H*0.185, armLen = H*0.24;
+  if(u.breakActivity === "kite"){
+    const wind = (typeof G.windDir === "number") ? G.windDir : 0.3;
+    const sway = Math.sin(G.t*0.8 + u.id)*8 + wind*10;
+    const kx = u.x + (u.face<0?-4:4) + sway*0.3, ky = u.y - 31 + Math.sin(G.t*1.3+u.id)*3;
+    const hxL = (tw*0.72 + Math.sin(KITE_ARM_A)*armLen*0.78) * (u.face<0?-1:1);
+    const hyL = -H*0.60 + H*0.03 + Math.cos(KITE_ARM_A)*armLen*0.88;
+    ctx.strokeStyle = "rgba(200,200,200,.4)"; ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(u.x + hxL, u.y + u.r*0.55 + hyL);
+    ctx.quadraticCurveTo(u.x + sway*0.5, u.y - 24, kx, ky+4);
+    ctx.stroke();
+    ctx.fillStyle = pl.col;
+    ctx.beginPath();
+    ctx.moveTo(kx,ky-4); ctx.lineTo(kx+4,ky); ctx.lineTo(kx,ky+4); ctx.lineTo(kx-4,ky);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.3)"; ctx.lineWidth = 0.5;
+    for(let i=0;i<3;i++){
+      ctx.beginPath();
+      ctx.moveTo(kx, ky+4+i*3);
+      ctx.lineTo(kx+Math.sin(G.t*3+i)*2, ky+7+i*3);
+      ctx.stroke();
+    }
+  } else if(u.breakActivity === "clouds"){
+    ctx.fillStyle = "rgba(255,255,255,.55)";
+    for(let i=0;i<2;i++){
+      const cx = u.x + (i?18:-14) + Math.sin(G.t*0.15 + u.id + i)*4;
+      const cy = u.y - H*1.05 - i*10;
+      ctx.beginPath(); ctx.ellipse(cx, cy, 8, 4.2, 0, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx-5, cy+1.5, 5.5, 3.2, 0, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+5, cy+1.5, 5.5, 3.2, 0, 0, 6.283); ctx.fill();
+    }
+  } else if(u.breakActivity === "angel"){
+    /* The impression being swept, either side of them - not the villager
+       themselves (drawn separately, in their own translate/rotate), so
+       this stays in world space and doesn't flip with u.face. Only ever
+       picked in winter (WORK_BREAK_SEASONAL, 03c), so there is no need to
+       check for snow here - if this is showing, there is snow to show it
+       on. Widens and narrows with the same sweep the legs are making.
+       Plain white very nearly vanished against snow itself - the same
+       mistake the skiprope and juggle props made against the same ground
+       earlier this session. A cool pale blue, the way packed/shadowed snow
+       actually reads against the bright white of snow lying undisturbed,
+       keeps it visible on the one ground it's ever drawn over. */
+    const spread = 0.4 + Math.abs(Math.sin(G.t*2.5 + u.id))*0.4;
+    ctx.fillStyle = "rgba(196,214,232,.65)";
+    ctx.beginPath(); ctx.ellipse(u.x - H*0.62, u.y + H*0.08, H*0.5*spread, H*0.20, 0.5, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(u.x + H*0.62, u.y + H*0.08, H*0.5*spread, H*0.20, -0.5, 0, 6.283); ctx.fill();
+  }
+}
+
 function drawPerson(u, pl, yOff){
+  /* A break pose mutates armA/sit/lying/snowAngel directly on the real,
+     persistent G.units entity - unlike the off-duty leisure villagers
+     further down this file, which build a brand new object literal every
+     frame and so never carry anything stale between calls. Once a break
+     ends (chatT running out, or the player giving a fresh order cancels it
+     outright - 03a/03c) nothing else ever clears these fields, so without
+     this a lying-down or sitting break would leave that villager posed on
+     the ground for the rest of the match, and any break that sets armA
+     (six of the eleven) would freeze their front arm forever after,
+     underneath even ordinary chopping. `_workBreakPosed` marks a unit this
+     function itself posed, so it is only ever this code touching these
+     fields back - the leisure system's own sit/armA (real fields on its
+     own fresh object, computed fresh every call) are never in this branch
+     at all. */
+  if(u.breakActivity && WORK_BREAK_POSE[u.breakActivity]){
+    WORK_BREAK_POSE[u.breakActivity](u);
+    u._workBreakPosed = true;
+  } else if(u._workBreakPosed){
+    u.sit = false; u.lying = false; u.snowAngel = false; u.armA = undefined;
+    u._workBreakPosed = false;
+  }
   const r = u.r;
   const H = r*2.35;
   const skin = SKINS[u.skin % SKINS.length];
@@ -28028,7 +28328,7 @@ function drawPerson(u, pl, yOff){
      a slow sine on G.t, offset per unit so a group of them don't sway in
      unison, along the exact same whole-body rotate the work/picking leans
      already use. */
-  const reallyIdle = isVill && !u.moving && !work && !reach && !u.sit;
+  const reallyIdle = isVill && !u.moving && !work && !reach && !u.sit && !u.lying;
   const idleSway = reallyIdle ? Math.sin(G.t*0.6 + u.id*2.3)*0.045 : 0;
   /* Gathered for the elder's tale (order==="story", see updateStoryNight,
      05-wildlife.js): the ordinary idle sway is still there underneath, but
@@ -28040,7 +28340,16 @@ function drawPerson(u, pl, yOff){
   const nodPulse = listening ? Math.max(0, Math.sin(G.t*0.35 + u.id*1.7)) : 0;
   const nod = nodPulse > 0.9 ? (nodPulse-0.9)*1.4 : 0;
   // the axe's whole-body chop, or the picker's much smaller lean
-  if(reach) ctx.rotate(0.07 + rCyc*0.05);
+  if(u.lying){
+    /* Flat on their back, watching the clouds go by (tryWorkBreak, 03c) -
+       the pivot is shifted toward the body's own centre first, or a plain
+       rotate around the feet (the ordinary origin) just swings them up
+       into the air on one side rather than laying them down along the
+       ground. */
+    ctx.translate(0, -H*0.40);
+    ctx.rotate((u.face<0 ? -1 : 1) * -1.45);
+  }
+  else if(reach) ctx.rotate(0.07 + rCyc*0.05);
   else if(work) ctx.rotate(0.14 + wCyc*0.09);
   else if(reallyIdle) ctx.rotate(idleSway + nod);
   // layered on top of whatever else is going on, not exclusive with it - a
@@ -28066,7 +28375,22 @@ function drawPerson(u, pl, yOff){
   const lx1 =  swing*H*0.17*strideR, lx2 = -swing*H*0.17*strideL;
   ctx.strokeStyle = shade(look ? "#4a3a28" : pl.dark, -0.15);
   ctx.lineWidth = Math.max(2.4, H*0.115);
-  if(u.sit){
+  if(u.lying){
+    /* Stretched out flat and side by side, rather than the standing
+       stride splayed for balance - there is no balancing to do lying
+       down. The body has already been laid on its back above, so these
+       still-vertical-looking coordinates are what actually reads as
+       "along the ground" once the whole figure is rotated with them.
+       The snow angel sweeps both legs apart and back together, same
+       sine as the arm - "making the wings" is the whole activity, not
+       just lying still watching the sky the way clouds does. */
+    const angelSweep = u.snowAngel ? Math.abs(Math.sin(G.t*2.5 + u.id))*tw*0.55 : 0;
+    ctx.beginPath(); ctx.moveTo(-tw*0.3-angelSweep, hipY); ctx.lineTo(-tw*0.3-angelSweep, footY-H*0.30); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo( tw*0.3+angelSweep, hipY); ctx.lineTo( tw*0.3+angelSweep, footY-H*0.30); ctx.stroke();
+    ctx.fillStyle = "#33281c";
+    ctx.beginPath(); ctx.ellipse(-tw*0.3-angelSweep, footY-H*0.34, H*0.085, H*0.05, 0,0,6.283); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( tw*0.3+angelSweep, footY-H*0.34, H*0.085, H*0.05, 0,0,6.283); ctx.fill();
+  } else if(u.sit){
     /* Sitting: knees out to the sides and the boots tucked in, rather than
        the standing stride. Only the off-duty villagers reading under a tree
        set this - no unit does, so the ordinary path is untouched. */
@@ -29094,6 +29418,148 @@ function drawGardenerProp(id, hx, hy, H){
   }
 }
 
+/* ---------- what's in hand for a worker's break ----------
+   Local space, drawn from drawHeld with the same hx,hy the arm's own
+   armA pose already worked out - so the yo-yo genuinely hangs off the
+   hand mid-swing rather than a hand-picked point of its own the way the
+   leisure system's original does. Nothing drawn at all for an activity
+   not listed here (brow, sit, clouds, stretch): empty hands is the whole
+   point of those. Kite is deliberately absent too - see drawWorkBreakProp
+   in 04d, drawn in world space instead so its string doesn't mirror with
+   the sprite. */
+function drawBreakProp(u, hx, hy, H){
+  const a = u.breakActivity;
+  if(a === "yoyo"){
+    // exactly the leisure system's own drop/bob math (05-wildlife.js),
+    // just hung off the real, already-posed hand instead of a fixed point
+    const drop = H*0.10 + (0.5+0.5*Math.sin(G.t*4.2 + u.id - 1.2))*H*0.30;
+    ctx.strokeStyle = "rgba(240,236,220,.7)"; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx, hy+drop); ctx.stroke();
+    ctx.fillStyle = "#c9a24a";
+    ctx.beginPath(); ctx.arc(hx, hy+drop, H*0.055, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(40,30,20,.4)"; ctx.lineWidth = 0.4;
+    ctx.beginPath(); ctx.arc(hx, hy+drop, H*0.055, 0, 6.283); ctx.stroke();
+  } else if(a === "drink"){
+    // a small flask, tipped up toward the mouth
+    ctx.save();
+    ctx.translate(hx, hy); ctx.rotate(-0.6);
+    ctx.fillStyle = "#c99a52";
+    ctx.beginPath();
+    ctx.moveTo(-H*0.045,-H*0.12); ctx.lineTo(H*0.045,-H*0.12);
+    ctx.lineTo(H*0.06,H*0.11); ctx.lineTo(-H*0.06,H*0.11);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = shade("#c99a52",-0.4); ctx.lineWidth = Math.max(1,H*0.025);
+    ctx.stroke();   // outline round the whole flask, not just the neck - it was reading as a smudge without one
+    ctx.beginPath(); ctx.moveTo(0,-H*0.12); ctx.lineTo(0,-H*0.19); ctx.stroke();   // neck
+    ctx.restore();
+  } else if(a === "juggle"){
+    // two pebbles kept in the air, out of phase with each other - a plain
+    // stone grey vanished against snow exactly like the skiprope did; a
+    // dark outline round a warmer fill keeps both visible against snow
+    // and grass alike
+    for(let i=0;i<2;i++){
+      const t = G.t*5 + u.id + i*Math.PI;
+      const py = hy - H*0.30 - Math.abs(Math.sin(t))*H*0.22;
+      const px = hx + (i?H*0.10:-H*0.10);
+      ctx.fillStyle = "#c9a24a";
+      ctx.beginPath(); ctx.arc(px, py, H*0.05, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = "rgba(35,28,20,.6)"; ctx.lineWidth = Math.max(1,H*0.02);
+      ctx.stroke();
+    }
+  } else if(a === "skiprope"){
+    /* An arc swept wide of each foot, up and over - not a real rope
+       simulation, just enough motion to read as one turning. Anchored a
+       little BELOW and OUTSIDE the feet (not at footY=0 between them),
+       or a thin line crossing straight through the leg silhouette reads
+       as a scribble on the legs rather than a rope out and away from
+       them. A pale, cool "motion blur" tone rather than anything close
+       to skin or cloth, so it doesn't get lost against either. */
+    const phase = (G.t*6.5 + u.id) % 6.283;
+    const arcH = -Math.abs(Math.sin(phase*0.5))*H*0.62;
+    /* A single pale stroke read fine against skin and cloth but vanished
+       against snow - the worst case, and the commonest ground in winter,
+       which is when this was actually tested. A dark outline underneath a
+       lighter rope, the way a sled's own rope reads against snow in this
+       same game, keeps it visible against snow AND grass AND skin rather
+       than tuned for whichever background happened to be on screen. */
+    ctx.beginPath();
+    ctx.moveTo(-H*0.30, H*0.05);
+    ctx.quadraticCurveTo(0, arcH, H*0.30, H*0.05);
+    ctx.strokeStyle = "rgba(35,28,20,.6)"; ctx.lineWidth = Math.max(2.2,H*0.08);
+    ctx.stroke();
+    ctx.strokeStyle = "#d9b46a"; ctx.lineWidth = Math.max(1.2,H*0.04);
+    ctx.stroke();
+  } else if(a === "dandelion"){
+    /* The stem, the puff that's left, and a few seeds already off it on the
+       breeze - kept in the hand's own local space rather than world space
+       like the kite, since a handful of seeds a few pixels from the hand
+       don't need the kite's exemption from mirroring; they're close enough
+       that flipping with the sprite reads as blowing the right way either
+       way the villager is facing. */
+    ctx.strokeStyle = "#7a8f5a"; ctx.lineWidth = Math.max(1,H*0.025);
+    ctx.beginPath(); ctx.moveTo(hx, hy+H*0.12); ctx.lineTo(hx, hy-H*0.02); ctx.stroke();
+    ctx.fillStyle = "rgba(245,245,240,.9)";
+    ctx.beginPath(); ctx.arc(hx, hy-H*0.06, H*0.05, 0, 6.283); ctx.fill();
+    for(let i=0;i<3;i++){
+      const t = (G.t*0.9 + u.id + i*2.1) % 3;         // 0..3s, then loops
+      const away = (u.face<0 ? -1 : 1);
+      const sx = hx + away*t*H*0.35;
+      const sy = hy - H*0.06 - t*H*0.10 + Math.sin(t*4+i)*H*0.03;
+      const alpha = Math.max(0, 1 - t/3);
+      // near-white on a bright summer sky nearly vanished, same mistake as
+      // the skiprope and juggle props made against snow - a thin dark ring
+      // round each seed keeps it readable against sky, grass and skin alike
+      ctx.strokeStyle = "rgba(90,95,70,"+(alpha*0.5).toFixed(2)+")"; ctx.lineWidth = Math.max(0.6,H*0.012);
+      ctx.beginPath(); ctx.arc(sx, sy, H*0.026, 0, 6.283); ctx.stroke();
+      ctx.fillStyle = "rgba(245,245,240,"+(alpha*0.9).toFixed(2)+")";
+      ctx.beginPath(); ctx.arc(sx, sy, H*0.026, 0, 6.283); ctx.fill();
+    }
+  } else if(a === "petals"){
+    /* A few blossom petals drifting down past the reaching hand, the same
+       pink the ambient spring foreground drift already uses (blossom in
+       FOREDRIFT_COL, 05c-depth.js) - one caught here reads as the same
+       stuff blowing through the rest of the scene, not its own thing. A
+       dark outline again, on the same reasoning as the dandelion's seeds
+       and the skiprope/juggle props before them: pale colours need one
+       against every ground this might be drawn over. */
+    for(let i=0;i<3;i++){
+      const t = (G.t*0.7 + u.id + i*2.4) % 3.6;        // 0..3.6s, then loops
+      const alpha = Math.min(1, t*1.5) * Math.max(0, 1-(t-2.4)/1.2);
+      if(alpha<=0) continue;
+      const px = hx + Math.sin(t*1.6+i)*H*0.10;
+      const py = hy - H*0.55 + t*H*0.30;                // drifting down toward the hand
+      ctx.save();
+      ctx.translate(px, py); ctx.rotate(t*2 + i);
+      ctx.fillStyle = "rgba(248,206,220,"+(alpha*0.9).toFixed(2)+")";
+      ctx.strokeStyle = "rgba(150,90,110,"+(alpha*0.5).toFixed(2)+")"; ctx.lineWidth = Math.max(0.6,H*0.012);
+      ctx.beginPath();
+      ctx.moveTo(0,-H*0.045); ctx.lineTo(H*0.03,0); ctx.lineTo(0,H*0.045); ctx.lineTo(-H*0.03,0);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+  } else if(a === "leaves"){
+    /* Scooped up and tossed: three leaves arcing up and away from the hand
+       then falling, in the same rust the ambient autumn drift uses (leaf
+       in FOREDRIFT_COL, 05c-depth.js) with a couple of other autumn tones
+       mixed in so it doesn't read as one flat colour thrown three times. */
+    const leafCols = ["196,92,38","210,150,50","170,70,30"];
+    for(let i=0;i<3;i++){
+      const t = (G.t*1.8 + u.id + i*1.3) % 2.2;         // 0..2.2s, then loops
+      const rise = Math.sin(Math.min(t,1.4)/1.4*Math.PI)*H*0.5;   // up, then down
+      const drift = (u.face<0 ? -1 : 1) * t*H*0.18;
+      const alpha = Math.max(0, 1 - t/2.2);
+      ctx.save();
+      ctx.translate(hx+drift, hy-rise); ctx.rotate(t*3 + i*2);
+      ctx.fillStyle = "rgba("+leafCols[i]+","+(alpha*0.9).toFixed(2)+")";
+      ctx.strokeStyle = "rgba(60,35,15,"+(alpha*0.5).toFixed(2)+")"; ctx.lineWidth = Math.max(0.6,H*0.012);
+      ctx.beginPath();
+      ctx.moveTo(0,-H*0.05); ctx.quadraticCurveTo(H*0.04,0,0,H*0.05); ctx.quadraticCurveTo(-H*0.04,0,0,-H*0.05);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+  }
+}
+
 function drawHeld(u, hx, hy, H, atk, pl){
   const age = G.players[u.p].age;
   const metal = ["#9a9086","#c08a3e","#cfd6dc"][age];   // stone / bronze / iron
@@ -29117,6 +29583,18 @@ function drawHeld(u, hx, hy, H, atk, pl){
       break;
     }
     case "villager": {
+      /* A worker's break (tryWorkBreak, 03c) always outranks the job's own
+         tool - nobody swings an axe while wiping their brow. Checked
+         first, before even the farm job's bare-hands rule, since a break
+         can happen to any trade. The kite is drawn separately, in world
+         space, after the unit's own transform is restored (04d) - a
+         string that flipped with the sprite every time they turned round
+         would look wrong in a way none of the rest of this needs to
+         worry about. */
+      if(u.breakActivity){
+        drawBreakProp(u, hx, hy, H);
+        break;
+      }
       /* Nothing at all in the hand at a bush or a field. They pick with their
          hands (see `picking` in drawPerson) and an axe drawn on top of that
          is the thing this replaced. */
