@@ -535,6 +535,10 @@
   .gbtn .cnt{position:absolute;bottom:-3px;right:-3px;background:var(--gold);
     color:#221b10;font-size:7.5px;font-weight:700;border-radius:6px;
     padding:0 2.5px;min-width:10px;line-height:10px;}
+  /* the founder's own portrait (founderPortraitIcon, 07) in place of the
+     ordinary emoji glyph - same slot, so it needs its own sizing rather
+     than inheriting font-size the way a text glyph does */
+  .gbtn .gicon-head{width:15px;height:15px;border-radius:50%;display:block;}
   .gbtn.arm{background:rgba(217,164,65,.22);border-color:var(--gold);color:var(--gold);}
   /* a thin strip under the group numbers, the same height as them, so the
      button row keeps the full width for itself */
@@ -8481,6 +8485,7 @@ function defaultGameState(){
     diary: [],                 // the village's own dated record - see noteInDiary
     visitors: [],              // the shared day-visitor walkers (05d)
     travellerOwes: 0,          // kindnesses the road has not repaid yet
+    newcomersJoined: 0,        // strangers the founder has talked into staying, this match (NEWCOMER_MAX_PER_MATCH)
     swarmsHome: 0,             // swarms actually carried back - one Beehive each
     beekeepers: [],            // the hives' own walkers, on their honey rounds
     beeSummer: null,           // whether THIS summer has a swarm in it, and when
@@ -8654,7 +8659,8 @@ function defaultGameState(){
          what actually guards the one-time payout - this object existing
          only means "has been found", not "has been restored". */
       ancientRuins: { farmhouse:null, blacksmith:null, shrine:null, watchtower:null, mine:null },
-      wonderBuilt: false    // the Sunstone Cairn stands - see BLDG.cairn, 03c-fog-and-tick.js
+      wonderBuilt: false,   // the Sunstone Cairn stands - see BLDG.cairn, 03c-fog-and-tick.js
+      georgeAndMoose: false // true forever once the pair turns up, ever - see updateVillageDogs, 05i
     },
     // the hermit, while out and about at night (null by day - see
     // updateHermit, 01b-elder-and-home-life.js). Kept separate from G.disc:
@@ -10836,6 +10842,14 @@ function placeStartBase(p, tx, ty){
      not found anything. */
   v.nightName = pickFreshName();
   v.firstVillager = true;
+  /* Tied to the player's own group 2 automatically and permanently, the
+     same way group 1 is always the Town Centre - not something to select
+     and assign, just always true from the moment the village exists.
+     Group 2's own icon (groupIcon, 07) already shows the founder's face
+     once they're actually in it, so nothing extra is needed there; only
+     assignGroup (03a) needs to refuse ever reassigning slot 2 to
+     anybody else. AI has no group bar to speak of, so this is P_YOU only. */
+  if(p===P_YOU){ G.groups[2] = [v]; v.group = 2; }
 
   /* What is within a few paces of the ruin, guaranteed, and worked out from
      where the town ACTUALLY ended up rather than from the candidate spot the
@@ -10965,6 +10979,7 @@ function attachFarm(b){
   for(const n of G.nodes) if(sownOver(n)) n.amt = 0;
   G.nodes = G.nodes.filter(n=>!sownOver(n));
   b.reseeds = 0;
+  b.veg = null; b.vegSeason = null; b.cropGrowT = 0;   // what's growing, purely a look - see 03c/05-wildlife.js
   b.node = { id:G.nextId++, isNode:true, kind:RES.FOOD, x:b.x, y:b.y,
              amt:d.farmMax, max:d.farmMax, r:15, seed:Math.random()*6.28, farmOf:b };
   G.nodes.push(b.node);
@@ -11676,8 +11691,24 @@ function tapAt(sx, sy){
           // and the pat states each expect a single friend
           beginDogPlay(pals[0], dog);
           fxPing(dog.x, dog.y);
+        } else {
+          /* A newcomer, if the founder is the one who tapped them - the
+             same gather-tap-on-a-non-node shape again (newcomerAt/
+             beginGreetNewcomer, 05d). Only the founder (u.firstVillager),
+             not anyone else in the selection: it is their village to
+             welcome someone into, not any passing villager's. */
+          const stranger = (typeof newcomerAt === "function")
+                          ? newcomerAt(w.x, w.y, Math.max(tol, 14)) : null;
+          const founder = stranger ? own.find(u => u.firstVillager && u.hp>0) : null;
+          if(stranger && founder){
+            beginGreetNewcomer(founder, stranger);
+            fxPing(stranger.x, stranger.y);
+          } else if(stranger && !founder){
+            hint("Only the one who founded this village can go and talk a stranger round.");
+          } else {
+            hint("No resource there — tap a tree, bush, rock, gold or a shoal of fish.");
+          }
         }
-        else hint("No resource there — tap a tree, bush, rock, gold or a shoal of fish.");
       }
     } else if(a==="attack"){
       const t = pickAt(w.x, w.y, "enemy", tol);
@@ -12172,6 +12203,14 @@ function pickAt(wx, wy, prefer, tol){
      && Math.hypot(G.floyd.x-wx, G.floyd.y-wy) < 12+tol){
     return G.floyd;
   }
+  // George and Moose - same idea again: selectable so a curious tap finds
+  // out who they are. Ordinary kennel dogs are not in this list on purpose.
+  if(!prefer){
+    for(const d of G.villageDogs||[]){
+      if(d.marks!=="golden" || !visibleTo(P_YOU, d.x, d.y)) continue;
+      if(Math.hypot(d.x-wx, d.y-wy) < 13+tol) return d;
+    }
+  }
 
   // when an action mode wants a resource node, look for nodes first and
   // ignore any units standing on top of them
@@ -12251,28 +12290,57 @@ function pickAt(wx, wy, prefer, tol){
 function assignGroup(n){
   // slot 1 is never a player group - see groupTap/recallTownCentre below
   if(n===1){ hint("Group 1 is always the Town Centre."); return; }
+  // group 2 is always the founder's, tied automatically the moment the
+  // village exists (placeStartBase, 02d) - the same "not a thing you
+  // choose" reasoning group 1 gets, just for a person instead of a
+  // building
+  if(n===2){
+    const founder = G.units.find(u=>u.p===P_YOU && u.firstVillager);
+    hint("Group 2 is always " + (villagerName(founder) || "the founder") + "'s.");
+    return;
+  }
   const units = G.sel.filter(e=>e.p===P_YOU && e.kind==="unit" && e.hp>0 && e!==G.elder);
   if(!units.length){ hint("Select some units first."); return; }
-  G.groups[n] = units.slice();
+
+  /* Join, not replace. This used to do `G.groups[n] = units.slice()`,
+     which threw away everyone ALREADY in group n the moment one more
+     unit joined it - and separately took every unit of the SAME TYPE out
+     of every OTHER group too, not just the ones actually selected. So
+     joining one lone villager to group 5 could silently empty a totally
+     different mining crew sitting in group 2, units nobody selected or
+     touched, and leave their own u.group pointing at a group they were
+     no longer really in. Each selected unit now only ever leaves its OWN
+     previous group (read off its own u.group, not a type match), and
+     nothing else in any group moves. */
+  for(const u of units){
+    const old = u.group;
+    if(old !== undefined && old !== n && G.groups[old]){
+      G.groups[old] = G.groups[old].filter(w => w !== u);
+    }
+  }
+  const joining = new Set(units);
+  G.groups[n] = (G.groups[n]||[]).filter(u=>u.hp>0 && G.units.indexOf(u)!==-1 && !joining.has(u)).concat(units);
   units.forEach(u=>{ u.group = n; });
 
-  // A group remembers the kinds of unit in it, so anything you train later of
-  // the same kind falls straight in. No cap - the whole army can sit in one
-  // group if that is how you want to play it.
-  const types = [...new Set(units.map(u=>u.type))];
+  /* A group remembers the kinds of unit in it, so anything you train later of
+     the same kind falls straight in. No cap - the whole army can sit in one
+     group if that is how you want to play it. Recomputed from the group's
+     own actual full membership rather than tracked separately, so it can
+     never drift from what is really in there. */
+  const types = [...new Set(G.groups[n].map(u=>u.type))];
   G.groupTypes[n] = types;
-  // a unit type belongs to one group at a time, otherwise recalling gets murky
+  // a unit type's AUTO-JOIN claim belongs to one group at a time, otherwise
+  // recalling gets murky - but that only affects units trained LATER, never
+  // units already individually placed in another group (see above)
+  const joinedTypes = [...new Set(units.map(u=>u.type))];
   for(const k in G.groupTypes){
     if(+k === n) continue;
-    G.groupTypes[k] = G.groupTypes[k].filter(t=>!types.includes(t));
-    // and take the units themselves out of their old group, so nobody sits in
-    // two groups at once
-    G.groups[k] = G.groups[k].filter(u=>units.indexOf(u)===-1 && !types.includes(u.type));
+    G.groupTypes[k] = G.groupTypes[k].filter(t=>!joinedTypes.includes(t));
   }
 
   G.groupMode = false;
   const names = types.map(t=>UNITS[t].name.toLowerCase()).join(", ");
-  hint("Group " + n + ": " + units.length + " units. New " + names + " will join it.");
+  hint("Group " + n + ": " + G.groups[n].length + " units. New " + names + " will join it.");
   refreshUI();
 }
 
@@ -12672,6 +12740,7 @@ function confirmPlace(){
   }
   if(type==="specialfarm"){
     b.seasonalCrop = G.placing.seasonalCrop;
+    b.cropGrowT = 0;   // starts young - see drawCropField/CROP_GROW_DAYS, 05-wildlife.js
     // the crop leaves the carrier's hands the moment it is in the ground -
     // one find, one farm
     for(const u of G.units) if(u.p===P_YOU && u.seasonalCrop===b.seasonalCrop) u.seasonalCrop = null;
@@ -14859,14 +14928,39 @@ function tick(dt){
       b.node.amt = b.node.max;
       if(b.p===P_YOU){ hint("Field reseeded."); fxWork(b.x, b.y-6, "#8fae4a"); }
     }
+    /* What's growing, purely a look (05-wildlife.js). An ordinary farm
+       gets a fresh fifty-fifty pick from that season's ORDINARY_FARM_VEG
+       pair the moment the season turns, and loses it again the moment
+       that season ends - so next time round it rolls fresh rather than
+       staying whatever it was forever. Seasons with no entry there just
+       keep the plain generic field. type==="farm" only: the Seasonal
+       Farm's own crop is fixed at placement (b.seasonalCrop, 03b), never
+       rolled here. */
+    if(b.type==="farm" && b.vegSeason !== G.season){
+      b.vegSeason = G.season;
+      const vegPair = ORDINARY_FARM_VEG[G.season];
+      if(vegPair){
+        b.veg = vegPair[Math.random()<0.5 ? 0 : 1];
+        b.cropGrowT = 0;
+      } else {
+        b.veg = null;
+      }
+    }
+    if(b.veg || b.seasonalCrop){
+      b.cropGrowT = Math.min(CROP_GROW_DAYS*DAY_LEN, (b.cropGrowT||0) + dt);
+    }
     // training - a villager mid-training holds overnight rather than
     // stepping out the door into the dark; everything else keeps going
     if(b.queue.length){
       const type = b.queue[0];
-      /* Villager training stops at night - unless this building has its night
-         shift, in which case the lamps stay on and it does not. (worksAtNight,
+      /* Villager training stops at dusk, the same moment sendHome() sends
+         everybody else in for the night (03c's own dusk transition, just
+         above in tick()) - not a phase later at full night, which used to
+         leave a new villager arriving into a village that had already gone
+         to bed. Unless this building has its own night shift, in which case
+         the lamps stay on and it does not pause at all. (worksAtNight,
          02a: the second rung of every ladder) */
-      const pausedForNight = (type==="villager" && G.phase==="night" && !worksAtNight(b));
+      const pausedForNight = (type==="villager" && (G.phase==="dusk" || G.phase==="night") && !worksAtNight(b));
       // moonstone plating, a Blacksmith's own edge, and this building's ladder
       if(!pausedForNight) b.qt += dt * plateRate(b) * blacksmithRate(b.p) * (1 + bldgTier(b, "train"));
       if(!pausedForNight && b.qt >= UNITS[type].build){
@@ -15750,6 +15844,34 @@ function updateUnit(u, dt){
       if(near) dogPlayArrive(u, d);
       return;
     }
+  }
+
+  /* The founder, walking over to talk a newcomer into staying (beginGreet-
+     Newcomer, 05d). Two beats, not one: arrive and say something first
+     (u.chatT holds them there, idle-swaying rather than frozen, same
+     primitive every other ambient pause in this game already uses), THEN
+     - on the tick chatT finally lets through - the actual join resolves.
+     u.recruitGreeted is what tells those two visits to this same block
+     apart, since nothing else marks "we already said the first line". */
+  if(u.order === "recruit"){
+    const o = u.target;
+    if(!o || !G.visitors || G.visitors.indexOf(o)===-1 || o.state!=="here" || o.joined){
+      u.order = null; u.target = null; u.recruitGreeted = false; u.moving = false;
+      return;
+    }
+    if(u.recruitGreeted){
+      resolveNewcomerJoin(u, o);
+      u.order = null; u.target = null; u.recruitGreeted = false; u.moving = false;
+      return;
+    }
+    const near = moveToward(u, o.x, o.y, spd, dt, 14);
+    u.moving = !near;
+    if(!near) return;
+    u.recruitGreeted = true;
+    u.face = (o.x < u.x) ? -1 : 1;
+    if(u.p===P_YOU) tellAndNote(pickLine(NEWCOMER_GREET_LINES, "newcomergreet"), "plain");
+    u.chatT = 2.6 + Math.random()*0.6;
+    return;
   }
 
   if(u.order === "story"){
@@ -25045,44 +25167,56 @@ function drawBuilding(b){
     for(let i=1;i<6;i++){
       ctx.beginPath(); ctx.moveTo(x+3, y+dep*i/6); ctx.lineTo(x+w-3, y+dep*i/6); ctx.stroke();
     }
-    // crops, greener and taller the riper the field. once harvested out it is
-    // just stubble until somebody sows it again.
-    /* A field ought to look like the time of year. Every farm used to be the
-       same green rows whatever the season - the same in deep snow as in high
-       summer. Now the crop colours with the year, and winter buries it. */
-    const SEASON_CROP = {
-      spring: { col:"#7fae52", tall:0.75, note:"new shoots"    },
-      summer: { col:"#8fae4a", tall:1.00, note:"full growth"   },
-      autumn: { col:"#c9a047", tall:0.92, note:"turned golden" },
-      winter: { col:"#8a8470", tall:0.42, note:"cut back"      }
-    };
-    const sc = SEASON_CROP[G.season] || SEASON_CROP.summer;
-    const cropCol = bare ? "#7d6a44" : shade(sc.col, -0.30 + ripe*0.35);
-    ctx.strokeStyle = cropCol; ctx.lineWidth = 1.6; ctx.lineCap="round";
-    /* A field bends in the gust as well - it was the one green thing on the
-       map still swaying to its own private clock while the grass around it
-       went over in a wave. */
-    const sway = ((G.season==="winter") ? 0.3 : 1);
-    const blow = gustAt(b.x, b.y);
-    for(let ry=0; ry<5; ry++){
-      for(let rx=0; rx<7; rx++){
-        const px = x+5 + rx*(w-10)/6;
-        const py = y+5 + ry*(dep-10)/4;
-        const hgt = bare ? 1.6
-                  : ((3 + ripe*5) * sc.tall) + Math.sin(G.t*1.6 + rx*0.7 + ry)*0.8*sway;
-        ctx.beginPath(); ctx.moveTo(px, py);
-        ctx.lineTo(px + (Math.sin(G.t*1.2+rx)*1.2 + blow*3.2)*sway, py-hgt);
-        ctx.stroke();
+    /* What's actually growing (05-wildlife.js): an ordinary farm's own
+       summer pick (b.veg - corn or sunflowers, purely a look, rolled and
+       cleared as the season turns, 03c) or the Seasonal Farm's fixed
+       crop (b.seasonalCrop), each with its own shape and a real per-farm
+       growth clock (b.cropGrowT) rather than only reading ripe/bare.
+       Neither touches yield/stats at all - only this drawing changes. */
+    const cropKind = b.veg || (b.seasonalCrop && SEASONAL_CROP_KIND[b.seasonalCrop]);
+    if(cropKind){
+      const growFrac = Math.min(1, (b.cropGrowT||0) / (CROP_GROW_DAYS*DAY_LEN));
+      drawCropField(x, y, w, dep, cropKind, growFrac, ripe, bare);
+    } else {
+      // the plain field: no crop chosen yet (not summer, or summer's own
+      // roll hasn't landed this tick). Untouched from before.
+      /* A field ought to look like the time of year. Every farm used to be the
+         same green rows whatever the season - the same in deep snow as in high
+         summer. Now the crop colours with the year, and winter buries it. */
+      const SEASON_CROP = {
+        spring: { col:"#7fae52", tall:0.75, note:"new shoots"    },
+        summer: { col:"#8fae4a", tall:1.00, note:"full growth"   },
+        autumn: { col:"#c9a047", tall:0.92, note:"turned golden" },
+        winter: { col:"#8a8470", tall:0.42, note:"cut back"      }
+      };
+      const sc = SEASON_CROP[G.season] || SEASON_CROP.summer;
+      const cropCol = bare ? "#7d6a44" : shade(sc.col, -0.30 + ripe*0.35);
+      ctx.strokeStyle = cropCol; ctx.lineWidth = 1.6; ctx.lineCap="round";
+      /* A field bends in the gust as well - it was the one green thing on the
+         map still swaying to its own private clock while the grass around it
+         went over in a wave. */
+      const sway = ((G.season==="winter") ? 0.3 : 1);
+      const blow = gustAt(b.x, b.y);
+      for(let ry=0; ry<5; ry++){
+        for(let rx=0; rx<7; rx++){
+          const px = x+5 + rx*(w-10)/6;
+          const py = y+5 + ry*(dep-10)/4;
+          const hgt = bare ? 1.6
+                    : ((3 + ripe*5) * sc.tall) + Math.sin(G.t*1.6 + rx*0.7 + ry)*0.8*sway;
+          ctx.beginPath(); ctx.moveTo(px, py);
+          ctx.lineTo(px + (Math.sin(G.t*1.2+rx)*1.2 + blow*3.2)*sway, py-hgt);
+          ctx.stroke();
+        }
       }
-    }
-    // heads of grain once it is well grown, and not in winter
-    if(!bare && ripe > 0.55 && G.season !== "winter" && G.cam.z > 1.1){
-      ctx.fillStyle = shade(sc.col, 0.30);
-      for(let ry=0; ry<5; ry++) for(let rx=0; rx<7; rx++){
-        if((rx+ry) % 2) continue;
-        const px = x+5 + rx*(w-10)/6;
-        const py = y+5 + ry*(dep-10)/4 - ((3+ripe*5)*sc.tall);
-        ctx.fillRect(px-0.9, py-1.4, 1.8, 2.2);
+      // heads of grain once it is well grown, and not in winter
+      if(!bare && ripe > 0.55 && G.season !== "winter" && G.cam.z > 1.1){
+        ctx.fillStyle = shade(sc.col, 0.30);
+        for(let ry=0; ry<5; ry++) for(let rx=0; rx<7; rx++){
+          if((rx+ry) % 2) continue;
+          const px = x+5 + rx*(w-10)/6;
+          const py = y+5 + ry*(dep-10)/4 - ((3+ripe*5)*sc.tall);
+          ctx.fillRect(px-0.9, py-1.4, 1.8, 2.2);
+        }
       }
     }
     // snow lying over the furrows
@@ -25111,11 +25245,6 @@ function drawBuilding(b){
       ctx.lineWidth = 1.4;
       ctx.strokeRect(x-1.5, y-1.5, w+3, dep+3);
     }
-    // team marker post
-    ctx.fillStyle=pl.col;
-    ctx.fillRect(x+w-4, y-7, 2, 8);
-    ctx.beginPath(); ctx.moveTo(x+w-3,y-7); ctx.lineTo(x+w+4,y-4.5);
-    ctx.lineTo(x+w-3,y-2); ctx.closePath(); ctx.fill();
     if(b.hp < b.maxhp){
       ctx.fillStyle="rgba(0,0,0,.6)"; ctx.fillRect(x, y-13, w, 4);
       ctx.fillStyle= b.p===P_YOU?"#7fbf5f":"#c9573f";
@@ -28284,6 +28413,16 @@ function drawPerson(u, pl, yOff){
      clothes rather than a second, plainer species of figure. Everyone else
      leaves it unset and gets TINT/player colour exactly as before. */
   const job = isVill ? villagerJob(u) : null;
+  /* villagerJob is deliberately live-only ("nothing is stored on the
+     unit" - its own header comment, just above), which is right for the
+     clothing this line exists for but wrong for a control group's icon
+     (groupIcon, 07): a group's icon going blank the moment its villager
+     is reassigned anywhere else would defeat the point of the icon
+     telling you who's in the group at a glance. Persisted here rather
+     than at the order-assignment call sites, since this already runs
+     once per rendered villager per frame and already has the live value
+     in hand - no new hook needed. */
+  if(job) u.lastJob = job;
   const baseCloth = u.nightWear ? NIGHTWEAR_CLOTH
     : u.fisherman ? FISHERMAN_CLOTH
     : u.cloth || (job==="wood" ? FLANNEL : null) || TINT[u.type] || pl.col;
@@ -39526,6 +39665,183 @@ const SEASONAL_CROPS = {
 
 const SEASONAL_BUFF = 1.07;   // +7%, per the person commissioning this - not the 10% first floated
 
+/* ============================================================
+   WHAT'S ACTUALLY GROWING IN THE FIELD
+   ============================================================
+   Purely a look, never a stat - the ordinary field's own yield/ripe
+   maths (drawBuilding's d.farm branch, 04d) is completely untouched by
+   any of this. An ordinary farm gets a fifty-fifty pick of corn or
+   sunflowers for the whole of summer (b.veg, rolled and cleared as the
+   season turns - see the tick loop, 03c); the existing Seasonal Farm's
+   own crop (b.seasonalCrop, SEASONAL_CROPS above) now gets its own
+   distinct look too, via the same machinery, instead of being drawn
+   exactly like an ordinary field with a small corner badge.
+
+   Both kinds grow through it together: young and short just after
+   planting/the season turning, full height and colour by
+   CROP_GROW_DAYS later - a real per-farm clock (b.cropGrowT), not
+   something read off amt/max the way the old generic field was. */
+const CROP_GROW_DAYS = 3;
+const CROP_KINDS = {
+  corn:       { shape:"stalk",  rows:6, cols:5, tallMax:15,  headStyle:"cob",
+                colYoung:"#5a8a45", colReady:"#c9a23f", accent:"#8a6a2e" },
+  sunflower:  { shape:"flower", rows:4, cols:4, tallMax:17,
+                colYoung:"#5a8a3a", colReady:"#6a9a45", headCol:"#e8c23a", headCentre:"#5a3a20" },
+  strawberry: { shape:"low",    rows:6, cols:7, tallMax:4,
+                colYoung:"#4a7a3a", colReady:"#4a7a3a", fruitCol:"#c9536a", flowerCol:"#f4f0e6" },
+  pumpkin:    { shape:"low",    rows:5, cols:5, tallMax:4.5,
+                colYoung:"#4a6a2a", colReady:"#6a7a2a", fruitCol:"#d97a2f", fruitBig:true },
+  sweetpotato:{ shape:"low",    rows:6, cols:7, tallMax:3.5,
+                colYoung:"#4a5a3a", colReady:"#5a6a4a", fruitCol:null },
+  wheat:      { shape:"stalk",  rows:6, cols:5, tallMax:13,  headStyle:"grain",
+                colYoung:"#6a8a45", colReady:"#d9b24a", headCol:"#c9962f" },
+  cabbage:    { shape:"low",    rows:4, cols:4, tallMax:5.5,
+                colYoung:"#3a5a2a", colReady:"#8a9a6a", fruitCol:null },
+  turnip:     { shape:"low",    rows:6, cols:7, tallMax:3.5,
+                colYoung:"#4a6a3a", colReady:"#5a7a4a",
+                /* pale fruit needs its own outline or it vanishes against
+                   winter snow - see feedback_pale_prop_contrast */
+                fruitCol:"#ede4dd", fruitStroke:"#8a6a5a" },
+  kale:       { shape:"low",    rows:5, cols:5, tallMax:5,
+                colYoung:"#354a34", colReady:"#4a6048", fruitCol:null },
+  peas:       { shape:"stalk",  rows:6, cols:5, tallMax:9,   headStyle:"pod",
+                colYoung:"#7aae5a", colReady:"#5a8a3a", headCol:"#3a6a2a" },
+  carrot:     { shape:"low",    rows:6, cols:7, tallMax:3.5,
+                colYoung:"#4a7a3a", colReady:"#5a8a3a", fruitCol:"#e8752f", fruitBig:false }
+};
+// which CROP_KINDS entry the Seasonal Farm's own fixed crop draws as -
+// summer's "sweetcorn" reuses the ordinary field's own corn look on
+// purpose (it is, after all, corn); the other three are unique to it.
+const SEASONAL_CROP_KIND = { spring:"strawberry", summer:"corn", autumn:"pumpkin", winter:"sweetpotato" };
+// an ordinary farm's own seasonal pick - a fifty-fifty choice between the
+// two, rolled/cleared as the season turns (see the tick loop, 03c). Seasons
+// not listed here just keep the plain generic field, one at a time as asked.
+const ORDINARY_FARM_VEG = { summer: ["corn","sunflower"], autumn: ["wheat","cabbage"], winter: ["turnip","kale"], spring: ["peas","carrot"] };
+
+/* One shared drawer for every crop kind, called from drawBuilding's own
+   d.farm branch (04d) once a farm actually has something specific
+   growing. The plain "nothing chosen" case (an ordinary farm outside
+   summer, or before summer's own roll has happened) keeps using the
+   older generic wheat-row look, right there in 04d, untouched.
+
+   growFrac (0..1) is how far into CROP_GROW_DAYS this planting is.
+   ripe/bare are the SAME harvest-remaining values the plain field
+   already used: a fully-grown field just picked clean still shows as
+   short stubble, exactly as before. */
+function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
+  const k = CROP_KINDS[kindKey];
+  if(!k) return;
+  if(bare){
+    ctx.strokeStyle = "#7d6a44"; ctx.lineWidth = 1.4; ctx.lineCap = "round";
+    for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+      const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
+      const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1);
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px, py-1.6); ctx.stroke();
+    }
+    return;
+  }
+  // a picked-over-but-regrowing field still stands a little shorter, the
+  // same "greener and taller the riper it is" idea the old field had
+  const gf = Math.max(0.08, growFrac) * (0.6 + ripe*0.4);
+  const col = mixCol(k.colYoung, k.colReady, growFrac);
+  const blow = (typeof gustAt === "function") ? gustAt(x, y) : 0;
+
+  if(k.shape === "stalk" || k.shape === "flower"){
+    ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.lineCap = "round";
+    for(let ry=0; ry<k.rows; ry++){
+      for(let rx=0; rx<k.cols; rx++){
+        const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
+        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1);
+        const hgt = k.tallMax*gf + Math.sin(G.t*1.4 + rx*0.7 + ry)*0.6;
+        const topx = px + (Math.sin(G.t*1.1+rx)*1.0 + blow*3)*Math.min(1,gf+0.2);
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(topx, py-hgt); ctx.stroke();
+      }
+    }
+    if(k.headStyle==="cob" && growFrac > 0.55){
+      // a cob, partway up the stalk
+      ctx.fillStyle = shade(k.accent, growFrac*0.2);
+      for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+        if((rx+ry)%2) continue;
+        const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
+        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf*0.6;
+        ctx.fillRect(px-0.8, py-1.6, 1.6, 3.2);
+      }
+    } else if(k.headStyle==="grain" && growFrac > 0.4){
+      // a drooping ear right at the top of the stalk
+      ctx.fillStyle = k.headCol;
+      for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+        const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
+        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf;
+        ctx.beginPath(); ctx.ellipse(px, py, 0.9, 1.9, 0.2, 0, 6.283); ctx.fill();
+      }
+    } else if(k.headStyle==="pod" && growFrac > 0.4){
+      // pea pods, hanging in clusters partway up the vine
+      ctx.fillStyle = k.headCol;
+      for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+        if((rx+ry)%2) continue;
+        const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
+        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf*0.55;
+        ctx.beginPath(); ctx.ellipse(px, py, 0.8, 1.4, 0, 0, 6.283); ctx.fill();
+      }
+    } else if(k.shape==="flower"){
+      const headOpen = Math.max(0, (growFrac-0.5)/0.5);
+      for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+        const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
+        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf;
+        if(headOpen>0){
+          ctx.fillStyle = k.headCol;
+          ctx.beginPath(); ctx.arc(px, py, 1.6*headOpen, 0, 6.283); ctx.fill();
+          ctx.fillStyle = k.headCentre;
+          ctx.beginPath(); ctx.arc(px, py, 0.7*headOpen, 0, 6.283); ctx.fill();
+        } else {
+          // a closed green bud before it opens
+          ctx.fillStyle = shade(col,-0.10);
+          ctx.beginPath(); ctx.arc(px, py, 0.9, 0, 6.283); ctx.fill();
+        }
+      }
+    }
+  } else {
+    // "low": strawberries, pumpkin, sweet potato - mounding foliage,
+    // fruit optional (sweet potato has none: it's a root crop, dug up
+    // rather than seen ripening on top)
+    ctx.fillStyle = col;
+    for(let ry=0; ry<k.rows; ry++){
+      for(let rx=0; rx<k.cols; rx++){
+        const px = x+4 + rx*(w-8)/Math.max(1,k.cols-1);
+        const py = y+4 + ry*(dep-8)/Math.max(1,k.rows-1);
+        const r = k.tallMax*0.5*gf + 1;
+        ctx.beginPath(); ctx.ellipse(px, py, r, r*0.6, 0, 0, 6.283); ctx.fill();
+      }
+    }
+    if(k.fruitCol){
+      const fruitFrac = Math.max(0, (growFrac-0.5)/0.5);
+      if(fruitFrac>0){
+        ctx.fillStyle = k.fruitCol;
+        const fr = (k.fruitBig ? 1.6 : 0.7) * fruitFrac;
+        for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+          if((rx+ry) % (k.fruitBig?3:2)) continue;
+          const px = x+4 + rx*(w-8)/Math.max(1,k.cols-1) + 1.2;
+          const py = y+4 + ry*(dep-8)/Math.max(1,k.rows-1) + 0.8;
+          ctx.beginPath(); ctx.arc(px, py, fr, 0, 6.283); ctx.fill();
+          // a pale fruit (turnip) needs its own edge or it vanishes
+          // against snow - see feedback_pale_prop_contrast
+          if(k.fruitStroke){
+            ctx.strokeStyle = k.fruitStroke; ctx.lineWidth = 0.6; ctx.stroke();
+          }
+        }
+      } else if(k.flowerCol && growFrac>0.2){
+        ctx.fillStyle = k.flowerCol;
+        for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+          if((rx+ry)%2) continue;
+          const px = x+4 + rx*(w-8)/Math.max(1,k.cols-1);
+          const py = y+4 + ry*(dep-8)/Math.max(1,k.rows-1);
+          ctx.beginPath(); ctx.arc(px, py, 0.5, 0, 6.283); ctx.fill();
+        }
+      }
+    }
+  }
+}
+
 const SEASONAL_CROP_RADIUS = 480;   // reuses the wilderness-animal "outside the village" distance
 
 function trySeasonalCropHint(){
@@ -41600,6 +41916,27 @@ const RESTED_BOOST = 1.25;        // and how much brisker it makes them
 function findHome(u){
   const mine = G.bldgs.filter(b=>b.p===u.p && b.done);
   const hall = mine.find(b=>b.type==="town");
+
+  /* The fisherman's own house, once it's built, outranks EVERYTHING else -
+     including being a founder. Checked before the founder short-circuit
+     below on purpose: the very first villager to take up the rod is, more
+     often than not, one of the five founders, and a founder always used
+     to return the town hall unconditionally - so a founder-turned-
+     fisherman would have slept in the hall forever, never their own house,
+     the exact bug this whole request was about. It was raised for exactly
+     one person and is theirs alone, the same reasoning quartersFor gives a
+     wounded soldier their own training building over an ordinary house
+     (just below). A fresh lookup every night rather than a cached
+     reference: nothing else on the unit remembers which house is theirs,
+     and livingFisherman's own "one at a time" guarantee (03e) means this
+     can never resolve to more than one villager anyway. Before it's
+     built, they fall straight through to the ordinary rules below, same
+     as anyone else - founder included. */
+  if(u.fisherman){
+    const own = mine.find(b=>b.type==="fisherhouse");
+    if(own) return own;
+  }
+
   if(u.founder) return hall || null;
 
   // the nearest house with room in it
@@ -42857,7 +43194,13 @@ const NIGHT_EVENT_WEIGHT = {
   // becomes a routine part of the week
   wisp:2,
   // ordinary night traffic - something is about, but it is not an occasion
-  owl_perch:3, raid:2, bats:2, crows:2, visitor:2, pilgrims:2, bard:2, eyes:2, dream:2, sky:2,
+  owl_perch:3, raid:2, bats:2, crows:2, visitor:2, bard:2, eyes:2, dream:2, sky:2,
+  // temporarily disabled: reported as not drawing properly (a line of
+  // travellers passing through) - same weight:0 idiom MAP_TYPES uses for
+  // "still exists, never picked" rather than deleting the entry outright.
+  // trySpawnPilgrims/NIGHT_EVENTS itself is untouched, so tests/night-
+  // events.js's direct call still exercises it.
+  pilgrims:0,
   // and the occasions themselves stay rare, which is what makes them occasions
   bear:1, zombies:1, dracula:1, dragon:1, storm:1,
   mcstar:1, hackman:1, gumby:1, tornado:1, costumes:1, sealife:1
@@ -42877,8 +43220,14 @@ function nightsSinceFired(name){
    3x its base weight (after ~30 nights unfired) so this never overrides
    the ordinary common/rare shape of the table, only nudges it. */
 function pickNightEvent(list){
+  /* `?? 1`, not `|| 1` - an entry explicitly weighted 0 (pilgrims, right
+     now) must actually stay at 0. `||` treats 0 as "nothing there, use the
+     default" the same as it would undefined, which would have silently put
+     it straight back at weight 1 - the MAP_TYPES weight:0 idiom this is
+     modelled on doesn't have this trap, since pickMapType sums m.weight
+     directly rather than through a `|| default` lookup. */
   const weights = list.map(e =>
-    (NIGHT_EVENT_WEIGHT[e.name] || 1) * (1 + Math.min(2, nightsSinceFired(e.name)/15)));
+    (NIGHT_EVENT_WEIGHT[e.name] ?? 1) * (1 + Math.min(2, nightsSinceFired(e.name)/15)));
   let total = 0;
   for(const w of weights) total += w;
   let r = Math.random()*total;
@@ -43311,6 +43660,9 @@ const DAY_EVENT_WEIGHT = {
   /* Rare: there are four of them in a whole match and each is a person you
      found, not a unit you can farm. */
   wounded:2, stone:2,
+  // same reasoning, same cap (NEWCOMER_MAX_PER_MATCH) - a recruit talked
+  // round by the founder, not a unit farm
+  newcomer:2,
   dryingday:5, cart:5, loosebeast:4, fallingout:3, envoy:3, lostchild:2,
   // the village's own people - common, because they are the texture of having
   // built the cottage in the first place
@@ -43338,6 +43690,7 @@ const DAY_EVENTS = [
   { name:"wedding",   go:()=>tryWedding() },
   { name:"mood",      go:()=>tryStrangeMood() },
   { name:"traveller", go:()=>trySpawnLostTraveller() },
+  { name:"newcomer",  go:()=>trySpawnNewcomer() },
   /* The swarm is NOT in this table. It has exactly one day a year to arrive,
      and an entry with one eligible day cannot be left to win a weighted roll
      against twenty others - measured over two 100-minute games, the clues
@@ -43617,6 +43970,113 @@ function payTravellerDebts(){
   tellAndNote("A bundle was left at the town centre in the night - "+gold+" gold and "+food+
               " food, and no name on it. The traveller kept their word.", "good");
   return true;
+}
+
+/* ============================================================
+   A NEWCOMER, TALKED ROUND BY THE FOUNDER
+   ============================================================
+   A stranger who isn't lost, isn't trading and isn't performing - just
+   stood at the edge of things, and only the one who started the village
+   can go and talk them into staying. Arm Gather and tap them (the same
+   "gather-tap on a non-node thing" shape the dog-play secret already
+   uses) with the founder (u.firstVillager, not the everyday u.founder
+   every starting villager shares) among the selection.
+
+   A few lines of speech, a beat to read them, then they join - as an
+   ordinary villager more often than not, sometimes as a soldier, which is
+   the whole "other villagers or military" the feature was asked for. No
+   quiz, no stat bonus: this is the simple version asked for, not the
+   fuller one sketched and shelved 2026-08-25 (multiple-choice, wrong-
+   answer cost, a uniquely-buffed recruit) - see idea_talk_to_visitors_
+   and_recruit if that richer version is ever wanted on top of this.
+
+   Capped per match the same way the wounded-stranger recruits are ("four
+   of them in a whole match... not a unit you can farm") - four strangers
+   is a nice thing to remember happening, an unlimited supply is a free
+   army with a narration bolted on. */
+const NEWCOMER_MAX_PER_MATCH = 4;
+const NEWCOMER_LINES = [
+  "A stranger's stopped at the edge of the village, in no hurry to explain why.",
+  "Someone none of the villagers recognise is stood watching the work, arms folded.",
+  "There's a stranger by the town centre, watching the comings and goings with plain interest."
+];
+const NEWCOMER_GREET_LINES = [
+  "\"Didn't expect anyone to come over,\" they say, straightening up.",
+  "They look round, a little surprised anyone stopped to talk.",
+  "\"You're the one who started all this, then,\" they say, nodding at the village."
+];
+/* Mostly an ordinary pair of hands; sometimes somebody who already knows
+   which end of a weapon does what. Rolled once, at arrival, so which one
+   it will be is already decided by the time the founder walks over - the
+   founder just doesn't know it yet either. */
+const NEWCOMER_JOIN_TYPES = ["villager","villager","villager","warrior","scout","archer"];
+const NEWCOMER_JOIN_LINES = {
+  villager: [
+    "\"I could do with somewhere to put my feet up for good,\" they say - and stay.",
+    "They ask if there's room for one more pair of hands. There is."
+  ],
+  warrior: [
+    "It turns out they know one end of a weapon from the other, and are glad of a reason to use it again.",
+    "\"Been looking for a village worth defending,\" they say, and mean it."
+  ],
+  scout: [
+    "\"I've walked further than you'd believe,\" they say. \"Might as well walk it for someone.\"",
+    "They know the country for miles around better than anyone here does - which is exactly the use of them."
+  ],
+  archer: [
+    "They unsling a bow nobody noticed they were carrying, and ask where it's needed.",
+    "\"Better with this than with a plough,\" they say, \"but I'll take either.\""
+  ]
+};
+function newcomerAt(wx, wy, tol){
+  let best=null, bd=tol;
+  for(const o of (G.visitors||[])){
+    if(o.kind!=="newcomer" || o.state!=="here" || o.joined) continue;
+    const d = Math.hypot(o.x-wx, o.y-wy);
+    if(d<bd){ bd=d; best=o; }
+  }
+  return best;
+}
+function trySpawnNewcomer(){
+  if(visitorsOf("newcomer").length) return false;
+  if((G.newcomersJoined||0) >= NEWCOMER_MAX_PER_MATCH) return false;
+  if(!G.bldgs.some(b=>b.p===P_YOU && b.type==="town" && b.done)) return false;
+  const o = makeVisitor("newcomer", {
+    joined:false,
+    willJoinAs: NEWCOMER_JOIN_TYPES[(Math.random()*NEWCOMER_JOIN_TYPES.length)|0],
+    onLeave:(v)=>{
+      if(!v.joined) tellAndNote("Nobody went over. The stranger waited a while, then went on their way.", "plain");
+    }
+  });
+  if(!o) return false;
+  tellAndNote(pickLine(NEWCOMER_LINES,"newcomer"), "plain");
+  return true;
+}
+/* Called from the gather branch of tapAt (03a) once a founder is among
+   the selection and the tap landed on a newcomer rather than a node. */
+function beginGreetNewcomer(u, o){
+  if(!u || !o || u.hp<=0 || o.joined) return false;
+  u.order = "recruit"; u.target = o; u.site = null; u.workplace = null; u.path = null;
+  u.recruitGreeted = false;
+  u.tx = o.x; u.ty = o.y;
+  return true;
+}
+/* The join itself, once the founder has arrived and the greeting's had
+   its beat to be read - see the u.order==="recruit" branch, 03c. A real
+   makeUnit, on the founder's own side, free - same as a wounded-stranger
+   recruit (takeWounded, this file) is free. */
+function resolveNewcomerJoin(u, o){
+  o.joined = true;
+  G.visitors = (G.visitors||[]).filter(v => v !== o);
+  const type = o.willJoinAs || "villager";
+  const nu = makeUnit(type, u.p, o.x, o.y);
+  if(u.p===P_YOU){
+    G.newcomersJoined = (G.newcomersJoined||0) + 1;
+    const lines = NEWCOMER_JOIN_LINES[type] || NEWCOMER_JOIN_LINES.villager;
+    tellAndNote(pickLine(lines, "newcomerjoin"), "good");
+  }
+  autoGroup(nu);
+  return nu;
 }
 
 /* ============================================================
@@ -46857,7 +47317,7 @@ const DOG_BALL_CHANCE   = 0.55;   // of the visits, WHEN the dog has a ball at a
 const DOG_BALL_DAYS     = [1.5, 3.5];   // between one ball and the next
 const DOG_BALL_FIRST    = [0.4, 1.6];   // and how soon the first one shows up
 const DOG_PRANCE_TIME   = 5.2;    // how long the invitation lasts
-const DOG_BALL_COLS     = ["#c4562f", "#c9a23f", "#4a7fa8"];
+const DOG_BALL_COLS     = ["#c0392b", "#3a6fa8"];   // a plain red or blue ball
 /* The play bow on its own - the same gesture the ball drops into, but not
    waiting on one. Offered to whoever's nearest if anyone is, otherwise
    just done alone; unlike "prance" it never touches the ball, and it ends
@@ -46901,6 +47361,34 @@ const DOG_MARKS = ["plain", "piebald", "ticked"];
 const DOG_DISABILITIES = ["threeleg", "cart"];
 const DOG_DISABILITY_CHANCE = 0.05;
 
+/* George and Moose - two golden Labradors, always a pair, never split,
+   and never more than one set of them in a whole match (G.disc.
+   georgeAndMoose, cleared fresh each newGame). Small chance, whenever a
+   new dog is about to join the kennel - which covers both "the very
+   first dog the player ever gets" and "another one later" the same way,
+   since both are just this one line of updateVillageDogs deciding what
+   the next dog is. Needs room for both at once, or the roll is skipped
+   and an ordinary dog joins instead this time; there's always another
+   chance the next Kennels finishes. Player's own village only - the same
+   "a personal touch, not a systemic one" reasoning the fisherman/baker/
+   caretaker's own names get. */
+const GEORGE_MOOSE_CHANCE = 0.10;
+const GEORGE_MOOSE_NAMES  = ["George", "Moose"];
+/* A genuine unbroken gold each, not one of the four ordinary coats reused -
+   coat/patch/tip all the same colour so the "plain" marking's saddle
+   patch (drawVillageDog) simply disappears into it rather than needing
+   its own skip branch. Two distinct shades, not one shared between them -
+   asked for by name ("make them look slightly different to each other"),
+   so the pair reads as two dogs who happen to be litter-mates rather than
+   one dog seen twice. George keeps the original warm honey gold; Moose
+   (the bigger name) is a shade deeper and a little bigger besides - see
+   MOOSE_SIZE_BONUS in makeGoldenDog. */
+const GEORGE_MOOSE_COATS = [
+  { coat:"#d9a94a", patch:"#d9a94a", tip:"#d9a94a" },   // George
+  { coat:"#c48a3a", patch:"#c48a3a", tip:"#c48a3a" }    // Moose
+];
+const MOOSE_SIZE_BONUS = 0.07;
+
 function makeVillageDog(home, i){
   const c = DOG_COATS[i % DOG_COATS.length];
   return {
@@ -46922,6 +47410,24 @@ function makeVillageDog(home, i){
     hasBall: false, ballAt: null,
     ballCd: DAY_LEN * (DOG_BALL_FIRST[0] + Math.random()*(DOG_BALL_FIRST[1]-DOG_BALL_FIRST[0]))
   };
+}
+
+/* George or Moose - built on the ordinary dog (same full run of states and
+   animations, nothing here excludes them from any of it) with the coat
+   and name overridden, and never a disability layered on top of them too -
+   one small special thing at a time, not two stacked on the same animal. */
+function makeGoldenDog(home, i, name){
+  const d = makeVillageDog(home, i);
+  d.marks = "golden";
+  d.disability = null;
+  const isMoose = name === GEORGE_MOOSE_NAMES[1];
+  const c = GEORGE_MOOSE_COATS[isMoose ? 1 : 0];
+  d.coat = c.coat;
+  d.patch = c.patch;
+  d.tip = c.tip;
+  if(isMoose) d.size += MOOSE_SIZE_BONUS;
+  d.name = name;
+  return d;
 }
 
 /* Somewhere to go: mostly near the kennel, sometimes right across the
@@ -46965,7 +47471,22 @@ function updateVillageDogs(dt){
     const mine = G.villageDogs.filter(d => d.p===p);
     const want = Math.min(DOGS_MAX, kennels.length);
     if(kennels.length && mine.length < want){
-      G.villageDogs.push(makeVillageDog(kennels[mine.length % kennels.length], mine.length));
+      /* George and Moose: a small chance, on the player's own side only,
+         that the dog (or dogs) due right now are the pair instead of one
+         ordinary dog - covers the very first dog of the match and every
+         later one through this same line, and can only ever happen once
+         (G.disc.georgeAndMoose). Needs room for two at once, or it's held
+         over for whenever the next Kennels opens up enough room. */
+      if(p===P_YOU && !G.disc.georgeAndMoose && mine.length <= DOGS_MAX-2 &&
+         Math.random() < GEORGE_MOOSE_CHANCE){
+        const home = kennels[mine.length % kennels.length];
+        G.villageDogs.push(makeGoldenDog(home, mine.length, GEORGE_MOOSE_NAMES[0]));
+        G.villageDogs.push(makeGoldenDog(home, mine.length+1, GEORGE_MOOSE_NAMES[1]));
+        G.disc.georgeAndMoose = true;
+        hint("Two golden Labradors have turned up at the kennel together - George and Moose, and they're not to be separated.");
+      } else {
+        G.villageDogs.push(makeVillageDog(kennels[mine.length % kennels.length], mine.length));
+      }
     }
   }
   // a dog whose kennel is gone goes with it
@@ -47336,6 +47857,33 @@ function drawVillageDog(d){
     ctx.fillStyle = d.tip;
     ctx.beginPath(); ctx.ellipse(2.6, 0.9, 2.0, 1.3, 0.1, 0, 6.283); ctx.fill();
     ctx.beginPath(); ctx.ellipse(-2.2, 1.3, 1.5, 0.8, 0, 0, 6.283); ctx.fill();
+  } else if(d.marks === "golden"){
+    /* No saddle patch - a coat this solid asked for actual fur texture
+       instead of a flat block of colour standing in for one. A few short
+       feathered strokes along the back and flank, hashed off the dog's
+       own id (same trick "ticked" uses for its speckles) so George and
+       Moose - same coat family, different individual dogs - don't wear
+       an identical texture despite sharing everything else here. */
+    ctx.strokeStyle = shade(d.coat, 0.18); ctx.lineWidth = 0.45;
+    for(let i=0;i<4;i++){
+      const h1 = ((d.id*(i+7)*2654435761)>>>0) / 4294967295;
+      const h2 = ((d.id*(i+19)*40503)>>>0) / 4294967295;
+      const bx = -3.4 + h1*6.0, by = -1.7 + h2*0.8;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.quadraticCurveTo(bx+0.6, by-0.5, bx+1.3, by-0.2);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = shade(d.coat, -0.10); ctx.lineWidth = 0.4;
+    for(let i=0;i<3;i++){
+      const h1 = ((d.id*(i+31)*2654435761)>>>0) / 4294967295;
+      const h2 = ((d.id*(i+41)*40503)>>>0) / 4294967295;
+      const bx = -2.6 + h1*5.2, by = 0.4 + h2*1.0;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.quadraticCurveTo(bx+0.5, by+0.5, bx+1.1, by+0.2);
+      ctx.stroke();
+    }
   } else {
     // plain: the saddle patch it always had
     ctx.fillStyle = d.patch;
@@ -47379,31 +47927,63 @@ function drawVillageDog(d){
      carrying the thing rather than made of it. Inside the local transform, so
      it flips with the dog for free. */
   if(d.hasBall && !d.ballAt){
+    /* Moved out from the nose, which used to sit almost dead centre on the
+       ball (the two are only 0.74 units apart with the nose's own radius
+       well inside the ball's) - the black nose read as a stray black dot
+       stamped on the ball rather than the dog gripping it just past their
+       own nose. Now the nose only clips the ball's near edge. */
     ctx.fillStyle = d.ball;
     ctx.beginPath();
-    ctx.arc(headX+4.3, headY+(sniff?1.9:1.15), 1.85, 0, 6.283); ctx.fill();
+    ctx.arc(headX+4.8, headY+(sniff?2.05:1.3), 1.6, 0, 6.283); ctx.fill();
     ctx.fillStyle = "rgba(255,255,255,.26)";
     ctx.beginPath();
-    ctx.arc(headX+3.7, headY+(sniff?1.3:0.55), 0.66, 0, 6.283); ctx.fill();
+    ctx.arc(headX+4.2, headY+(sniff?1.45:0.70), 0.58, 0, 6.283); ctx.fill();
   }
 
   // the nose, over the top of whatever is in the jaws
   ctx.fillStyle = "#2a241d";
   ctx.beginPath(); ctx.arc(headX+3.8, headY+(sniff?1.4:0.6), 0.62, 0, 6.283); ctx.fill();
 
-  // ---- pricked ears, which is the other half of the breed read
-  const perk = (d.state==="pat" || d.tail>0 || pranc) ? 0.25 : 0;
-  ctx.fillStyle = shade(d.coat,-0.18);
-  ctx.beginPath();
-  ctx.moveTo(headX-0.9, headY-1.4);
-  ctx.lineTo(headX-1.9, headY-4.4 - perk);
-  ctx.lineTo(headX+0.5, headY-1.9);
-  ctx.closePath(); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(headX+0.7, headY-1.5);
-  ctx.lineTo(headX+0.5, headY-4.5 - perk);
-  ctx.lineTo(headX+2.0, headY-1.6);
-  ctx.closePath(); ctx.fill();
+  // ---- ears: pricked for the ordinary four, which is the other half of
+  // their breed read - George and Moose get a Labrador's own floppy pair
+  // instead, hanging down past the head rather than standing up off it,
+  // with a little sway on the trot. The coat alone wouldn't have read as
+  // a different breed at this size; the ear shape is what actually does.
+  if(d.marks === "golden"){
+    /* Both of these used to anchor within about one unit of each other,
+       right at the cheek - closer to "one wide ear" than two separate
+       ones on either side of the head. A real dog's far ear hangs from
+       up near the crown, well back toward the nape; its near ear hangs
+       from beside the cheek, close to the muzzle. Drawn well apart now,
+       the back one first so the front one's own outline reads on top,
+       the way the nearer ear actually would. */
+    const droop = 0.15 + Math.abs(gait)*0.06;
+    ctx.fillStyle = shade(d.coat,-0.16);
+    ctx.beginPath();
+    ctx.moveTo(headX-1.6, headY-0.6);
+    ctx.quadraticCurveTo(headX-3.1, headY+0.8, headX-2.1, headY+3.0+droop);
+    ctx.quadraticCurveTo(headX-0.9, headY+1.8, headX-0.6, headY-0.4);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = shade(d.coat,-0.10);
+    ctx.beginPath();
+    ctx.moveTo(headX+0.5, headY-1.1);
+    ctx.quadraticCurveTo(headX+1.9, headY+0.3, headX+1.4, headY+2.4+droop);
+    ctx.quadraticCurveTo(headX+0.4, headY+1.4, headX+0.1, headY-0.7);
+    ctx.closePath(); ctx.fill();
+  } else {
+    const perk = (d.state==="pat" || d.tail>0 || pranc) ? 0.25 : 0;
+    ctx.fillStyle = shade(d.coat,-0.18);
+    ctx.beginPath();
+    ctx.moveTo(headX-0.9, headY-1.4);
+    ctx.lineTo(headX-1.9, headY-4.4 - perk);
+    ctx.lineTo(headX+0.5, headY-1.9);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(headX+0.7, headY-1.5);
+    ctx.lineTo(headX+0.5, headY-4.5 - perk);
+    ctx.lineTo(headX+2.0, headY-1.6);
+    ctx.closePath(); ctx.fill();
+  }
 
   // and the piebald's blaze, up the muzzle and between the eyes
   if(d.marks === "piebald"){
@@ -49682,6 +50262,16 @@ function refreshUI(){
       + " light-fingered - houses seem to lose the odd sock when he's been by.";
     return;
   }
+  // George and Moose - selectable for the same reason the elder/Gumby/
+  // Floyd are: a curious tap gets to find out who they are. Neither takes
+  // orders, and there is nothing more to say about them than this - the
+  // ordinary four kennel dogs stay untappable, same as ever.
+  if(sel.length===1 && first.kindTag==="villagedog" && first.marks==="golden"){
+    $("selname").textContent = first.name;
+    $("selsub").textContent = "Good boy";
+    $("selstats").innerHTML = first.name + " is a good boy.";
+    return;
+  }
 
   // ---- multiple units
   if(sel.length>1){
@@ -50822,6 +51412,92 @@ function refreshUI(){
 
 function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
+/* A tiny portrait of the founder's own head, for their control group's icon
+   (groupIcon, just below) - the one villager a whole village grows out of
+   gets an actual face instead of a job icon, the same way their name (not
+   just "a villager") already sets them apart everywhere else they're
+   shown. Built once and cached by id: u.skin/u.look never change once a
+   villager exists, so there's nothing to redraw after the first call.
+
+   Returns a ready-to-drop-in <img> tag (a data URL), not a live canvas
+   element - refreshGroups (below) rebuilds the whole group bar's innerHTML
+   from a plain string every refresh, and a persisted DOM node would not
+   survive that; a data-URL string does, the same as the emoji glyphs it
+   sits alongside.
+
+   Adapted from drawPerson's own "---- head ----" block (04e) - hair/hat/
+   beard included, everything else about the body deliberately left out,
+   since none of it is needed at icon size. */
+function founderPortraitIcon(u){
+  if(!G._founderIcons) G._founderIcons = {};
+  if(G._founderIcons[u.id]) return G._founderIcons[u.id];
+
+  const SIZE = 28;
+  const cv = document.createElement("canvas");
+  cv.width = SIZE; cv.height = SIZE;
+  const c2 = cv.getContext("2d");
+  const skin = SKINS[u.skin % SKINS.length];
+  const skinDim = shade(skin, -0.22), skinLit = shade(skin, 0.14);
+  const outline = "rgba(28,24,20,.55)";
+  const look = VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length];
+  const hairCol = look ? look.hair : "rgba(44,32,22,.85)";
+  const headR = SIZE*0.40;
+
+  c2.save();
+  c2.translate(SIZE/2, SIZE/2 + headR*0.1);
+  c2.fillStyle = skin;
+  c2.beginPath(); c2.arc(0, 0, headR, 0, 6.283); c2.fill();
+  c2.fillStyle = skinDim;
+  c2.beginPath(); c2.arc(0, 0, headR, Math.PI*0.6, Math.PI*1.4); c2.fill();
+  c2.fillStyle = skinLit;
+  c2.beginPath(); c2.arc(headR*0.3, -headR*0.32, headR*0.32, 0, 6.283); c2.fill();
+  c2.strokeStyle = outline; c2.lineWidth = 1;
+  c2.beginPath(); c2.arc(0, 0, headR, 0, 6.283); c2.stroke();
+
+  c2.fillStyle = "#2b2119";
+  c2.beginPath(); c2.arc(headR*0.30, -headR*0.05, headR*0.115, 0, 6.283); c2.fill();
+  c2.beginPath(); c2.arc(headR*0.72, -headR*0.05, headR*0.115, 0, 6.283); c2.fill();
+
+  if(look && look.female && look.scarf){
+    c2.fillStyle = look.accent;
+    c2.beginPath(); c2.arc(0, 0, headR*1.04, Math.PI*0.96, Math.PI*2.08); c2.fill();
+    c2.beginPath();
+    c2.moveTo(-headR*0.95, 0);
+    c2.quadraticCurveTo(-headR*1.25, headR*0.85, -headR*0.35, headR*0.75);
+    c2.lineTo(-headR*0.6, 0);
+    c2.closePath(); c2.fill();
+  } else {
+    c2.fillStyle = hairCol;
+    c2.beginPath(); c2.arc(0, 0, headR, Math.PI*1.02, Math.PI*2.06); c2.fill();
+    c2.beginPath();
+    c2.ellipse(-headR*0.12, -headR*0.34, headR*0.98, headR*0.55, 0, 0, 6.283);
+    c2.fill();
+    if(look && look.female){
+      c2.beginPath();
+      c2.ellipse(-headR*0.78, headR*0.35, headR*0.42, headR*0.72, 0.25, 0, 6.283);
+      c2.fill();
+    }
+  }
+  if(look && look.hat){
+    c2.fillStyle = "#6b5233";
+    c2.beginPath();
+    c2.ellipse(0, -headR*0.55, headR*1.35, headR*0.30, 0, 0, 6.283); c2.fill();
+    c2.beginPath();
+    c2.ellipse(0, -headR*0.85, headR*0.72, headR*0.45, 0, 0, 6.283); c2.fill();
+  }
+  if(look && look.beard){
+    c2.fillStyle = hairCol;
+    c2.beginPath();
+    c2.ellipse(headR*0.28, headR*0.62, headR*0.62, headR*0.40, 0, 0, 6.283);
+    c2.fill();
+  }
+  c2.restore();
+
+  const url = '<img class="gicon-head" src="'+cv.toDataURL()+'">';
+  G._founderIcons[u.id] = url;
+  return url;
+}
+
 // the icon for a group is whichever military type has the most live units
 // in it right now - null (and so the plain number) for empty or civilian groups
 function groupIcon(n){
@@ -50831,11 +51507,39 @@ function groupIcon(n){
   for(const u of units) counts[u.type] = (counts[u.type]||0)+1;
   let best=null, bestN=0;
   for(const t in counts){ if(counts[t]>bestN){ best=t; bestN=counts[t]; } }
+  if(best !== "villager") return GROUP_ICONS[best] || null;
+
+  // The one villager a whole village grows out of gets their own face
+  // ahead of anything else this group might also show - a job icon or the
+  // fisherman's rod would eventually be true of them too, the same as it
+  // would of anybody, but there's only ever one of them.
+  const founder = units.find(u=>u.firstVillager);
+  if(founder) return founderPortraitIcon(founder);
   // A villager touched by the fox shows a paw instead of the pickaxe once
   // they're back, changed - the visible sign the transformation actually
   // happened, since they otherwise look and act like any other villager.
   // (idea_discovery_events)
-  if(best==="villager" && units.some(u=>u.wildlingTouched)) return "🐾";
+  if(units.some(u=>u.wildlingTouched)) return "🐾";
+  // Same idea for the fisherman - the rod is the whole tell that this
+  // group's villager is theirs, the same 🎣 the Fisherman's House button
+  // and the fishing boat already use, not a new symbol of its own.
+  if(units.some(u=>u.fisherman)) return "🎣";
+  /* Otherwise, whatever they were last actually doing - an axe for the
+     woods, a sheaf for the fields. Read off u.lastJob (drawPerson, 04e),
+     not the live-only villagerJob() - a group's icon going blank the
+     instant its villager is sent somewhere else would defeat the point of
+     an icon telling you who's in the group at a glance. Nothing extra
+     needed for mining: it's already GROUP_ICONS.villager's own default
+     below, so a miner with no other flag falls straight through to it. */
+  const jobs = units.map(u=>u.lastJob).filter(Boolean);
+  if(jobs.length){
+    const jobCounts = {};
+    for(const j of jobs) jobCounts[j] = (jobCounts[j]||0)+1;
+    let bestJob=null, bestJobN=0;
+    for(const j in jobCounts){ if(jobCounts[j]>bestJobN){ bestJob=j; bestJobN=jobCounts[j]; } }
+    if(bestJob === "wood") return "🪓";
+    if(bestJob === "farm") return "🌾";
+  }
   return GROUP_ICONS[best] || null;
 }
 
@@ -50936,7 +51640,12 @@ function refreshQueue(){
     const isActive = t===activeType;
     const pct = isActive ? (b.qt/UNITS[t].build*100) : 0;
     const mult = n>1 ? " <span class='qx'>x"+n+"</span>" : "";
-    const paused = isActive && t==="villager" && G.phase==="night";
+    /* Matches tick()'s own pausedForNight exactly (03c) - dusk onward, not
+       just full night, and not at all for a building with its own night
+       shift. This used to check phase alone and could claim "resting until
+       morning" on a Council-Floor town centre that was, in fact, not
+       paused at all. */
+    const paused = isActive && t==="villager" && (G.phase==="dusk" || G.phase==="night") && !worksAtNight(b);
     const note = paused ? " <span class='qx'>resting until morning</span>" : "";
     return "<div class='qitem'>"+UNITS[t].name+mult+note+
            "<div class='qbar'><div class='qfill' style='width:"+pct+"%'></div></div></div>";
