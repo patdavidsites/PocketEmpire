@@ -463,6 +463,18 @@
     border-bottom:1px solid rgba(160,132,86,.30);}
   .fishgroup:first-child{margin-top:0;}
 
+  /* The bug book is the catch book's twin and wears its clothes: same card,
+     same grid, same group heading. Two collections that look like two
+     different games would be a worse book, not a better one. */
+  #bugbookscreen .card{max-width:520px;}
+  /* THE SAME GRID as the catch book, and it has to be: .fishcard's canvas
+     is width:100%, so a list that is not a grid gives every card the full
+     width of the card and stretches a 64px portrait into a 300px smear.
+     Which is exactly what it did. */
+  #bugbooklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));
+    gap:9px;margin:14px 0;max-height:58vh;overflow-y:auto;padding-right:2px;}
+  /* the group headings span the whole width rather than sitting in a cell */
+  #bugbooklist .fishgroup{grid-column:1/-1;}
   /* ---------- logbook (the Noticeboard's second job) ---------- */
   #logbooklist{margin:14px 0;}
   .logrow{display:flex;justify-content:space-between;align-items:baseline;
@@ -525,7 +537,16 @@
     border:1px solid var(--line);color:var(--parch-dim);cursor:pointer;
     font-family:inherit;font-size:11px;font-weight:600;display:flex;
     align-items:center;justify-content:center;position:relative;padding:0;}
-  .gbtn.has{color:var(--gold);border-color:rgba(217,164,65,.55);}
+  /* THREE STATES, and they used to be two. "has" is only "there is
+     somebody in this slot" and is deliberately quiet now: group 2 belongs
+     to the founder permanently and automatically, so at the old gold it
+     was lit from the first minute of every game and read as permanently
+     selected. It marks the slot as used; it does not shout. */
+  .gbtn.has{color:var(--parch);border-color:rgba(217,164,65,.28);}
+  /* And THIS is chosen - the group whose people are in your hand right
+     now. The one state in the bar that should catch the eye. */
+  .gbtn.sel{color:var(--gold);border-color:var(--gold);
+    background:rgba(217,164,65,.14);}
   /* slot 1: always the Town Centre, never a player group - a distinct
      colour so it doesn't read as just another empty numbered slot */
   .gbtn.town{color:var(--slate);border-color:rgba(91,113,137,.55);}
@@ -1014,6 +1035,14 @@
           <li><strong>A creel that fills.</strong> Five fish and the angler takes them home by themselves &mdash; to the Fisherman's House if you have built one, or wherever else will take food &mdash; and then walks back out to the water and carries on. You do not have to watch them</li>
           <li><strong>Shoals run out now, and come back.</strong> They always had a stock and it was never once spent, because anything empty was swept up before the timer that would have refilled it could be set &mdash; so the code that brings a shoal back had never run, not once, in the whole life of the game. Water is kept when it empties and refills a season later. Fishing a spot to nothing and moving on is now a real thing that happens</li>
           <li><strong>Shoals sit out in the water.</strong> They were being placed hard against the shoreline &mdash; about a quarter of them looked beached in the sand. Under one in forty now, with the same number of shoals on the map. There are also half as many fish moving in each one; they were packed too tightly to read as anything but a clump</li>
+          <li><strong>Somebody in the village has found a magnifying glass.</strong> A glint low down in the trees one night, a glass on a brass handle lying in the leaf litter &mdash; and whoever carries it home does not put it down again. They take the coat, the jars and the name, and they stay <em>yours</em>: an ordinary villager you can still order about, the way the fisherman is. One collector at a time, and if you lose them the woods offer another glass.<br><br>There is <strong>a book of a hundred</strong> to go with it, and it works like the catch book: numbered in groups, cards filling in as you take them. Most of them are the bees, butterflies, grasshoppers and dragonflies already flying about your village wearing a hundred different coats &mdash; and four of them are the same ordinary bodies in the colour of moonstone. A Moonstone Firefly is a firefly. That is exactly why seeing one matters. Once five kinds are in the book, the collector can raise a <strong>Bug Catcher's House</strong>, one to a village, and the book lives on it.<br><br>The book is in <strong>seven parts</strong>, and every card you have not filled still tells you where to go looking: the common run, the seasonal ones, after dark, at the water, <em>when it rains</em>, far from any village, and the moonstone four. A card you have taken is drawn in its own colours with its name and how many you have had; one you have not is a grey shape and a question mark. Snails and worms are drawn as snails and worms &mdash; the only things in the book with no legs at all, which is the first thing anybody looks for.<br><br><strong>And the hundred are out there now.</strong> The bugs flying about your village used to be three hard-coded kinds that had never heard of the book &mdash; so the book could promise you a Frost Glow-Worm while the world had no idea the thing existed. Every bug on the map is now some particular one of the hundred, and which one depends on the hour, the season, the weather and the ground it is standing on. The same sprite is a Gatekeeper through the summer and something else by autumn. Daylight insects no longer fly about at midnight: after dark the bees and the butterflies are simply not there, and the crickets and moths are. <strong>Ladybirds</strong> have been added as their own creature &mdash; the one thing out there that neither darts, hops nor loops, it just walks &mdash; and there are two kinds of them.<br><br><strong>#101, the Thunderstorm Beetle.</strong> A dull slate thing that comes down close to the village <em>only</em> while it is actually thundering, and is gone with the storm. It does not glow the way a firefly does; it throws a <strong>spark</strong> &mdash; dark, dark, dark, one hard white crack, dark again &mdash; and no two of them crackle in time. It is the only entry in the book whose rule is the weather rather than the hour, so it has a part of its own: <em>When it thunders</em>.<br><br><strong>Taking one.</strong> See a bug, pick your bug catcher, tap <strong>Gather</strong>, tap the bug. They walk over and take it &mdash; from somewhat near, not from standing on it, because a bug does not wait where you tapped. It goes in the book, named and numbered, and five kinds is still what unlocks the house. <em>The catching game itself comes next; for now the taking is the whole of it.</em><br><br>They are <strong>the Bug Catcher</strong> now rather than the Collector, which is what the village was calling them anyway, and a group with them in it shows <strong>a ladybird</strong> on its number. The clue that starts all of it leads with the noise rather than the glint &mdash; the trees going loud with a hundred small voices where there should be none.<br><br><strong>The house has a face at last.</strong> It went out as a plain box with a green roof, standing next to a Fisherman's House with a boat bay, netting and an anchor on it. It now has a shelf of <strong>glass jars</strong> against the front wall, corked, with something in each, and a <strong>butterfly net</strong> stood up beside the door.<br><br><em>The catching game itself is still to come &mdash; for now the book, the house and the glass are in.</em></li>
+          <li><strong>The Bronze Age wants a bit of everything now, in Peaceful.</strong> It used to ask only for knowledge and food, both of which come to you where you stand. It now wants wood, food, stone, gold, iron and knowledge &mdash; everything but the moonstone. Stone and gold are the two you have to go out and <em>find</em>, and iron asks for a little more than the stone alone brings with it, so you end up mining deeper than you meant to. The step out of the Wandering Age is untouched, and so is the Iron Age. The timed difficulties keep the old price: they are races</li>
+          <li><strong>Peaceful gives up a fifth less of everything.</strong> Every resource now yields 20% less than it did &mdash; and for the first time that includes gold, iron and knowledge, which were exempt. They are still the least slowed of the seven, deliberately: gold has no seam to work at scale and the Iron Age hangs off it, so slowing it as hard as timber would push that age out of step with the rest rather than along with them</li>
+          <li><strong>A trade is a person now, not a building.</strong> Twice a season, something turns up in the dark of the woods at the edge of your village &mdash; and the village smells it before it sees it. Warm bread on the air with nobody baking. A hammer going out in the trees when every hammer is accounted for. The woods humming out of season. Send somebody to look, and they carry home a loaf of wild grain, an old marked tool, a moonlit mushroom.<br><br>Whoever carries it back may raise that trade's building &mdash; only them, and only one of each, ever. Raising it <strong>spends them</strong>: they take up the trade for life, earn a name for it, and leave your hands for good. The village is a pair of hands short and has a baker instead.<br><br>Nothing conjures a worker out of thin air any more. A cottage with nobody in it simply stands there until you send a villager to take up the trade. Lose your herbalist and the hut is idle until somebody else steps in. The one who founded the village may find these things and put the buildings up, but never hold a trade &mdash; they have enough to do. And the Fisherman keeps his own way in, which was already exactly this shape</li>
+          <li><strong>The Bakery is a cottage, not a hall.</strong> It sat on four tiles &mdash; as much ground as the Town Centre's neighbours &mdash; for one villager and an oven, and towered over the gardener's and herbalist's places beside it. One tile now, like the rest of them</li>
+          <li><strong>Group 2 stops looking permanently selected, and is called by name.</strong> The founder's slot was lit gold from the first minute of every game, because the only marked state in the row was "there is somebody in this group" &mdash; and group 2 always has somebody. The bar now has three states instead of two: empty, in use, and <em>the one you actually have in hand</em>. Only the last of those catches the eye. And when the game tells you whose slot it is, it uses their name &mdash; "Group 2 is always Halvdan's", not "Halvdan the First's"</li>
+          <li><strong>Fixed: the founder could be walked out of their own group.</strong> Group 2 is meant to be theirs permanently, and giving the slot to somebody else was already refused &mdash; but Ungroup emptied it in one tap, and so did joining any other group, and nothing ever put them back. Slot 2 was then empty for the rest of the match. Both doors are shut: Ungroup leaves them alone, and joining another group takes everyone selected except them</li>
+          <li><strong>The book is a hundred now.</strong> Twenty-five more, spread across every part of it: six more of the common run, a fifth day fish to each season, a fifth pool fish to each season, three more of the deep-water things &mdash; and, at the end of the book, <strong>the moonstone fish</strong>. The Moonfin has been the only one of its kind for a long time; #93 to #100 are the rest of its family, all of them pale as the stone and all of them at the glowing pool after dark. Two of them are the scarcest things in the whole book. They get their own place in what the pool gives up, rather than being mixed in with the ordinary night catch &mdash; without that, better than a third of everything landed at the pool was a moonstone fish, which is no way to treat a rarity</li>
           <li><strong>Fixed: Harvest Home had stopped happening altogether.</strong> The autumn festival was set for the eighth day of the season &mdash; which was fine when a season was ten days long, and impossible from the moment they were shortened to seven. It has quietly not happened since. It is on day five now, properly late in the autumn, and all four of the year's festivals arrive again</li>
           <li><strong>Fixed: shoals had crowded together out in the water.</strong> When they were told to sit in open water rather than on the shoreline, the rule that keeps them spread out got spent first &mdash; so a stretch of water without much open middle packed its shoals almost on top of each other. The typical gap between the two closest shoals on a map had halved. They are spread out again, at a small cost: a few more sit near the bank than at the strictest setting, though still far fewer than before any of this</li>
           <li><strong>"An Eel", not "A Eel".</strong> Eight of the fifty-five fish start with a vowel</li>
@@ -1750,6 +1779,16 @@
     <p>Take your time — nothing is happening while this is up.</p>
     <button class="go" id="btnresume">Resume</button>
     <button class="ghost" id="btnexit">Exit to menu</button>
+  </div>
+</div>
+
+<div class="screen hide" id="bugbookscreen">
+  <div class="card">
+    <button class="cardx" id="btnbugbookclose">×</button>
+    <div class="kicker">The Bug Catcher's House</div>
+    <h1 id="bugbooktitle">The bug book</h1>
+    <p id="bugbookcount"></p>
+    <div id="bugbooklist"></div>
   </div>
 </div>
 
@@ -4686,8 +4725,11 @@ function updateGumby(dt){
     g.barkCd -= dt;
     if(g.barkCd<=0){
       g.barkCd = 4+Math.random()*5;
+      // a villager, or one of the kennel dogs come out to say hello - either
+      // is worth a bark back
       const near = G.units.find(u=>u.type==="villager" && u.hp>0 && !u.indoors
-                                    && Math.hypot(u.x-g.x,u.y-g.y)<80);
+                                    && Math.hypot(u.x-g.x,u.y-g.y)<80)
+                || (G.villageDogs||[]).find(vd=>!vd.indoors && Math.hypot(vd.x-g.x,vd.y-g.y)<80);
       if(near){ g.say="Woof!"; g.sayT=1.4; }
     }
   } else if(g.state==="toFarm"){
@@ -4769,7 +4811,8 @@ function updateFloyd(dt){
     if(f.barkCd<=0){
       f.barkCd = 4+Math.random()*5;
       const near = G.units.find(u=>u.type==="villager" && u.hp>0 && !u.indoors
-                                    && Math.hypot(u.x-f.x,u.y-f.y)<80);
+                                    && Math.hypot(u.x-f.x,u.y-f.y)<80)
+                || (G.villageDogs||[]).find(vd=>!vd.indoors && Math.hypot(vd.x-f.x,vd.y-f.y)<80);
       if(near){ f.say="Yip!"; f.sayT=1.4; }
     }
   } else if(f.state==="toHouse"){
@@ -5656,10 +5699,28 @@ const GATHER_SCALE      = 0.75;  // villagers bring back less per trip - the who
    Gold is deliberately NOT in the list. It is the one resource with no seam of
    its own to work at scale, it gates the Iron Age, and slowing it too would
    push that age out further than the rest rather than in step with them. */
-const PEACEFUL_YIELD = 0.70;
+/* ---------- and then twenty per cent off all of it again ----------
+
+   Asked for directly: "it's too quick and easy in peaceful mode to get
+   every building and infinite resources - every resource gathered is 20%
+   less". So every kind now yields a fifth less than it did, INCLUDING the
+   three that were exempt.
+
+   The paragraph above still holds and is the reason gold is not simply
+   folded into the same number. Its argument was never "gold must not be
+   slowed", it was "gold must not be slowed AS HARD as the rest", because
+   there is no gold seam to work at scale and the Iron Age hangs off it.
+   Taking a fifth off everything keeps that order intact - gold, iron and
+   knowledge are still the least slowed things in the mode - while doing
+   what was asked. 0.70 -> 0.56 for the four that were already slowed,
+   1.00 -> 0.80 for the three that were not. */
+const PEACEFUL_CUT = 0.80;                 // the fifth off everything
+const PEACEFUL_YIELD = 0.70 * PEACEFUL_CUT;             // 0.56
+const PEACEFUL_YIELD_LIGHT = 1.00 * PEACEFUL_CUT;       // 0.80
 const PEACEFUL_SLOWED = { food:true, wood:true, stone:true, moonstone:true };
 function peacefulYield(kind){
-  return (DIFFICULTY === "peaceful" && PEACEFUL_SLOWED[kind]) ? PEACEFUL_YIELD : 1;
+  if(DIFFICULTY !== "peaceful") return 1;
+  return PEACEFUL_SLOWED[kind] ? PEACEFUL_YIELD : PEACEFUL_YIELD_LIGHT;
 }
 const GLOBAL_SPEED_SCALE = 0.82; // everyone on foot - the elder included - moves a bit more deliberately
 const BLOOM_GROW   = SEASON_LEN * 0.168;   // spring flowers coming up
@@ -6474,6 +6535,7 @@ function tryLightningStorm(force){
   if(G.season==="winter") return false;   // thunderstorms don't happen in the snow
   if(!force && Math.random() > STORM_CHANCE) return false;
   G.storm = { t:0, len: 45+Math.random()*35, nextBolt: 4+Math.random()*7 };
+  spawnStormBugs();
   hint("Thick clouds roll in - thunder rumbles in the distance.");
   refreshUI();   // the almanac's forecast should reflect this immediately, not on the next tick
   return true;
@@ -6499,6 +6561,46 @@ function tryLightningBolt(){
                           : "Lightning strikes a tree - it catches fire.");
 }
 
+/* ---------- the beetles that only come down in a storm ----------
+   #101 in the book, and the one entry whose rule is the WEATHER rather
+   than the hour or the season. They come in close to the village while it
+   is thundering - which is the whole reason to want a storm rather than
+   to sit one out - and they are gone with it.
+
+   Tied to the storm's life on both ends deliberately: spawned when it
+   breaks, cleared when it passes. Nothing else has to remember to tidy
+   them up, and a save written mid-storm loads into a village that still
+   has them, because the storm is saved too. */
+const STORM_BUGS = 5;
+const STORM_BUG_NEAR = 300;      // how close in to the village they come
+function spawnStormBugs(){
+  if(!G.bugs) return;
+  const home = G.bldgs.find(b => b.p===P_YOU && b.type==="town") ||
+               G.bldgs.find(b => b.p===P_YOU);
+  if(!home) return;
+  for(let i=0;i<STORM_BUGS;i++){
+    let x, y, ok=false;
+    for(let t=0;t<24 && !ok;t++){
+      const a = Math.random()*6.283, r = 80 + Math.random()*STORM_BUG_NEAR;
+      x = home.x + Math.cos(a)*r; y = home.y + Math.sin(a)*r;
+      const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
+      if(tx<2||ty<2||tx>=MAPW-2||ty>=MAPH-2) continue;
+      if(!isWater(x,y) && G.terrain[ty*MAPW+tx]!==5) ok=true;
+    }
+    if(!ok) continue;
+    G.bugs.push({
+      thunder:true, bee:false, hopper:false, shape:"beetle", key:"thunderbeetle",
+      x, y, hx:x, hy:y,
+      a:Math.random()*6.283, seed:Math.random()*6.283,
+      col:"#4a5361", wait:Math.random()*2
+    });
+  }
+}
+function clearStormBugs(){
+  if(!G.bugs) return;
+  G.bugs = G.bugs.filter(b => !b.thunder);
+}
+
 function updateStorm(dt){
   if(G.lightning){
     G.lightning.t += dt;
@@ -6513,6 +6615,7 @@ function updateStorm(dt){
   }
   if(G.storm.t >= G.storm.len){
     G.storm = null;
+    clearStormBugs();
     trySpawnShipwreckedChest();   // the storm passing is the whole condition - see 05-wildlife.js
     refreshUI();
   }
@@ -6659,7 +6762,8 @@ const BLDG_ROOF = {
      showing through and the "tarred" roof came out brown - measured as
      (118,101,69), which is exactly gold mixed 62% toward this. The tin and
      the turf sit at 0.80-0.82 for the same reason. */
-  fisherhouse:["#3a3f47", 0.86]   // tarred boards, the way a boathouse roof is kept watertight
+  fisherhouse:["#3a3f47", 0.86],  // tarred boards, the way a boathouse roof is kept watertight
+  bughouse:["#5a6a4a", 0.80]      // a green turf roof, half grown over, which is rather the point
 };
 
 const BLDG_MATERIAL = {
@@ -6708,6 +6812,7 @@ const BLDG_MATERIAL = {
   wildlingsden:["#5d4a38", 0.50],   // bark and hide
   hermithouse: ["#7f8470", 0.40],   // mossy stone
   fisherhouse: ["#5b7189", 0.42],   // weathered boathouse blue-grey
+  bughouse:    ["#8a7a52", 0.44],   // limewashed board, gone honey-coloured
   cottage:     ["#8ea8bc", 0.32]    // the moonstone cottage, a hint cooler
 };
 
@@ -6797,6 +6902,37 @@ const AGE_COST = [
   // sits behind it - so an AI stuck on Bronze could never cross at all.
   { know:260, food:210, gold:110 }
 ];
+
+/* ---------- and in PEACEFUL, Bronze wants a bit of everything ----------
+
+   Asked for: "make the second town upgrade cost all resources, that way
+   people are forced to explore and get everything." Everything bar
+   moonstone, which is its own night-time errand and not the point here.
+   (There is no coal to leave out - charcoal is a kiln product, not a
+   stockpile.)
+
+   PEACEFUL ONLY, for the same reason PEACEFUL_YIELD is: the timed
+   difficulties are races. It also matters here in a way it does not there
+   - the AI's own age-up check (04b) only ever works out how to fix a
+   shortfall in food, gold or knowledge, so on a timed map a Bronze that
+   wanted stone would leave it stuck without ever understanding why. In
+   Peaceful the rival mirrors the player's age for nothing, so none of
+   that can bite.
+
+   The numbers: food and knowledge stay where they were, because they are
+   the gate everybody already knows. Wood is plentiful, so its share is
+   real but easy. Stone and gold are the two things you have to go and FIND
+   - nine outcrops and thirteen gold on a map - and they are what turns
+   this from a stockpile into a search. Iron rides on stone at IRON_RATIO,
+   so asking 60 of it against 120 stone means the stone alone will not
+   quite cover it and you mine a little deeper than you meant to. */
+const AGE_COST_PEACEFUL = {
+  1: { wood:160, food:140, stone:120, gold:60, iron:60, know:140 }
+};
+function ageCost(step){
+  if(DIFFICULTY === "peaceful" && AGE_COST_PEACEFUL[step]) return AGE_COST_PEACEFUL[step];
+  return AGE_COST[step];
+}
 
 /* ---------- the goblin camps ----------
    Peaceful only. A camp turns up in its own season, well away from both
@@ -7283,7 +7419,13 @@ const BLDG = {
      here on, live-read in the attack formula (updateUnit, 03c) via
      hasBakery(p) - the same shape as the armour system and the seasonal-crop
      buff, not a stored per-unit stat. */
-  bakery:{ name:"Bakery", age:0, hp:200, w:2, h:2, cost:{wood:80,food:70}, hgt:9, shrinkW:0.62, shrink:0.52, roof:"gable", build:14,
+  /* ONE TILE, like every other specialist's place. It was 2x2 - the same
+     ground as the Town Centre's neighbours - for a single villager and an
+     oven, and it towered over the gardener's and herbalist's cottages
+     standing next to it. The shrink overrides went with it: those exist to
+     inset a roof that would otherwise span a big plot, and at 1x1 the
+     default (0.70) is what the other cottages already use. */
+  bakery:{ name:"Bakery", age:0, hp:200, w:1, h:1, cost:{wood:80,food:70}, hgt:9, roof:"gable", build:14,
            vision:2, bakery:true },
   grove:{ name:"Mystic Grove", age:1, hp:280, w:2, h:2, cost:{wood:93,gold:70,food:42}, hgt:12, shrinkW:0.62, shrink:0.58, roof:"dome", build:20,
           vision:5, trains:["mage","druid"], heal:1.4 },
@@ -7539,6 +7681,13 @@ const BLDG = {
      through, and at hgt 7 the wall is only seven units tall against
      twenty-four wide, which leaves no room for a doorway that reads as
      anything but a hatch. */
+  /* The bug catcher's own place, and the fisherman's opposite number in
+     every way that matters: one to a village, raised by the one villager
+     who took the trade up, and the book lives on it. Cheaper than the
+     boathouse because it is a shed with a window and some jars in it. */
+  bughouse:{ name:"Bug Catcher's House", age:0, hp:180, w:1, h:1, cost:{wood:60,food:35}, hgt:8,
+             roof:"gable", roofScale:0.5, build:12, pop:6, vision:3, bughouse:true,
+             drop:true },
   fisherhouse:{ name:"Fisherman's House", age:0, hp:200, w:1, h:1, cost:{wood:70,food:40}, hgt:9,
                 /* roofScale 0.5 is the SMALLEST roof this building can have:
                    the ridge is max(7, min(dep*0.55*roofScale, 22)) and dep is
@@ -8293,6 +8442,8 @@ const BLDG_ABOUT = {
             "Only the villager the fox led away can raise this.",
   hermithouse: "Room for more than an ordinary house holds, built the way the "+
             "hermit showed. Only the villager who shared their fire can raise this.",
+  bughouse: "The bug catcher's own house. Select it to open the book - a "+
+            "hundred kinds, and most of them have never been near it.",
   fisherhouse: "The fisherman's own house. Select it to see what's been caught "+
             "so far - only the fisherman can raise this, and only once they've "+
             "actually landed a few.",
@@ -8375,13 +8526,13 @@ function defaultGameState(){
            hand. See WANDERING_AGE. */
         res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
-        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishLog:{} },
+        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishLog:{}, bugLog:{} },
       { id:P_AI, civ:"ashkin", col:CIVS.ashkin.col, dark:CIVS.ashkin.dark, ai:true,
         /* Nothing at all to start with - the Wandering Age is gathered for by
            hand. See WANDERING_AGE. */
         res:{food:0,wood:0,stone:0,gold:0,moonstone:0,iron:0,know:0}, age:0, settled:false, stoneAge:false, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
-        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishLog:{} },
+        armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null, seasonalFarms:{}, caretakerCd:0, fishLog:{}, bugLog:{} },
       /* The goblins. A full players[] entry because the whole game indexes
          sides by number - colours, damage, drawing - but they never gather,
          never build and never age. `settled:true` so the wilds treat their
@@ -8392,7 +8543,7 @@ function defaultGameState(){
         age:0, settled:true, stoneAge:true, ageUpTo:null, ageUpT:0, pop:0, popcap:0, queue:[],
         upg:{wood:0,ore:0,food:0,elder:0}, scarecrow:false, bonfire:false, fireArrows:false,
         armor:{swordsman:0,archer:0,horsewarrior:0}, specialArmor:false, bardChoice:null,
-        seasonalFarms:{}, caretakerCd:0, fishLog:{} }
+        seasonalFarms:{}, caretakerCd:0, fishLog:{}, bugLog:{} }
     ],
     // the Caretaker's Cottage's own villager, one per cottage - see
     // updateCaretaker (03b). Listed here rather than created lazily so it
@@ -8521,6 +8672,10 @@ function defaultGameState(){
     /* The elder's seasonal campfire (05-wildlife) - campfireDayThisSeason's
        own cursor, same shape as the pup's. */
     campfireSeasonNo: -1, campfireDay: -1, campfireDone: false,
+    /* The season's one specialist find (trySpecialistFind, 05g) - same
+       shape as the campfire's and the pup's: a day picked once per season,
+       and a flag so it only happens the once. */
+    tradeSeasonNo: -1, tradeDay: -1, tradeDone: false,
     // the fishing minigame's own state while a round is up (03e) - null
     // the rest of the time, so most of a match never touches this at all
     fishGame: null,
@@ -8631,6 +8786,16 @@ function defaultGameState(){
        not lazily, for the usual reason - a discovery made in one match must
        not still be "found" at the start of the next. (idea_discovery_events) */
     disc: {
+      /* A trade learned is a trade unlocked. One find turns up in the woods
+         each season (trySpecialistFind, 05g) and whoever fetches it home
+         brings the knowledge back with them - so a Bakery or a Geologist's
+         Cottage is behind an errand somebody actually ran, not just behind
+         having enough wood. The fisherman is deliberately NOT among these:
+         his own way in is already the right shape and was asked to be left
+         alone. */
+      tradeBugCatcher: false,     // the magnifying glass - makes a person, not a building
+      tradeBakery: false, tradeGardener: false, tradeGeologist: false,
+      tradeHerbalist: false, tradeCaretaker: false, tradeBeehive: false,
       moonflowerFound: false,     // the flower has been spotted and clicked
       moonstoneTreeFound: false,  // a moonstone tree has been gathered by moonlight at least once
       moonGarden: false,          // Moon Garden unlocked and in the build menu
@@ -10276,6 +10441,8 @@ function spawnBugs(){
     const hopper = !bee && roll < 0.68;
     G.bugs.push({
       bee, hopper,
+      shape: bee ? "bee" : hopper ? "hopper" : "butterfly",
+      key: null,                              // filled in by retagBugs, and re-filled
       hopCd: Math.random()*2.5,
       x:tx*TILE+TILE/2, y:ty*TILE+TILE/2,
       hx:tx*TILE+TILE/2, hy:ty*TILE+TILE/2,   // the patch it stays near
@@ -10294,7 +10461,7 @@ function spawnBugs(){
     }
     if(!ok) continue;
     G.bugs.push({
-      dragonfly:true, bee:false, hopper:false,
+      dragonfly:true, bee:false, hopper:false, shape:"dragonfly", key:null,
       x:tx*TILE+TILE/2, y:ty*TILE+TILE/2,
       hx:tx*TILE+TILE/2, hy:ty*TILE+TILE/2,
       a:Math.random()*6.283, seed:Math.random()*6.283,
@@ -10307,10 +10474,80 @@ function spawnBugs(){
       dart: Math.random()*0.9, da: Math.random()*6.283, shine: Math.random()*6
     });
   }
+  /* Ladybirds, asked for by name. They are the one thing here that does not
+     fly: a slow crawl over the grass, a stop, a turn, another crawl. That
+     is the whole behaviour and it is deliberately the least busy thing on
+     the map - everything else darts, hangs or springs, so a creature that
+     simply walks reads as a different animal at a glance rather than as a
+     recoloured bee. They are also the bug catcher's badge, so they need to
+     be findable: near the ground, out in the open, and not rare. */
+  for(let i=0;i<6;i++){
+    let tx,ty,ok=false;
+    for(let t=0;t<30 && !ok;t++){
+      tx=rnd(3,MAPW-3); ty=rnd(3,MAPH-3);
+      if(G.terrain[ty*MAPW+tx]!==5 && bugSpotClear(tx,ty)) ok=true;
+    }
+    if(!ok) continue;
+    G.bugs.push({
+      ladybird:true, bee:false, hopper:false, shape:"ladybird", key:null,
+      x:tx*TILE+TILE/2, y:ty*TILE+TILE/2,
+      hx:tx*TILE+TILE/2, hy:ty*TILE+TILE/2,
+      a:Math.random()*6.283, seed:Math.random()*6.283,
+      col:"#c8382f", wait:Math.random()*2.5
+    });
+  }
+}
+
+/* Every so often, ask each bug whether it is still something that belongs
+   out here. A bug keeps its name while the name still fits and takes a new
+   one when it stops fitting - so a butterfly that was a Gatekeeper through
+   the summer is something else by autumn, and the moths come out as moths
+   rather than as daylight bugs in the dark.
+
+   Lazy on purpose. Re-tagging on a clock rather than on a season-change
+   event means there is no event to forget to fire, and a save loaded from
+   months ago mends itself on the first sweep instead of carrying whatever
+   the world looked like when it was written. */
+const BUG_RETAG_EVERY = 2.5;
+function retagBugs(dt){
+  G.bugRetagT = (G.bugRetagT || 0) - dt;
+  if(G.bugRetagT > 0) return;
+  G.bugRetagT = BUG_RETAG_EVERY;
+  for(const b of G.bugs){
+    const shape = b.shape || (b.bee ? "bee" : b.hopper ? "hopper" : b.dragonfly ? "dragonfly" : "butterfly");
+    b.shape = shape;
+    const ctx = ambientBugCtx({
+      water: b.dragonfly === true,
+      far:   bugIsFarFromVillage(b.x, b.y)
+    });
+    const cur = b.key ? bugTypeByKey(b.key) : null;
+    if(cur && bugCanBeOutNow(cur, ctx)) continue;   // still itself, leave it alone
+    b.key = pickAmbientBugKey(shape, ctx);
+    /* Wearing its own colour is the whole visible half of this. Bees are
+       left as they are - a bee that is not yellow and black does not read
+       as a bee - but everything else takes the colour of whatever it
+       turned out to be. */
+    const t = b.key ? bugTypeByKey(b.key) : null;
+    if(t && shape !== "bee") b.col = t.col;
+  }
+}
+
+/* "Far from any village" for the entries that ask for it. Measured off the
+   nearest building of ANY side, so the Ashkin's town counts too - a bug
+   that is shy of people should be shy of all of them. */
+const BUG_FAR_FROM_VILLAGE = 620;
+function bugIsFarFromVillage(x, y){
+  let best = Infinity;
+  for(const b of G.bldgs){
+    const d = Math.hypot(b.x-x, b.y-y);
+    if(d < best) best = d;
+  }
+  return best > BUG_FAR_FROM_VILLAGE;
 }
 
 function updateBugs(dt){
   if(!G.bugs) return;
+  retagBugs(dt);
   for(const b of G.bugs){
     /* Dragonflies keep NEAR the water rather than away from it - the one real
        behavioural difference from the bees and butterflies - and scatter when
@@ -10358,6 +10595,24 @@ function updateBugs(dt){
         b.hopT = 0.28;
         b.a = Math.random()*6.283;
       }
+      continue;
+    }
+    /* A ladybird walks. No dart, no hop, no loop - it crawls at a steady
+       creep, stops for a breath, turns a little and carries on. Slow enough
+       that you have to be zoomed in to notice it moving at all, which is
+       the point of it. */
+    if(b.ladybird){
+      b.wait -= dt;
+      if(b.wait <= 0){
+        b.wait = 0.8 + Math.random()*2.4;
+        b.a += (Math.random()-0.5)*2.2;
+        b.rest = Math.random() < 0.35 ? 0.7 + Math.random()*1.6 : 0;
+      }
+      if(b.rest > 0){ b.rest -= dt; continue; }
+      const sp = 7.5;
+      const nx = b.x+Math.cos(b.a)*sp*dt, ny = b.y+Math.sin(b.a)*sp*dt;
+      if(!isWater(nx,ny) && Math.hypot(nx-b.hx,ny-b.hy) < 46){ b.x=nx; b.y=ny; }
+      else b.a = Math.atan2(b.hy-b.y, b.hx-b.x) + (Math.random()-0.5)*0.8;
       continue;
     }
     // bees dart in short bursts, butterflies wander in loops
@@ -11706,7 +11961,29 @@ function tapAt(sx, sy){
           } else if(stranger && !founder){
             hint("Only the one who founded this village can go and talk a stranger round.");
           } else {
-            hint("No resource there — tap a tree, bush, rock, gold or a shoal of fish.");
+            /* And a BUG, if the one who tapped is the bug catcher. Last in
+               the chain on purpose: bugs are tiny and there are dozens of
+               them about, so anywhere earlier and a fat-fingered tap near a
+               tree would go chasing a hoverfly instead of gathering wood.
+               Nothing here can shadow a real order.
+
+               Only the catcher, the same way only the founder may greet a
+               stranger - it is their glass and their book. Anybody else
+               tapping a bug is told who to send. (catchableBugAt/
+               beginBugCatch, 05k) */
+            const bug = (typeof catchableBugAt === "function")
+                      ? catchableBugAt(w.x, w.y, Math.max(tol, 16)) : null;
+            const catcher = bug ? own.find(u => u.bugCatcher && u.hp>0) : null;
+            if(bug && catcher){
+              beginBugCatch(catcher, bug);
+              fxPing(bug.x, bug.y);
+            } else if(bug){
+              const who = (typeof livingBugCatcher === "function") ? livingBugCatcher(P_YOU) : null;
+              hint(who ? ("Only "+villagerName(who)+" carries the glass — send them after it.")
+                       : "Somebody would need a magnifying glass before they could take that.");
+            } else {
+              hint("No resource there — tap a tree, bush, rock, gold or a shoal of fish.");
+            }
           }
         }
       }
@@ -11803,9 +12080,20 @@ function tapAt(sx, sy){
          report was exactly right - Garrison silently did nothing on the
          Geologist's Cottage, because the tap handler had already turned it
          away before the villagerCapOf check further down was ever asked. */
+      /* A trade's building with nobody working it takes a villager too -
+         that is how the post is filled after the one who held it dies, and
+         how the founder's own building gets its worker at all. It is not a
+         garrison in the ordinary sense: they are spent, not stationed.
+         (promoteToTrade, 05g) */
+      const tradeNeedsHands = target && target.kind==="bldg" && target.p===P_YOU &&
+        target.done && !target.tradeStaffed && BLDG[target.type] &&
+        (BLDG[target.type].bakery || BLDG[target.type].gardener ||
+         BLDG[target.type].geologist || BLDG[target.type].herbalist ||
+         BLDG[target.type].caretaker || BLDG[target.type].beehive);
       const ok = target && target.kind==="bldg" && target.p===P_YOU && target.done &&
                  (target.type==="barracks" || target.type==="range" ||
                   target.type==="fortress" || target.type==="tower" ||
+                  tradeNeedsHands ||
                   villagerCapOf(target) > 0);
       if(isBoat){
         const cap = UNITS[target.type].capacity;
@@ -11824,6 +12112,22 @@ function tapAt(sx, sy){
       } else if(!ok){
         hint("Tap your barracks (soldiers), archery range or watchtower (archers), a fortress, "+
              "a cottage that takes a night shift, or a boat.");
+      } else if(tradeNeedsHands){
+        /* Spending somebody on the trade, not stationing them. Takes the
+           first ordinary villager selected - never the founder, who may
+           raise these buildings but never work one. */
+        const hands = own.filter(u=>u.kind==="unit" && u.type==="villager" &&
+                                    u.hp>0 && !u.indoors && !u.firstVillager);
+        if(!hands.length){
+          hint(own.some(u=>u.firstVillager)
+                ? "Not them - the one who founded this village has enough to do. Send somebody else."
+                : "Select a villager to take up the trade.");
+        } else {
+          hands[0].order = "totrade"; hands[0].target = target;
+          hands[0].site = null; hands[0].path = null;
+          hint((hands[0].nightName || "A villager") + " is going to take up the trade.");
+          fxPing(target.x, target.y);
+        }
       } else {
         target.garrison = target.garrison || [];
         // a watchtower holds four, and only archers; everything else keeps
@@ -12207,7 +12511,7 @@ function pickAt(wx, wy, prefer, tol){
   // out who they are. Ordinary kennel dogs are not in this list on purpose.
   if(!prefer){
     for(const d of G.villageDogs||[]){
-      if(d.marks!=="golden" || !visibleTo(P_YOU, d.x, d.y)) continue;
+      if(d.marks!=="golden" || d.indoors || !visibleTo(P_YOU, d.x, d.y)) continue;
       if(Math.hypot(d.x-wx, d.y-wy) < 13+tol) return d;
     }
   }
@@ -12296,11 +12600,33 @@ function assignGroup(n){
   // building
   if(n===2){
     const founder = G.units.find(u=>u.p===P_YOU && u.firstVillager);
-    hint("Group 2 is always " + (villagerName(founder) || "the founder") + "'s.");
+    /* Their NAME, not their full style. villagerName appends the earned
+       title, so once the founder has one this read "Group 2 is always
+       Vilmar the First's." - a mouthful, and a possessive hung off a
+       title reads badly. The bare name is what a village would call
+       them. nightName is the name itself; the title lives in u.epithet
+       and is deliberately left out here. */
+    const bare = (founder && founder.nightName) || villagerName(founder) || "the founder";
+    hint("Group 2 is always " + bare + "'s.");
     return;
   }
-  const units = G.sel.filter(e=>e.p===P_YOU && e.kind==="unit" && e.hp>0 && e!==G.elder);
-  if(!units.length){ hint("Select some units first."); return; }
+  /* AND THE FOUNDER NEVER LEAVES SLOT 2 BY THIS DOOR EITHER. Refusing to
+     hand group 2 to somebody else (above) only guards one direction: the
+     founder could still be walked out of it by joining any other group,
+     which emptied slot 2 for good, since nothing ever puts them back. The
+     tie is meant to be permanent in both directions, the same as the Town
+     Centre's hold on slot 1. Ungroup leaves them alone for the same
+     reason (refreshUI, 07). */
+  const units = G.sel.filter(e=>e.p===P_YOU && e.kind==="unit" && e.hp>0 &&
+                                e!==G.elder && !e.firstVillager);
+  if(!units.length){
+    const hadFounder = G.sel.some(e=>e.p===P_YOU && e.firstVillager);
+    if(hadFounder){
+      const f = G.sel.find(e=>e.firstVillager);
+      hint((f.nightName || "The founder") + " stays in group 2 - that one is theirs.");
+    } else hint("Select some units first.");
+    return;
+  }
 
   /* Join, not replace. This used to do `G.groups[n] = units.slice()`,
      which threw away everyone ALREADY in group n the moment one more
@@ -13133,6 +13459,11 @@ function updateCaretaker(dt){
   // one caretaker per cottage, and none once the cottage is gone
   for(const b of G.bldgs){
     if(!b.done || !BLDG[b.type].caretaker) continue;
+    /* NOBODY WORKS HERE FOR FREE ANY MORE. A trade's building used to
+       conjure its worker the moment it was finished; now somebody has to
+       be spent on it - whoever raised it, or a villager sent in afterwards
+       (promoteToTrade, 05g). An unstaffed cottage simply stands there. */
+    if(!b.tradeStaffed) continue;
     if(!G.caretakers.some(o=>o.home===b)) G.caretakers.push(makeCaretakerVillager(b));
   }
   G.caretakers = G.caretakers.filter(o =>
@@ -13502,6 +13833,7 @@ function updateBeekeepers(dt){
   if(!G.beekeepers) G.beekeepers = [];
   for(const b of G.bldgs){
     if(!b.done || !BLDG[b.type].beehive) continue;
+    if(!b.tradeStaffed) continue;          // see promoteToTrade (05g)
     if(!G.beekeepers.some(o=>o.home===b)) G.beekeepers.push(makeFieldWorker(b, "beekeeper"));
   }
   G.beekeepers = G.beekeepers.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
@@ -13555,6 +13887,7 @@ function updateGardener(dt){
   if(!G.gardeners) G.gardeners = [];
   for(const b of G.bldgs){
     if(!b.done || !BLDG[b.type].gardener) continue;
+    if(!b.tradeStaffed) continue;          // see promoteToTrade (05g)
     if(!G.gardeners.some(o=>o.home===b)) G.gardeners.push(makeFieldWorker(b, "gardener"));
   }
   G.gardeners = G.gardeners.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
@@ -13677,6 +14010,7 @@ function updateGeologist(dt){
   if(!G.geologists) G.geologists = [];
   for(const b of G.bldgs){
     if(!b.done || !BLDG[b.type].geologist) continue;
+    if(!b.tradeStaffed) continue;          // see promoteToTrade (05g)
     if(!G.geologists.some(o=>o.home===b)) G.geologists.push(makeFieldWorker(b, "geologist"));
   }
   G.geologists = G.geologists.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
@@ -13761,6 +14095,7 @@ function updateHerbalist(dt){
   if(!G.herbalists) G.herbalists = [];
   for(const b of G.bldgs){
     if(!b.done || !BLDG[b.type].herbalist) continue;
+    if(!b.tradeStaffed) continue;          // see promoteToTrade (05g)
     if(!G.herbalists.some(o=>o.home===b)) G.herbalists.push(makeFieldWorker(b, "herbalist"));
   }
   G.herbalists = G.herbalists.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
@@ -14020,6 +14355,7 @@ function updateBaker(dt){
   // one baker per bakery, and none once the bakery is gone
   for(const b of G.bldgs){
     if(!b.done || !BLDG[b.type].bakery) continue;
+    if(!b.tradeStaffed) continue;          // see promoteToTrade (05g)
     if(!G.bakers.some(o=>o.home===b)) G.bakers.push(makeBakerVillager(b));
   }
   G.bakers = G.bakers.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
@@ -14615,7 +14951,7 @@ function tryAgeUp(){
   }
   if(pl.age >= 2){ hint("You're already in the Iron Age."); return; }
   if(pl.ageUpTo != null){ hint("The " + AGES[pl.ageUpTo] + " is already on its way."); return; }
-  const cost = AGE_COST[pl.age+1];
+  const cost = ageCost(pl.age+1);
   if(!canAfford(pl, cost)){ hint("Need " + costStr(cost) + " to advance."); return; }
   pay(pl, cost);
   /* Paid for now, arrives in half a day. See AGE_UP_TIME and the progress
@@ -15093,6 +15429,7 @@ function tick(dt){
       tryStoryNight();   // rarely, the elder settles by the fire instead
       tryElderCampfire();   // and once a season, guaranteed, whether there's a bonfire or not
       tryNightcap();     // more often, just a few linger at the town centre a moment
+      trySpecialistFind();  // and once a season, the woods have a trade in them (05g)
       /* On a night when wolves are even seasonally possible, a howl a few
          seconds into dusk - so a raid, when it comes, has been announced.
          Deliberately not RAID_CHANCE: it is a warning that sometimes comes to
@@ -15835,6 +16172,23 @@ function updateUnit(u, dt){
      standing there, is the whole feature failing in the most visible way
      possible. If the dog is gone (wandered off the map, kennel pulled
      down) the order simply lapses and they stand ready for the next one. */
+  /* Off after a bug. Same shape as playdog and for the same reason - a bug
+     is the most mobile thing on the map, so the destination is re-read
+     every tick rather than fixed at the moment of the tap. If the bug is
+     gone (taken by somebody else, or the storm that brought it has passed)
+     the order lapses quietly and they stand ready. (05k) */
+  if(u.order === "catchbug"){
+    const bug = u.chasing;
+    const alive = bug && G.bugs && G.bugs.indexOf(bug) >= 0;
+    if(!alive){ u.order = null; u.chasing = null; u.moving = false; }
+    else {
+      const near = moveToward(u, bug.x, bug.y, spd, dt, BUG_CATCH_R);
+      u.moving = !near;
+      if(near) takeBug(u, bug);
+      return;
+    }
+  }
+
   if(u.order === "playdog"){
     const d = (typeof dogFromToken === "function") ? dogFromToken(u.playWith) : null;
     if(!d){ u.order = null; u.playWith = null; u.moving = false; }
@@ -15872,6 +16226,37 @@ function updateUnit(u, dt){
     if(u.p===P_YOU) tellAndNote(pickLine(NEWCOMER_GREET_LINES, "newcomergreet"), "plain");
     u.chatT = 2.6 + Math.random()*0.6;
     return;
+  }
+
+  /* Carrying a find back to the hall (takeSpecialistFind, 05g). The trade
+     is learned on arrival, not on pickup - drop dead on the way and it goes
+     with them, which is what makes the walk worth anything. */
+  if(u.order === "carryfind"){
+    if(!u.carryTrade){ u.order = null; }
+    else {
+      const hall = G.bldgs.find(x=>x.p===u.p && x.type==="town" && x.done && x.hp>0);
+      if(!hall){ u.order = null; u.carryTrade = null; }
+      else {
+        const arrived = moveToward(u, hall.x, hall.y + hall.h*TILE/2 + 8, spd, dt, 14);
+        u.moving = !arrived;
+        if(arrived){ deliverSpecialistFind(u); u.order = null; }
+        return;
+      }
+    }
+  }
+
+  /* On their way to take up a trade (the garrison tap on an unworked
+     trade building, 03a). They are spent on arrival - promoteToTrade takes
+     them out of the roll. */
+  if(u.order === "totrade"){
+    const b = u.target;
+    if(!b || !b.done || b.hp<=0 || b.tradeStaffed){ u.order=null; u.target=null; }
+    else {
+      const arrived = moveToward(u, b.x, b.y + b.h*TILE/2 + 6, spd, dt, 12);
+      u.moving = !arrived;
+      if(arrived){ u.order=null; u.target=null; promoteToTrade(u, b); }
+      return;
+    }
   }
 
   if(u.order === "story"){
@@ -16160,7 +16545,8 @@ function updateUnit(u, dt){
          takeWounded (05d). */
       /* The three finds you walk to (05g). Same shape as the swarm; what each
          one unlocks is in its own take* function. */
-      if(n.kind==="millwheel" || n.kind==="wolfpup" || n.kind==="standingstone"){
+      if(n.kind==="millwheel" || n.kind==="wolfpup" || n.kind==="standingstone" ||
+         n.kind==="tradefind"){
         /* Whoever is on their way to the pup is remembered by id. If they do
            not make it, the pup goes with them and there is not another until
            next year - which is the whole reason it is worth sending somebody
@@ -16170,6 +16556,14 @@ function updateUnit(u, dt){
           G.nodes = G.nodes.filter(x=>x!==n);
           if(n.kind==="millwheel") takeMillWheel(u, n);
           else if(n.kind==="wolfpup") takeWolfPup(u, n);
+          else if(n.kind==="tradefind"){
+            takeSpecialistFind(u, n);
+            /* Straight to the hall with it. Given an order rather than
+               left idle so the errand finishes itself if the player is
+               looking elsewhere - the walk is the point, not a chore. */
+            const hall = G.bldgs.find(x=>x.p===u.p && x.type==="town" && x.done && x.hp>0);
+            if(hall){ u.order="carryfind"; u.tx=hall.x; u.ty=hall.y + hall.h*TILE/2 + 8; }
+          }
           else takeStandingStone(u, n);
           u.order = null; u.target = null;
         }
@@ -16642,6 +17036,20 @@ function updateUnit(u, dt){
             }
           }
           if(b.p===P_YOU) hint(BLDG[b.type].name + " complete.");
+          /* A trade's own building: whoever raised it takes up the trade
+             then and there, and is spent doing it. The founder is the one
+             exception - they may build it but never hold it, so theirs
+             waits for somebody to be garrisoned in. (promoteToTrade, 05g) */
+          if(typeof promoteToTrade === "function" && BLDG[b.type] &&
+             (BLDG[b.type].bakery || BLDG[b.type].gardener || BLDG[b.type].geologist ||
+              BLDG[b.type].herbalist || BLDG[b.type].caretaker || BLDG[b.type].beehive)){
+            if(u.firstVillager){
+              if(b.p===P_YOU)
+                hint("It is built, but it wants somebody to work it - garrison a villager here.");
+            } else {
+              promoteToTrade(u, b);
+            }
+          }
           /* Whoever was on this site is free now. Collect them BEFORE anything
              below reassigns anybody, or the crew-staffing pass takes them and
              the carry-on finds nobody left to move on. */
@@ -17629,7 +18037,7 @@ function nearestEnemy(e, rng){
    rounds - there's no separate "Play again" button to skip past it. */
 
 /* ============ THE BOOK ============
-   Fifty-five entries, and THE NUMBERS ARE THE GROUPS - so "I'm missing
+   ONE HUNDRED entries, and THE NUMBERS ARE THE GROUPS - so "I'm missing
    #31" already tells you roughly where to go looking:
 
      1-18   common. Any season, day or night, at any shoal.
@@ -17641,6 +18049,21 @@ function nearestEnemy(e, rng){
      52-54  the deep-water things, at the pool, night, any season, and
             scarce even there.
      55     the boot. Not a fish, no season, no hour, hardly ever.
+     56-67  twelve more of the common run.
+     68-71  a fourth DAY fish to each season.
+     72-75  a fourth pool fish to each season.
+     76-81  six more of the common run again.
+     82-85  a fifth DAY fish to each season.
+     86-89  a fifth pool fish to each season.
+     90-92  three more deep-water things.
+     93-100 THE MOONSTONE FISH - the Moonfin's own family, which it did
+            without for a long time. Pool, night, pale as the stone: two
+            that ignore the season (93-94), one to each season (95-98),
+            and the two scarcest things in the book (99-100).
+
+   The groups repeat rather than renumbering because the numbers are a
+   promise to the player - see below. A new batch goes on the END, in the
+   same order of kinds, so the shape of the book is still readable.
 
    `when` is "any" | "day" | "night"; `season` is null for anything that
    does not care; `pool:true` marks the ones found ONLY at the glowing
@@ -17650,6 +18073,7 @@ function nearestEnemy(e, rng){
    change is exactly why: the list has just gone from ten entries to
    forty-seven with new ones inserted in the middle, and a player who had
    learned that the catfish was #9 would otherwise find it renumbered.
+   It has since gone 47 -> 55 -> 75 -> 100 and the catfish is still #9.
 
    Several of these deliberately answer to things the world already does -
    the moonpetals, the lantern festival, the aurora, the Long Night, the
@@ -17854,11 +18278,252 @@ const FISH_TYPES = [
   { key:"boot",     name:"Old Boot",      num:55, when:"any", season:null, junk:true,
     sizeMin:0.70, sizeMax:1.30,
     type:"Not a fish",    shape:"boot",      col:"#6b5138", belly:"#8a6a4a",
-    note:"Somebody's, once. The village has been fishing this water a long time." }
+    note:"Somebody's, once. The village has been fishing this water a long time." },
+
+  /* ============ 56-75: THE SECOND WAVE ============
+     Twenty more, and deliberately COUSINS of the ones above rather than
+     new inventions - the local variety of a fish already in the book, the
+     way a real river has three sorts of bream in it. Same shapes, same
+     kinds, their own colours and their own habits.
+
+     Appended rather than slotted in among their relatives, because the
+     numbers are how a fish gets looked up and a player who had learned
+     the catfish was #9 must still find it at #9 (the same reasoning that
+     governed the 10 -> 47 -> 55 additions above). So this block has its
+     own contiguous sub-blocks, and the rule still holds within it:
+
+       56-67  twelve more commons. Any season, any hour, any shoal.
+       68-71  one more seasonal day fish apiece - six to a season now.
+       72-75  one more pool fish apiece - four to a season at the pool.
+
+     These run WIDER in size than the first wave on purpose. Landing a
+     different fish is meant to be the slow reward now; landing a
+     notably big or small one of a fish you already know is the ordinary
+     pleasure, and a wide range is what makes that read (see
+     fishSizeBand). ---- */
+
+  /* ---- 56-67: more of the common run ---- */
+  { key:"silverbream", name:"Silver Bream", num:56, when:"any", season:null, sizeMin:0.14, sizeMax:0.58,
+    type:"Bottom-feeder", shape:"deep",      col:"#8b8f96", belly:"#eef1f4",
+    note:"A paler, flatter cousin of the bream, and it shoals where the other feeds alone." },
+  { key:"goldrudd",  name:"Golden Rudd",   num:57, when:"any", season:null, sizeMin:0.12, sizeMax:0.46,
+    type:"Shoal fish",    shape:"deep",      col:"#b8913c", belly:"#f4e2ac",
+    note:"The same red fins as the common rudd, over a flank like a warm coin." },
+  { key:"blueroach", name:"Blue Roach",    num:58, when:"any", season:null, sizeMin:0.10, sizeMax:0.42,
+    type:"Shoal fish",    shape:"slim",      col:"#5d7382", belly:"#dce8ef",
+    note:"Bluer along the back than any ordinary roach, and keeps to the deeper channels." },
+  { key:"spotchub",  name:"Spotted Chub",  num:59, when:"any", season:null, sizeMin:0.18, sizeMax:0.70,
+    type:"Predator",      shape:"spotted",   col:"#77755a", belly:"#e2ddbc",
+    note:"Freckled all down one side, and every bit as willing to eat nonsense as its plain cousin." },
+  { key:"greatpike", name:"Great Pike",    num:60, when:"any", season:null, sizeMin:0.55, sizeMax:1.45,
+    type:"Predator",      shape:"toothy",    col:"#4f5c31", belly:"#d2d0a0",
+    note:"The old ones that nobody quite believes in until the line goes solid and stays there." },
+  { key:"silvereel", name:"Silver Eel",    num:61, when:"any", season:null, sizeMin:0.20, sizeMax:0.62,
+    type:"Bottom-feeder", shape:"long",      col:"#5f5f52", belly:"#d4d2b8",
+    note:"An eel in its travelling colours, bright along the belly and bound for the sea." },
+  { key:"marbarbel", name:"Marbled Barbel", num:62, when:"any", season:null, sizeMin:0.28, sizeMax:1.05,
+    type:"Bottom-feeder", shape:"whiskered", col:"#8f7a4e", belly:"#e6d6a8",
+    note:"Mottled like a river stone, which is exactly the point of it." },
+  { key:"darktench", name:"Dark Tench",    num:63, when:"any", season:null, sizeMin:0.22, sizeMax:0.80,
+    type:"Bottom-feeder", shape:"deep",      col:"#38452c", belly:"#aab88a",
+    note:"Nearly black in the peat pools, and the old folk say it mends the others just the same." },
+  { key:"sandgudgeon", name:"Sand Gudgeon", num:64, when:"any", season:null, sizeMin:0.05, sizeMax:0.28,
+    type:"Shoal fish",    shape:"slim",      col:"#a89a78", belly:"#ece4cc",
+    note:"Pale as the bar it lies on, and just as numerous - forty of them, and not a mouthful between." },
+  { key:"rockperch", name:"Rock Perch",    num:65, when:"any", season:null, sizeMin:0.16, sizeMax:0.58,
+    type:"Predator",      shape:"barred",    col:"#4d6552", belly:"#d6ddba",
+    note:"Darker-barred than the river perch and holds hard against the stone, out of the current." },
+  { key:"paledace",  name:"Pale Dace",     num:66, when:"any", season:null, sizeMin:0.08, sizeMax:0.36,
+    type:"Shoal fish",    shape:"slim",      col:"#9aa8ac", belly:"#f0f4f4",
+    note:"So bright in the shallows it is easier to see than to catch." },
+  { key:"mudcat",   name:"Mud Catfish",    num:67, when:"any", season:null, sizeMin:0.38, sizeMax:1.35,
+    type:"Bottom-feeder", shape:"whiskered", col:"#463a2c", belly:"#bfae8a",
+    note:"Lives in the softest bottom it can find and comes up wearing most of it." },
+
+  /* ---- 68-71: a sixth seasonal day fish for each season ---- */
+  { key:"thawback", name:"Thawback",       num:68, when:"day", season:"spring", sizeMin:0.14, sizeMax:0.60,
+    type:"Predator",      shape:"spotted",   col:"#6b8290", belly:"#e2eef2",
+    note:"Marked along the spine like the last snow going off a hillside, and gone as quickly." },
+  { key:"heatscale", name:"Heatscale",     num:69, when:"day", season:"summer", sizeMin:0.18, sizeMax:0.72,
+    type:"Shoal fish",    shape:"scaled",    col:"#c98a34", belly:"#f6dc9c",
+    note:"Hangs where the water is warmest and the light is worst, and blazes when you lift it." },
+  { key:"leaffin",  name:"Leaffin",        num:70, when:"day", season:"autumn", sizeMin:0.12, sizeMax:0.54,
+    type:"Shoal fish",    shape:"slim",      col:"#8e6a34", belly:"#e6cf9c",
+    note:"Drifts among the fallen leaves and is very hard to tell from one until it moves." },
+  { key:"palefrost", name:"Palefrost",     num:71, when:"day", season:"winter", sizeMin:0.16, sizeMax:0.64,
+    type:"Shoal fish",    shape:"deep",      col:"#8695a0", belly:"#f2f7fa",
+    note:"Almost colourless in the cold months, as though the winter had got into it." },
+
+  /* ---- 72-75: a fourth pool fish for each season, night only ---- */
+  { key:"petalglow", name:"Petalglow",     num:72, when:"night", season:"spring", pool:true,
+    sizeMin:0.10, sizeMax:0.46,
+    type:"Pool fish",     shape:"slim",      col:"#c093b4", belly:"#f6e6f0",
+    note:"Small and faintly lit, and it rises through the fallen petals without disturbing one." },
+  { key:"fireflyfish", name:"Fireflyfish", num:73, when:"night", season:"summer", pool:true,
+    sizeMin:0.12, sizeMax:0.50,
+    type:"Pool fish",     shape:"spotted",   col:"#a8a04a", belly:"#f2f0c4",
+    note:"Winks on and off as it turns, exactly like the things dancing over the water above it." },
+  { key:"mistglow", name:"Mistglow",       num:74, when:"night", season:"autumn", pool:true,
+    sizeMin:0.16, sizeMax:0.62,
+    type:"Pool fish",     shape:"long",      col:"#8a94a0", belly:"#e8eef4",
+    note:"Longer and dimmer than the mistfin, and comes up only when the fog is thickest." },
+  { key:"icelight", name:"Icelight",       num:75, when:"night", season:"winter", pool:true,
+    sizeMin:0.14, sizeMax:0.56,
+    type:"Pool fish",     shape:"slim",      col:"#93c2d4", belly:"#eefaff",
+    note:"A thread of cold light under the surface, and the ice above it never quite closes over." },
+
+  /* ---- 76-81: six more of the common run. Ordinary coarse fish, the
+         kind anybody pulls out of any water at any hour. ---- */
+  { key:"bleak",      name:"Bleak",           num:76, when:"any", season:null,
+    sizeMin:0.08, sizeMax:0.24,
+    type:"Shoal fish",    shape:"slim",      col:"#b9c2c6", belly:"#eef3f5",
+    note:"Thin, quick and bright as a scrap of foil - they turn all together and the whole shoal flashes." },
+  { key:"zander",     name:"Zander",          num:77, when:"any", season:null,
+    sizeMin:0.85, sizeMax:3.10,
+    type:"Predator",      shape:"toothy",    col:"#6f6a4c", belly:"#cfc9a8",
+    note:"Hunts in the low light at either end of the day, and its eyes give it away before its teeth do." },
+  { key:"cruciancarp",name:"Crucian Carp",    num:78, when:"any", season:null,
+    sizeMin:0.30, sizeMax:1.35,
+    type:"Bottom-feeder", shape:"deep",      col:"#9a8340", belly:"#e4d69a",
+    note:"Will live in a puddle a horse could drink and come out of it fat." },
+  { key:"bullhead",   name:"Bullhead",        num:79, when:"any", season:null,
+    sizeMin:0.05, sizeMax:0.18,
+    type:"Bottom-feeder", shape:"whiskered", col:"#6b5a46", belly:"#b6a68c",
+    note:"All head and no manners, sat under a stone waiting for something smaller to pass." },
+  { key:"vendace",    name:"Vendace",         num:80, when:"any", season:null,
+    sizeMin:0.14, sizeMax:0.42,
+    type:"Shoal fish",    shape:"slim",      col:"#8fa3b0", belly:"#e8f0f4",
+    note:"Keeps to the cold deep of a lake and comes up so rarely that most people never see one." },
+  { key:"orfe",       name:"Orfe",            num:81, when:"any", season:null,
+    sizeMin:0.35, sizeMax:1.60,
+    type:"Shoal fish",    shape:"scaled",    col:"#c47a4e", belly:"#f0cba6",
+    note:"Sits just under the surface in a slow crowd, and scatters at a shadow." },
+
+  /* ---- 82-85: one more DAY fish to each season, same as 19-38 and
+         68-71. Day only, in season only, so each one is a fortnight of
+         the year at most. ---- */
+  { key:"mayflytrout",name:"Mayfly Trout",    num:82, when:"day", season:"spring",
+    sizeMin:0.40, sizeMax:1.45,
+    type:"Predator",      shape:"spotted",   col:"#7f8a5c", belly:"#e0e4c2",
+    note:"Fattens itself stupid the week the mayfly come off, and will take nothing else while they last." },
+  { key:"thunderfin", name:"Thunderfin",      num:83, when:"day", season:"summer",
+    sizeMin:0.55, sizeMax:1.90,
+    type:"Predator",      shape:"barred",    col:"#5d6470", belly:"#c3cbd6",
+    note:"Comes up to feed in the heavy air before a storm, and is gone the moment the rain arrives." },
+  { key:"stubblefin", name:"Stubblefin",      num:84, when:"day", season:"autumn",
+    sizeMin:0.30, sizeMax:1.20,
+    type:"Shoal fish",    shape:"scaled",    col:"#b08a44", belly:"#ecd79c",
+    note:"Runs the ditches beside the cut fields, living on whatever the harvest washes down." },
+  { key:"blackice",   name:"Blackice Perch",  num:85, when:"day", season:"winter",
+    sizeMin:0.25, sizeMax:0.95,
+    type:"Shoal fish",    shape:"barred",    col:"#3f4a52", belly:"#9fb0ba",
+    note:"Holds still under clear ice where you can watch it and never reach it." },
+
+  /* ---- 86-89: one more of the glowing pool's own to each season. ---- */
+  { key:"greenglow",  name:"Greenglow",       num:86, when:"night", season:"spring", pool:true,
+    sizeMin:0.12, sizeMax:0.50,
+    type:"Pool fish",     shape:"slim",      col:"#8fbe86", belly:"#dff2d6",
+    note:"The first lit thing in the water after the thaw, and the pool is greener for a week." },
+  { key:"heatshimmer",name:"Heatshimmer",     num:87, when:"night", season:"summer", pool:true,
+    sizeMin:0.18, sizeMax:0.62,
+    type:"Pool fish",     shape:"long",      col:"#d8b45e", belly:"#f8ecc0",
+    note:"Hard to look straight at on a warm night - the water above it moves as though the day had not ended." },
+  { key:"leaflight",  name:"Leaflight",       num:88, when:"night", season:"autumn", pool:true,
+    sizeMin:0.15, sizeMax:0.58,
+    type:"Pool fish",     shape:"deep",      col:"#c07a3e", belly:"#f2d3a4",
+    note:"Lies under the fallen leaves and lights them from beneath, one at a time, as it moves." },
+  { key:"midwinterglow",name:"Midwinter Glow",num:89, when:"night", season:"winter", pool:true,
+    sizeMin:0.20, sizeMax:0.70,
+    type:"Pool fish",     shape:"glowing",   col:"#8aa8cc", belly:"#e6f0fb",
+    note:"Brightest on the longest night of the year, which the village has always taken as a good sign." },
+
+  /* ---- 90-92: three more of the deep-water things. Pool, night, any
+         season, and scarce even there - same footing as 52-54. ---- */
+  { key:"hatchetfish",name:"Hatchetfish",     num:90, when:"night", season:null, pool:true, deep:true,
+    sizeMin:0.06, sizeMax:0.20,
+    type:"Deep water",    shape:"deep",      col:"#8e9aa2", belly:"#d4dde2",
+    note:"Thin as a blade edge-on, and lit along the belly so that from below it is only more water." },
+  { key:"lanternshark",name:"Lanternshark",   num:91, when:"night", season:null, pool:true, deep:true,
+    sizeMin:0.70, sizeMax:2.20,
+    type:"Deep water",    shape:"long",      col:"#3c4450", belly:"#6d7a88",
+    note:"Small enough to hold and it glows in your hands the whole way home." },
+  { key:"bristlemouth",name:"Bristlemouth",   num:92, when:"night", season:null, pool:true, deep:true,
+    sizeMin:0.03, sizeMax:0.12,
+    type:"Deep water",    shape:"toothy",    col:"#2f3438", belly:"#5a6166",
+    note:"There are said to be more of these than of anything else with a backbone, and almost nobody has seen one." },
+
+  /* ---- 93-100: THE MOONSTONE FISH. The Moonfin (47) was on its own for
+         a long time; this is the rest of its family. All of them at the
+         glowing pool, all of them at night, all pale as the stone they
+         are named for - and they answer to things the world already does:
+         the moonstone in the ground and in the trees, the moonlit catch,
+         the moon dragon, the aurora. The last two are the scarcest things
+         in the book. ---- */
+  { key:"moonchar",   name:"Moonstone Char",  num:93, when:"night", season:null, pool:true,
+    sizeMin:0.45, sizeMax:1.30,
+    type:"Moonstone",     shape:"glowing",   col:"#a9cfe0", belly:"#eef8fd",
+    note:"The same cold blue as a fresh-cut vein, and it keeps the colour for hours after it is landed." },
+  { key:"veinfish",   name:"Veinfish",        num:94, when:"night", season:null, pool:true,
+    sizeMin:0.25, sizeMax:0.85,
+    type:"Moonstone",     shape:"barred",    col:"#8fb8c8", belly:"#dcecf4",
+    note:"Marked down the flank in pale seams, exactly the way the rock is - the miners argue about which copied which." },
+  { key:"glimmerfin", name:"Glimmerfin",      num:95, when:"night", season:"spring", pool:true,
+    sizeMin:0.18, sizeMax:0.66,
+    type:"Moonstone",     shape:"slim",      col:"#b8d4e2", belly:"#f2fbff",
+    note:"Comes up with the first moonstone of the year, and goes back down when the trees stop glowing." },
+  { key:"shardback",  name:"Shardback",       num:96, when:"night", season:"summer", pool:true,
+    sizeMin:0.35, sizeMax:1.10,
+    type:"Moonstone",     shape:"scaled",    col:"#9cc4d8", belly:"#e4f4fb",
+    note:"Scales that lift like chips of stone, and a handful of them left in the bottom of the creel." },
+  { key:"palelight",  name:"Palelight",       num:97, when:"night", season:"autumn", pool:true,
+    sizeMin:0.22, sizeMax:0.78,
+    type:"Moonstone",     shape:"long",      col:"#a6bcc6", belly:"#e8f2f6",
+    note:"Faint enough that you see it only by what it lights - the weed, the stones, your own hands." },
+  { key:"winterglass",name:"Winterglass",     num:98, when:"night", season:"winter", pool:true,
+    sizeMin:0.30, sizeMax:0.95,
+    type:"Moonstone",     shape:"deep",      col:"#c2d8e4", belly:"#f6fdff",
+    note:"So clear you can read the stones through it, and so cold it frosts the line as it comes up." },
+  { key:"dragonlight",name:"Dragonlight Eel", num:99, when:"night", season:null, pool:true, rare:true,
+    sizeMin:0.90, sizeMax:2.80,
+    type:"Moonstone",     shape:"glowing",   col:"#7fc6e8", belly:"#e0f6ff",
+    note:"Only ever on the nights the moon dragon passes, and it holds the same light the whole length of it." },
+  { key:"oldmoon",    name:"The Old Moon",    num:100,when:"night", season:null, pool:true, rare:true,
+    sizeMin:2.20, sizeMax:6.50,
+    type:"Moonstone",     shape:"scaled",    col:"#cfe2ea", belly:"#ffffff",
+    note:"Round and pale and older than the village, and everyone who has seen it tells it differently." }
 ];
 function fishTypeByKey(key){
   for(const f of FISH_TYPES) if(f.key===key) return f;
   return FISH_TYPES[0];
+}
+
+/* ---------- how big a one it was ----------
+   Landing a fish you have never seen is deliberately slow now (see
+   pickFishSpecies and FAMILIAR_WEIGHT). What has to carry the ordinary
+   run of catches instead is SIZE - so a weight is no longer just a
+   number on the card, it is named.
+
+   Read as a fraction of that species' OWN range, not as an absolute
+   weight: a big gudgeon and a big pike are nothing like each other on
+   the scales, and both should read as "a big one" to whoever landed it.
+   Bands are deliberately uneven - the middle three cover most of the
+   range, so "a specimen" and "a tiddler" stay worth saying. */
+const FISH_SIZE_BANDS = [
+  { at:0.06, label:"a tiddler",   card:"a tiddler" },
+  { at:0.24, label:"a small one", card:"small" },
+  { at:0.55, label:null,          card:null },          // the ordinary run - says nothing
+  { at:0.80, label:"a good one",  card:"a good one" },
+  { at:0.94, label:"a big one",   card:"a big one" },
+  { at:1.01, label:"a specimen",  card:"a specimen" }
+];
+function fishSizeBand(species, size){
+  if(!species) return FISH_SIZE_BANDS[2];
+  const lo = species.sizeMin, hi = species.sizeMax;
+  const span = hi - lo;
+  // a zero-width range would put frac at Infinity/NaN and pick nothing
+  const frac = span > 0 ? (size - lo) / span : 0.5;
+  for(const b of FISH_SIZE_BANDS) if(frac < b.at) return b;
+  return FISH_SIZE_BANDS[FISH_SIZE_BANDS.length-1];
 }
 
 /* ---------- the glowing pool ----------
@@ -18316,21 +18981,38 @@ const FISHGAME_PRECISE_W    = 6;     // the gold sliver's width, fixed, nested i
 const FISH_BASE_FOOD        = 12;    // food from an ordinary (red-zone) catch
 const FISH_SWEET_MULT       = 1.75;
 const FISH_PRECISE_MULT     = 2.5;
-const FISH_RARE_ON_PRECISE  = 0.12;  // chance of the rare fish specifically, precise catches only
-/* How often one of the season's five scarce day fish turns up instead of
+const FISH_RARE_ON_PRECISE  = 0.07;  // chance of the rare fish specifically, precise catches only
+/* How often one of the season's six scarce day fish turns up instead of
    an ordinary one. Deliberately small: the brief was "very low chance, so
-   it might take a couple of seasons to get all the fish", and with five to
-   a season and four seasons there are twenty of them to find. Landing the
-   gold sliver roughly triples the odds, so skill is worth something here
-   beyond the extra food. Measured rather than guessed - see the cadence
-   check in tests/fishing-minigame.js. */
-const FISH_SEASONAL_ON_SWEET   = 0.05;
-const FISH_SEASONAL_ON_PRECISE = 0.16;
+   it might take a couple of seasons to get all the fish", and with six to
+   a season and four seasons there are twenty-four of them to find.
+   Landing the gold sliver roughly triples the odds, so skill is worth
+   something here beyond the extra food. Measured rather than guessed -
+   see the cadence check in tests/fishing-minigame.js.
+
+   CUT BY ROUGHLY HALF from .05/.16, together with the two below and the
+   familiar-weighting in pickFishSpecies. Reported from real play: 14 of
+   55 species in only a few sessions, which made the book a checklist
+   that filled itself rather than something collected over months. The
+   whole catalogue is meant to be the long, slow reward. */
+const FISH_SEASONAL_ON_SWEET   = 0.026;
+const FISH_SEASONAL_ON_PRECISE = 0.085;
 /* How often the pool gives up one of the three deep-water things instead
    of that season's ordinary pool fish. Scarcer than the seasonal pair,
    commoner than the Moonfin - they should be a genuine event without
    being the prize. */
-const FISH_DEEP_AT_POOL = 0.14;
+const FISH_DEEP_AT_POOL = 0.075;
+/* And how often it gives up one of the moonstone fish (93-100) instead.
+   Their own tier, deliberately, because without one they simply joined
+   that season's ordinary pool fish and MOONSTONE STOPPED MEANING
+   ANYTHING: measured straight after they were added, 38.6% of precise
+   pool catches were a moonstone fish, which is not a family of rarities,
+   it is the ordinary catch wearing a nicer coat. Rolled after the deep
+   things and a little commoner than them - they are a family meant to be
+   collected, where the deep three are meant to be strange - and well
+   under the prize either way. Measured after: 17.7% of precise pool
+   catches, against 7.1% deep and 6.4% for the three trophies. */
+const FISH_MOONSTONE_AT_POOL = 0.13;
 /* And the boot. Rare enough to be a surprise every time and never an
    annoyance: about one catch in seventy, anywhere, at any hour. */
 const FISH_BOOT_CHANCE  = 0.014;
@@ -18340,8 +19022,82 @@ const FISH_BOOT_CHANCE  = 0.014;
 const FISH_CREEL_FULL   = 5;
 /* How much likelier a fish you have never landed is than one you already
    have, when a scarce roll comes up. Four is enough to collapse the
-   coupon-collector tail without making the book feel handed to you. */
+   coupon-collector tail without making the book feel handed to you.
+
+   Note this only ever applies to a roll that has ALREADY come up scarce -
+   it fixes the tail (which of the season's six you get) and deliberately
+   does not touch how often a scarce roll happens at all. Slowing the book
+   down is done with the odds above, not by weakening this. */
 const UNSEEN_WEIGHT     = 4;
+/* And the exact opposite, for the thirty commons - who are all in the
+   water all the time, and were picked UNIFORMLY. That is what actually
+   filled the book: thirty kinds, evenly likely, and a player has most of
+   them inside a couple of sessions without trying.
+
+   A real water does not work like that. It has its two or three fish that
+   you catch all day and its handful you see a few times a year, and which
+   is which depends on the water. So each shoal-going common is weighted by
+   how many you have already landed OF THAT KIND - the more you have, the
+   likelier the next one is - which makes a village's own water develop its
+   own character, and makes a common you have never seen a genuine small
+   event rather than the fourth new species this afternoon.
+
+   Capped, or the first fish landed would run away with every roll for the
+   rest of the match. */
+const FAMILIAR_WEIGHT   = 0.8;   // added per previous catch of that kind
+const FAMILIAR_MAX      = 5;     // ...up to this multiple of an unseen one
+
+/* ---------- how abundant each kind actually is ----------
+   The familiar-lean above is not enough on its own, and this was measured
+   rather than assumed: with thirty commons all EQUALLY likely, a player
+   has fourteen distinct kinds inside about twenty catches whatever the
+   lean does, because the lean has no history to work from yet. Which is
+   precisely the reported problem.
+
+   So abundance is real, and written down. A water has three or four fish
+   you catch all day, a dozen you catch now and then, and a handful you
+   see a few times a year - and the last group is what makes the book a
+   long collection instead of a checklist. Multiplied with the familiar
+   lean, so a seldom fish you HAVE landed a few of does become commoner
+   for your village specifically.
+
+   Keyed rather than written into each entry: thirty separate edits to the
+   catalogue is exactly the shape of change that has silently gone wrong
+   here before, and the tiers read better gathered in one place anyway.
+   Anything not listed falls back to ABUND_DEFAULT. */
+/* The RATIO between these is the whole lever, and it was tuned by
+   measurement, not by feel - see the pace check in
+   tests/fishing-minigame.js. At 1 / 0.30 / 0.09 a player still had
+   fourteen distinct kinds inside thirty catches; the gap has to be this
+   wide before the seldom tier reads as genuinely seldom. */
+const ABUND_EVERYDAY = 1.00;
+const ABUND_SOMETIMES = 0.10;
+const ABUND_SELDOM   = 0.022;
+const ABUND_DEFAULT  = ABUND_SOMETIMES;
+const FISH_ABUNDANCE = {
+  /* the everyday fish - the ones a village genuinely lives on. Kept to
+     the plainest, least interesting kinds on purpose: these are the
+     catches whose variety has to come from SIZE, not from being new. */
+  minnow:ABUND_EVERYDAY, roach:ABUND_EVERYDAY, perch:ABUND_EVERYDAY,
+  gudgeon:ABUND_EVERYDAY, dace:ABUND_EVERYDAY, bream:ABUND_EVERYDAY,
+
+  /* now and then */
+  rudd:ABUND_SOMETIMES, trout:ABUND_SOMETIMES, chub:ABUND_SOMETIMES,
+  tench:ABUND_SOMETIMES, ruffe:ABUND_SOMETIMES, loach:ABUND_SOMETIMES,
+  blueroach:ABUND_SOMETIMES, sandgudgeon:ABUND_SOMETIMES,
+  paledace:ABUND_SOMETIMES, silverbream:ABUND_SOMETIMES,
+  rockperch:ABUND_SOMETIMES, goldrudd:ABUND_SOMETIMES,
+
+  /* seldom - the big, the odd and the shy. A few times a year each. */
+  carp:ABUND_SELDOM, eel:ABUND_SELDOM, pike:ABUND_SELDOM,
+  catfish:ABUND_SELDOM, barbel:ABUND_SELDOM, grayling:ABUND_SELDOM,
+  spotchub:ABUND_SELDOM, greatpike:ABUND_SELDOM, silvereel:ABUND_SELDOM,
+  marbarbel:ABUND_SELDOM, darktench:ABUND_SELDOM, mudcat:ABUND_SELDOM
+};
+function fishAbundance(f){
+  const a = FISH_ABUNDANCE[f.key];
+  return (typeof a === "number") ? a : ABUND_DEFAULT;
+}
 /* What a double does to the odds of something out of the ordinary. Kept
    modest on purpose: the double already pays reliably in weight, and a
    big multiplier here would make the rare fish stop being rare the moment
@@ -18704,7 +19460,12 @@ function showFishCard(caught){
      mattering. */
   /* "+0 food" reads as a bug rather than a joke, so the boot says what it
      is actually worth in words. */
-  let meta = f.type + " · <b>" + caught.size.toFixed(2) + " kg</b> · " +
+  /* The weight, and what that weight MEANS for this kind of fish - a
+     0.20kg gudgeon is a monster and a 0.20kg pike is barely worth the
+     walk home, and the number alone tells you neither. */
+  const band = fishSizeBand(f, caught.size);
+  let meta = f.type + " · <b>" + caught.size.toFixed(2) + " kg</b>" +
+             (band.card ? " <i>(" + band.card + ")</i>" : "") + " · " +
              (caught.junk ? "no use to anyone" : "+" + caught.amount + " food");
   /* On its own line rather than run on with a middot. Run on, it wrapped
      wherever the card happened to run out of room and left "kind" sitting
@@ -18883,6 +19644,26 @@ function pickFavouringUnseen(list, p){
   return list[list.length-1];
 }
 
+/* The inverse, for the common run - see FAMILIAR_WEIGHT. A kind you have
+   landed a lot of is likelier than one you have not, so a water settles
+   into having its own usual fish and a new common stays a small event.
+   Never zero for an unseen one: the weight is a lean, not a lock, and
+   every common must stay reachable on any cast. */
+function pickFavouringFamiliar(list, p){
+  if(list.length <= 1) return list[0] || null;
+  const log = (G.players[p] && G.players[p].fishLog) || {};
+  let total = 0;
+  const w = list.map(f => {
+    const seen = (log[f.key] && log[f.key].count) || 0;
+    const lean = Math.min(FAMILIAR_MAX, 1 + seen*FAMILIAR_WEIGHT);
+    const x = fishAbundance(f) * lean;
+    total += x; return x;
+  });
+  let r = Math.random()*total;
+  for(let i=0;i<list.length;i++){ r -= w[i]; if(r <= 0) return list[i]; }
+  return list[list.length-1];
+}
+
 function pickFishSpecies(atPool, tier){
   /* whose book we are filling - the round's own angler, or the player's if
      this is being asked outside a round (the tests do that) */
@@ -18902,26 +19683,40 @@ function pickFishSpecies(atPool, tier){
      this is the "sometimes". */
   const lift = doubleSweet(tier) ? DOUBLE_RARE_LIFT : 1;
   if(atPool){
-    /* Three tiers at the pool, in order of scarcity: the Moonfin is the
-       prize and still takes the precise-only roll it always did; the deep
-       things are a genuine event but not the prize; and that season's own
-       pool fish are the ordinary catch underneath both. */
+    /* FOUR tiers at the pool now, in order of scarcity: the prize takes
+       the precise-only roll it always did (the Moonfin, and since the
+       moonstone family arrived, two more trophies beside it); the deep
+       things are a genuine event but not the prize; the moonstone fish
+       sit just under them; and that season's own pool fish are the
+       ordinary catch beneath all three. */
     const prize = all.filter(f => f.rare);
     const deep  = all.filter(f => f.deep);
-    const plain = all.filter(f => !f.rare && !f.deep);
+    const moon  = all.filter(f => f.type === "Moonstone" && !f.rare && !f.deep);
+    const plain = all.filter(f => !f.rare && !f.deep && f.type !== "Moonstone");
     if(prize.length && tier === "precise" && Math.random() < FISH_RARE_ON_PRECISE*lift)
       return prize[(Math.random()*prize.length)|0];
     if(deep.length && Math.random() < FISH_DEEP_AT_POOL*lift)
       return pickFavouringUnseen(deep, who);
+    /* The moonstone fish, on their own roll rather than mixed in with the
+       ordinary pool catch. Favours the unseen: there are six of them and
+       they are meant to be collected, not farmed. */
+    if(moon.length && Math.random() < FISH_MOONSTONE_AT_POOL*lift)
+      return pickFavouringUnseen(moon, who);
+    /* That season's own four pool fish underneath. Favours the FAMILIAR
+       for the same reason the commons below do - four kinds picked evenly
+       is a set you complete in one season of night fishing. */
     const from = plain.length ? plain : all;
-    return pickFavouringUnseen(from, who);
+    return pickFavouringFamiliar(from, who);
   }
   const scarce = all.filter(f => f.season), common = all.filter(f => !f.season);
   const odds = (tier === "precise" ? FISH_SEASONAL_ON_PRECISE : FISH_SEASONAL_ON_SWEET) * lift;
   if(scarce.length && Math.random() < odds)
     return pickFavouringUnseen(scarce, who);
+  /* The commons. Was `from[(Math.random()*from.length)|0]` - a flat pick
+     across all thirty, which is what actually made the book fill itself
+     (see FAMILIAR_WEIGHT). Now the water has its own usual suspects. */
   const from = common.length ? common : all;
-  return from[(Math.random()*from.length)|0];
+  return pickFavouringFamiliar(from, who);
 }
 
 /* "An Eel", not "A Eel". Fifty-five species and a good handful of them
@@ -18995,7 +19790,13 @@ function catchFish(u, tier){
   if(size > entry.best) entry.best = size;
 
   if(u.p===P_YOU){
-    const label = species.name + (size>=species.sizeMax*0.85 ? " (a big one)" : "");
+    /* Named by how big a one it was, not just flagged past a threshold -
+       the old line only ever said "(a big one)" at 85% of the maximum and
+       said nothing at all the rest of the time, so nine catches in ten
+       read identically. Size is what carries the ordinary run of catches
+       now (see fishSizeBand). */
+    const band  = fishSizeBand(species, size);
+    const label = species.name + (band.label ? " ("+band.label+")" : "");
     /* The book is forty-seven long now, so "first one of these" is a real
        milestone rather than something that happens on every other cast -
        and it is worth putting in the diary. A repeat catch keeps the
@@ -19085,11 +19886,17 @@ function fisherCatchSummary(p){
     ["Night pool",  f => f.when==="night"],
     ["Oddities",    f => f.junk]
   ];
+  /* The "#lo-hi" that used to be quoted here is gone, and deliberately.
+     It only ever made sense while each group was ONE contiguous block of
+     numbers; the second wave (56-75, see FISH_TYPES) gives every group a
+     second block, so "Common (#1-67)" now spans a fifty-number hole and
+     tells the reader something untrue. The Fisherman's House's own book
+     prints the real number on each card, which is the proper lookup and
+     did not exist when this line was written. */
   for(const [label, pick] of groups){
     const of = FISH_TYPES.filter(pick);
     const got = of.filter(f => log[f.key]).length;
-    const lo = Math.min(...of.map(f=>f.num)), hi = Math.max(...of.map(f=>f.num));
-    rows.push(label + " (#" + lo + "-" + hi + "): " + got + "/" + of.length);
+    rows.push(label + ": " + got + "/" + of.length);
   }
   const seen = FISH_TYPES.filter(f => log[f.key]);
   if(seen.length){
@@ -20161,7 +20968,7 @@ function aiNavyYard(my, town){
     if(G.ai.seaUrge >= 2) G.ai.holdExpansion = true;
     if(G.ai.seaUrge >= 3) G.ai.holdArmy = true;
 
-    const need = AGE_COST[pl.age+1];
+    const need = ageCost(pl.age+1);
     let short = null;
     if(ageGated && need){
       // Knowledge is not gathered - it accrues from lodges - so if that is
@@ -21658,6 +22465,7 @@ function draw(){
   }
   // the Kennels' own dogs, trotting about the village (05i)
   for(const d of G.villageDogs||[]){
+    if(d.indoors) continue;            // denned for the night, see updateVillageDogs
     if(d.x<c0x||d.y<c0y||d.x>c1x||d.y>c1y) continue;
     if(!visibleTo(P_YOU,d.x,d.y)) continue;
     /* 27, not 19. The tumbleweed claimed 19 first (see the note by its own
@@ -22055,8 +22863,18 @@ function draw(){
         ctx.globalAlpha = 1;
         continue;
       }
-      if(vis <= 0) continue;          // bees and butterflies stay spring-only
-      ctx.globalAlpha = vis;
+      /* A bug with no name is a bug that does not belong out here at this
+         hour, in this season, in this weather - retagBugs could find
+         nothing of its shape that fits, which is the honest answer for a
+         bee at midnight. Skipping it is what stops daylight insects
+         flying about in the dark, which they always did. */
+      if(!bg.key) continue;
+      /* The bloom fade is a FLOWERING-season rule and belongs to the
+         things that live off flowers. A ladybird walks the grass all year
+         and a thunderstorm beetle only exists while the sky is doing
+         something, so neither of them waits on the blossom. */
+      if(vis <= 0 && !bg.ladybird && !bg.thunder) continue;
+      ctx.globalAlpha = (bg.ladybird || bg.thunder) ? 1 : vis;
       if(bg.hopper){
         // a grass-green speck, with its back legs cocked under it, and a
         // little arc of motion while it is actually in the air
@@ -22069,6 +22887,66 @@ function draw(){
         ctx.moveTo(bg.x-0.6, gy+0.4);
         ctx.lineTo(bg.x-2.0, gy - (air?1.6:0.6));
         ctx.stroke();
+      } else if(bg.ladybird){
+        /* Small, round, and sat ON the grass rather than over it - no
+           shadow gap and no wing blur, because the whole read is "that
+           one is walking". Dome, black head, seam down the back and the
+           spots its own kind is supposed to have. */
+        const r = 1.9;
+        ctx.fillStyle = "rgba(0,0,0,.18)";                 // the ground contact
+        ctx.beginPath(); ctx.ellipse(bg.x, bg.y+0.9, r*1.05, r*0.5, 0, 0, 6.283); ctx.fill();
+        ctx.fillStyle = bg.col || "#c8382f";
+        ctx.beginPath(); ctx.ellipse(bg.x, bg.y, r, r*0.92, bg.a, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = "rgba(28,20,16,.85)"; ctx.lineWidth = 0.4;   // the wing-case seam
+        ctx.beginPath();
+        ctx.moveTo(bg.x - Math.cos(bg.a)*r*0.7, bg.y - Math.sin(bg.a)*r*0.7);
+        ctx.lineTo(bg.x + Math.cos(bg.a)*r*0.9, bg.y + Math.sin(bg.a)*r*0.9);
+        ctx.stroke();
+        ctx.fillStyle = "#241c18";                          // head, out in front
+        ctx.beginPath();
+        ctx.ellipse(bg.x - Math.cos(bg.a)*r*0.85, bg.y - Math.sin(bg.a)*r*0.85,
+                    r*0.5, r*0.42, bg.a, 0, 6.283); ctx.fill();
+        for(const [ox,oy] of [[0.42,0.5],[-0.42,0.5],[0.5,-0.15],[-0.5,-0.15]]){
+          const px = bg.x + (Math.cos(bg.a)*oy - Math.sin(bg.a)*ox)*r;
+          const py = bg.y + (Math.sin(bg.a)*oy + Math.cos(bg.a)*ox)*r;
+          ctx.beginPath(); ctx.ellipse(px, py, 0.36, 0.32, 0, 0, 6.283); ctx.fill();
+        }
+      } else if(bg.thunder){
+        /* Not a glow - a SPARK. A firefly is on nearly all the time and
+           breathes; this is off, off, off, then a hard white crack and
+           gone again, which is the difference between something lit and
+           something electrical. Mostly dark, so the flash is the event.
+
+           The phase is per-bug so a group of them never crackles in
+           time, which would read as one flashing object rather than
+           several separate creatures. (feedback_organic_particles) */
+        const ph = ((G.t*0.62 + bg.seed*1.7) % 1);
+        const crack = ph < 0.035 ? 1 : (ph < 0.075 ? 0.30 : 0);
+        ctx.fillStyle = "#39414d";                          // the dull slate body
+        ctx.beginPath(); ctx.ellipse(bg.x, bg.y, 2.1, 1.5, bg.a, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = "rgba(20,24,30,.9)"; ctx.lineWidth = 0.4;
+        ctx.beginPath();
+        ctx.moveTo(bg.x - Math.cos(bg.a)*1.4, bg.y - Math.sin(bg.a)*1.4);
+        ctx.lineTo(bg.x + Math.cos(bg.a)*1.7, bg.y + Math.sin(bg.a)*1.7);
+        ctx.stroke();
+        if(crack > 0){
+          /* Kept tight. At 6.2 units and a third alpha the halo read as a
+             pale bubble sitting around the beetle rather than as light
+             coming off it - a spark is small and hard, and the glow is
+             only there to say the flash is lighting the grass. */
+          ctx.globalAlpha = 0.26*crack;                     // the flash it throws
+          ctx.fillStyle = "#bcdcff";
+          ctx.beginPath(); ctx.arc(bg.x, bg.y, 4.3, 0, 6.283); ctx.fill();
+          ctx.globalAlpha = crack;
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath(); ctx.ellipse(bg.x, bg.y, 1.5, 1.1, bg.a, 0, 6.283); ctx.fill();
+          ctx.strokeStyle = "#e8f4ff"; ctx.lineWidth = 0.5;  // a short jagged tick
+          ctx.beginPath();
+          ctx.moveTo(bg.x-1.6, bg.y-1.4); ctx.lineTo(bg.x-0.4, bg.y-0.3);
+          ctx.lineTo(bg.x-1.0, bg.y+0.1); ctx.lineTo(bg.x+0.6, bg.y+1.5);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
       } else if(bg.bee){
         const buzz = Math.sin(G.t*30+bg.seed)*0.7;
         ctx.fillStyle = "#3a2f1e";
@@ -22816,6 +23694,32 @@ function draw(){
         const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
         glowGradient(g, 0.92*lit, 0.16, 2.3, "0,0,0");
         nx.fillStyle = g;
+        nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
+        nx.restore();
+      }
+      /* AND THE TRADE FINDS, for exactly the reason written above them. It
+         is the one thing in the game the player is TOLD to go out into the
+         dark and look for - the clue says as much - and drawn with the
+         world it was all but invisible on a full-dark frame: measured, the
+         bundle lifted the ground it sat on by a couple of luminance points
+         and the glow by nothing worth the name. A warm pool, a shade wider
+         than a moonpetal's because you are hunting it without knowing
+         where, and still well under a brazier. (TRADE_FINDS, 05g) */
+      for(const n of G.nodes){
+        if(n.kind !== "tradefind") continue;
+        if(!exploredTo(P_YOU, n.x, n.y)) continue;
+        const pulse = 0.88 + 0.12*Math.sin(G.t*1.5 + (n.seed||0));
+        const rad = BRAZIER_RADIUS * 0.60 * pulse;
+        const sp = w2s(n.x, n.y - 3);
+        const rx = rad * c.z, ry = rad * 0.70 * c.z;
+        if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
+        lamps.push({x:sp.x, y:sp.y, rx, ry, col:"236,214,150"});
+        nx.save();
+        nx.translate(sp.x, sp.y);
+        nx.scale(1, ry/rx);
+        const g2 = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
+        glowGradient(g2, 0.92*lit, 0.16, 2.3, "0,0,0");
+        nx.fillStyle = g2;
         nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
         nx.restore();
       }
@@ -24130,6 +25034,7 @@ function drawNode(n){
   if(n.kind==="millwheel"){ drawMillWheelNode(n); return; }
   if(n.kind==="wolfpup"){ drawWolfPupNode(n); return; }
   if(n.kind==="standingstone"){ drawStandingStoneNode(n); return; }
+  if(n.kind==="tradefind"){ drawTradeFindNode(n); return; }
   /* The canopy's own idle sway, plus whatever the gust crossing the map is
      doing to this particular tree - which is what makes a wood lean in a wave
      rather than all at once. (see gustAt, 05-wildlife) */
@@ -27962,6 +28867,67 @@ function drawTradeDetail(b, x, y, w, dep, H){
   }
 
 
+  if(d.bughouse){
+    /* The house had NOTHING on it - a plain gable with a green roof, sat
+       next to a Fisherman's House with a boat bay, netting and an anchor.
+       Same 1x1 plot, so this is all drawing: a shelf of jars against the
+       front wall, and the net stood up beside the door.
+
+       Unlike the boathouse this does NOT replace the ordinary front, it
+       adds to it. A bug catcher lives in a cottage; what makes it theirs
+       is the clutter, not the architecture.
+
+       `y` is the BACK edge (see the note above), so everything here hangs
+       off base = y + dep and rises by H, which is the raw hgt (8) and far
+       smaller than the footprint width. */
+    const wallTop = base - H;
+
+    // ---- the shelf of jars, against the wall to the left of the door ----
+    const sx = cx - w*0.34, sy = base - H*0.46, sw = w*0.30;
+    ctx.fillStyle = "#6b5a3c";                       // the board they stand on
+    ctx.fillRect(sx, sy, sw, 0.7);
+    ctx.fillStyle = "rgba(20,16,12,.35)";            // and its shadow on the wall
+    ctx.fillRect(sx, sy+0.7, sw, 0.5);
+    /* Three jars, different heights. Glass is drawn as a pale fill at low
+       alpha with a hard bright edge down one side - the edge is what makes
+       it read as glass rather than as a pale block, and the dark outline
+       is not optional: a near-white prop with no outline disappears the
+       moment there is snow on the ground behind it, which has caught this
+       project four times. (feedback_pale_prop_contrast) */
+    const jars = [[0.16, 3.0], [0.50, 3.9], [0.83, 2.6]];
+    for(const [f, jh] of jars){
+      const jx = sx + sw*f, jw = 1.5;
+      ctx.fillStyle = "rgba(196,224,232,.34)";
+      ctx.fillRect(jx-jw/2, sy-jh, jw, jh);
+      ctx.strokeStyle = "rgba(18,22,20,.75)"; ctx.lineWidth = 0.35;
+      ctx.strokeRect(jx-jw/2, sy-jh, jw, jh);
+      ctx.fillStyle = "rgba(236,250,252,.75)";       // the lit edge
+      ctx.fillRect(jx-jw/2+0.2, sy-jh+0.3, 0.35, jh-0.6);
+      ctx.fillStyle = "#8a6a3c";                     // a cork or a tied cloth
+      ctx.fillRect(jx-jw/2-0.15, sy-jh-0.5, jw+0.3, 0.6);
+      ctx.fillStyle = "rgba(60,50,30,.55)";          // and something in it
+      ctx.beginPath(); ctx.ellipse(jx, sy-0.9, 0.45, 0.35, 0, 0, 6.283); ctx.fill();
+    }
+
+    // ---- the net, stood against the wall on the other side of the door ----
+    const nx = cx + w*0.30, nb = base - 0.4, nt = wallTop + H*0.10;
+    ctx.strokeStyle = "#9a7c4e"; ctx.lineWidth = 0.62;   // the cane handle
+    ctx.beginPath(); ctx.moveTo(nx, nb); ctx.lineTo(nx - w*0.055, nt); ctx.stroke();
+    const hx = nx - w*0.055, hy = nt, hr = Math.min(w*0.085, 2.5);
+    ctx.fillStyle = "rgba(238,244,236,.30)";             // the gauze bag
+    ctx.beginPath();
+    ctx.moveTo(hx-hr, hy);
+    ctx.quadraticCurveTo(hx, hy + hr*2.4, hx+hr, hy);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "rgba(20,26,20,.70)"; ctx.lineWidth = 0.3;
+    ctx.stroke();
+    ctx.strokeStyle = "#d8d2bc"; ctx.lineWidth = 0.5;    // the hoop itself
+    ctx.beginPath(); ctx.ellipse(hx, hy, hr, hr*0.36, 0, 0, 6.283); ctx.stroke();
+    ctx.strokeStyle = "rgba(20,26,20,.6)"; ctx.lineWidth = 0.22;
+    ctx.beginPath(); ctx.ellipse(hx, hy, hr, hr*0.36, 0, 0, 6.283); ctx.stroke();
+    return;
+  }
+
   if(d.fisherhouse){
     /* THE BOATHOUSE, chosen from three. It stands on the same 1x1 plot as
        an ordinary House - all of this is drawing, not footprint - and what
@@ -28265,6 +29231,10 @@ const NIGHTWEAR_CLOTH = "#9195bd";
    outranks job cloth in the chain below rather than only applying while
    actually fishing. */
 const FISHERMAN_CLOTH = "#8a8560";
+/* The bug catcher's own coat. Deliberately NOT the fisherman's khaki -
+   the two of them stand in the same village and must not read as the same
+   person in different hats. A soft moss green, and the glass does the rest. */
+const BUGCATCHER_CLOTH = "#6a7a52";
 
 /* ---------- a little person ----------
    Chunky proportions in the spirit of The Settlers: a big round head, a short
@@ -28424,6 +29394,7 @@ function drawPerson(u, pl, yOff){
      in hand - no new hook needed. */
   if(job) u.lastJob = job;
   const baseCloth = u.nightWear ? NIGHTWEAR_CLOTH
+    : u.bugCatcher ? BUGCATCHER_CLOTH
     : u.fisherman ? FISHERMAN_CLOTH
     : u.cloth || (job==="wood" ? FLANNEL : null) || TINT[u.type] || pl.col;
   /* The baker's whites are the one outfit whose whole job is to be
@@ -29058,6 +30029,27 @@ function drawPerson(u, pl, yOff){
     ctx.fillStyle = "#eee9f4";
     ctx.beginPath(); ctx.arc(headR*0.98, headY-headR*1.18, headR*0.20, 0, 6.283); ctx.fill();
   } else if(u.fisherman){
+  /* ---------- the bug catcher: a glass, and a cap with a net brim ----------
+     Their tool, and the thing that says at a glance which of the two
+     collectors this is. The glass is held up rather than carried at the
+     side: somebody who spends their life looking closely at small things
+     holds it where they are looking. Drawn before the head so the hand and
+     the rim sit in front of the face rather than behind it. */
+  if(u.bugCatcher && !u.indoors){
+    const gx = tw*0.95, gy = shldY + H*0.02;
+    ctx.strokeStyle = "#4a4030"; ctx.lineWidth = Math.max(1.1, H*0.045);
+    ctx.beginPath(); ctx.moveTo(tw*0.55, shldY+H*0.18); ctx.lineTo(gx, gy); ctx.stroke();
+    // the lens: a ring, and a pale disc you can see the ground through
+    ctx.fillStyle = "rgba(214,232,240,.45)";
+    ctx.beginPath(); ctx.arc(gx, gy-H*0.055, H*0.085, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "#6a5a3a"; ctx.lineWidth = Math.max(1, H*0.032);
+    ctx.beginPath(); ctx.arc(gx, gy-H*0.055, H*0.085, 0, 6.283); ctx.stroke();
+    // and a glint, so it reads as glass rather than a hole
+    ctx.strokeStyle = "rgba(255,255,255,.75)"; ctx.lineWidth = Math.max(0.7, H*0.018);
+    ctx.beginPath();
+    ctx.arc(gx, gy-H*0.055, H*0.055, Math.PI*1.05, Math.PI*1.45); ctx.stroke();
+  }
+
     /* A wide, floppy bucket hat rather than the farm's own straw brim - the
        one piece of the outfit that can't read as "the same clothes,
        recoloured" - with a couple of flies pinned to the band, the way
@@ -46979,6 +47971,35 @@ function drawWolfPupNode(n){
   ctx.beginPath(); ctx.moveTo(n.x-5, n.y-1);
   ctx.lineTo(n.x-8.5, n.y-4 + Math.sin(G.t*9+n.seed)*2.5); ctx.stroke();
 }
+/* Something in the trees worth walking out to. Deliberately NOT six
+   different props: the hint that announces it says only "something", so
+   the node must not give the answer away from across the map - WHICH trade
+   it turns out to be is the thing you learn by fetching it. A pale glow of
+   the same family as the moonstone pool's, because after dark is the only
+   time it is ever out. */
+function drawTradeFindNode(n){
+  const t = (G.t||0) + (n.seed||0);
+  const pulse = 0.72 + 0.28*Math.sin(t*1.6);
+  ctx.save();
+  const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 22);
+  g.addColorStop(0, "rgba(236,214,150,"+(0.30*pulse).toFixed(3)+")");
+  g.addColorStop(1, "rgba(236,214,150,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, 6.283); ctx.fill();
+  // a bundle on the ground, tied - whatever it is, it is wrapped
+  ctx.fillStyle = "#6b5a3e";
+  ctx.beginPath(); ctx.ellipse(n.x, n.y+1, 6.5, 4.6, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#8a7550";
+  ctx.beginPath(); ctx.ellipse(n.x-0.8, n.y-0.8, 5.2, 3.6, 0, 0, 6.283); ctx.fill();
+  ctx.strokeStyle = "rgba(58,46,30,.75)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(n.x-5, n.y-0.4); ctx.lineTo(n.x+5, n.y-0.4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(n.x, n.y-4); ctx.lineTo(n.x, n.y+3.4); ctx.stroke();
+  // one spark above it, so the eye catches it among trees
+  ctx.fillStyle = "rgba(248,236,196,"+(0.55*pulse).toFixed(3)+")";
+  ctx.beginPath(); ctx.arc(n.x+1.5, n.y-9 - Math.sin(t*1.1)*1.5, 1.5, 0, 6.283); ctx.fill();
+  ctx.restore();
+}
+
 function drawStandingStoneNode(n){
   ctx.fillStyle = "rgba(0,0,0,.24)";
   ctx.beginPath(); ctx.ellipse(n.x+2, n.y+5, 9, 3.4, 0, 0, 6.283); ctx.fill();
@@ -47045,6 +48066,266 @@ function drawDiscoveryBuilding(b, x, y, w, dep, H){
     ctx.fillStyle = "rgba(140,158,110,.40)";
     ctx.beginPath(); ctx.ellipse(x + w*0.30, y - H*0.52, w*0.10, H*0.14, 0.3, 0, 6.283); ctx.fill();
   }
+}
+
+/* ============================================================
+   WHAT IS OUT IN THE WOODS: the trades, one a season
+   ============================================================
+   Asked for: a specialist should be behind an errand somebody actually
+   ran, not just behind having enough wood. "Locked behind effort, not
+   just time and resources."
+
+   So each season the woods offer ONE of them - which one is random among
+   the trades not yet learned - and it sits out there until somebody is
+   sent to fetch it. Bring it home and that trade's building can be built
+   from then on. Six trades, one a season, so a village has them all
+   somewhere north of a year and a half, and never in the same order twice.
+
+   THE FISHERMAN IS NOT HERE ON PURPOSE. His way in - take up the rod,
+   land five, build the house - is already exactly this shape and was
+   asked to be left alone.
+
+   Where: at night, in the trees, and near where the village began rather
+   than out at the map edge. It should read as the corner of your own
+   woods, something you could have walked past a dozen times.
+
+   The pickup, the "you found something" line and the unlock all reuse the
+   wolf pup's machinery (takeWolfPup and the walk-to-it branch in 03c),
+   because that is the same errand with a different prize at the end. */
+const TRADE_FINDS = [
+  { key:"bakery",    flag:"tradeBakery",    bldg:"bakery",
+    clue:"The smell of warm bread is drifting out of the trees tonight, and nobody in this village is baking.",
+    item:"a sheaf of wild grain",
+    found:"Wild grain, growing thick where nobody sowed it.",
+    home:"They know what to do with that. They can raise a Bakery now, and it will be theirs to keep." },
+  { key:"gardener",  flag:"tradeGardener",  bldg:"gardener",
+    clue:"Something is flowering out in the dark, well past the last field anybody planted.",
+    item:"a bundle of cuttings",
+    found:"Cuttings, taken from something old and well-kept that has no business being out here.",
+    home:"They can raise a Gardener's Cottage now, and it will be theirs to keep." },
+  { key:"geologist", flag:"tradeGeologist", bldg:"geologist",
+    clue:"There is a glitter in the treeline tonight that is not frost, and it does not move with the wind.",
+    item:"an odd heavy stone",
+    found:"A stone far heavier than it looks, with a seam of something bright through it.",
+    home:"They mean to understand it properly. They can raise a Geologist's Cottage now, and it will be theirs to keep." },
+  { key:"herbalist", flag:"tradeHerbalist", bldg:"herbalist",
+    clue:"The air coming off the woods is sharp and green tonight, like a room somebody has just been crushing herbs in.",
+    item:"a moonlit mushroom",
+    found:"A mushroom growing alone in the dark, pale as a knuckle and faintly lit.",
+    home:"They can raise a Herbalist's Hut now, and it will be theirs to keep." },
+  { key:"caretaker", flag:"tradeCaretaker", bldg:"caretaker",
+    clue:"A hammer is going somewhere in the trees, slow and patient - and every hammer in the village is accounted for.",
+    item:"an old tool with a maker's mark",
+    found:"An old tool, mended and mended again, with somebody's mark still on the haft.",
+    home:"They can raise a Caretaker's Cottage now, and it will be theirs to keep." },
+  /* THE MAGNIFYING GLASS. The odd one out in this list and deliberately so:
+     every other find here unlocks a BUILDING and spends the villager who
+     raised it. This one makes them the bug catcher - a job they keep
+     while staying entirely yours to order about, the way the fisherman is.
+     `catcher:true` is what tells deliverSpecialistFind to mark the person
+     rather than open a build menu. (markBugCatcher, 05k) */
+  { key:"bugcatcher", flag:"tradeBugCatcher", bldg:null, catcher:true,
+    /* The noise first, the glint second. Every other clue in here names a
+       SMELL or a SOUND the village notices before it sees anything - warm
+       bread, a hammer going - and this one opened on the glint, which is
+       the find rather than the sign of it. The glint has to stay in the
+       line, though: it is the only thing telling the player there is
+       something to walk to. */
+    clue:"The trees are loud tonight - chirring, ticking, a hundred small voices going at once where there should be none - and something down in the leaf litter catches the light when you move.",
+    item:"a magnifying glass",
+    found:"A glass on a brass handle, lying in the leaf litter as though somebody set it down a hundred years ago.",
+    home:"They have not stopped looking through it since." },
+  { key:"beehive",   flag:"tradeBeehive",   bldg:"beehive",
+    clue:"The woods are humming after dark, low and steady, and much too loud for the season.",
+    item:"a wild comb",
+    found:"A comb the size of a shield, up in a split trunk, and the bees oddly untroubled about it.",
+    home:"They can raise a Beehive now, and it will be theirs to keep." }
+];
+const TRADE_FINDS_PER_SEASON = 2;
+
+function tradeFindByKey(key){
+  for(const t of TRADE_FINDS) if(t.key===key) return t;
+  return null;
+}
+/* Which trades are still to be learned. Also the answer to "are we done" -
+   once this is empty the season stops offering anything. */
+function tradesUnlearned(){
+  return TRADE_FINDS.filter(t => {
+    /* The glass is not "learned" the way a trade is - it is HELD. Lose the
+       collector and the woods offer another, because the promise on that
+       post is one at a time, not one ever (livingBugCatcher, 05k). A trade,
+       by contrast, stays known: the village does not forget how to bake
+       because the baker died, it just needs somebody to do it. */
+    if(t.catcher) return !(typeof livingBugCatcher === "function" && livingBugCatcher(P_YOU));
+    return !G.disc[t.flag];
+  });
+}
+
+/* The day in this season it is due. Chosen once per season and rolled
+   fresh when the season turns, exactly as the campfire's is - and the
+   same reason: a fixed day would put it on the same date every year. */
+function tradeDaysThisSeason(){
+  const sn = G.seasonNo || 0;
+  if(G.tradeSeasonNo !== sn){
+    G.tradeSeasonNo = sn;
+    const start = sn * SEASON_DAYS;
+    /* TWO a season, on two different days, both rolled fresh when the
+       season turns. Kept apart by at least a day so they are two events
+       rather than one evening with a lot happening in it. */
+    const a = start + 1 + Math.floor(Math.random()*(SEASON_DAYS-3));
+    let b = start + 1 + Math.floor(Math.random()*(SEASON_DAYS-3));
+    if(Math.abs(b-a) < 2) b = a + 2;
+    G.tradeDays = [Math.min(a,b), Math.max(a,b)];
+    G.tradeTaken = 0;
+  }
+  return G.tradeDays || [];
+}
+
+/* Near where the village began, in the trees. Deliberately NOT the whole
+   map: the ask was "the corner of where the village starts", so it walks
+   out from the town centre and takes the first wooded spot far enough to
+   be a trip and close enough to be yours. */
+const TRADE_FIND_MIN = 6, TRADE_FIND_MAX = 15;   // in tiles, from the hall
+function pickTradeFindSpot(){
+  const hall = G.bldgs.find(b=>b.p===P_YOU && b.type==="town");
+  if(!hall) return null;
+  for(let tries=0; tries<220; tries++){
+    const a = Math.random()*6.283;
+    const r = (TRADE_FIND_MIN + Math.random()*(TRADE_FIND_MAX-TRADE_FIND_MIN))*TILE;
+    const x = hall.x + Math.cos(a)*r, y = hall.y + Math.sin(a)*r;
+    if(x<TILE || y<TILE || x>MAPW*TILE-TILE || y>MAPH*TILE-TILE) continue;
+    if(isWater(x,y) || blocked(x,y,null,false)) continue;
+    if(!nearAnyTree(x,y)) continue;                 // in the woods, as asked
+    // not on top of something else worth walking to
+    if(G.nodes.some(n=>Math.hypot(n.x-x,n.y-y) < TILE*1.5)) continue;
+    return { x, y };
+  }
+  return null;
+}
+
+function trySpecialistFind(){
+  if(G.nodes.some(n=>n.kind==="tradefind")) return false;   // one out at a time
+  /* Not while the village is still a camp. The Wandering Age builds only
+     what it lives on - its menu is four things and a locked door - so a
+     trade found then could not be raised for however long the opening
+     lasts, and the clue would be a promise the game could not keep. A
+     trade belongs to a village that has settled. (WANDERING_AGE) */
+  if(!G.players[P_YOU] || !G.players[P_YOU].stoneAge) return false;
+  const left = tradesUnlearned();
+  if(!left.length) return false;                            // every trade learned
+  const days = tradeDaysThisSeason();
+  if((G.tradeTaken||0) >= TRADE_FINDS_PER_SEASON) return false;
+  // how many of this season's days have come and gone
+  const dueNow = days.filter(d => (G.dayNo||0) >= d).length;
+  if(dueNow <= (G.tradeTaken||0)) return false;             // next one is not due yet
+  if((G.dark||0) < 0.4) return false;                       // in the darkness of the forest
+  const spot = pickTradeFindSpot();
+  if(!spot) return false;                                   // no woods tonight - try tomorrow
+  const pick = left[(Math.random()*left.length)|0];
+  G.tradeTaken = (G.tradeTaken||0) + 1;
+  G.nodes.push({ id:G.nextId++, isNode:true, kind:"tradefind", trade:pick.key,
+                 x:spot.x, y:spot.y, amt:1, max:1, r:8, seed:Math.random()*6.283 });
+  /* A CLUE, not an announcement. It never names the trade, but it tells
+     you enough to guess - bread on the air, a hammer with nobody holding
+     it, the woods humming out of season. Going to look is the point, and
+     a line you can read is a better reason to go than a marker is. */
+  tellAndNote(pick.clue + " Worth sending somebody out before it is gone.", "good");
+  return true;
+}
+
+/* PICKED UP, not yet brought home. The ask was that a villager finds the
+   thing, gathers it, and carries it BACK TO TOWN - so lifting it is only
+   half the errand. What they are carrying rides on the villager, and the
+   trade is not learned until they reach the hall. Drop dead on the way and
+   it is lost with them, which is the risk that makes the walk mean
+   something. */
+function takeSpecialistFind(u, n){
+  const t = tradeFindByKey(n.trade);
+  if(!t || !u) return false;
+  u.carryTrade = n.trade;
+  if(u.p===P_YOU){
+    tellAndNote(t.found + " " + (u.nightName || "Somebody") +
+                " is carrying it back to the hall.", "good");
+  }
+  return true;
+}
+
+/* And home. Called from the unit tick when a villager carrying one reaches
+   the town centre. THIS is the moment the trade is learned, and the moment
+   this particular villager becomes the one who may raise its building. */
+function deliverSpecialistFind(u){
+  const t = tradeFindByKey(u.carryTrade);
+  u.carryTrade = null;
+  if(!t) return false;
+  G.disc[t.flag] = true;
+  /* The glass makes a PERSON, not a building. Everything else in this list
+     unlocks something to raise; this one is picked up and never put down.
+     (markBugCatcher, 05k) */
+  if(t.catcher){
+    if(typeof markBugCatcher === "function") markBugCatcher(u);
+    if(u.p===P_YOU){
+      tellAndNote((u.nightName || "Somebody") + " brings " + t.item + " back to the hall. " +
+                  t.home, "good");
+      refreshUI();
+    }
+    return true;
+  }
+  /* Whose errand it was. The build button is theirs alone (refreshUI, 07),
+     the same way the Fisherman's House belongs to the fisherman. */
+  u.tradeFound = t.key;
+  if(u.p===P_YOU){
+    tellAndNote((u.nightName || "Somebody") + " brings " + t.item + " back to the hall. " +
+                t.home, "good");
+    refreshUI();
+  }
+  return true;
+}
+
+/* Is this villager the one who may raise this trade's building, and is
+   there still room for it? One of each, ever - a second Bakery is not a
+   thing the village can want. */
+function mayBuildTrade(u, type){
+  if(!u || !u.tradeFound) return false;
+  const t = tradeFindByKey(u.tradeFound);
+  if(!t || t.bldg !== type) return false;
+  if(G.bldgs.some(b => b.p===u.p && b.type===type)) return false;   // already have one
+  return true;
+}
+
+/* THE PROMOTION. A villager is spent to make a specialist: they leave the
+   roll entirely and the cottage has its worker from then on. "Dedicated -
+   you lose control of that villager" was the ask, and this is the whole of
+   it, because the trades have never been units in the first place.
+
+   THE FOUNDER IS NEVER ELIGIBLE. They may find the thing and they may put
+   the building up - both were asked for - but the job goes to somebody
+   else, garrisoned in afterwards. */
+function promoteToTrade(u, b){
+  if(!u || !b || u.firstVillager) return false;
+  const d = BLDG[b.type];
+  if(!d) return false;
+  const kind = d.bakery ? "baker" : d.gardener ? "gardener" : d.geologist ? "geologist"
+             : d.herbalist ? "herbalist" : d.caretaker ? "caretaker"
+             : d.beehive ? "beekeeper" : null;
+  if(!kind) return false;
+  if(b.tradeStaffed) return false;                 // one to a building, ever
+  b.tradeStaffed = true;
+  /* Somebody, not "a villager". Taking up a trade for life is exactly the
+     sort of thing that earns a name, and the pool is shared with every
+     other way of getting one (pickFreshName, 05b) so it will not be a name
+     already in use. */
+  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName();
+  b.tradeName = u.nightName || null;               // who it was, for the line
+  // spent: out of the roll, out of your hands
+  G.units = G.units.filter(x => x !== u);
+  G.sel = G.sel.filter(x => x !== u);
+  if(typeof recalcPop === "function"){ recalcPop(P_YOU); recalcPop(P_AI); }
+  if(u.p===P_YOU){
+    tellAndNote((u.nightName || "Somebody") + " takes up the trade for good. " +
+                "The " + d.name + " has its own hands now, and the village is one pair short.", "good");
+    refreshUI();
+  }
+  return true;
 }
 
 /* ---------- the village's deeds ----------
@@ -47329,6 +48610,19 @@ const DOG_BOW_TIME      = 3.0;
 const DOG_JUMP_TIME     = 0.55;
 const DOG_JUMP_HEIGHT   = 12;
 
+/* Night denning. The dogs go back to their own kennel once it's dark and
+   stay there, out of sight (d.indoors, same idea as the baker ducking
+   inside for a spell) - UNLESS something calls them back out:
+     - an ordinary hostile beast (a bear, a wolf, whatever the season
+       brings) closing in on their own side, in which case the whole pack
+       comes out and barks it off; or
+     - Gumby or Floyd passing near their kennel, in which case they come
+       out to say hello instead, not to fight anything.
+   (idea_dogs_kennel_at_night) */
+const DOG_ALERT_R       = 260;   // how far from its own kennel a dog notices either one
+const DOG_BARK_SCARE_T  = 3.0;   // how long the pack has to keep barking before the beast turns tail
+const DOG_BARK_EVERY    = [0.7, 1.3];
+
 /* Four coats. One body, recoloured - the breed is the same dog throughout,
    which is the point: they read as the village's dogs rather than as four
    unrelated animals. Deliberately none of them black, because black is
@@ -47408,7 +48702,9 @@ function makeVillageDog(home, i){
     ball: DOG_BALL_COLS[(Math.random()*DOG_BALL_COLS.length)|0],
     /* No ball to begin with. One turns up on its own clock. */
     hasBall: false, ballAt: null,
-    ballCd: DAY_LEN * (DOG_BALL_FIRST[0] + Math.random()*(DOG_BALL_FIRST[1]-DOG_BALL_FIRST[0]))
+    ballCd: DAY_LEN * (DOG_BALL_FIRST[0] + Math.random()*(DOG_BALL_FIRST[1]-DOG_BALL_FIRST[0])),
+    // night denning - see DOG_ALERT_R above
+    indoors: false, barkAt: null, barkT: 0, barkCd: 0, greetTok: null, say: null, sayT: 0
   };
 }
 
@@ -47458,6 +48754,46 @@ function dogFindFriend(d){
   return best;
 }
 
+/* An ordinary hostile beast (a bear, a wolf, whatever the season brings -
+   never the mandatory first-night visitor, never a harmless wraith or
+   zombie, never the Elderbear) close enough to this dog's own kennel that
+   it counts as the village actually being under attack, rather than
+   something merely out there in the dark somewhere. */
+function dogHomeThreat(d){
+  for(const b of G.beasts||[]){
+    if(b.hp<=0 || b.fleeing || b.firstNight) continue;
+    const B = BEASTS[b.kind];
+    if(!B || B.harmless || !B.seasons) continue;     // ordinary wildlife only
+    /* Proximity to the kennel, not b.target - a beast has no side of its own
+       (it is marked p:P_AI purely so "Attack" can target it) and its own
+       target field is only assigned lazily by updateBeasts, which runs
+       later in the tick than this does. Waiting on it would mean a beast
+       that spawned this very tick is invisible to the dogs for a whole
+       tick, which is exactly long enough to lose a race with the Gumby/
+       Floyd greeting check below - proven live, not imagined. */
+    if(Math.hypot(b.x-d.home.x, b.y-d.home.y) < DOG_ALERT_R) return b;
+  }
+  return null;
+}
+
+/* Gumby or Floyd, passing near enough to this dog's own kennel to be worth
+   coming out for. Player's own side only - the little dogs are always
+   found near the player's town, never the Ashkin's. */
+function dogVisitingSmallDog(d){
+  if(d.p !== P_YOU) return null;
+  for(const g of [G.gumby, G.floyd]){
+    if(!g) continue;
+    if(Math.hypot(g.x-d.home.x, g.y-d.home.y) < DOG_ALERT_R) return g;
+  }
+  return null;
+}
+
+// just outside the kennel door - the same spot a dog is first placed at
+function dogKennelSpot(d){
+  return { x: d.home.x + (Math.random()-0.5)*20,
+           y: d.home.y + d.home.h*TILE/2 + 8 + (Math.random()-0.5)*10 };
+}
+
 function updateVillageDogs(dt){
   if(!G.villageDogs) G.villageDogs = [];
 
@@ -47505,6 +48841,7 @@ function updateVillageDogs(dt){
   for(const d of G.villageDogs){
     d.stateT -= dt;
     d.tail = Math.max(0, d.tail - dt);
+    if(d.say){ d.sayT -= dt; if(d.sayT<=0) d.say=null; }
 
     /* The ball's own clock. It only runs while the dog has not got one and
        is not in the middle of a game with one, so a long game does not eat
@@ -47536,6 +48873,119 @@ function updateVillageDogs(dt){
       if(!G.nightcap){ d.state="idle"; d.stateT=0.5+Math.random()*1.5; d.atHearth=false; }
       continue;
     }
+
+    /* Walking home to the kennel for the night. */
+    if(d.state === "tokennel"){
+      d.moving = true;
+      if(dogWalk(d, dt, DOG_TROT) || d.stateT<=0){
+        d.state = "denned"; d.indoors = true; d.moving = false; d.stateT = 1+Math.random()*2;
+      }
+      continue;
+    }
+
+    /* Denned for the night - out of sight, doing nothing - unless
+       something calls the pack back out. Checked every tick, not just at
+       the idle decision point, so the dogs notice a beast or a passing
+       Gumby/Floyd the moment it happens rather than on their own clock. */
+    if(d.state === "denned"){
+      d.moving = false;
+      if(G.phase !== "night" && G.phase !== "dusk"){
+        d.indoors = false; d.state = "idle"; d.stateT = 0.5+Math.random()*2;
+        continue;
+      }
+      const threat = dogHomeThreat(d);
+      if(threat){
+        d.indoors = false; d.state = "toalert"; d.dest = dogKennelSpot(d);
+        d.barkAt = threat; d.stateT = 20;
+        continue;
+      }
+      const visitor = dogVisitingSmallDog(d);
+      if(visitor){
+        d.indoors = false; d.state = "togreet"; d.greetTok = dogToken(visitor); d.stateT = 25;
+        continue;
+      }
+      continue;
+    }
+
+    /* Hurrying out to bark at whatever's closing in. */
+    if(d.state === "toalert"){
+      const threat = d.barkAt;
+      if(!threat || threat.hp<=0 || threat.fleeing){
+        d.state="tokennel"; d.dest=dogKennelSpot(d); d.stateT=20; d.barkAt=null; d.moving=false;
+        continue;
+      }
+      d.moving = true;
+      if(dogWalk(d, dt, DOG_RUN) || d.stateT<=0){
+        d.state = "bark"; d.barkT = 0; d.barkCd = 0; d.moving = false;
+      }
+      continue;
+    }
+
+    /* Barking the threat off - the whole pack's noise is what does it, not
+       just this one dog, so once any dog has kept it up long enough every
+       ordinary beast still coming for this side turns tail together. */
+    if(d.state === "bark"){
+      d.moving = false; d.tail = 1;
+      const threat = d.barkAt;
+      // a little more forgiving on the way out than dogHomeThreat is on the
+      // way in, so a beast drifting right at the edge of the radius doesn't
+      // flicker the dog in and out of "bark" every other tick
+      const stillThreat = threat && threat.hp>0 && !threat.fleeing &&
+                           Math.hypot(threat.x-d.home.x, threat.y-d.home.y) < DOG_ALERT_R*1.4;
+      if(!stillThreat){
+        d.state="tokennel"; d.dest=dogKennelSpot(d); d.stateT=20; d.barkAt=null;
+        continue;
+      }
+      d.barkT += dt;
+      d.barkCd -= dt;
+      if(d.barkCd<=0){
+        d.barkCd = DOG_BARK_EVERY[0] + Math.random()*(DOG_BARK_EVERY[1]-DOG_BARK_EVERY[0]);
+        d.say = "Woof!"; d.sayT = 1.0;
+      }
+      if(d.barkT >= DOG_BARK_SCARE_T){
+        // the whole pack's noise, not just this one dog - every ordinary
+        // beast still lurking near this kennel turns tail together
+        for(const b of G.beasts||[]){
+          if(b.hp<=0 || b.fleeing || b.firstNight) continue;
+          const B = BEASTS[b.kind];
+          if(!B || B.harmless || !B.seasons) continue;
+          if(Math.hypot(b.x-d.home.x, b.y-d.home.y) < DOG_ALERT_R*1.4) b.fleeing = true;
+        }
+        if(d.p===P_YOU){
+          hint("The dogs bark the " + (BEASTS[threat.kind] ? BEASTS[threat.kind].name.toLowerCase() : "beast") +
+               " off into the dark.");
+        }
+        d.state="tokennel"; d.dest=dogKennelSpot(d); d.stateT=20; d.barkAt=null;
+      }
+      continue;
+    }
+
+    /* Coming out to say hello to Gumby or Floyd instead of barking at
+       anything - the whole reason the beast check runs first each tick in
+       "denned" above, so a genuine threat always wins the two of them. */
+    if(d.state === "togreet"){
+      const g = dogFromToken(d.greetTok);
+      if(!g){ d.state="tokennel"; d.dest=dogKennelSpot(d); d.stateT=20; d.greetTok=null; d.moving=false; continue; }
+      d.dest = {x:g.x, y:g.y};
+      d.moving = true;
+      if(dogWalk(d, dt, DOG_TROT) || Math.hypot(g.x-d.x,g.y-d.y) < DOG_PAT_R || d.stateT<=0){
+        d.state = "greet"; d.stateT = 4+Math.random()*3; d.moving = false;
+      }
+      continue;
+    }
+    /* Two dogs meeting - the same bow-and-bounce the pack already uses to
+       say hello to a villager (drawVillageDog's own "pranc" flag covers
+       this state too), just aimed at Gumby or Floyd this time. */
+    if(d.state === "greet"){
+      d.moving = false; d.walk += dt*3.4; d.tail = 1;
+      const g = dogFromToken(d.greetTok);
+      const gone = !g || Math.hypot(g.x-d.x, g.y-d.y) > DOG_PAT_R*2.6;
+      if(d.stateT<=0 || gone){
+        d.state="tokennel"; d.dest=dogKennelSpot(d); d.stateT=20; d.greetTok=null;
+      }
+      continue;
+    }
+
     if(d.state === "pat"){
       /* Being made a fuss of. Both stand still for it - the villager's own
          order is left alone, they simply do not get on with it for a moment,
@@ -47623,6 +49073,11 @@ function updateVillageDogs(dt){
     if(d.state === "idle"){
       d.moving = false;
       if(d.stateT > 0) continue;
+      // dark out - head home for the night rather than picking a wander
+      if(G.phase === "night" || G.phase === "dusk"){
+        d.state = "tokennel"; d.dest = dogKennelSpot(d); d.stateT = 30;
+        continue;
+      }
       /* What next. Weighted so that trotting somewhere is the common case and
          the rest are the punctuation - a dog that sat down as often as it
          walked would read as a tired dog. */
@@ -47733,7 +49188,7 @@ function drawVillageDog(d){
      beat. `pr` runs 0..1 and back over and over; the bow is deepest at the
      bottom of it and the spring is at the top, which is the order a real dog
      does them in. */
-  const pranc = d.state==="prance" || d.state==="bow";
+  const pranc = d.state==="prance" || d.state==="bow" || d.state==="greet";
   /* Slowed right down from 7.2. At that rate the bow and the spring blurred
      into a vibration; at 3.6 you can see it drop, hold for an instant and
      push off, which is what makes it read as playing rather than shivering. */
@@ -48013,6 +49468,24 @@ function drawVillageDog(d){
     ctx.beginPath(); ctx.arc(d.ballAt.x-0.7, d.ballAt.y-0.8, 0.8, 0, 6.283); ctx.fill();
   }
   // (a ball being CARRIED is drawn up in the head, under the nose - see above)
+
+  // the bark, while it's seeing something off - same speech-bubble the
+  // little dogs already use (drawGumby/drawFloyd)
+  if(d.say){
+    const nx=d.x, ny=d.y-14-bob;
+    ctx.globalAlpha = Math.min(1,d.sayT);
+    ctx.font="9px 'Avenir Next','Segoe UI',system-ui,sans-serif";
+    const bw = ctx.measureText(d.say).width;
+    ctx.fillStyle="rgba(239,231,210,.92)";
+    ctx.beginPath();
+    ctx.moveTo(nx-bw/2-5, ny-7); ctx.lineTo(nx+bw/2+5, ny-7);
+    ctx.lineTo(nx+bw/2+5, ny+5); ctx.lineTo(nx+2, ny+5); ctx.lineTo(nx, ny+9); ctx.lineTo(nx-2, ny+5);
+    ctx.lineTo(nx-bw/2-5, ny+5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle="#3a2f1e"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(d.say, nx, ny-1);
+    ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.globalAlpha = 1;
+  }
 }
 
 /* ---------- going to play with a dog, because you asked ----------
@@ -48033,7 +49506,7 @@ function drawVillageDog(d){
 function dogAt(wx, wy, tol, p){
   let best = null, bd = tol;
   for(const d of (G.villageDogs||[])){
-    if(d.p !== p || d.state === "gone") continue;
+    if(d.p !== p || d.state === "gone" || d.indoors) continue;
     const dist = Math.hypot(d.x-wx, d.y-wy);
     if(dist < bd){ bd = dist; best = d; }
   }
@@ -48336,6 +49809,583 @@ function updateChatFacing(dt){
     if(u.chatWith.hp<=0 || u.chatWith.chatWith!==u){ u.chatWith = null; continue; }
     u.face = (u.chatWith.x < u.x) ? -1 : 1;
   }
+}
+
+/* ============ THE BUG BOOK ============
+   A hundred of them, the same shape of collection as the fish: numbered in
+   groups, so "I am missing #62" already tells you roughly where to look.
+
+     1-30    the common run. Any season, day, anywhere the grass grows.
+     31-54   seasonal, DAY only, six to a season.
+     55-74   after dark, five to a season.
+     75-84   the water's edge - never far from a bank.
+     85-92   the deep woods, shy, and never near a village.
+     93-96   after rain, and only then.
+     97-100  the moonstone ones. Night, and the rarest things in the book:
+             an ordinary firefly wearing the colour of the stone.
+
+   MOST OF THESE ARE VARIANTS, deliberately. The village already has bees,
+   butterflies, grasshoppers and dragonflies flying about it; a hundred
+   entries is those few bodies in a hundred coats rather than a hundred new
+   drawings. `shape` picks the body, `col` paints it. That is how the fish
+   book went from ten to a hundred without a hundred portraits, and it is
+   why a Moonstone Firefly is a firefly that happens to be the wrong
+   colour - which is precisely what makes seeing one worth something.
+
+   `when` is "any" | "day" | "night"; `season` is null for anything that
+   does not care; `where` is null (anywhere), "water", "woods" or "far"
+   (well away from a village). `moon:true` marks the moonstone tier.
+
+   Numbers are written down rather than taken from array order, for the
+   reason the fish book learned the hard way: a player who has learned that
+   the Red Admiral is #7 should still find it at #7 after the next batch. */
+const BUG_SHAPES = ["bee","butterfly","hopper","dragonfly","beetle","moth","firefly","mayfly","ladybird","spider","snail","worm"];
+
+const BUG_TYPES = [
+  /* ---- 1-30: the common run ---- */
+  { key:"honeybee",    name:"Honeybee",         num:1,  when:"day", season:null, shape:"bee",       col:"#d9a441", note:"Out from first light, and the whole village is quietly the better for it." },
+  { key:"bumblebee",   name:"Bumblebee",        num:2,  when:"day", season:null, shape:"bee",       col:"#c8902f", note:"Too heavy for the flower it lands on, every single time." },
+  { key:"cabbagewhite",name:"Cabbage White",    num:3,  when:"day", season:null, shape:"butterfly", col:"#eef0e6", note:"The gardener's opinion of these is not printable." },
+  { key:"meadowbrown", name:"Meadow Brown",     num:4,  when:"day", season:null, shape:"butterfly", col:"#8a6a42", note:"Plain until it opens, and then not plain at all." },
+  { key:"commonblue",  name:"Common Blue",      num:5,  when:"day", season:null, shape:"butterfly", col:"#6f93cc", note:"A scrap of sky that got loose and is making the most of it." },
+  { key:"gatekeeper",  name:"Gatekeeper",       num:6,  when:"day", season:null, shape:"butterfly", col:"#c9863f", note:"Keeps to the hedge line and rarely crosses open ground." },
+  { key:"redadmiral",  name:"Red Admiral",      num:7,  when:"day", season:null, shape:"butterfly", col:"#a8402f", note:"Sits on a warm wall with its wings flat and dares you to come closer." },
+  { key:"fieldhopper", name:"Field Grasshopper",num:8,  when:"day", season:null, shape:"hopper",    col:"#7d8f4a", note:"Heard long before it is seen, and gone the moment it is." },
+  { key:"meadowhopper",name:"Meadow Grasshopper",num:9, when:"day", season:null, shape:"hopper",    col:"#8f9c56", note:"Springs once, lands, and pretends it was never anywhere else." },
+  { key:"groundbeetle",name:"Ground Beetle",    num:10, when:"any", season:null, shape:"beetle",    col:"#3a3630", note:"Black, quick, and entirely uninterested in being looked at." },
+  { key:"sevenspot",   name:"Seven-Spot Ladybird",num:11,when:"day",season:null, shape:"ladybird",  col:"#b8402f", note:"Counted by children, and the count is always seven." },
+  { key:"harlequin",   name:"Harlequin Ladybird",num:12,when:"day",season:null, shape:"ladybird",  col:"#c96a3a", note:"More spots than it has any right to, and no two the same." },
+  { key:"hoverfly",    name:"Hoverfly",         num:13, when:"day", season:null, shape:"bee",       col:"#c4a03a", note:"Holds still in the air like it is thinking, then is a foot to the left." },
+  { key:"housespider", name:"House Spider",     num:14, when:"any", season:null, shape:"spider",    col:"#5a4a3a", note:"Lives in the corner of the granary and has done for years." },
+  { key:"gardenspider",name:"Garden Spider",    num:15, when:"day", season:null, shape:"spider",    col:"#9a8250", note:"Rebuilds the whole thing every morning without complaint." },
+  { key:"crane",       name:"Crane Fly",        num:16, when:"any", season:null, shape:"mayfly",    col:"#8a8272", note:"All legs and no plan." },
+  { key:"greenbottle", name:"Greenbottle",      num:17, when:"day", season:null, shape:"beetle",    col:"#4a7a4a", note:"Beautiful, close up, and best appreciated from a distance." },
+  { key:"clickbeetle", name:"Click Beetle",     num:18, when:"any", season:null, shape:"beetle",    col:"#6a5a42", note:"Flips itself upright with a snap you can hear across a room." },
+  { key:"earwig",      name:"Earwig",           num:19, when:"night",season:null,shape:"beetle",    col:"#7a4a2a", note:"Under every stone, and less interested in you than you are in it." },
+  { key:"woodlouse",   name:"Woodlouse",        num:20, when:"any", season:null, shape:"beetle",    col:"#7a7a72", note:"Rolls up and waits you out. It has all day." },
+  { key:"ant",         name:"Wood Ant",         num:21, when:"day", season:null, shape:"beetle",    col:"#6a3a22", note:"One of several million, and every one of them busy." },
+  { key:"lacewing",    name:"Lacewing",         num:22, when:"any", season:null, shape:"mayfly",    col:"#a8d0a0", note:"Green glass wings, and it goes where the air takes it." },
+  { key:"shieldbug",   name:"Shieldbug",        num:23, when:"day", season:null, shape:"beetle",    col:"#6a8a4a", note:"Built like a small kite and just as awkward in a breeze." },
+  { key:"weevil",      name:"Weevil",           num:24, when:"any", season:null, shape:"beetle",    col:"#5a4a32", note:"The granary's oldest enemy, and no bigger than a grain itself." },
+  { key:"skipper",     name:"Small Skipper",    num:25, when:"day", season:null, shape:"butterfly", col:"#c9a03a", note:"Flies like it is being thrown rather than flying." },
+  { key:"peacockb",    name:"Peacock Butterfly",num:26, when:"day", season:null, shape:"butterfly", col:"#8a3a5a", note:"Opens four eyes at once and most things think better of it." },
+  { key:"tortoiseshell",name:"Tortoiseshell",   num:27, when:"day", season:null, shape:"butterfly", col:"#c96a2f", note:"Winters in the rafters and comes down cross about it." },
+  { key:"crickets",    name:"Field Cricket",    num:28, when:"night",season:null,shape:"hopper",    col:"#4a4a3a", note:"One of them can keep a whole village company." },
+  { key:"snailg",      name:"Garden Snail",     num:29, when:"any", season:null, shape:"snail",     col:"#8a7a5a", note:"Leaves a note of where it has been, which is not far." },
+  { key:"beefly",      name:"Bee-Fly",          num:30, when:"day", season:null, shape:"bee",       col:"#b08a5a", note:"Furry, harmless, and doing a very poor impression of a bee." },
+
+  /* ---- 31-54: seasonal, DAY only, six to a season ---- */
+  { key:"orangetip",   name:"Orange-Tip",       num:31, when:"day", season:"spring", shape:"butterfly", col:"#e08a3a", note:"The first of the year worth stopping work for." },
+  { key:"brimstone",   name:"Brimstone",        num:32, when:"day", season:"spring", shape:"butterfly", col:"#e6e08a", note:"The colour that gave butterflies their name, if the elder is to be believed." },
+  { key:"maybug",      name:"May Bug",          num:33, when:"day", season:"spring", shape:"beetle",    col:"#8a5a2a", note:"Blunders into everything, apologises to none of it." },
+  { key:"springtail",  name:"Springtail",       num:34, when:"day", season:"spring", shape:"hopper",    col:"#6a7a8a", note:"Too small to see until a thousand of them move at once." },
+  { key:"mason",       name:"Mason Bee",        num:35, when:"day", season:"spring", shape:"bee",       col:"#b8783a", note:"Builds in the wall of the granary and asks nobody's permission." },
+  { key:"greenveined", name:"Green-Veined White",num:36,when:"day", season:"spring", shape:"butterfly", col:"#dfe4d0", note:"Only green where the light catches it, and only for a moment." },
+  { key:"swallowtail", name:"Swallowtail",      num:37, when:"day", season:"summer", shape:"butterfly", col:"#e0c04a", note:"Big enough that people point, and rare enough that they remember." },
+  { key:"emperor",     name:"Emperor Dragonfly",num:38, when:"day", season:"summer", shape:"dragonfly", col:"#3a8ac4", note:"Owns the pond and will see off anything that disagrees." },
+  { key:"chafer",      name:"Rose Chafer",      num:39, when:"day", season:"summer", shape:"beetle",    col:"#4a8a5a", note:"Metallic green, and it knows exactly how good it looks." },
+  { key:"cinnabar",    name:"Cinnabar Moth",    num:40, when:"day", season:"summer", shape:"moth",      col:"#b8402f", note:"Flies by day in red and grey, which is not what moths are supposed to do." },
+  { key:"stag",        name:"Stag Beetle",      num:41, when:"day", season:"summer", shape:"beetle",    col:"#4a2a1a", note:"Antlers on a beetle, and it carries them like it means to use them." },
+  { key:"marbledwhite",name:"Marbled White",    num:42, when:"day", season:"summer", shape:"butterfly", col:"#e8e8e0", note:"Chequered like a board, and never sits still long enough to study." },
+  { key:"comma",       name:"Comma",            num:43, when:"day", season:"autumn", shape:"butterfly", col:"#c98a3a", note:"Ragged edges on purpose - closed, it is a dead leaf and nothing else." },
+  { key:"hornet",      name:"Hornet",           num:44, when:"day", season:"autumn", shape:"bee",       col:"#c9862f", note:"Everyone stands very still until it has gone by." },
+  { key:"craneautumn", name:"Autumn Crane Fly", num:45, when:"day", season:"autumn", shape:"mayfly",    col:"#9a8a72", note:"Comes indoors the week the nights turn and cannot find its way out again." },
+  { key:"dorbeetle",   name:"Dor Beetle",       num:46, when:"day", season:"autumn", shape:"beetle",    col:"#3a3a5a", note:"Blue-black underneath, which nobody sees unless it is upside down." },
+  { key:"ivybee",      name:"Ivy Bee",          num:47, when:"day", season:"autumn", shape:"bee",       col:"#c9a04a", note:"The very last bee of the year, and it works until the frost." },
+  { key:"harvestman",  name:"Harvestman",       num:48, when:"day", season:"autumn", shape:"spider",    col:"#8a7a62", note:"Not a spider, whatever the children insist, and mostly legs." },
+  { key:"wintermoth",  name:"Winter Moth",      num:49, when:"day", season:"winter", shape:"moth",      col:"#a8a090", note:"Flies in the cold when nothing else will, which is its whole trick." },
+  { key:"snowflea",    name:"Snow Flea",        num:50, when:"day", season:"winter", shape:"hopper",    col:"#4a4a5a", note:"Black specks on white, and they move, which is how you know." },
+  { key:"frostbeetle", name:"Frost Beetle",     num:51, when:"day", season:"winter", shape:"beetle",    col:"#8aa0b0", note:"Pale as rime, and it walks on the crust without breaking it." },
+  { key:"barkfly",     name:"Bark Fly",         num:52, when:"day", season:"winter", shape:"mayfly",    col:"#7a6a5a", note:"Lives in the cracks of a trunk and is the same colour as them." },
+  { key:"holcricket",  name:"Hollow Cricket",   num:53, when:"day", season:"winter", shape:"hopper",    col:"#5a5040", note:"Sings out of a dead log all winter, which the elder says is for company." },
+  { key:"icemidge",    name:"Ice Midge",        num:54, when:"day", season:"winter", shape:"mayfly",    col:"#c0d4e0", note:"A cloud of them over the snow on a still day, and they weigh nothing at all." },
+
+  /* ---- 55-74: after dark, five to a season ---- */
+  { key:"commonglow",  name:"Glow-Worm",        num:55, when:"night", season:"spring", shape:"firefly", col:"#c8e08a", note:"Not a worm and not on fire, but nobody has ever wanted to correct it." },
+  { key:"puss",        name:"Puss Moth",        num:56, when:"night", season:"spring", shape:"moth",    col:"#d8d4c8", note:"Furred like a cat and about as easy to move once settled." },
+  { key:"maymoth",     name:"May Moth",         num:57, when:"night", season:"spring", shape:"moth",    col:"#b0a890", note:"Comes to a lit window the first warm night of the year." },
+  { key:"nightbee",    name:"Night Bee",        num:58, when:"night", season:"spring", shape:"bee",     col:"#a08a5a", note:"Works by moonlight, which no bee is supposed to do." },
+  { key:"cockchafer",  name:"Cockchafer",       num:59, when:"night", season:"spring", shape:"beetle",  col:"#7a4a2a", note:"Hits the shutter, falls, tries again. All night, if allowed." },
+  { key:"elephanthawk",name:"Elephant Hawk-Moth",num:60,when:"night",season:"summer", shape:"moth",     col:"#c07a9a", note:"Pink and olive, which sounds wrong and is somehow perfect." },
+  { key:"summerfirefly",name:"Firefly",         num:61, when:"night", season:"summer", shape:"firefly", col:"#d8e07a", note:"A whole field of them, all blinking slightly out of step." },
+  { key:"privethawk",  name:"Privet Hawk-Moth", num:62, when:"night", season:"summer", shape:"moth",    col:"#8a8a6a", note:"The size of a small bird and twice as startling in the dark." },
+  { key:"nightcricket",name:"Night Cricket",    num:63, when:"night", season:"summer", shape:"hopper",  col:"#3a4a3a", note:"The sound of a summer night, and it stops the instant you look." },
+  { key:"dorbat",      name:"Dusk Beetle",      num:64, when:"night", season:"summer", shape:"beetle",  col:"#3a3444", note:"Comes out at the exact moment the light goes, every evening." },
+  { key:"redunderwing",name:"Red Underwing",    num:65, when:"night", season:"autumn", shape:"moth",    col:"#9a4a3a", note:"Grey as bark until it opens, and then suddenly not." },
+  { key:"autumnglow",  name:"Autumn Glow-Worm", num:66, when:"night", season:"autumn", shape:"firefly", col:"#c0c86a", note:"The last light in the hedge before the year turns cold." },
+  { key:"sexton",      name:"Sexton Beetle",    num:67, when:"night", season:"autumn", shape:"beetle",  col:"#5a3a2a", note:"Tidies away what the woods are finished with, and asks no thanks." },
+  { key:"mothhawk",    name:"Hummingbird Hawk-Moth",num:68,when:"night",season:"autumn",shape:"moth",   col:"#a08a6a", note:"Hovers at a flower and half the village swears it was a bird." },
+  { key:"lantfly",     name:"Lantern Fly",      num:69, when:"night", season:"autumn", shape:"firefly", col:"#e0b06a", note:"Warm-lit rather than green, and it keeps to the lit windows." },
+  { key:"wintermoth2", name:"Pale Winter Moth", num:70, when:"night", season:"winter", shape:"moth",    col:"#c8c8c0", note:"White on black, drifting, and easy to mistake for snow." },
+  { key:"frostglowb",  name:"Frost Glow-Worm",  num:71, when:"night", season:"winter", shape:"firefly", col:"#a8d8d0", note:"Faint and cold-lit, and it goes out if you breathe on it." },
+  { key:"nightweevil", name:"Night Weevil",     num:72, when:"night", season:"winter", shape:"beetle",  col:"#4a4238", note:"In the meal barrel by morning, however well the lid was on." },
+  { key:"snowmoth",    name:"Snow Moth",        num:73, when:"night", season:"winter", shape:"moth",    col:"#e0e4e8", note:"Only ever seen against a dark doorway, never against the snow." },
+  { key:"longnightbug",name:"Longnight Beetle", num:74, when:"night", season:"winter", shape:"beetle",  col:"#2f3a4a", note:"Out on the longest night and no other, which is how it got the name." },
+
+  /* ---- 75-84: the water's edge ---- */
+  { key:"bluedamsel",  name:"Blue Damselfly",   num:75, when:"day", season:null, where:"water", shape:"dragonfly", col:"#5a9ad4", note:"A blue stitch of thread, hanging over the shallows." },
+  { key:"reddamsel",   name:"Red Damselfly",    num:76, when:"day", season:null, where:"water", shape:"dragonfly", col:"#c04a3a", note:"The first damselfly of the year, always, without fail." },
+  { key:"goldenring",  name:"Golden-Ringed Dragonfly",num:77,when:"day",season:null,where:"water",shape:"dragonfly",col:"#d8a83a", note:"Hunts a stretch of bank and patrols it like it is paid to." },
+  { key:"chaser",      name:"Four-Spotted Chaser",num:78,when:"day",season:null, where:"water", shape:"dragonfly", col:"#a08a4a", note:"Returns to the same reed after every sortie, without fail." },
+  { key:"pondskater",  name:"Pond Skater",      num:79, when:"day", season:null, where:"water", shape:"spider",    col:"#5a5a4a", note:"Stands on the water as though it were a floor, which for it, it is." },
+  { key:"diving",      name:"Great Diving Beetle",num:80,when:"any",season:null, where:"water", shape:"beetle",    col:"#3a4a2a", note:"Comes up for air, takes it, and goes back down to whatever it was doing." },
+  { key:"whirligig",   name:"Whirligig Beetle", num:81, when:"day", season:null, where:"water", shape:"beetle",    col:"#2f3430", note:"A dozen of them spinning in circles and never once colliding." },
+  { key:"mayflyw",     name:"Mayfly",           num:82, when:"day", season:null, where:"water", shape:"mayfly",    col:"#d0d8c0", note:"One day above the water, and it does not waste a minute of it." },
+  { key:"caddis",      name:"Caddisfly",        num:83, when:"night",season:null, where:"water", shape:"mayfly",   col:"#8a7a5a", note:"Builds itself a case of grit and sticks and carries it everywhere." },
+  { key:"waterboatman",name:"Water Boatman",    num:84, when:"day", season:null, where:"water", shape:"beetle",    col:"#5a6a4a", note:"Rows upside down under the surface and seems content about it." },
+
+  /* ---- 85-92: the deep woods, shy, never near a village ---- */
+  { key:"purpleemp",   name:"Purple Emperor",   num:85, when:"day", season:null, where:"far", shape:"butterfly", col:"#6a4a9a", note:"Keeps to the tops of the oaks and comes down for nothing anyone respects." },
+  { key:"whiteadmiral",name:"White Admiral",    num:86, when:"day", season:null, where:"far", shape:"butterfly", col:"#e8e8e8", note:"Glides more than it flies, along the one ride it has decided on." },
+  { key:"fritillary",  name:"Silver-Washed Fritillary",num:87,when:"day",season:null,where:"far",shape:"butterfly",col:"#c98a4a", note:"Silver underneath, and only ever shows it by accident." },
+  { key:"woodhopper",  name:"Wood Cricket",     num:88, when:"day", season:null, where:"far", shape:"hopper",    col:"#5a4a32", note:"Heard in the leaf litter for miles and found by nobody." },
+  { key:"longhorn",    name:"Longhorn Beetle",  num:89, when:"day", season:null, where:"far", shape:"beetle",    col:"#6a5a3a", note:"Antennae longer than the rest of it, and it uses every inch." },
+  { key:"hornetmoth",  name:"Hornet Moth",      num:90, when:"day", season:null, where:"far", shape:"moth",      col:"#c9a03a", note:"Not a hornet at all, and it has got a great deal of use out of that." },
+  { key:"deepglow",    name:"Deep Wood Glow-Worm",num:91,when:"night",season:null,where:"far",shape:"firefly",   col:"#9ad0a0", note:"Far enough out that its light is the only one for a mile." },
+  { key:"ghostmoth",   name:"Ghost Moth",       num:92, when:"night",season:null, where:"far", shape:"moth",     col:"#f0f0e8", note:"Hangs in one place over the clearing, white and swinging, for hours." },
+
+  /* ---- 93-96: after rain, and only then ---- */
+  { key:"rainsnail",   name:"Rain Snail",       num:93, when:"any", wet:true, season:null, shape:"snail",   col:"#9a8a6a", note:"Out the moment it is wet, and everywhere at once." },
+  { key:"wormcast",    name:"Earthworm",        num:94, when:"any", wet:true, season:null, shape:"worm",    col:"#a06a6a", note:"Up on the path after rain and in no hurry to be anywhere else." },
+  { key:"rainbeetle",  name:"Rain Beetle",      num:95, when:"any", wet:true, season:null, shape:"beetle",  col:"#4a4a3a", note:"Only ever walks in the wet, and nobody has explained why." },
+  { key:"stormmidge",  name:"Storm Midge",      num:96, when:"any", wet:true, season:null, shape:"mayfly",  col:"#8a8a94", note:"Rises in a column the hour before rain, and the village reads it like a glass." },
+
+  /* ---- 97-100: THE MOONSTONE ONES ---- */
+  { key:"moonfirefly", name:"Moonstone Firefly",num:97, when:"night",season:null, moon:true, rare:true, shape:"firefly", col:"#8fd6ec", note:"An ordinary firefly wearing the colour of the stone. Nobody who has seen one forgets it." },
+  { key:"moonmoth",    name:"Moonstone Moth",   num:98, when:"night",season:null, moon:true, rare:true, shape:"moth",    col:"#a9cfe0", note:"Pale blue and lit from inside, and it will not go near a lamp." },
+  { key:"moonbeetle",  name:"Moonstone Beetle", num:99, when:"night",season:null, moon:true, rare:true, shape:"beetle",  col:"#b8d4e2", note:"Its back is a chip of the stone itself, seams and all." },
+  { key:"oldmoonbug",  name:"The Pale Wanderer",num:100,when:"night",season:null, moon:true, rare:true, shape:"butterfly",col:"#e0f2fa", note:"White as the moon at noon, and seen perhaps once by anybody who looks." },
+
+  /* ---- 101: and one that only comes down in a thunderstorm ----
+     Deliberately AFTER the moonstone four rather than among them. The
+     moonstone ones are rare because you have to be out at the right hour;
+     this one is rare because the weather has to do something first, which
+     is a different kind of waiting and worth its own place at the end of
+     the book. `storm` gates the group, the meta line and the world spawn
+     all three - one field, so the book cannot end up telling you something
+     the weather disagrees with, which is exactly how the rain four went
+     wrong. A dull slate body on purpose: the beetle is not what glows,
+     the spark is. */
+  { key:"thunderbeetle",name:"Thunderstorm Beetle",num:101,when:"any",season:null, storm:true, spark:true, rare:true, shape:"beetle", col:"#4a5361", note:"Comes down to the village only while it is thundering, and strikes a spark off itself every so often as though it had caught some of it." }
+];
+function bugTypeByKey(key){
+  for(const b of BUG_TYPES) if(b.key===key) return b;
+  return null;
+}
+
+/* ---------- drawing one, for the book's cards ----------
+   Ten bodies and a colour, which is the whole reason a hundred entries was
+   affordable: a Moonstone Firefly is the firefly body painted the colour of
+   the stone. Same contract as drawFishPortrait (03e) - a context, the
+   entry, a width and a height - so the book screen can treat the two
+   collections identically.
+
+   `silhouette` draws it as a dark shape with no colour and no detail: what
+   an uncaught card shows, so the book reads as a row of outlines waiting to
+   be filled rather than a row of empty boxes. */
+function drawBugPortrait(cx, b, w, h, opts){
+  /* Every colour below must pass through col/dim/lit. A hard-coded pale
+     fill survives silhouette mode and the unfound bug shows up bright white
+     in the book, telling the player exactly which one it is - three of the
+     lacy-winged shapes did precisely that. */
+  const sil = !!(opts && opts.silhouette);
+  const col = sil ? "#4a443c" : b.col;
+  const dim = sil ? "#3a352f" : shade(b.col, -0.28);
+  const lit = sil ? "#5a534a" : shade(b.col, 0.22);
+  cx.clearRect(0,0,w,h);
+  /* The shapes below are drawn about 18 units across and 20 tall, so the
+     scale has to come off THAT, not off the canvas size. Taking min(w,h)/42
+     gave scale 1 on a 64x42 card and every bug came out a fifth of the
+     height it should be - a smudge in the middle of an empty box. */
+  const cxm = w/2, cym = h/2, s = Math.min(w/19, h/21);
+  cx.save();
+  cx.translate(cxm, cym);
+  cx.scale(s, s);
+  const body = (len, wide, colr) => {
+    cx.fillStyle = colr;
+    cx.beginPath(); cx.ellipse(0, 0, wide, len, 0, 0, 6.283); cx.fill();
+  };
+  const wingPair = (rx, ry, off, alpha, colr) => {
+    cx.globalAlpha = alpha;
+    cx.fillStyle = colr;
+    for(const sgn of [-1, 1]){
+      cx.save(); cx.translate(sgn*off, -1); cx.rotate(sgn*0.5);
+      cx.beginPath(); cx.ellipse(0,0, rx, ry, 0, 0, 6.283); cx.fill();
+      cx.restore();
+    }
+    cx.globalAlpha = 1;
+  };
+  const legs = (n, spread, colr) => {
+    cx.strokeStyle = colr; cx.lineWidth = 0.7;
+    for(let i=0;i<n;i++){
+      const t = -3 + i*(6/Math.max(1,n-1));
+      for(const sgn of [-1,1]){
+        cx.beginPath(); cx.moveTo(sgn*1.4, t);
+        cx.lineTo(sgn*spread, t + (i-1)*1.4); cx.stroke();
+      }
+    }
+  };
+  switch(b.shape){
+    case "butterfly":
+      wingPair(6.5, 4.6, 5.2, sil?1:0.95, col);
+      wingPair(4.4, 3.2, 4.4, sil?1:0.75, lit);
+      body(5.4, 1.1, dim);
+      cx.strokeStyle = dim; cx.lineWidth = 0.6;
+      cx.beginPath(); cx.moveTo(-0.6,-5); cx.lineTo(-2.4,-8);
+      cx.moveTo(0.6,-5); cx.lineTo(2.4,-8); cx.stroke();
+      break;
+    case "moth":
+      wingPair(6.0, 5.0, 4.6, sil?1:0.9, col);
+      body(5.0, 1.8, dim);
+      cx.fillStyle = lit;                                  // the furred collar
+      cx.beginPath(); cx.ellipse(0,-3.2, 2.0, 1.5, 0,0,6.283); cx.fill();
+      break;
+    case "bee":
+      wingPair(4.2, 2.4, 3.0, sil?1:0.55, sil?lit:"#e8f0f5");
+      body(4.6, 2.6, col);
+      cx.fillStyle = dim;                                  // the bands
+      for(const y of [-1.4, 0.4, 2.2]){
+        cx.beginPath(); cx.ellipse(0, y, 2.5, 0.7, 0,0,6.283); cx.fill();
+      }
+      break;
+    case "dragonfly":
+      wingPair(7.5, 1.7, 2.2, sil?1:0.5, sil?lit:"#dfeaf2");
+      body(8.0, 1.1, col);
+      cx.fillStyle = lit;
+      cx.beginPath(); cx.arc(0,-6.4, 1.7, 0, 6.283); cx.fill();   // the head
+      break;
+    case "mayfly":
+      wingPair(5.0, 1.4, 1.8, sil?1:0.45, sil?lit:"#e4ecf2");
+      body(5.0, 0.9, col);
+      cx.strokeStyle = col; cx.lineWidth = 0.5;            // the long tails
+      for(const sgn of [-1,0,1]){
+        cx.beginPath(); cx.moveTo(0,4.6); cx.lineTo(sgn*2.4, 9.5); cx.stroke();
+      }
+      break;
+    case "firefly":
+      body(4.6, 2.0, dim);
+      if(!sil){                                            // the lamp itself
+        const g = cx.createRadialGradient(0,2.6,0, 0,2.6,6);
+        g.addColorStop(0, col); g.addColorStop(1, "rgba(0,0,0,0)");
+        cx.fillStyle = g;
+        cx.beginPath(); cx.arc(0,2.6,6,0,6.283); cx.fill();
+      }
+      cx.fillStyle = sil ? dim : col;
+      cx.beginPath(); cx.ellipse(0,2.6, 1.6, 2.0, 0,0,6.283); cx.fill();
+      break;
+    case "beetle":
+      body(5.6, 3.6, col);
+      cx.strokeStyle = dim; cx.lineWidth = 0.8;            // the wing-case seam
+      cx.beginPath(); cx.moveTo(0,-3.4); cx.lineTo(0,4.6); cx.stroke();
+      cx.fillStyle = dim;
+      cx.beginPath(); cx.ellipse(0,-4.2, 2.2, 1.5, 0,0,6.283); cx.fill();
+      legs(3, 5.2, dim);
+      /* A spark, for the one beetle that carries one. Data-driven rather
+         than a thirteenth shape: the book's whole argument is that a
+         hundred kinds come off a dozen bodies, and a one-off body for a
+         single entry would also trip the suite's one-off bar - which
+         already spends its single allowance on the worm.
+
+         `sil?lit:` is not optional. A hard-coded bright fill here would
+         survive silhouette mode and light the unfound card up like a torch,
+         which is the exact fault the lacy wings had. */
+      if(b.spark){
+        cx.strokeStyle = sil ? lit : "#e8f4ff"; cx.lineWidth = 0.75;
+        cx.beginPath();
+        cx.moveTo(-3.4,-6.4); cx.lineTo(-1.4,-4.6);
+        cx.lineTo(-2.4,-4.0); cx.lineTo(-0.2,-1.9);
+        cx.stroke();
+        if(!sil){                                          // and the flash round it
+          cx.globalAlpha = 0.26;
+          cx.fillStyle = "#bcdcff";
+          cx.beginPath(); cx.arc(-1.8,-4.2, 3.6, 0, 6.283); cx.fill();
+          cx.globalAlpha = 1;
+        }
+      }
+      break;
+    case "ladybird":
+      body(4.6, 4.0, col);
+      cx.fillStyle = "#2a2622";
+      cx.beginPath(); cx.moveTo(0,-4.6); cx.lineTo(0,4.4); cx.lineWidth=0.9;
+      cx.strokeStyle="#2a2622"; cx.stroke();
+      if(!sil) for(const [dx,dy] of [[-2,-1],[2,-1],[-1.6,1.8],[1.6,1.8],[0,3]]){
+        cx.beginPath(); cx.arc(dx,dy,0.8,0,6.283); cx.fill();
+      }
+      cx.fillStyle = "#2a2622";
+      cx.beginPath(); cx.ellipse(0,-4.0, 2.0, 1.3, 0,0,6.283); cx.fill();
+      break;
+    case "hopper":
+      body(4.4, 1.8, col);
+      cx.strokeStyle = dim; cx.lineWidth = 1.0;            // the great back leg
+      for(const sgn of [-1,1]){
+        cx.beginPath(); cx.moveTo(sgn*1.4, 1.6);
+        cx.lineTo(sgn*4.2, -0.6); cx.lineTo(sgn*3.2, 5.0); cx.stroke();
+      }
+      cx.strokeStyle = dim; cx.lineWidth = 0.5;
+      cx.beginPath(); cx.moveTo(0.4,-4.2); cx.lineTo(3.0,-7.0); cx.stroke();
+      break;
+    /* A snail and an earthworm were both falling through to the spider
+       case, so the book showed a Rain Snail with eight legs. They are the
+       two things in here with no legs at all - the one field mark a player
+       reads first - so they get their own shapes rather than a borrowed
+       body. */
+    case "snail":
+      cx.fillStyle = dim;                                  // the foot it rides on
+      cx.beginPath(); cx.ellipse(0, 4.0, 7.0, 2.1, 0,0,6.283); cx.fill();
+      cx.fillStyle = dim;                                  // head, out in front
+      cx.beginPath(); cx.ellipse(-5.6, 2.0, 2.4, 1.8, 0,0,6.283); cx.fill();
+      cx.strokeStyle = dim; cx.lineWidth = 0.55;           // the two eye stalks
+      cx.beginPath();
+      cx.moveTo(-6.4, 1.0); cx.lineTo(-8.2,-3.4);
+      cx.moveTo(-5.0, 0.6); cx.lineTo(-6.0,-3.8); cx.stroke();
+      cx.fillStyle = dim;
+      for(const [ex,ey] of [[-8.2,-3.8],[-6.0,-4.2]]){
+        cx.beginPath(); cx.ellipse(ex,ey, 0.7, 0.7, 0,0,6.283); cx.fill();
+      }
+      cx.fillStyle = col;                                  // the shell
+      cx.beginPath(); cx.ellipse(1.8,-0.6, 5.0, 4.6, 0,0,6.283); cx.fill();
+      cx.strokeStyle = dim; cx.lineWidth = 0.6;            // and its whorl
+      cx.beginPath();
+      for(let i=0;i<=44;i++){
+        const t = i/44 * 5.6, r = 4.4 * (1 - i/52);
+        const px = 1.8 + Math.cos(t)*r, py = -0.6 + Math.sin(t)*r*0.94;
+        if(i) cx.lineTo(px,py); else cx.moveTo(px,py);
+      }
+      cx.stroke();
+      break;
+    case "worm":
+      cx.strokeStyle = col; cx.lineWidth = 3.4;
+      cx.lineCap = "round"; cx.lineJoin = "round";
+      cx.beginPath();                                      // one long easy curve
+      cx.moveTo(-7.4, 3.4);
+      cx.bezierCurveTo(-3.4,-4.0, 2.0, 5.2, 7.2,-2.6);
+      cx.stroke();
+      /* The rings have to sit ON the curve, sampled from the same bezier -
+         an approximate sine put two of them off the end of the body, where
+         they read as exactly the stray legs this shape exists to avoid. */
+      const P = [[-7.4,3.4],[-3.4,-4.0],[2.0,5.2],[7.2,-2.6]];
+      const bez = (t,i) => {
+        const u = 1-t;
+        return u*u*u*P[0][i] + 3*u*u*t*P[1][i] + 3*u*t*t*P[2][i] + t*t*t*P[3][i];
+      };
+      cx.strokeStyle = dim; cx.lineWidth = 0.5;            // the segment rings
+      for(let i=1;i<7;i++){
+        const t = i/7, e = 0.012;
+        const px = bez(t,0), py = bez(t,1);
+        const tx = bez(t+e,0)-bez(t-e,0), ty = bez(t+e,1)-bez(t-e,1);
+        const m = Math.hypot(tx,ty) || 1;
+        const nx = -ty/m * 1.35, ny = tx/m * 1.35;         // across the body
+        cx.beginPath(); cx.moveTo(px-nx, py-ny); cx.lineTo(px+nx, py+ny); cx.stroke();
+      }
+      cx.lineCap = "butt";
+      cx.fillStyle = dim;                                  // the thicker saddle end
+      cx.beginPath(); cx.ellipse(-6.6, 2.8, 1.9, 1.7, 0,0,6.283); cx.fill();
+      break;
+    default:  // "spider" - and the true many-legged crawlers
+      body(3.8, 3.2, col);
+      legs(4, 6.4, dim);
+      cx.fillStyle = dim;
+      cx.beginPath(); cx.ellipse(0,-3.4, 1.8, 1.4, 0,0,6.283); cx.fill();
+      break;
+  }
+  cx.restore();
+}
+
+/* ---------- which of the hundred can be out RIGHT NOW ----------
+   Every entry in the book states a rule - a season, an hour, weather, a
+   kind of ground - and until now those rules lived only in the book. The
+   bugs actually flying about the village were three hard-coded kinds that
+   had never heard of any of it, so the book could promise a Frost
+   Glow-Worm in winter while the world had no idea the thing existed.
+
+   This is the join, and it deliberately does NOT replace the spawners.
+   The systems that were already there decide that a bee is here and a
+   moth is there, which is the part that looks right; this decides WHICH
+   of the entries wearing that shape it is. Same sprite, a different name
+   each time - which is the variants argument the whole hundred is built
+   on, finally true in both directions rather than just in the book.
+
+   One field does the gating, the group heading and the meta line, so the
+   book can never end up telling you something the weather disagrees
+   with. That is exactly how the four rain bugs went wrong. */
+
+// a rare entry is even CONSIDERED this often; the moonstone four are rarer still
+const BUG_RARE_CHANCE = 0.05;
+const BUG_MOON_CHANCE = 0.012;
+
+/* Wet means liquid water falling. A blizzard is not wet and a gale is only
+   windy - a Rain Snail out in the snow would be worse than no rule at all.
+   A thunderstorm always counts, whatever the season is doing. */
+function bugWeatherIsWet(){
+  if(G.storm) return true;
+  if(!G.weather || (G.weatherAmt||0) < 0.25) return false;
+  return G.weather.key === "downpour" || G.weather.key === "squall";
+}
+
+function ambientBugCtx(opts){
+  return {
+    night:  G.phase === "night",
+    season: G.season,
+    storm:  !!G.storm,
+    wet:    bugWeatherIsWet(),
+    water:  !!(opts && opts.water),
+    far:    !!(opts && opts.far)
+  };
+}
+
+function bugCanBeOutNow(b, ctx){
+  if(!b || !ctx) return false;
+  if(b.when === "night" && !ctx.night) return false;
+  if(b.when === "day"   &&  ctx.night) return false;
+  if(b.season && b.season !== ctx.season) return false;
+  if(b.storm && !ctx.storm) return false;     // only while it is thundering
+  if(b.wet   && !ctx.wet)   return false;     // only while it is actually raining
+  if(b.where === "water" && !ctx.water) return false;
+  if(b.where === "far"   && !ctx.far)   return false;
+  return true;
+}
+
+/* Returns a KEY, or null when nothing of that shape belongs here now - and
+   null is a real answer the caller must handle, not a failure. A dragonfly
+   at the water in deep winter should come back empty rather than being
+   handed the nearest thing that nearly fits. */
+function pickAmbientBugKey(shape, ctx){
+  const rareOk = Math.random() < BUG_RARE_CHANCE;
+  const moonOk = Math.random() < BUG_MOON_CHANCE;
+  const pool = BUG_TYPES.filter(b =>
+    b.shape === shape && bugCanBeOutNow(b, ctx) &&
+    (b.moon ? moonOk : (b.rare ? rareOk : true)));
+  if(!pool.length) return null;
+  return pool[(Math.random()*pool.length)|0].key;
+}
+
+/* ---------- taking one ----------
+   The interaction the user described, and the game itself comes later:
+   see a bug, send the catcher somewhat near it, and it is taken. The
+   "somewhat" is the important word - they do not have to be standing on
+   it, because a bug does not wait, and a villager marching at something
+   that keeps moving is the dog-play mistake all over again. So the walk
+   is re-aimed at the bug every tick and the catch fires from a generous
+   arm's length.
+
+   Deliberately NOT wired to the book by hand anywhere else: this is the
+   only writer of bugLog, so whatever the catching game turns out to be
+   tomorrow, it calls takeBug and everything downstream - the count, the
+   five that unlock the house, the card - keeps working. */
+const BUG_CATCH_R = 26;         // "somewhat near", in world units
+
+function catchableBugAt(x, y, tol){
+  if(!G.bugs) return null;
+  let best = null, bd = Infinity;
+  for(const b of G.bugs){
+    if(!b.key) continue;                       // nothing that is not really out here
+    const d = Math.hypot(b.x-x, b.y-y);
+    if(d <= tol && d < bd){ bd = d; best = b; }
+  }
+  return best;
+}
+
+function beginBugCatch(u, bug){
+  giveOrder(u, { order:"catchbug", target:null, site:null });
+  u.chasing = bug;
+  u.moving = true;
+}
+
+/* Writes the book. Returns the entry so a caller can say something about
+   it, or null when there was nothing to take. */
+function takeBug(u, bug){
+  if(!u || !bug || !bug.key) return null;
+  const t = bugTypeByKey(bug.key);
+  if(!t) return null;
+  const pl = G.players[u.p];
+  if(!pl) return null;
+  if(!pl.bugLog) pl.bugLog = {};
+  const first = !pl.bugLog[t.key];
+  const entry = pl.bugLog[t.key] || (pl.bugLog[t.key] = { count:0 });
+  entry.count++;
+  if(G.bugs) G.bugs = G.bugs.filter(b => b !== bug);
+  u.chasing = null;
+  u.order = null;
+  u.moving = false;
+  u.bugTook = 1.1;                 // a beat of standing over the jar
+  if(u.p === P_YOU){
+    const taken = bugKindsTaken(u.p);
+    if(first){
+      hint(villagerName(u)+" takes a "+t.name+" — #"+t.num+", and new to the book ("+taken+" of "+BUG_TYPES.length+").");
+      if(taken === BUGHOUSE_KINDS){
+        hint(villagerName(u)+" has five kinds now, and somewhere to keep them: the Bug Catcher's House can be built.");
+      }
+    } else {
+      hint(villagerName(u)+" takes another "+t.name+".");
+    }
+  }
+  return t;
+}
+
+/* ---------- who the bug catcher is ----------
+   The fisherman's shape exactly, because that is the one the village liked:
+   ONE AT A TIME, not one ever. Whoever takes it up keeps the name and the
+   look for life, through every other job they are given - and if they die
+   the post opens and the next person to find a glass takes it up.
+
+   Asked as a question and answered plainly: this one is YOURS to play with,
+   not spent the way the six trades are. They stay an ordinary villager you
+   can order about; the glass and the coat are what makes them the one you
+   send after a moth.
+
+   Asked whether anyone still holds it rather than kept as a flag, for the
+   reason written on livingFisherman (03e): a flag needs clearing on every
+   path a villager can die by, and a question asked at the moment it matters
+   cannot fall out of step. */
+function livingBugCatcher(p){
+  return G.units.find(u => u.p===p && u.bugCatcher && u.hp>0) || null;
+}
+function markBugCatcher(u){
+  if(!u || u.bugCatcher) return false;
+  if(livingBugCatcher(u.p)) return false;          // the post is taken
+  u.bugCatcher = true;
+  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName();
+  const look = VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length];
+  /* The same both ways on purpose, and no longer written as a ternary
+     pretending otherwise. "the Bug Catcher" is the user's own word for
+     them - the code said Collector everywhere and the village said
+     Catcher, which is the sort of split that ends up in a screenshot. */
+  u.epithet = "the Bug Catcher";
+  if(u.p===P_YOU && typeof tellAndNote === "function")
+    tellAndNote(villagerName(u)+" has taken up the glass for good - the coat, the jars, "+
+                "and an eye for whatever the rest of the village walks straight past.", "good");
+  return true;
+}
+
+/* Has this one earned the right to raise the house? The fisherman wants
+   five fish landed first; this wants a handful of kinds in the book, for
+   the same reason - a house is for somebody who has actually been doing it,
+   not for somebody who picked something up once. */
+const BUGHOUSE_KINDS = 5;
+function bugKindsTaken(p){
+  const log = G.players[p] && G.players[p].bugLog;
+  if(!log) return 0;
+  let n = 0;
+  for(const k in log) if(log[k] && log[k].count > 0) n++;
+  return n;
+}
+/* One to a village, and the collector's alone to put up. */
+function mayBuildBugHouse(u){
+  return !!u && !!u.bugCatcher && bugKindsTaken(u.p) >= BUGHOUSE_KINDS &&
+         !G.bldgs.some(b => b.p===u.p && b.type==="bughouse");
+}
+
+/* What the book says on the House's own panel, the way the catch summary
+   reads on the Fisherman's. */
+function bugCatchSummary(p){
+  const total = BUG_TYPES.length;
+  const got = bugKindsTaken(p);
+  const who = livingBugCatcher(p);
+  const moon = (G.players[p] && G.players[p].bugLog)
+    ? BUG_TYPES.filter(b=>b.moon && G.players[p].bugLog[b.key]).length : 0;
+  return (who ? (villagerName(who)+"'s book. ") : "The book. ") +
+         got+" of "+total+" kinds" +
+         (moon ? " — and "+moon+" of the moonstone ones" : "");
 }
 
 /* ============================================================
@@ -50412,7 +52462,8 @@ function refreshUI(){
          no silhouettes or a real gallery yet (03e's own catch log has
          everything a fuller screen would need later), just the tally so
          selecting the house genuinely shows something real right now. */
-      (first.type==="fisherhouse" && first.done ? "<br><br>"+fisherCatchSummary(first.p) : "");
+      (first.type==="fisherhouse" && first.done ? "<br><br>"+fisherCatchSummary(first.p) : "") +
+      (first.type==="bughouse" && first.done ? "<br><br>"+bugCatchSummary(first.p) : "");
   }
 
   const own = sel.filter(e=>e.p===P_YOU);
@@ -50657,6 +52708,32 @@ function refreshUI(){
          Manor uses for its own not-yet-buildable self (see the comment
          block just below this one) - so selecting them is always enough
          to find it, not just selecting them at exactly the right catch. */
+      /* Whoever brought a trade's find home may raise its building, and
+         nobody else - the same shape the Fisherman's House has. One of
+         each, ever; mayBuildTrade refuses once one stands. */
+      if(vills.length===1 && vills[0].tradeFound &&
+         typeof mayBuildTrade === "function"){
+        const tf = tradeFindByKey(vills[0].tradeFound);
+        if(tf && mayBuildTrade(vills[0], tf.bldg)){
+          const td = BLDG[tf.bldg];
+          /* No lock message: addBtn shows that INSTEAD of the subtitle when
+             one is given, and on a build button the cost is the thing you
+             need to see. Tapping it short-handed says "Not enough
+             resources." on its own. */
+          addBtn("🌿 "+td.name, costStr(td.cost), canAfford(pl, td.cost),
+                 ()=>startPlacing(tf.bldg), null, true);
+        }
+      }
+      /* The bug catcher's own house, theirs alone and only ever one -
+         the Fisherman's House's twin in every respect, including wanting
+         a few kinds in the book first so it belongs to somebody who has
+         actually been out doing it. (mayBuildBugHouse, 05k) */
+      if(vills.length===1 && vills[0].bugCatcher &&
+         typeof mayBuildBugHouse === "function" && mayBuildBugHouse(vills[0])){
+        const bh = BLDG.bughouse;
+        addBtn("\u{1F50D} "+bh.name, costStr(bh.cost), canAfford(pl, bh.cost),
+               ()=>startPlacing("bughouse"), null, true);
+      }
       if(vills.length===1 && vills[0].fisherman &&
          !G.bldgs.some(b=>b.p===P_YOU && b.type==="fisherhouse")){
         const fh = BLDG.fisherhouse;
@@ -50701,6 +52778,17 @@ function refreshUI(){
       if(d.kennels      && !G.disc.wolfPup)       continue;
       if(d.weatherstone && !G.disc.standingStone) continue;
       if(d.reliquary    && !G.disc.hoard)         continue;
+      /* The trades: each one waits on its own find coming home out of the
+         woods (TRADE_FINDS, 05g). Hidden rather than shown greyed, the
+         same as the other discoveries above - a building you have never
+         heard of should not be sitting in the menu with a lock on it. */
+      /* The six trades are NOT in the ordinary menu at all any more. Each
+         one is raised by the single villager who carried its find home,
+         and only ever once - so it is offered as their own button (below,
+         beside the Fisherman's House) rather than as a thing anyone can
+         pick off a list. (mayBuildTrade, 05g) */
+      if(d.bakery || d.gardener || d.geologist ||
+         d.herbalist || d.caretaker || d.beehive) continue;
       if(d.manor && locked){
         addBtn(d.name, "Needs the "+AGES[d.age]+" · "+costStr(d.cost), false, null,
                BLDG_ABOUT[t] || ("Unlocks in the "+AGES[d.age]));
@@ -50879,7 +52967,16 @@ function refreshUI(){
        the way you can with soldiers. They are the units you re-select most
        often, so they wanted it most. */
     {
-      const groupedSel = ownUnits.filter(u=>u.group!==undefined);
+      /* The founder is never on this list. Group 2 is theirs automatically
+         and permanently (placeStartBase, 02d) and assignGroup refuses to
+         hand slot 2 to anybody else - but Ungroup happily emptied it, and
+         nothing ever puts them back, so one tap retired the whole feature
+         for the rest of the match. Left out of the selection rather than
+         refused with a message: an Ungroup button that declines to ungroup
+         is worse than one that is not offered. If they are the ONLY thing
+         selected the button is simply absent; alongside others it works on
+         the others and leaves them be. */
+      const groupedSel = ownUnits.filter(u=>u.group!==undefined && !u.firstVillager);
       if(groupedSel.length){
         addBtn("Ungroup", groupedSel.length>1 ? "leave their groups" : "leave group "+groupedSel[0].group,
                true, ()=>{
@@ -51302,6 +53399,9 @@ function refreshUI(){
        simply somebody passing through now rather than a shop. If he is ever
        wanted as a trader again, tryPeddlerTrade and PEDDLER_TRADES are both
        still there in 05d, untouched; only this panel went. */
+    if(b.type==="bughouse" && b.done){
+      addBtn("\u{1F4D6} Bug book", "a hundred kinds, and counting", true, ()=>openBugBook(b.p));
+    }
     if(b.type==="fisherhouse" && b.done){
       addBtn("\u{1F4D6} Catch book", "every fish, caught or not", true, ()=>openFishBook(b.p));
     }
@@ -51359,7 +53459,11 @@ function refreshUI(){
       addBtn("\u2191 "+AGES[pl.ageUpTo], null, false, null,
              "on its way \u2013 "+pc+"%", true);
     } else if(d.ageup && pl.age<2){
-      const c=AGE_COST[pl.age+1];
+      /* ageCost, not AGE_COST: in Peaceful the Bronze step wants a bit of
+         everything (02a), and reading the raw table here would have shown
+         one price on the button while tryAgeUp charged another - the
+         button would sit there lit and then refuse. */
+      const c=ageCost(pl.age+1);
       addBtn("\u2191 "+AGES[pl.age+1], costStr(c), canAfford(pl,c), tryAgeUp, null, true);
     }
   }
@@ -51524,6 +53628,10 @@ function groupIcon(n){
   // group's villager is theirs, the same 🎣 the Fisherman's House button
   // and the fishing boat already use, not a new symbol of its own.
   if(units.some(u=>u.fisherman)) return "🎣";
+  // And a ladybird for the bug catcher, asked for by name. Same argument as
+  // the rod: it is the whole tell that this group's villager is the one
+  // carrying the glass, and a ladybird is the bug everybody can name.
+  if(units.some(u=>u.bugCatcher)) return "🐞";
   /* Otherwise, whatever they were last actually doing - an axe for the
      woods, a sheaf for the fields. Read off u.lastJob (drawPerson, 04e),
      not the live-only villagerJob() - a group's icon going blank the
@@ -51584,9 +53692,23 @@ function refreshGroups(){
     }
     const c = groupCount(n);
     const arm = G.groupMode ? " arm" : "";
+    /* IS THIS GROUP WHAT YOU HAVE IN HAND RIGHT NOW? Until this existed
+       the only lit state in the bar was "has anybody in it at all", and
+       since group 2 is the founder's permanently and automatically, group
+       2 was lit from the first minute of every game and never stopped -
+       which reads as though it were always selected, because in a row of
+       otherwise plain buttons the lit one is the chosen one.
+
+       So "has members" goes quiet and this is what lights up: every living
+       member of the group is in the current selection. Same test the
+       group-recall uses, in the other direction. */
+    const mem = (G.groups[n]||[]).filter(u=>u.hp>0 && G.units.indexOf(u)!==-1);
+    const isSel = mem.length > 0 && G.sel.length > 0 &&
+                  mem.every(u => G.sel.indexOf(u) !== -1);
+    const sel = isSel ? " sel" : "";
     const icon = groupIcon(n);
     const gnum = icon ? '<span class="gnum">'+n+'</span>' : '';
-    html += '<button class="gbtn'+(c?" has":"")+arm+'" data-g="'+n+'">'+gnum+(icon||n)+
+    html += '<button class="gbtn'+(c?" has":"")+sel+arm+'" data-g="'+n+'">'+gnum+(icon||n)+
             (c?'<span class="cnt">'+c+'</span>':'')+'</button>';
   }
   if(bar.innerHTML !== html){
@@ -51937,8 +54059,20 @@ function refreshFishBook(){
     parts.push("<div class='fishgroup'>"+esc(label)+"</div>");
     for(const f of of){
       const entry = log[f.key];
+      /* A literal "·", NOT "&middot;" - this string goes through esc() on
+         its way into the markup, which turned the entity's own ampersand
+         into "&amp;" and printed "&middot;" on every caught card. It read
+         as "Best 0.20kg &middot; caught 5" in the panel for as long as the
+         book has existed. Anything built into a string that is escaped
+         later has to be the character, not the entity.
+
+         The size band is named as well as measured now (fishSizeBand, 03e):
+         a weight alone does not tell you whether 0.20kg is a monster or a
+         tiddler, and which it is depends entirely on the species. */
+      const band = entry ? fishSizeBand(f, entry.best) : null;
       const meta = entry
-        ? "Best "+entry.best.toFixed(2)+"kg &middot; caught "+entry.count
+        ? "Best "+entry.best.toFixed(2)+"kg"+(band && band.card ? " ("+band.card+")" : "")+
+          " · caught "+entry.count
         : (f.season ? cap(f.season) : (f.when==="night" ? "Night" : "Any time"));
       parts.push("<div class='fishcard"+(entry?"":" uncaught")+"'>"+
         "<canvas id='fbc"+f.num+"' width='64' height='42'></canvas>"+
@@ -51954,6 +54088,92 @@ function refreshFishBook(){
     drawFishPortrait(cv.getContext("2d"), f, cv.width, cv.height, {silhouette: !log[f.key]});
   }
 }
+/* ---------- the bug book (the Bug Catcher's House's own page) ----------
+   The catch book's twin, deliberately down to the markup: the same card,
+   the same grid, the same "???" on anything not yet caught. Two
+   collections that looked like two different games would be a worse book.
+
+   Grouped by what makes one hard to get rather than by what it is - the
+   season it keeps, the hour, the bank it will not leave, the woods it will
+   not come out of - because that is the useful thing to know when you are
+   staring at a gap in the numbers. */
+let bugBookForPlayer = 0;
+function refreshBugBook(){
+  const pl = G.players[bugBookForPlayer];
+  const log = pl.bugLog || {};
+  const caught = BUG_TYPES.filter(b=>log[b.key]).length;
+  $("bugbookcount").textContent = caught+" of "+BUG_TYPES.length+" kinds taken";
+  const groups = [
+    ["Common",        b => !b.season && !b.where && !b.moon && !b.wet && !b.storm && b.when!=="night"],
+    ["Seasonal",      b => b.season && b.when!=="night"],
+    ["After dark",    b => b.when==="night" && !b.moon && !b.where],
+    ["At the water",  b => b.where==="water"],
+    ["When it rains", b => b.wet],
+    ["When it thunders", b => b.storm],
+    ["Deep woods",    b => b.where==="far"],
+    ["Moonstone",     b => b.moon]
+  ];
+  const seen = new Set();
+  const parts = [];
+  for(const [label, pick] of groups){
+    const of = BUG_TYPES.filter(b => !seen.has(b.key) && pick(b)).sort((a,b)=>a.num-b.num);
+    for(const b of of) seen.add(b.key);
+    if(!of.length) continue;
+    parts.push("<div class='fishgroup'>"+esc(label)+"</div>");
+    for(const b of of){
+      const entry = log[b.key];
+      const meta = entry
+        ? "taken "+entry.count
+        : (b.moon ? "Moonstone"
+          : b.season ? cap(b.season)
+          : b.where==="water" ? "At the water"
+          : b.where==="far" ? "Far from any village"
+          : b.storm ? "Only in a thunderstorm"
+          : b.wet ? "When it rains"
+          : b.when==="night" ? "Night" : "Any time");
+      parts.push("<div class='fishcard"+(entry?"":" uncaught")+"'>"+
+        "<canvas id='bbc"+b.num+"' width='64' height='42'></canvas>"+
+        "<div class='fnum'>#"+b.num+"</div>"+
+        "<div class='fname'>"+(entry?esc(b.name):"???")+"</div>"+
+        "<div class='fmeta'>"+esc(meta)+"</div></div>");
+    }
+  }
+  /* Anything a group forgot still gets a card. The fish book has no such
+     catch-all and does not need one - its groups are exhaustive by
+     construction - but these are grouped by several fields at once and a
+     new entry that matches none of them would otherwise vanish from its
+     own book without a word. */
+  const missed = BUG_TYPES.filter(b=>!seen.has(b.key)).sort((a,b)=>a.num-b.num);
+  if(missed.length){
+    parts.push("<div class='fishgroup'>Elsewhere</div>");
+    for(const b of missed){
+      const entry = log[b.key];
+      parts.push("<div class='fishcard"+(entry?"":" uncaught")+"'>"+
+        "<canvas id='bbc"+b.num+"' width='64' height='42'></canvas>"+
+        "<div class='fnum'>#"+b.num+"</div>"+
+        "<div class='fname'>"+(entry?esc(b.name):"???")+"</div>"+
+        "<div class='fmeta'>"+esc(entry?("taken "+entry.count):"Any time")+"</div></div>");
+    }
+  }
+  $("bugbooklist").innerHTML = parts.join("");
+  for(const b of BUG_TYPES){
+    const cv = $("bbc"+b.num);
+    if(!cv) continue;
+    drawBugPortrait(cv.getContext("2d"), b, cv.width, cv.height, {silhouette: !log[b.key]});
+  }
+}
+function openBugBook(p){
+  bugBookForPlayer = p;
+  refreshBugBook();
+  G.running = false;
+  $("bugbookscreen").classList.remove("hide");
+}
+function closeBugBook(){
+  $("bugbookscreen").classList.add("hide");
+  if(G && !G.over) G.running = true;
+}
+$("btnbugbookclose").addEventListener("click", closeBugBook);
+
 function openFishBook(p){
   fishBookForPlayer = p;
   refreshFishBook();
