@@ -140,7 +140,7 @@
      bar, holds until it is dismissed, and is the only place the fish is
      actually SEEN - portrait, number, name, kind, weight and a line about
      it. Nothing here pauses the game; it is an overlay, not a modal. */
-  #fishcard{display:none;position:absolute;left:50%;transform:translateX(-50%);
+  #fishcard,#bugcard{display:none;position:absolute;left:50%;transform:translateX(-50%);
     bottom:calc(100% + 10px);z-index:12;width:min(430px, calc(100vw - 24px));
     background:linear-gradient(180deg,var(--panel-2) 0%,var(--panel) 100%);
     border:1px solid var(--line);border-radius:12px;
@@ -183,7 +183,10 @@
     font-family:inherit;touch-action:manipulation;}
   .fc-x:hover{background:#3d332a;color:var(--parch);}
   #cmdbar.card-up #fishcard{display:flex;}
-  #fishcard.rare{border-color:#8fd6ec;box-shadow:0 10px 28px rgba(0,0,0,.55),0 0 22px rgba(143,214,236,.28);}
+  /* Its own class, not the fish card's. Sharing one would mean a bug taken
+     while a fish card was up showed both, stacked on top of each other. */
+  #cmdbar.bugcard-up #bugcard{display:flex;}
+  #fishcard.rare,#bugcard.rare{border-color:#8fd6ec;box-shadow:0 10px 28px rgba(0,0,0,.55),0 0 22px rgba(143,214,236,.28);}
   #fishcard.dbl{border-color:var(--gold);box-shadow:0 10px 28px rgba(0,0,0,.55),0 0 22px rgba(217,164,65,.30);}
   /* position/inset are UNDOING the global `canvas{position:absolute;inset:0}`
      rule at the top of this file, which exists for the full-screen world
@@ -191,7 +194,7 @@
      alone it pulls this one out of the flex flow and pins it to the card's
      corner, and the text then lays itself out UNDERNEATH the picture -
      which is exactly how it first rendered. */
-  #fc_art{position:relative;inset:auto;
+  #fc_art,#bc_art{position:relative;inset:auto;
     flex:none;width:128px;height:74px;border-radius:8px;
     background:radial-gradient(ellipse at 50% 55%, #1d2a30 0%, #141a1d 100%);
     border:1px solid var(--line);}
@@ -226,7 +229,7 @@
      to fade on their own - no timer tidies them up, the next catch simply
      replaces them, so nothing is waiting on a setTimeout that a paused or
      backgrounded game would never fire. */
-  #fishcard{overflow:hidden;}
+  #fishcard,#bugcard{overflow:hidden;}
   .fc-spark{position:absolute;pointer-events:none;width:7px;height:7px;
     margin:-3.5px 0 0 -3.5px;opacity:0;
     background:radial-gradient(circle, #fff 0%, rgba(255,255,255,.75) 35%, rgba(255,255,255,0) 70%);
@@ -790,6 +793,20 @@
       <div class="fc-go">Close to go again</div>
     </div>
   </div>
+  <!-- The bug catch card. Same shape as the fish card above and on purpose:
+       the village already taught the player what a card like this means, and
+       a second collection with a different card would be two languages for
+       one idea. Its own ids so the two can never fight over an element. -->
+  <div id="bugcard">
+    <button class="fc-x" id="bc_close" title="Close" aria-label="Close">&times;</button>
+    <canvas id="bc_art" width="256" height="148"></canvas>
+    <div class="fc-body">
+      <div class="fc-top"><span class="fc-num" id="bc_num">#01</span><span class="fc-name" id="bc_name">Bug</span></div>
+      <div class="fc-meta" id="bc_meta"></div>
+      <div class="fc-note" id="bc_note"></div>
+      <div class="fc-go">Close, and they take it home</div>
+    </div>
+  </div>
   <button id="storybtn" title="What has been said (last two days)">T</button>
   <button id="pausebtn" title="Pause">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/></svg>
@@ -1035,7 +1052,7 @@
           <li><strong>A creel that fills.</strong> Five fish and the angler takes them home by themselves &mdash; to the Fisherman's House if you have built one, or wherever else will take food &mdash; and then walks back out to the water and carries on. You do not have to watch them</li>
           <li><strong>Shoals run out now, and come back.</strong> They always had a stock and it was never once spent, because anything empty was swept up before the timer that would have refilled it could be set &mdash; so the code that brings a shoal back had never run, not once, in the whole life of the game. Water is kept when it empties and refills a season later. Fishing a spot to nothing and moving on is now a real thing that happens</li>
           <li><strong>Shoals sit out in the water.</strong> They were being placed hard against the shoreline &mdash; about a quarter of them looked beached in the sand. Under one in forty now, with the same number of shoals on the map. There are also half as many fish moving in each one; they were packed too tightly to read as anything but a clump</li>
-          <li><strong>Somebody in the village has found a magnifying glass.</strong> A glint low down in the trees one night, a glass on a brass handle lying in the leaf litter &mdash; and whoever carries it home does not put it down again. They take the coat, the jars and the name, and they stay <em>yours</em>: an ordinary villager you can still order about, the way the fisherman is. One collector at a time, and if you lose them the woods offer another glass.<br><br>There is <strong>a book of a hundred</strong> to go with it, and it works like the catch book: numbered in groups, cards filling in as you take them. Most of them are the bees, butterflies, grasshoppers and dragonflies already flying about your village wearing a hundred different coats &mdash; and four of them are the same ordinary bodies in the colour of moonstone. A Moonstone Firefly is a firefly. That is exactly why seeing one matters. Once five kinds are in the book, the collector can raise a <strong>Bug Catcher's House</strong>, one to a village, and the book lives on it.<br><br>The book is in <strong>seven parts</strong>, and every card you have not filled still tells you where to go looking: the common run, the seasonal ones, after dark, at the water, <em>when it rains</em>, far from any village, and the moonstone four. A card you have taken is drawn in its own colours with its name and how many you have had; one you have not is a grey shape and a question mark. Snails and worms are drawn as snails and worms &mdash; the only things in the book with no legs at all, which is the first thing anybody looks for.<br><br><strong>And the hundred are out there now.</strong> The bugs flying about your village used to be three hard-coded kinds that had never heard of the book &mdash; so the book could promise you a Frost Glow-Worm while the world had no idea the thing existed. Every bug on the map is now some particular one of the hundred, and which one depends on the hour, the season, the weather and the ground it is standing on. The same sprite is a Gatekeeper through the summer and something else by autumn. Daylight insects no longer fly about at midnight: after dark the bees and the butterflies are simply not there, and the crickets and moths are. <strong>Ladybirds</strong> have been added as their own creature &mdash; the one thing out there that neither darts, hops nor loops, it just walks &mdash; and there are two kinds of them.<br><br><strong>#101, the Thunderstorm Beetle.</strong> A dull slate thing that comes down close to the village <em>only</em> while it is actually thundering, and is gone with the storm. It does not glow the way a firefly does; it throws a <strong>spark</strong> &mdash; dark, dark, dark, one hard white crack, dark again &mdash; and no two of them crackle in time. It is the only entry in the book whose rule is the weather rather than the hour, so it has a part of its own: <em>When it thunders</em>.<br><br><strong>Taking one.</strong> See a bug, pick your bug catcher, tap <strong>Gather</strong>, tap the bug. They walk over and take it &mdash; from somewhat near, not from standing on it, because a bug does not wait where you tapped. It goes in the book, named and numbered, and five kinds is still what unlocks the house. <em>The catching game itself comes next; for now the taking is the whole of it.</em><br><br>They are <strong>the Bug Catcher</strong> now rather than the Collector, which is what the village was calling them anyway, and a group with them in it shows <strong>a ladybird</strong> on its number. The clue that starts all of it leads with the noise rather than the glint &mdash; the trees going loud with a hundred small voices where there should be none.<br><br><strong>The house has a face at last.</strong> It went out as a plain box with a green roof, standing next to a Fisherman's House with a boat bay, netting and an anchor on it. It now has a shelf of <strong>glass jars</strong> against the front wall, corked, with something in each, and a <strong>butterfly net</strong> stood up beside the door.<br><br><em>The catching game itself is still to come &mdash; for now the book, the house and the glass are in.</em></li>
+          <li><strong>There is a magnifying glass out in the trees from the first morning.</strong> Every village starts with one lying in the leaf litter a short walk away &mdash; nothing announces where, you simply have to send somebody out to look. It used to be locked behind three doors at once: a settled village, an hour of proper darkness, <em>and</em> a twice-a-season roll, which meant a whole match could go by without ever learning the trade existed. A glass on a brass handle in the leaf litter &mdash; and whoever carries it home does not put it down again. They take the coat, the jars and the name, and they stay <em>yours</em>: an ordinary villager you can still order about, the way the fisherman is. One collector at a time, and if you lose them the woods offer another glass.<br><br>There is <strong>a book of a hundred</strong> to go with it, and it works like the catch book: numbered in groups, cards filling in as you take them. Most of them are the bees, butterflies, grasshoppers and dragonflies already flying about your village wearing a hundred different coats &mdash; and four of them are the same ordinary bodies in the colour of moonstone. A Moonstone Firefly is a firefly. That is exactly why seeing one matters. Once five kinds are in the book, the catcher can raise a <strong>Bug Catcher's House</strong>, one to a village, and the book lives on it. Until then they are an <strong>ordinary villager</strong> in every way that matters &mdash; you order them about, they chop wood, they sleep in whatever house has a bed free, and a catch is walked back to the <strong>town centre</strong> instead. Once the house is up it is theirs: it is where they sleep, and where the jars go.<br><br>The book is in <strong>seven parts</strong>, and every card you have not filled still tells you where to go looking: the common run, the seasonal ones, after dark, at the water, <em>when it rains</em>, far from any village, and the moonstone four. A card you have taken is drawn in its own colours with its name and how many you have had; one you have not is a grey shape and a question mark. Snails and worms are drawn as snails and worms &mdash; the only things in the book with no legs at all, which is the first thing anybody looks for.<br><br><strong>And the hundred are out there now.</strong> The bugs flying about your village used to be three hard-coded kinds that had never heard of the book &mdash; so the book could promise you a Frost Glow-Worm while the world had no idea the thing existed. Every bug on the map is now some particular one of the hundred, and which one depends on the hour, the season, the weather and the ground it is standing on. The same sprite is a Gatekeeper through the summer and something else by autumn. Daylight insects no longer fly about at midnight: after dark the bees and the butterflies are simply not there, and the crickets and moths are. <strong>Ladybirds</strong> have been added as their own creature &mdash; the one thing out there that neither darts, hops nor loops, it just walks &mdash; and there are two kinds of them.<br><br><strong>#101, the Thunderstorm Beetle.</strong> A dull slate thing that comes down close to the village <em>only</em> while it is actually thundering, and is gone with the storm. It does not glow the way a firefly does; it throws a <strong>spark</strong> &mdash; dark, dark, dark, one hard white crack, dark again &mdash; and no two of them crackle in time. It is the only entry in the book whose rule is the weather rather than the hour, so it has a part of its own: <em>When it thunders</em>.<br><br><strong>Taking one.</strong> See a bug, pick your bug catcher, tap <strong>Gather</strong>, tap the bug. They walk over and take it &mdash; from somewhat near, not from standing on it, because a bug does not wait where you tapped. It goes in the book, named and numbered, and five kinds is still what unlocks the house. <em>The catching game itself comes next; for now the taking is the whole of it.</em><br><br>They are <strong>the Bug Catcher</strong> now rather than the Collector, which is what the village was calling them anyway, and a group with them in it shows <strong>a ladybird</strong> on its number. The clue that starts all of it leads with the noise rather than the glint &mdash; the trees going loud with a hundred small voices where there should be none.<br><br><strong>The house has a face at last.</strong> It went out as a plain box with a green roof, standing next to a Fisherman's House with a boat bay, netting and an anchor on it. It now has a shelf of <strong>glass jars</strong> against the front wall, corked, with something in each, and a <strong>butterfly net</strong> stood up beside the door.<br><br><strong>And the bug catcher looks like one.</strong> They were meant to have their glass in hand and a hat of their own from the start; both were written and neither has ever appeared. The whole lot sat one brace inside the <em>fisherman's</em> costume, so it only ever drew on a fisherman &mdash; which meant a bug catcher has been an ordinary villager holding a <em>pickaxe</em> for the entire life of the trade. They now carry the <strong>magnifying glass</strong> in their hand the way the gardener carries a bucket and the fisherman a rod &mdash; brass rim, glass you can see the ground through, a glint on it, and a handle long enough that you can plainly see it being <em>held</em> rather than stuck to their fist &mdash; and wear a soft moss cap with a <strong>brim of pale netting</strong>, the same gauze as the net by their door. The glass has been redrawn as well: it was a disc the size of a coin tucked behind their ear, and it read as nothing at all.<br><br><strong>And the catching game.</strong> Tap the catcher, tap Gather, tap a bug &mdash; and now you have to earn it, over <strong>three rounds</strong>.<br><br><strong>Two laps of a circle, then a shape.</strong> A red dot sets off clockwise round a ring and you keep your finger on it the whole way. It will not move until your finger is on the start, so nobody is caught out by a clock that began without them. The speed is <em>slow</em>, <em>steady</em> or <em>quick</em> &mdash; drawn fresh each round, and never the same twice running, so the second lap is the gesture you have just learned at a pace you did not choose. Slow is not the easy one, either: the margin tightens as the pace drops, so a slow lap is a test of patience where a quick one is a test of nerve.<br><br><strong>The last round is an odd shape.</strong> Fourteen of them &mdash; a tilted oval, a figure of eight, a lazy eight, a bean, a peanut, a three-leaf, a clover, a scalloped ring, a blossom, a wavy ring, a cloud, a loop within a loop, a daisy, and a looped knot that crosses itself so you cannot navigate by the part you have already covered. Every one is a <em>smooth curve</em>: nothing here has corners, because a corner asks you to stop and start again rather than to keep flowing, which is a different skill from the one the rest of the game is teaching. The shapes open up as your book fills &mdash; the gentle ones early, the busiest only once you have a real collection behind you.<br><br>The ring you are following is drawn <em>as wide as the margin you are allowed</em>, so there is no hidden tolerance to learn &mdash; if your finger is on the pale road you are scoring. The dot and its halo go green while you are on it and red while you are not, the part you have already covered fills in behind you, and a bar along the top shows how you are doing against the line you need. The two rounds are <strong>averaged, not multiplied</strong>: a fumbled first half is something the second half can still rescue.<br><br>Miss badly enough and <strong>it gets away</strong> &mdash; and it is still there on the grass afterwards. Losing one you can see is a miss; deleting it would be a punishment, and this is meant to be the gentlest thing in the village.<br><br><strong>Then the card, and then it goes home.</strong> A catch stops everything and shows you what you have: drawn, numbered, named, with a line about itself and where it stands in your hundred and one &mdash; the same card the anglers already get. Close it and the catcher <strong>walks it back to the Bug Catcher's House</strong>, and the village hears what became of it: <em>carries the Field Grasshopper back to the house, draws it, and lets it go.</em> Nothing in that book is a trophy on a pin. It is a record of what has been <em>seen</em>, which is why the kind stays in the book and the creature goes back on the grass.</li>
           <li><strong>The Bronze Age wants a bit of everything now, in Peaceful.</strong> It used to ask only for knowledge and food, both of which come to you where you stand. It now wants wood, food, stone, gold, iron and knowledge &mdash; everything but the moonstone. Stone and gold are the two you have to go out and <em>find</em>, and iron asks for a little more than the stone alone brings with it, so you end up mining deeper than you meant to. The step out of the Wandering Age is untouched, and so is the Iron Age. The timed difficulties keep the old price: they are races</li>
           <li><strong>Peaceful gives up a fifth less of everything.</strong> Every resource now yields 20% less than it did &mdash; and for the first time that includes gold, iron and knowledge, which were exempt. They are still the least slowed of the seven, deliberately: gold has no seam to work at scale and the Iron Age hangs off it, so slowing it as hard as timber would push that age out of step with the rest rather than along with them</li>
           <li><strong>A trade is a person now, not a building.</strong> Twice a season, something turns up in the dark of the woods at the edge of your village &mdash; and the village smells it before it sees it. Warm bread on the air with nobody baking. A hammer going out in the trees when every hammer is accounted for. The woods humming out of season. Send somebody to look, and they carry home a loaf of wild grain, an old marked tool, a moonlit mushroom.<br><br>Whoever carries it back may raise that trade's building &mdash; only them, and only one of each, ever. Raising it <strong>spends them</strong>: they take up the trade for life, earn a name for it, and leave your hands for good. The village is a pair of hands short and has a baker instead.<br><br>Nothing conjures a worker out of thin air any more. A cottage with nobody in it simply stands there until you send a villager to take up the trade. Lose your herbalist and the hut is idle until somebody else steps in. The one who founded the village may find these things and put the buildings up, but never hold a trade &mdash; they have enough to do. And the Fisherman keeps his own way in, which was already exactly this shape</li>
@@ -8678,7 +8695,7 @@ function defaultGameState(){
     tradeSeasonNo: -1, tradeDay: -1, tradeDone: false,
     // the fishing minigame's own state while a round is up (03e) - null
     // the rest of the time, so most of a match never touches this at all
-    fishGame: null,
+    fishGame: null, bugGame: null,
     /* The glowing night pool (03e): where it is this season, which season
        that was chosen for, and nothing else - the node itself lives in
        G.nodes like any other and is found by its own flag. */
@@ -8916,6 +8933,9 @@ function newGame(){
     }
   }
   if(G.islandMap){ clearIslandTowns(); stockIslands(); }
+  /* The glass goes down once the map is SETTLED, outside the retry loop
+     above - see the note over plantStartGlass. */
+  plantStartGlass(G.bldgs.find(b => b.p===P_YOU && b.type==="town"));
   rebuildNav();
   spawnWildlife();
   /* What this ground turned out to be good for. Held back until the hearth
@@ -10863,6 +10883,55 @@ function spawnStart(){
   /* ...and somewhere to fish, for the same reason and in the same place in
      the order. */
   for(const t of G.bldgs.filter(b=>b.type==="town")) plantStartShoal(t);
+}
+
+/* ---------- the glass, out there from the first morning ----------
+   The bug catcher was gated behind three separate doors at once: a
+   settled village, an hour of proper darkness, AND a seasonal roll that
+   only comes round twice. A player could finish a whole match and never
+   learn the trade existed - which is the same fault the Fisherman's
+   House had, where the one line announcing it was missable.
+
+   So one glass is on the map from the first morning, near enough to
+   walk to and in the trees like every other find. It is still a FIND:
+   nothing announces where it is, you have to send somebody, and picking
+   it up is what makes them the catcher. It simply exists, rather than
+   waiting on a coin toss at midnight.
+
+   Deliberately not counted against the season's two, and it does not
+   fire the clue line - the clue is for something that has just turned
+   up, and this was there before anybody was looking. */
+const START_GLASS_MIN = 6, START_GLASS_MAX = 13;   // tiles from the town
+/* NOT called from spawnStart, and that matters. spawnStart runs inside
+   newGame's six-attempt retry loop, so anything rolled in there shifts
+   the stream for the NEXT attempt and changes which map is finally
+   accepted - one extra Math.random here moved a town from (340,1666) to
+   (1020,340) and turned 1848 nodes into 2709. The glass is not part of
+   what makes a map acceptable, so it is laid down AFTER the loop has
+   settled on one, where it cannot influence anything. */
+function plantStartGlass(hall){
+  if(!hall) return null;
+  if(typeof TRADE_FINDS === "undefined") return null;
+  const glass = TRADE_FINDS.find(t => t.catcher);
+  if(!glass) return null;
+  if(G.nodes.some(n => n.kind === "tradefind")) return null;
+  for(let tries=0; tries<400; tries++){
+    const a = Math.random()*6.283;
+    const r = (START_GLASS_MIN + Math.random()*(START_GLASS_MAX-START_GLASS_MIN))*TILE;
+    const x = hall.x + Math.cos(a)*r, y = hall.y + Math.sin(a)*r;
+    if(x<TILE || y<TILE || x>MAPW*TILE-TILE || y>MAPH*TILE-TILE) continue;
+    if(isWater(x,y) || blocked(x,y,null,false)) continue;
+    if(!nearAnyTree(x,y)) continue;
+    if(G.nodes.some(n => Math.hypot(n.x-x, n.y-y) < TILE*1.5)) continue;
+    /* startFind marks it as the one that was always there, so the seasonal
+       system does not treat it as "a find is already out" and stall every
+       other trade behind it. */
+    const n = { id:G.nextId++, isNode:true, kind:"tradefind", trade:glass.key,
+                startFind:true, x, y, amt:1, max:1, r:8, seed:Math.random()*6.283 };
+    G.nodes.push(n);
+    return n;
+  }
+  return null;      // a village with no trees within reach; the woods will offer one later
 }
 
 /* ---------- somewhere to fish ----------
@@ -16184,7 +16253,14 @@ function updateUnit(u, dt){
     else {
       const near = moveToward(u, bug.x, bug.y, spd, dt, BUG_CATCH_R);
       u.moving = !near;
-      if(near) takeBug(u, bug);
+      /* Arriving no longer takes it. It opens the catching game, and the
+         game decides - which is the whole point of there being one. The
+         Ashkin have no hands on a screen, so anything not the player's
+         still simply takes it. */
+      if(near){
+        if(u.p === P_YOU && typeof startBugGame === "function") startBugGame(u, bug);
+        else takeBug(u, bug);
+      }
       return;
     }
   }
@@ -30029,26 +30105,6 @@ function drawPerson(u, pl, yOff){
     ctx.fillStyle = "#eee9f4";
     ctx.beginPath(); ctx.arc(headR*0.98, headY-headR*1.18, headR*0.20, 0, 6.283); ctx.fill();
   } else if(u.fisherman){
-  /* ---------- the bug catcher: a glass, and a cap with a net brim ----------
-     Their tool, and the thing that says at a glance which of the two
-     collectors this is. The glass is held up rather than carried at the
-     side: somebody who spends their life looking closely at small things
-     holds it where they are looking. Drawn before the head so the hand and
-     the rim sit in front of the face rather than behind it. */
-  if(u.bugCatcher && !u.indoors){
-    const gx = tw*0.95, gy = shldY + H*0.02;
-    ctx.strokeStyle = "#4a4030"; ctx.lineWidth = Math.max(1.1, H*0.045);
-    ctx.beginPath(); ctx.moveTo(tw*0.55, shldY+H*0.18); ctx.lineTo(gx, gy); ctx.stroke();
-    // the lens: a ring, and a pale disc you can see the ground through
-    ctx.fillStyle = "rgba(214,232,240,.45)";
-    ctx.beginPath(); ctx.arc(gx, gy-H*0.055, H*0.085, 0, 6.283); ctx.fill();
-    ctx.strokeStyle = "#6a5a3a"; ctx.lineWidth = Math.max(1, H*0.032);
-    ctx.beginPath(); ctx.arc(gx, gy-H*0.055, H*0.085, 0, 6.283); ctx.stroke();
-    // and a glint, so it reads as glass rather than a hole
-    ctx.strokeStyle = "rgba(255,255,255,.75)"; ctx.lineWidth = Math.max(0.7, H*0.018);
-    ctx.beginPath();
-    ctx.arc(gx, gy-H*0.055, H*0.055, Math.PI*1.05, Math.PI*1.45); ctx.stroke();
-  }
 
     /* A wide, floppy bucket hat rather than the farm's own straw brim - the
        one piece of the outfit that can't read as "the same clothes,
@@ -30070,6 +30126,51 @@ function drawPerson(u, pl, yOff){
       ctx.fillStyle = fc;
       ctx.beginPath(); ctx.arc(fx, headY-headR*0.42, headR*0.09, 0, 6.283); ctx.fill();
     }
+  }
+
+  /* Drawn AFTER the whole hat chain above, not inside it. This block used
+     to sit as the first statement in the `else if(u.fisherman)` branch -
+     so the bug catcher's own headwear, and before it their magnifying
+     glass, only ever drew on a FISHERMAN. It was dead code from the day
+     it shipped, which is why a bug catcher looked like an ordinary
+     villager holding an axe. A standalone `if` after the chain is the
+     only correct place: the catcher is not one of the chain's cases. */
+  /* ---------- the bug catcher: a cap with a net brim ----------
+     The glass is NOT drawn here any more. It used to be, up beside the
+     face, while the hand below it held the axe every villager defaults
+     to - so the loudest thing on a bug catcher was a pickaxe. It is a
+     held prop now (drawCatcherGlass, in the drawHeld switch), which is
+     where every other trade keeps its tool.
+
+     What is left up here is the hat, which is what a trade actually
+     needs: something that reads at map zoom when the hands are busy or
+     off-screen. Soft crown, and a brim of pale gauze with the weave
+     showing - the same netting as the one leaning by their door. */
+  if(u.bugCatcher && !u.indoors){
+    const moss = "#6a7a52", mossDim = shade(moss, -0.26);
+    // the gauze brim, wide and see-through, with a dark edge so it holds
+    // its shape against snow and against a pale sky
+    ctx.fillStyle = "rgba(226,232,214,.42)";
+    ctx.beginPath();
+    ctx.ellipse(0, headY-headR*0.34, headR*1.42, headR*0.36, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(34,38,26,.55)"; ctx.lineWidth = Math.max(0.5, headR*0.09);
+    ctx.beginPath();
+    ctx.ellipse(0, headY-headR*0.34, headR*1.42, headR*0.36, 0, 0, 6.283); ctx.stroke();
+    // the weave: a couple of threads across it, which is what says "net"
+    ctx.strokeStyle = "rgba(60,66,48,.40)"; ctx.lineWidth = Math.max(0.35, headR*0.05);
+    for(const f of [-0.55, 0, 0.55]){
+      ctx.beginPath();
+      ctx.moveTo(headR*1.42*f, headY-headR*0.34-headR*0.30);
+      ctx.lineTo(headR*1.42*f, headY-headR*0.34+headR*0.30);
+      ctx.stroke();
+    }
+    // the crown, in the same moss as the coat
+    ctx.fillStyle = moss;
+    ctx.beginPath();
+    ctx.ellipse(0, headY-headR*0.66, headR*0.74, headR*0.46, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = mossDim;                       // and its band
+    ctx.beginPath();
+    ctx.ellipse(0, headY-headR*0.40, headR*0.80, headR*0.16, 0, 0, 6.283); ctx.fill();
   }
 
   // ---- armour, so a soldier never reads as a villager in a smock ----
@@ -30566,6 +30667,62 @@ function drawCarryLoad(u, H, tw, shldY){
    so it stays the same thing every frame and every cottage need not look
    like the last one. (idea_gardener_props_variety) */
 const GARDENER_PROPS = ["bucket", "can", "seeds"];
+/* ---------- the bug catcher's glass, held in the hand ----------
+   A magnifying glass is a CIRCLE on a thin stick. If the circle does not
+   plainly read as a circle there is no point drawing it, so the rim is
+   deliberately heavy relative to the lens - at map zoom a hairline ring
+   around a pale disc just turns into a pale disc.
+
+   The dark outer line is not decoration. A pale glass on snow with no
+   outline vanishes, which has caught this project four times over.
+   (feedback_pale_prop_contrast) */
+function drawCatcherGlass(hx, hy, H){
+  const lr = H*0.085;                       // the lens
+  /* The lens is held well out from the fist so there is a real STICK
+     between the two. It used to sit 0.055H out and 0.085H up - close
+     enough that after the rim ate its share there was about 0.04H of
+     handle showing, and at map zoom that is nothing: the glass looked
+     stuck to their hand rather than held in it. Out here the visible
+     handle is a shade over 0.20H, about five times what it was. Pushed
+     OUT rather than up: the extra length has to go sideways, because
+     raising the lens any further walks it into the head and turns
+     "holding a glass" into "holding it to their face". */
+  const cxg = hx + H*0.195, cyg = hy - H*0.135;
+  // the handle, from low in the fist up to the rim and no further
+  const gripX = hx - H*0.02, gripY = hy + H*0.06;
+  const ang = Math.atan2(cyg-gripY, cxg-gripX);
+  ctx.strokeStyle = "#5a4a32";
+  ctx.lineWidth = Math.max(0.9, H*0.024);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(gripX, gripY);
+  ctx.lineTo(cxg - Math.cos(ang)*lr, cyg - Math.sin(ang)*lr);
+  ctx.stroke();
+  // a darker collar where the handle meets the rim, so the join reads
+  ctx.strokeStyle = "#3f3423";
+  ctx.lineWidth = Math.max(1.0, H*0.030);
+  ctx.beginPath();
+  ctx.moveTo(cxg - Math.cos(ang)*lr*1.55, cyg - Math.sin(ang)*lr*1.55);
+  ctx.lineTo(cxg - Math.cos(ang)*lr*1.05, cyg - Math.sin(ang)*lr*1.05);
+  ctx.stroke();
+  ctx.lineCap = "butt";
+  // the glass - you can see the ground through it
+  ctx.fillStyle = "rgba(206,228,238,.42)";
+  ctx.beginPath(); ctx.arc(cxg, cyg, lr, 0, 6.283); ctx.fill();
+  // the brass rim, then a dark line outside it to hold the edge on snow
+  ctx.strokeStyle = "#8a6f36";
+  ctx.lineWidth = Math.max(1.0, H*0.030);
+  ctx.beginPath(); ctx.arc(cxg, cyg, lr, 0, 6.283); ctx.stroke();
+  ctx.strokeStyle = "rgba(26,22,15,.6)";
+  ctx.lineWidth = Math.max(0.5, H*0.012);
+  ctx.beginPath(); ctx.arc(cxg, cyg, lr*1.20, 0, 6.283); ctx.stroke();
+  // and a glint, so it reads as glass rather than a hole
+  ctx.strokeStyle = "rgba(255,255,255,.8)";
+  ctx.lineWidth = Math.max(0.7, H*0.016);
+  ctx.beginPath();
+  ctx.arc(cxg, cyg, lr*0.58, Math.PI*1.06, Math.PI*1.52); ctx.stroke();
+}
+
 function drawGardenerProp(id, hx, hy, H){
   const prop = GARDENER_PROPS[((id|0) % GARDENER_PROPS.length + GARDENER_PROPS.length) % GARDENER_PROPS.length];
   if(prop === "bucket"){
@@ -30792,6 +30949,20 @@ function drawHeld(u, hx, hy, H, atk, pl){
          with a flickering prop. */
       if(u.gardenerProp !== undefined){
         drawGardenerProp(u.gardenerProp, hx, hy, H);
+        break;
+      }
+      /* THE GLASS, and it belongs here rather than up by the head where it
+         was. The bug catcher had no entry in this switch at all, so they
+         fell through to the axe every other villager defaults to - and the
+         glass was drawn separately near the face, where the axe's grey
+         head simply read louder. Zoomed all the way in, the bug catcher
+         was a villager holding a pickaxe with a faint smudge by their ear.
+
+         Held in the hand like every other trade's tool, so it follows the
+         pose, the walk and the work the way the gardener's bucket and the
+         fisherman's rod already do. */
+      if(u.bugCatcher){
+        drawCatcherGlass(hx, hy, H);
         break;
       }
       // axe: haft + head, tool metal upgrades with the age
@@ -42928,6 +43099,14 @@ function findHome(u){
     const own = mine.find(b=>b.type==="fisherhouse");
     if(own) return own;
   }
+  /* And the bug catcher in theirs, on exactly the same terms. Before it
+     is built they fall straight through to the ordinary houses below like
+     anybody else - which is most of the match, since the house is locked
+     behind five kinds in the book. */
+  if(u.bugCatcher){
+    const own = mine.find(b=>b.type==="bughouse");
+    if(own) return own;
+  }
 
   if(u.founder) return hall || null;
 
@@ -48204,14 +48383,23 @@ function pickTradeFindSpot(){
 }
 
 function trySpecialistFind(){
-  if(G.nodes.some(n=>n.kind==="tradefind")) return false;   // one out at a time
+  /* One out at a time - but the GLASS that every village starts with does
+     not count towards that. It sits in the trees from the first morning
+     and may sit there for a season if nobody fetches it, and without this
+     exemption it would quietly block every other trade for as long as it
+     lay there: ignore the glass and you would never get a baker. */
+  if(G.nodes.some(n=>n.kind==="tradefind" && !n.startFind)) return false;
   /* Not while the village is still a camp. The Wandering Age builds only
      what it lives on - its menu is four things and a locked door - so a
      trade found then could not be raised for however long the opening
      lasts, and the clue would be a promise the game could not keep. A
      trade belongs to a village that has settled. (WANDERING_AGE) */
   if(!G.players[P_YOU] || !G.players[P_YOU].stoneAge) return false;
-  const left = tradesUnlearned();
+  /* ...and never offer a trade whose find is ALREADY lying out there,
+     which the starting glass made possible for the first time: without
+     this the woods could put a second glass down beside the first. */
+  const out = new Set(G.nodes.filter(n=>n.kind==="tradefind").map(n=>n.trade));
+  const left = tradesUnlearned().filter(t => !out.has(t.key));
   if(!left.length) return false;                            // every trade learned
   const days = tradeDaysThisSeason();
   if((G.tradeTaken||0) >= TRADE_FINDS_PER_SEASON) return false;
@@ -50387,6 +50575,599 @@ function bugCatchSummary(p){
          got+" of "+total+" kinds" +
          (moon ? " — and "+moon+" of the moonstone ones" : "");
 }
+
+/* ============================================================
+   THE BUG CATCHING GAME
+   ============================================================
+   Asked for exactly: you tap the catcher, tap Gather, tap a bug - and
+   then instead of simply taking it you have to EARN it, in two rounds.
+
+     Round one   a clockwise circle. A red pacer runs round a ring and
+                 you keep your finger on it the whole way. The speed
+                 varies - slow, medium or fast - so the circle is never
+                 the same twice.
+
+     Round two   an odd shape, traced the same way. A figure of eight, a
+                 star, a clover, a spiral. Again slow, medium or fast,
+                 and the shapes themselves get harder.
+
+   Both rounds are the SAME verb - follow the red thing - which is what
+   makes it learnable. What changes is the road and how fast you are
+   pushed down it, and that is where all the difficulty lives.
+
+   Deliberately a different shape of game from the fishing, which is a
+   timing bar you stop. This one is continuous: it asks for a steady
+   hand for several seconds rather than one well-judged moment. Asked
+   for as "its own game, a different shape".
+
+   Everything here is in UNIT coordinates - the paths are drawn in a
+   square from -1 to 1 and scaled to the play area at draw time - so a
+   shape reads the same on a phone and on a desktop, and adding a new
+   shape means writing a curve rather than pixel positions. */
+
+/* How long the pacer takes to go round once. Slower is not automatically
+   easier: a slow pacer is a test of patience and a fast one a test of
+   nerve, and the tolerance below tightens for the slow ones so they are
+   not simply free. */
+const BUG_PACE = {
+  slow:   { round1: 5.2, round2: 6.4, tol: 0.085, label: "slow"   },
+  medium: { round1: 3.6, round2: 4.4, tol: 0.105, label: "steady" },
+  fast:   { round1: 2.3, round2: 2.9, tol: 0.135, label: "quick"  }
+};
+const BUG_PACE_KEYS = ["slow", "medium", "fast"];
+
+/* ---------- the shapes ----------
+   Each is a function of s (0..1, once round) returning a point in the
+   unit square. Written as closed loops so the pacer comes home, and
+   ordered by how hard they are to follow: `hard` is how much of the
+   round-two pool a shape is allowed to be picked from as the book
+   fills up, so an early catch is a figure of eight and a late one is a
+   five-pointed star. */
+const BUG_PATHS = [
+  { key:"circle", name:"a circle", hard:0,
+    at:(s)=>{ const a = -Math.PI/2 + s*6.283; return {x:Math.cos(a), y:Math.sin(a)}; } },
+
+  /* ---- gentle: wide, and never more than a couple of turns ---- */
+  { key:"oval", name:"a tilted oval", hard:1,
+    at:(s)=>{ const a = s*6.283, c=Math.cos(0.42), n=Math.sin(0.42);
+      const x=Math.cos(a)*0.96, y=Math.sin(a)*0.54;
+      return { x: x*c - y*n, y: x*n + y*c }; } },
+
+  { key:"eight", name:"a figure of eight", hard:1,
+    /* 0.78/0.83, not 0.86/0.92. The two axes are at their widest at
+       DIFFERENT points of the loop, so a figure of eight sized by its
+       own axes reached 1.11 of the play area on the diagonal and the
+       pacer ran off the edge of the ring. Peaks at 0.99 now. */
+    at:(s)=>{ const a = s*6.283;
+      return { x: Math.sin(a*2)*0.78, y: -Math.cos(a)*0.83 }; } },
+
+  { key:"wideeight", name:"a lazy eight", hard:1,
+    at:(s)=>{ const a = s*6.283;
+      return { x: Math.sin(a)*0.94, y: -Math.sin(a*2)*0.46 }; } },
+
+  { key:"bean", name:"a bean", hard:1,
+    at:(s)=>{ const a = s*6.283, r = 0.56 + 0.40*Math.cos(a);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r*1.05 }; } },
+
+  /* ---- middling: more lobes, or a tighter waist ---- */
+  { key:"peanut", name:"a peanut", hard:2,
+    at:(s)=>{ const a = s*6.283, r = 0.62 + 0.34*Math.cos(a*2);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  { key:"trefoil", name:"a three-leaf", hard:2,
+    at:(s)=>{ const a = s*6.283, r = 0.58 + 0.36*Math.cos(a*3);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  { key:"clover", name:"a clover", hard:2,
+    at:(s)=>{ const a = s*6.283, r = 0.60 + 0.34*Math.cos(a*4);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  { key:"ripple", name:"a scalloped ring", hard:2,
+    at:(s)=>{ const a = s*6.283, r = 0.85 + 0.11*Math.cos(a*8);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  /* ---- harder: tight turns, or a road that doubles back ---- */
+  { key:"blossom", name:"a blossom", hard:3,
+    at:(s)=>{ const a = s*6.283, r = 0.60 + 0.33*Math.sin(a*5);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  { key:"wave", name:"a wavy ring", hard:3,
+    at:(s)=>{ const a = s*6.283, r = 0.76 + 0.21*Math.cos(a*6);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  { key:"cloud", name:"a cloud", hard:3,
+    at:(s)=>{ const a = s*6.283,
+      r = 0.72 + 0.13*Math.cos(a*3) + 0.10*Math.cos(a*5);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  { key:"innerloop", name:"a loop within a loop", hard:3,
+    /* Replaced the out-and-back spiral, which reversed direction dead at
+       its turn - a cusp by any other name, and the same "stop and start
+       again" the star was dropped for. A limacon does the same job (a
+       road that crosses itself and doubles back through the middle) with
+       the heading turning smoothly the whole way. r goes negative on the
+       far side, which is what draws the inner loop. */
+    at:(s)=>{ const a = s*6.283, r = 0.34 + 0.62*Math.cos(a);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  /* ---- hardest: many lobes, or a road that crosses itself ---- */
+  { key:"daisy", name:"a daisy", hard:4,
+    at:(s)=>{ const a = s*6.283, r = 0.66 + 0.28*Math.cos(a*7);
+      return { x: Math.cos(a)*r, y: Math.sin(a)*r }; } },
+
+  { key:"knot", name:"a looped knot", hard:4,
+    /* A trefoil knot, which crosses itself three times - the only road
+       here where the pacer passes over a stretch you have already
+       traced, so you cannot navigate by the green alone. */
+    at:(s)=>{ const a = s*6.283;
+      const x = Math.sin(a) + 2*Math.sin(a*2);
+      const y = Math.cos(a) - 2*Math.cos(a*2);
+      return { x: x*0.30, y: y*0.30 }; } }
+];
+
+function bugPathByKey(key){
+  for(const p of BUG_PATHS) if(p.key === key) return p;
+  return BUG_PATHS[0];
+}
+
+/* Round two gets harder as the book fills. Under a dozen kinds taken it
+   is the gentle shapes; by fifty it is anything. The circle itself is
+   never round two - that is round one's job. */
+function pickBugShape(kindsTaken){
+  const reach = kindsTaken >= 50 ? 4 : kindsTaken >= 25 ? 3 : kindsTaken >= 12 ? 2 : 1;
+  const pool = BUG_PATHS.filter(p => p.key !== "circle" && p.hard <= reach);
+  return pool[(Math.random()*pool.length)|0];
+}
+
+function pickBugPace(){
+  return BUG_PACE_KEYS[(Math.random()*BUG_PACE_KEYS.length)|0];
+}
+
+/* ---------- a round ---------- */
+function startBugGame(u, bug){
+  if(!u || !bug || !bug.key) return false;
+  const taken = (typeof bugKindsTaken === "function") ? bugKindsTaken(u.p) : 0;
+  G.bugGame = {
+    unit: u, bug: bug,
+    round: 1,
+    path: bugPathByKey("circle"),
+    paceKey: pickBugPace(),
+    s: 0,                 // where the pacer is, 0..1
+    t: 0,
+    onT: 0, totalT: 0,    // time spent on the pacer, and time spent at all
+    scores: [],
+    trail: [],            // where the finger has been, for drawing
+    ptr: null,            // the finger, in unit coordinates
+    down: false,
+    started: false,       // the pacer waits until the finger arrives
+    lead: 0.9,            // a beat to get your finger to the start
+    kinds: taken,
+    done: false, result: null, resultT: 0
+  };
+  G.running = false;      // the village waits while you do this
+  return true;
+}
+
+/* THREE rounds, not two: circle, circle, then the shape. The second
+   circle is the same road at a fresh speed, which is the point of it -
+   the first lap teaches you the gesture and the second asks you to do it
+   again at a pace you did not choose. The shape comes last, once your
+   hand is already in. */
+const BUG_ROUNDS = 3;
+function endBugRound(){
+  const g = G.bugGame;
+  if(!g) return;
+  const share = g.totalT > 0.001 ? (g.onT / g.totalT) : 0;
+  g.scores.push(Math.max(0, Math.min(1, share)));
+  if(g.round < BUG_ROUNDS){
+    g.round++;
+    /* Rounds one and two are both the circle. Only the last is a shape. */
+    g.path = g.round < BUG_ROUNDS ? bugPathByKey("circle") : pickBugShape(g.kinds);
+    let pace = pickBugPace();
+    // never the same speed twice running, or the second lap is the first again
+    let guard = 0;
+    while(pace === g.paceKey && guard++ < 8) pace = pickBugPace();
+    g.paceKey = pace;
+    g.s = 0; g.onT = 0; g.totalT = 0; g.trail = [];
+    g.started = false; g.lead = 0.9;
+    return;
+  }
+  finishBugGame();
+}
+
+/* The two rounds are averaged rather than multiplied. Multiplying makes
+   one fumbled round throw the whole catch away, and the point of two
+   rounds is that the second is a chance to recover the first. */
+const BUG_CATCH_BAR = 0.42;      // below this it gets away
+function finishBugGame(){
+  const g = G.bugGame;
+  if(!g) return;
+  const q = g.scores.reduce((a,b)=>a+b, 0) / Math.max(1, g.scores.length);
+  g.quality = q;
+  g.done = true;
+  g.resultT = 0;
+  if(q >= BUG_CATCH_BAR){
+    g.result = "caught";
+    const t = takeBug(g.unit, g.bug, q);
+    g.type = t;
+    if(g.unit && g.unit.p === P_YOU) showBugCard(t, g.unit);
+  } else {
+    g.result = "away";
+    /* It is NOT removed from the world. Losing a bug you can see again is
+       a miss; deleting it is a punishment, and this is meant to be the
+       gentlest thing in the village. It scatters instead. */
+    const b = g.bug;
+    if(b){ b.a = Math.random()*6.283; b.scatterT = 1.4; }
+    if(g.unit){ g.unit.order = null; g.unit.chasing = null; g.unit.moving = false; }
+    if(typeof hint === "function") hint("It slips away before the jar is anywhere near it.");
+  }
+}
+
+/* ---------- the card, and what happens after it ----------
+   Asked for in this order: the game, then a box telling you what you
+   caught, then - when you close it - the catcher walks back to the Bug
+   Catcher's House with it, and the village hears that it was taken home,
+   looked at, and let go again.
+
+   The letting-go matters. Nothing in the book is a trophy on a pin: the
+   collection is a record of what has been SEEN, which is why a kind stays
+   caught even though the creature itself is put back on the grass. */
+function showBugCard(t, u){
+  if(!t) return;
+  const card = document.getElementById("bugcard");
+  const bar  = document.getElementById("cmdbar");
+  if(!card || !bar) return;
+  const num = document.getElementById("bc_num");
+  const nm  = document.getElementById("bc_name");
+  const meta= document.getElementById("bc_meta");
+  const note= document.getElementById("bc_note");
+  if(num) num.textContent = "#" + t.num;
+  if(nm)  nm.textContent = t.name;
+  const pl = G.players[u ? u.p : P_YOU];
+  const n = (pl && pl.bugLog && pl.bugLog[t.key]) ? pl.bugLog[t.key].count : 1;
+  if(meta) meta.textContent = (n === 1 ? "New to the book" : "Taken " + n + " times")
+    + "  -  " + bugKindsTaken(u ? u.p : P_YOU) + " of " + BUG_TYPES.length + " kinds";
+  if(note) note.textContent = t.note || "";
+  card.classList.toggle("rare", !!t.rare);
+  const cv = document.getElementById("bc_art");
+  if(cv && cv.getContext) drawBugPortrait(cv.getContext("2d"), t, cv.width, cv.height, {});
+  bar.classList.add("bugcard-up");
+}
+function hideBugCard(){
+  const bar = document.getElementById("cmdbar");
+  if(bar) bar.classList.remove("bugcard-up");
+}
+
+/* Off home with it. Before there is a Bug Catcher's House they take it to
+   the TOWN CENTRE instead - which is where everything else in the village
+   without a home of its own ends up, and it means the walk home is a real
+   thing from the very first catch rather than something that only starts
+   working once five kinds are in the book. Same errand either way; only
+   the door changes. */
+function bugTakeItHome(u, t){
+  if(!u || u.hp <= 0) return;
+  const house = G.bldgs.find(b => b.p===u.p && b.type==="bughouse" && b.done);
+  const hall  = house || G.bldgs.find(b => b.p===u.p && b.type==="town" && b.done)
+                      || G.bldgs.find(b => b.p===u.p && b.type==="town");
+  if(hall){
+    giveOrder(u, { order:"move", target:null, tx:hall.x, ty:hall.y + TILE*0.6 });
+    u.bugHomeWith = t ? t.key : null;
+  }
+  if(u.p !== P_YOU || !t) return;
+  const who = villagerName(u);
+  if(house){
+    hint(who + " carries the " + t.name + " back to the house, draws it, and lets it go.");
+  } else if(hall){
+    hint(who + " takes the " + t.name + " back to the town centre, draws it, and lets it go.");
+  } else {
+    hint(who + " notes the " + t.name + " down, and lets it go again.");
+  }
+}
+
+function closeBugGame(){
+  const g = G.bugGame;
+  hideBugCard();
+  if(g && g.result === "caught"){ bugTakeItHome(g.unit, g.type); }
+  G.bugGame = null;
+  G.running = true;
+}
+
+/* ---------- the clock ---------- */
+function bugGameTick(dt){
+  const g = G.bugGame;
+  if(!g) return;
+  if(g.done){ g.resultT += dt; return; }
+
+  const u = g.unit;
+  if(!u || u.hp <= 0 || !G.units.includes(u)){ G.bugGame = null; G.running = true; return; }
+  if(!G.bugs || G.bugs.indexOf(g.bug) < 0){ G.bugGame = null; G.running = true; return; }
+
+  g.t += dt;
+  const pace = BUG_PACE[g.paceKey] || BUG_PACE.medium;
+  const dur = g.round === 1 ? pace.round1 : pace.round2;
+
+  /* The pacer does not set off until the finger is on it. Starting the
+     clock the instant the round opens punishes a player who was still
+     working out what the screen was asking of them, which is a rotten
+     first impression for a game nobody has played before. */
+  if(!g.started){
+    const p0 = g.path.at(0);
+    if(g.down && g.ptr && Math.hypot(g.ptr.x - p0.x, g.ptr.y - p0.y) < pace.tol*2.2){
+      g.started = true;
+    }
+    return;
+  }
+
+  const prev = g.s;
+  g.s += dt / dur;
+  const seg = Math.max(0, g.s - prev);
+  g.totalT += seg;
+
+  const p = g.path.at(Math.min(1, g.s));
+  if(g.down && g.ptr){
+    const d = Math.hypot(g.ptr.x - p.x, g.ptr.y - p.y);
+    if(d <= pace.tol) g.onT += seg;
+    else if(d <= pace.tol*1.8) g.onT += seg*0.45;   // close counts for something
+  }
+
+  if(g.s >= 1){ g.s = 1; endBugRound(); }
+}
+
+/* ---------- the finger ----------
+   Takes CANVAS pixels and converts to the unit square itself, so every
+   caller (pointer events, and the tests) speaks one language. */
+/* The playable band, and it is NOT the whole canvas. The top bar, the
+   message line and the command bar are DOM sitting OVER the canvas, so a
+   ring centred on the canvas runs underneath them and the words drawn at
+   the top are simply invisible - which is exactly what happened first
+   time: a perfect ring and not a single legible word on the screen.
+
+   Measured on a 1280x720 view: clear from y=105 to y=592 in CSS pixels,
+   which is 0.146 to 0.822 of the height. The fractions below keep inside
+   that with room to spare, and a text band is reserved at the top of it
+   before the ring gets what is left. */
+const BUG_SAFE_TOP = 0.17, BUG_SAFE_BOT = 0.80, BUG_TEXT_BAND = 0.13;
+function bugGameArea(w, h){
+  const top = h*BUG_SAFE_TOP, bot = h*BUG_SAFE_BOT;
+  const ringTop = top + h*BUG_TEXT_BAND;
+  const r = Math.max(40, Math.min(w*0.40, (bot - ringTop)/2));
+  return { cx: w/2, cy: (ringTop + bot)/2, r: r, top: top, bot: bot, textY: top };
+}
+function bugGamePoint(px, py, w, h){
+  const a = bugGameArea(w, h);
+  return { x: (px - a.cx)/a.r, y: (py - a.cy)/a.r };
+}
+function bugGamePointer(px, py, w, h, down){
+  const g = G.bugGame;
+  if(!g || g.done) return;
+  g.down = !!down;
+  if(!down){ g.ptr = null; return; }
+  g.ptr = bugGamePoint(px, py, w, h);
+  g.trail.push({ x:g.ptr.x, y:g.ptr.y, t:g.t });
+  if(g.trail.length > 260) g.trail.shift();
+}
+
+/* ---------- drawing it ----------
+   Straight onto the game canvas over a dimmed world, rather than into a
+   DOM panel. The whole game is one continuous gesture across a large
+   area, and a canvas is the only thing that can show the road, the
+   pacer and your own trail in the same space without fighting the
+   layout on a phone. */
+function drawBugGame(){
+  const g = G.bugGame;
+  if(!g) return;
+  const cv = ctx.canvas;
+  const w = cv.width, h = cv.height;
+  const a = bugGameArea(w, h);
+  const pace = BUG_PACE[g.paceKey] || BUG_PACE.medium;
+  const U = a.r;                              // one unit, in pixels
+  const px = (p)=> ({ x: a.cx + p.x*U, y: a.cy + p.y*U });
+
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+
+  // the world goes back so the road reads
+  ctx.fillStyle = "rgba(12,10,8,.72)";
+  ctx.fillRect(0,0,w,h);
+
+  const S = Math.min(w,h)/900;                // one "point" of line weight
+
+  // ---- the road, faint the whole way round ----
+  ctx.strokeStyle = "rgba(226,214,180,.30)";
+  ctx.lineWidth = Math.max(2, pace.tol*U*2);  // as wide as the tolerance, so
+  ctx.lineCap = "round"; ctx.lineJoin = "round";  // the road IS the margin
+  ctx.beginPath();
+  for(let i=0;i<=220;i++){
+    const q = px(g.path.at(i/220));
+    if(i) ctx.lineTo(q.x,q.y); else ctx.moveTo(q.x,q.y);
+  }
+  ctx.stroke();
+  // a hairline down the middle of it
+  ctx.strokeStyle = "rgba(240,232,206,.42)";
+  ctx.lineWidth = Math.max(1, 1.6*S);
+  ctx.stroke();
+
+  // ---- the part already travelled ----
+  if(g.started && g.s > 0){
+    ctx.strokeStyle = "rgba(140,214,140,.55)";
+    ctx.lineWidth = Math.max(2, pace.tol*U*1.5);
+    ctx.beginPath();
+    const steps = Math.max(2, Math.round(220*g.s));
+    for(let i=0;i<=steps;i++){
+      const q = px(g.path.at((i/steps)*g.s));
+      if(i) ctx.lineTo(q.x,q.y); else ctx.moveTo(q.x,q.y);
+    }
+    ctx.stroke();
+  }
+
+  // ---- your own trail ----
+  if(g.trail.length > 1){
+    ctx.strokeStyle = "rgba(150,205,255,.75)";
+    ctx.lineWidth = Math.max(1.5, 3*S);
+    ctx.beginPath();
+    for(let i=0;i<g.trail.length;i++){
+      const q = px(g.trail[i]);
+      if(i) ctx.lineTo(q.x,q.y); else ctx.moveTo(q.x,q.y);
+    }
+    ctx.stroke();
+  }
+
+  // ---- the pacer: the red thing you follow ----
+  const pp = px(g.path.at(Math.min(1, g.s)));
+  const on = (()=>{
+    if(!g.down || !g.ptr) return false;
+    const p = g.path.at(Math.min(1, g.s));
+    return Math.hypot(g.ptr.x-p.x, g.ptr.y-p.y) <= pace.tol;
+  })();
+  // its halo, which brightens while you are on it
+  ctx.fillStyle = on ? "rgba(120,230,140,.30)" : "rgba(228,70,60,.26)";
+  ctx.beginPath(); ctx.arc(pp.x, pp.y, pace.tol*U, 0, 6.283); ctx.fill();
+  ctx.strokeStyle = on ? "rgba(150,240,160,.9)" : "rgba(240,110,96,.9)";
+  ctx.lineWidth = Math.max(1.5, 2.4*S);
+  ctx.beginPath(); ctx.arc(pp.x, pp.y, pace.tol*U, 0, 6.283); ctx.stroke();
+  // and the dot itself
+  ctx.fillStyle = on ? "#7ee08a" : "#e2453c";
+  ctx.beginPath(); ctx.arc(pp.x, pp.y, Math.max(4, 7*S), 0, 6.283); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  ctx.beginPath(); ctx.arc(pp.x - 2*S, pp.y - 2*S, Math.max(1.5, 2.6*S), 0, 6.283); ctx.fill();
+
+  // ---- where to put your finger, before it sets off ----
+  if(!g.started){
+    const q = px(g.path.at(0));
+    const pulse = 0.55 + 0.45*Math.sin(g.t*5);
+    ctx.strokeStyle = "rgba(255,240,180," + pulse.toFixed(2) + ")";
+    ctx.lineWidth = Math.max(2, 3*S);
+    ctx.beginPath(); ctx.arc(q.x, q.y, pace.tol*U*1.5, 0, 6.283); ctx.stroke();
+  }
+
+  // ---- the words ----
+  const big = Math.max(15, 26*S), small = Math.max(11, 17*S);
+  const ty = a.textY;                          // inside the clear band, not under the HUD
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#f0e6cc";
+  ctx.font = "600 " + big + "px Georgia, serif";
+  /* The round count lives IN the heading. It was a separate line under
+     the ring, and the ring already reaches the bottom of the clear band -
+     so that line was drawn onto the command bar and half of it was cut
+     off. One line, inside the band, and nothing to collide with. */
+  const heads = g.done
+    ? (g.result === "caught" ? "Taken" : "It got away")
+    : (g.round === 1 ? "Round one of three - go round clockwise"
+     : g.round === 2 ? "Round two of three - round again"
+                     : "Round three of three - trace the shape");
+  ctx.fillText(heads, w/2, ty);
+
+  ctx.font = small + "px system-ui, sans-serif";
+  ctx.fillStyle = "rgba(226,214,186,.85)";
+  let sub;
+  if(g.done){
+    /* When it is caught the CARD is up, and the card's x is the only way
+       out of it - the same rule the catch card already taught. Telling
+       the player to tap the screen as well would have them poking at a
+       dimmed map that is deliberately ignoring them. */
+    sub = g.result === "caught"
+      ? "Close the card and they will take it home"
+      : "Keep your finger on the red dot the whole way round.   (tap to carry on)";
+  } else if(!g.started){
+    sub = "Put your finger on the ring, and it will set off";
+  } else {
+    sub = "Keep on the dot - " + (g.path.name || "") + ", " + pace.label;
+  }
+  ctx.fillText(sub, w/2, ty + big*1.05);
+
+  // how well it is going, as a bar rather than a number
+  if(!g.done && g.started){
+    const share = g.totalT > 0.001 ? g.onT/g.totalT : 0;
+    const bw = Math.min(w*0.5, U*1.6), bh = Math.max(5, 9*S);
+    const bx = w/2 - bw/2, by = ty + big*1.05 + small*1.4;
+    ctx.fillStyle = "rgba(255,255,255,.14)";
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = share >= BUG_CATCH_BAR ? "#7ee08a" : "#e2a33c";
+    ctx.fillRect(bx, by, bw*share, bh);
+    ctx.strokeStyle = "rgba(255,255,255,.5)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(bx + bw*BUG_CATCH_BAR, by-2*S);
+    ctx.lineTo(bx + bw*BUG_CATCH_BAR, by+bh+2*S);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+/* ---------- the finger on the glass ----------
+   Bound on the game canvas itself, and it swallows the event whenever a
+   round is running so a trace across the map cannot also be read as
+   dragging the camera or as a tap that gives an order. That was the
+   first thing that went wrong: the circle worked and the village
+   scrolled out from under it at the same time.
+
+   Coordinates are converted from CSS pixels to CANVAS pixels here,
+   because everything downstream measures in canvas space. Getting this
+   wrong on a high-density screen halves every distance and the game
+   silently becomes impossible. */
+(function(){
+  const cv = document.getElementById("game");
+  if(!cv || !cv.addEventListener) return;
+  const live = () => !!(G && G.bugGame);
+
+  function toCanvas(e){
+    const r = cv.getBoundingClientRect();
+    const sx = cv.width / r.width, sy = cv.height / r.height;
+    return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
+  }
+  function eat(e){ e.preventDefault(); e.stopPropagation(); }
+
+  cv.addEventListener("pointerdown", (e)=>{
+    if(!live()) return;
+    const g = G.bugGame;
+    if(g.done){
+      /* A miss has no card, so a tap moves on. A catch DOES have one, and
+         its x is the only way out - see the note by the subtitle. */
+      if(g.result !== "caught" && g.resultT > 0.35) closeBugGame();
+      eat(e); return;
+    }
+    const p = toCanvas(e);
+    bugGamePointer(p.x, p.y, cv.width, cv.height, true);
+    if(cv.setPointerCapture && e.pointerId !== undefined){
+      try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+    }
+    eat(e);
+  }, true);
+
+  cv.addEventListener("pointermove", (e)=>{
+    if(!live() || G.bugGame.done) return;
+    if(!G.bugGame.down) return;
+    const p = toCanvas(e);
+    bugGamePointer(p.x, p.y, cv.width, cv.height, true);
+    eat(e);
+  }, true);
+
+  const up = (e)=>{
+    if(!live() || G.bugGame.done) return;
+    bugGamePointer(0, 0, cv.width, cv.height, false);
+    if(e) eat(e);
+  };
+  cv.addEventListener("pointerup", up, true);
+  cv.addEventListener("pointercancel", up, true);
+  cv.addEventListener("pointerleave", up, true);
+})();
+
+/* The card's x. Bound the same way the fish card's is - pointerdown AND
+   click - because on a touch screen the pointer event lands first and on
+   a desktop the click does, and binding only one of them leaves the
+   button dead on one of the two. */
+(function(){
+  const x = document.getElementById("bc_close");
+  if(!x || !x.addEventListener) return;
+  const shut = (e)=>{
+    if(!G || !G.bugGame) return;
+    closeBugGame();
+    if(e && e.preventDefault){ e.preventDefault(); e.stopPropagation(); }
+  };
+  x.addEventListener("pointerdown", shut);
+  x.addEventListener("click", shut);
+})();
 
 /* ============================================================
    DEPTH - things further away than the world, and things nearer
@@ -53858,7 +54639,13 @@ function frame(ts){
       if(hintT>0){ hintT-=dt; if(hintT<=0) $("hint").classList.remove("show"); }
     }
   }catch(e){ reportError(e, "the game update"); }
+  /* The catching game runs OUTSIDE the G.running gate above, because it
+     deliberately stops the village while you play it - the same as the
+     book screen does. If its clock lived inside that gate it would pause
+     itself the moment it started, and the pacer would never move. */
+  try{ if(G && G.bugGame) bugGameTick(dt); }catch(e){ reportError(e, "the catching game"); }
   try{ if(G) draw(); }catch(e){ reportError(e, "drawing the world"); }
+  try{ if(G && G.bugGame) drawBugGame(); }catch(e){ reportError(e, "drawing the catching game"); }
   try{ if(G){ refreshTop(); refreshQueue(); refreshGroups(); refreshAgeBar(); refreshDayArc(); updateQueueScrollHint(); renderFishPanel(); } }catch(e){ reportError(e, "the interface"); }
   requestAnimationFrame(frame);
 }
