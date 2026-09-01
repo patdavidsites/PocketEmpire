@@ -1086,6 +1086,7 @@
         </ul>
         <div class="sec">Spotted, and put right</div>
         <ul>
+          <li><strong>Two odd little tabs on the bottom corners of the hall&rsquo;s roof.</strong> Its first two ages draw a tall triangle of their own, and that triangle stood three pixels proud of the wall either side &mdash; an ordinary eave, and on an ordinary shallow roof it reads as one. This pitch is very nearly vertical where it meets the wall, so a flat little spur at the bottom of it did not read as an overhang at all. The triangle sits on its walls now, and is simply a triangle</li>
           <li><strong>The whole village kept ending up in the fisherman&rsquo;s group.</strong> A group remembers the <em>kinds</em> of unit in it, so anything you train later of the same kind falls straight in &mdash; which is right for eight spearmen and quite wrong for the fisherman, because a fisherman <em>is</em> a villager. Putting him in a group claimed every villager in the game for it, and every one raised afterwards was swept in behind him. The same fault meant two trades could never hold a group each: grouping the bug catcher tore the claim back off the fisherman&rsquo;s group. The people who are somebody in particular &mdash; the founder and the trades &mdash; can sit in a group now without lending their kind to it</li>
           <li><strong>The granary&rsquo;s man never went to bed.</strong> Everyone else with a building of their own turns in at dusk; he had simply never been given the rule, and was still out at midnight pottering about the yard a few steps from his own door. He walks back and goes in now, and comes out again in the morning</li>
           <li><strong>Villagers were walking about underneath the fields.</strong> A field is ground you walk over &mdash; that has always been true &mdash; so it is drawn behind everyone standing on it. When the crops grew tall enough to be worth looking at, fields were moved into the ordinary depth order so a berry bush behind one would stop covering the corn; and that put the soil itself over anybody working at the field&rsquo;s top edge. Both wants are real, so a field is drawn in two parts now: the soil and the far fence at the very back where they belong, and the tall crop standing in the world in its own right. A bush behind the field goes down first, a villager on the field walks in front of it, and one standing among the corn is partly hidden by the rows nearer you</li>
@@ -1124,6 +1125,15 @@
           <li><strong>A sunflower was a yellow disc with a brown dot in it</strong> &mdash; a bullseye on a green pole. Close in it now has a ring of petals, a seeded centre that only darkens once there is seed to show, green sepals behind, and the <strong>broad drooping leaves</strong> that are most of what makes a sunflower a sunflower. A ripe head <em>nods</em>, because one full of seed is too heavy to hold itself up</li>
           <li><strong>The flower was not attached to its own stem.</strong> The stalk leaned in the wind and breathed a little in height &mdash; and the head did neither, because it was placed from its own arithmetic rather than the stalk&rsquo;s. So in any breeze a sunflower head sat beside its stalk and drifted against it, on both axes, by as much as four pixels on a head three across. Reported exactly that way. Head and stalk take their lean and their height from one place now, so they cannot disagree. The same fault had wheat&rsquo;s ears and the pea pods off their stems too</li>
           <li><strong>A field was drawn behind everything on the map.</strong> Right while a field was flat green rows on the ground; wrong the day the crops grew tall, because a berry bush standing well behind a field was still painted over the top of the sunflowers in front of it. Fields take their place in the world like anything else now &mdash; what is behind them goes down first, what is in front comes after, and the workers on them stay visible</li>
+        </ul>
+        <div class="sec">A field goes on living after it ripens</div>
+        <ul>
+          <li><strong>Four of a crop&rsquo;s seven days were the same picture.</strong> A field reached full ear on day three and then stood <em>pixel for pixel identical</em> until somebody cut it or the season turned. The growth clock simply stopped. It runs on now, and what it tracks after ripeness is how long the crop has been standing there</li>
+          <li><strong>A cabbage left in the ground bolts.</strong> It used to sit there being a cabbage from the day it headed until somebody cut it. Now the outer leaves loosen and splay, and yellow from the edge inwards while the heart &mdash; wrapped up inside &mdash; keeps its colour longest. Leave it past about day five and it <em>bolts</em>: a flower stalk pushes straight up out of the middle, which is exactly what a crop left too long looks like</li>
+          <li><strong>Peas dry on the vine.</strong> A pod stopped changing the moment it had its peas in it. One left standing dries instead: it shrinks <em>onto</em> the peas so they show harder rather than softer, the pod goes from bright green to a pale parchment, and the vine and its tendrils yellow off and curl tighter. A row that has stood a few days looks ready to pick</li>
+          <li><strong>Wheat dries in the field.</strong> An ear stopped bending the moment it filled. Grain goes on drying after that, and the neck goes on bending with it &mdash; so from day three the ears hang further and further over, the straw bleaches from a live gold to the pale dry colour of a field waiting to be cut, and the awns splay out and bristle. A week-old field looks ready in a way a three-day-old one does not</li>
+          <li><strong>Sunflowers go to seed.</strong> A head kept exactly the pose it struck the day it opened. The weight of seed keeps arriving after the petals are out, so from day three on it nods further and further over, sheds its petals one at a time until only a ragged few are left, and the middle darkens and fills. By the end of the season it is a seed head looking at the ground rather than a flower looking at you</li>
+          <li><strong>Corn dries where it stands.</strong> A cob does not keep growing once it is made &mdash; what happens is that the plant around it goes off. From day three to day seven the leaves and husks turn from green to straw, the stalks pale with them, and the cob itself deepens from a bright yellow to a dry amber. Every one of those days now looks different from the last</li>
         </ul>
         <div class="sec">Corn, close up</div>
         <ul>
@@ -16448,7 +16458,12 @@ function tick(dt){
       }
     }
     if(b.veg || b.seasonalCrop){
-      b.cropGrowT = Math.min(CROP_GROW_DAYS*DAY_LEN, (b.cropGrowT||0) + dt);
+      /* NOT CLAMPED any more. It used to stop dead at CROP_GROW_DAYS, so a
+         field that reached full ear on day three then stood identical until
+         somebody cut it or the season turned on day seven - four days in
+         which nothing whatever changed. The clock keeps running; how far
+         past ripe a field is comes out of cropAgeOf (05). */
+      b.cropGrowT = (b.cropGrowT||0) + dt;
     }
     // training - a villager mid-training holds overnight rather than
     // stepping out the door into the dark; everything else keeps going
@@ -27824,9 +27839,9 @@ function drawFarmCrop(b){
   const w = b.w*TILE, dep = b.h*TILE;
   const x = b.tx*TILE, y = b.ty*TILE;
   const ripe = b.node ? b.node.amt/b.node.max : 1;
-  const growFrac = Math.min(1, (b.cropGrowT||0) / (CROP_GROW_DAYS*DAY_LEN));
+  const age = cropAgeOf(b);
   ctx.globalAlpha = (visibleTo(P_YOU,b.x,b.y) || b.p===P_YOU) ? 1 : 0.72;
-  drawCropField(x, y, w, dep, kindKey, growFrac, ripe, ripe <= 0.001);
+  drawCropField(x, y, w, dep, kindKey, age.grow, ripe, ripe <= 0.001, age.over);
   // and the near row of posts in front of it, where it belongs
   ctx.fillStyle = "#6b5233";
   for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
@@ -28054,8 +28069,8 @@ function drawBuilding(b){
     const cropKind = farmTallCrop(b) ? null
                    : (b.veg || (b.seasonalCrop && SEASONAL_CROP_KIND[b.seasonalCrop]));
     if(cropKind){
-      const growFrac = Math.min(1, (b.cropGrowT||0) / (CROP_GROW_DAYS*DAY_LEN));
-      drawCropField(x, y, w, dep, cropKind, growFrac, ripe, bare);
+      const age = cropAgeOf(b);
+      drawCropField(x, y, w, dep, cropKind, age.grow, ripe, bare, age.over);
     } else {
       // the plain field: no crop chosen yet (not summer, or summer's own
       // roll hasn't landed this tick). Untouched from before.
@@ -28603,15 +28618,24 @@ function drawBuilding(b){
            put square corners on it it goes back to being a hall. */
         const pitch = ridgeA*1.6;
         const eave = y+dep-H+1;
+        /* NO EAVE OVERHANG ON THIS ONE. The triangle used to run from x-3 to
+           x+w+3, three pixels proud of the wall either side - an ordinary
+           eave, and on an ordinary shallow roof it reads as one. This pitch
+           is nearly vertical at the corners, so a HORIZONTAL three-pixel
+           spur at the bottom of it does not read as an overhang at all: it
+           reads as two odd little tabs stuck on the bottom corners, which is
+           exactly how it was reported. Sat on the wall line, the triangle is
+           a clean triangle. */
+        const eo = 0;
         ctx.fillStyle = shade(pl.col, 0.10);
         ctx.beginPath();
-        ctx.moveTo(x-3, eave);
+        ctx.moveTo(x-eo, eave);
         ctx.lineTo(cx, y-H-pitch);
-        ctx.lineTo(x+w+3, eave);
+        ctx.lineTo(x+w+eo, eave);
         ctx.closePath(); ctx.fill();
         ctx.fillStyle = shade(pl.col, -0.20);          // the shaded half
         ctx.beginPath();
-        ctx.moveTo(x-3, eave);
+        ctx.moveTo(x-eo, eave);
         ctx.lineTo(cx, y-H-pitch);
         ctx.lineTo(cx, eave);
         ctx.closePath(); ctx.fill();
@@ -28620,14 +28644,14 @@ function drawBuilding(b){
         for(let i=1;i<8;i++){
           const t = i/8, yy = eave - (eave-(y-H-pitch))*t;
           ctx.beginPath();
-          ctx.moveTo(x-3 + (cx-(x-3))*t, yy);
-          ctx.lineTo(x+w+3 - ((x+w+3)-cx)*t, yy);
+          ctx.moveTo(x-eo + (cx-(x-eo))*t, yy);
+          ctx.lineTo(x+w+eo - ((x+w+eo)-cx)*t, yy);
           ctx.stroke();
         }
         ctx.strokeStyle = edge; ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(x-3, eave); ctx.lineTo(cx, y-H-pitch);
-        ctx.lineTo(x+w+3, eave); ctx.closePath(); ctx.stroke();
+        ctx.moveTo(x-eo, eave); ctx.lineTo(cx, y-H-pitch);
+        ctx.lineTo(x+w+eo, eave); ctx.closePath(); ctx.stroke();
         // the ridge pole, crossed at the peak the way a thatched one is
         ctx.strokeStyle = "rgba(58,44,28,.9)"; ctx.lineWidth = 1.6;
         ctx.beginPath();
@@ -28645,8 +28669,8 @@ function drawBuilding(b){
           const t = 0.46;                       // how far down the slope it lies
           ctx.beginPath();
           ctx.moveTo(cx, y-H-pitch);
-          ctx.lineTo(x-3 + (cx-(x-3))*(1-t), eave - (eave-(y-H-pitch))*t);
-          ctx.lineTo(x+w+3 - ((x+w+3)-cx)*(1-t), eave - (eave-(y-H-pitch))*t);
+          ctx.lineTo(x-eo + (cx-(x-eo))*(1-t), eave - (eave-(y-H-pitch))*t);
+          ctx.lineTo(x+w+eo - ((x+w+eo)-cx)*(1-t), eave - (eave-(y-H-pitch))*t);
           ctx.closePath(); ctx.fill();
           ctx.restore();
         }
@@ -43941,6 +43965,26 @@ const ORDINARY_FARM_VEG = { summer: ["corn","sunflower"], autumn: ["wheat","cabb
    ripe/bare are the SAME harvest-remaining values the plain field
    already used: a fully-grown field just picked clean still shows as
    short stubble, exactly as before. */
+/* HOW OLD A PLANTING IS, in two parts.
+
+   grow  0..1  bare drills to full ear, over CROP_GROW_DAYS.
+   over  0..1  and then how far PAST that it has stood, across the rest of
+               the season - nought the day it ripens, one by the time the
+               season turns and the field is re-sown with something else.
+
+   The second half did not exist. A field hit full ear on day three and then
+   stood pixel-identical until it was cut or the season ended on day seven:
+   four of a crop's seven days were the same picture. Standing in the sun is
+   not nothing - the ears dry, the leaves go off, a heavy head drops - and
+   that is what `over` is for. */
+function cropAgeOf(b){
+  const full = CROP_GROW_DAYS*DAY_LEN;
+  const t = b.cropGrowT||0;
+  const rest = Math.max(1, (SEASON_DAYS - CROP_GROW_DAYS)*DAY_LEN);
+  return { grow: Math.min(1, t/full),
+           over: Math.max(0, Math.min(1, (t - full)/rest)) };
+}
+
 /* CORN, CLOSE UP.
 
    A cob was a filled rectangle 1.6 by 3.2 pixels on every other stalk. At
@@ -43959,7 +44003,7 @@ const ORDINARY_FARM_VEG = { summer: ["corn","sunflower"], autumn: ["wheat","cabb
    from up there, and is still what gets drawn. */
 const CROP_DETAIL_ZOOM = 2.4;   // shared by every crop that has a close-up
 
-function drawCornCob(cx, cy, h, fill, lean, leafCol){
+function drawCornCob(cx, cy, h, fill, lean, leafCol, over){
   const w = h*0.44;
   const tipX = cx + lean*h*0.30, tipY = cy - h*0.5;
   const botX = cx - lean*h*0.10, botY = cy + h*0.5;
@@ -43977,7 +44021,10 @@ function drawCornCob(cx, cy, h, fill, lean, leafCol){
   }
 
   // the cob itself, pale and thin when it sets, gold and full when ripe
-  const cobCol = mixCol("#c2a76a", "#f0c94a", fill);
+  /* Ripe is not the end of it: a cob left standing deepens from bright
+     yellow toward a dry amber, which is what days four to seven look like
+     on a cob that was already full on day three. */
+  const cobCol = mixCol(mixCol("#c2a76a", "#f0c94a", fill), "#d9a13a", (over||0)*0.7);
   const ox = cx + lean*h*0.12;
   ctx.fillStyle = cobCol;
   ctx.beginPath();
@@ -44098,28 +44145,37 @@ function cropStubble(pts, col){
 
 /* A PEA POD, CLOSE UP - with peas in it, and the tendril that holds the
    vine up, which is the thing you recognise a pea row by. */
-function drawPeaPod(px, py, h, fill, k, col){
-  // the tendril, curling off above the pod
-  ctx.strokeStyle = shade(col, 0.10);
+function drawPeaPod(px, py, h, fill, k, col, over){
+  /* AND WHAT IT DOES AFTER IT IS FULL. A pod stopped changing the moment it
+     had its peas, so days four to seven were one picture. A pod left on the
+     vine dries: it goes from a bright green to a pale parchment, shrinks
+     onto the peas so they show HARDER rather than softer, and the tendril
+     browns off and curls tighter. That is a row ready for picking. */
+  const ov = Math.max(0, Math.min(1, over||0));
+  // the tendril, curling off above the pod - tighter and browner as it dries
+  ctx.strokeStyle = mixCol(shade(col, 0.10), "#b9ab72", ov*0.75);
   ctx.lineWidth = Math.max(0.13, h*0.09);
   ctx.lineCap = "round";
+  const curl = 1 + ov*0.55;
   ctx.beginPath();
   ctx.moveTo(px, py - h*0.30);
-  ctx.quadraticCurveTo(px + h*0.34, py - h*0.86, px - h*0.10, py - h*1.05);
+  ctx.quadraticCurveTo(px + h*0.34*curl, py - h*0.86, px - h*0.10*curl, py - h*1.05);
   ctx.stroke();
   ctx.lineCap = "butt";
   // the pod, hanging and swelling as it fills
-  const pw = h*(0.26 + fill*0.16), ph = h*0.62;
-  ctx.fillStyle = k.headCol;
+  // shrinking onto the peas as it dries, not swelling further
+  const pw = h*(0.26 + fill*0.16) * (1 - ov*0.14), ph = h*0.62;
+  const podCol = mixCol(k.headCol, "#cfc38a", ov*0.75);
+  ctx.fillStyle = podCol;
   ctx.beginPath(); ctx.ellipse(px, py, pw, ph, 0.22, 0, 6.283); ctx.fill();
-  // and the peas showing through it
+  // and the peas showing through it - harder the drier the pod gets
   if(fill > 0.35){
-    ctx.fillStyle = shade(k.headCol, 0.26);
+    ctx.fillStyle = shade(podCol, 0.26 - ov*0.34);
     const n = 3;
     for(let i=0;i<n;i++){
       const t = (i/(n-1) - 0.5) * 1.35;
       ctx.beginPath();
-      ctx.arc(px + t*ph*0.22, py + t*ph*0.74, pw*0.40, 0, 6.283);
+      ctx.arc(px + t*ph*0.22, py + t*ph*0.74, pw*(0.40 + ov*0.10), 0, 6.283);
       ctx.fill();
     }
   }
@@ -44136,22 +44192,52 @@ function drawPeaPod(px, py, h, fill, k, col){
 
    Nothing here below CROP_DETAIL_ZOOM: from an ordinary view the flat
    ellipse is the right drawing and it is still what gets drawn. */
-function drawLowCropDetail(key, k, px, py, r, grow, col){
+function drawLowCropDetail(key, k, px, py, r, grow, col, over){
+  /* `over` is how long this planting has STOOD past ripe, nought on the day
+     it ripens and one when the season turns (cropAgeOf). Without it the low
+     crops hold one picture for four of their seven days, which is what the
+     tall ones did until each was given something to do with the time. */
+  const ov = Math.max(0, Math.min(1, over||0));
   const dark = shade(col, -0.16), lit = shade(col, 0.14);
   switch(key){
 
   case "cabbage": {
-    // a tight ball of leaves wrapped round a pale heart
-    ctx.fillStyle = dark;
-    ctx.beginPath(); ctx.ellipse(px, py, r*1.15, r*0.80, 0, 0, 6.283); ctx.fill();
-    ctx.fillStyle = col;
-    ctx.beginPath(); ctx.ellipse(px, py-r*0.10, r*0.86, r*0.62, 0, 0, 6.283); ctx.fill();
+    /* A tight ball of leaves wrapped round a pale heart - and a cabbage
+       left in the ground does not sit there being a cabbage. The outer
+       leaves loosen and splay, they yellow from the edge in, and given long
+       enough it BOLTS: the heart pushes a flower stalk straight up out of
+       the middle, which is the whole look of a crop left too long. */
+    const loose = ov;                             // how far it has opened out
+    const outer = mixCol(dark, "#b7ba63", loose*0.6);
+    ctx.fillStyle = outer;
+    ctx.beginPath();
+    ctx.ellipse(px, py, r*(1.15 + loose*0.28), r*(0.80 + loose*0.10), 0, 0, 6.283);
+    ctx.fill();
+    /* The heart stays green longest - it is the part wrapped up inside,
+       so it goes over last. */
+    ctx.fillStyle = mixCol(col, "#c3c274", loose*0.35);
+    ctx.beginPath();
+    ctx.ellipse(px, py-r*0.10, r*(0.86 - loose*0.10), r*(0.62 - loose*0.06), 0, 0, 6.283);
+    ctx.fill();
     ctx.strokeStyle = lit; ctx.lineWidth = Math.max(0.16, r*0.09);
     for(let i=-1;i<=1;i++){                       // the veins wrapping it
       ctx.beginPath();
-      ctx.moveTo(px + i*r*0.42, py + r*0.30);
+      ctx.moveTo(px + i*r*(0.42 + loose*0.22), py + r*0.30);
       ctx.quadraticCurveTo(px + i*r*0.20, py - r*0.30, px + i*r*0.08, py - r*0.44);
       ctx.stroke();
+    }
+    // and it bolts, late - a stalk out of the heart with a bud on the end
+    if(ov > 0.55){
+      const b = (ov - 0.55)/0.45;
+      ctx.strokeStyle = shade(col, 0.20); ctx.lineWidth = Math.max(0.16, r*0.10);
+      ctx.beginPath();
+      ctx.moveTo(px, py - r*0.30);
+      ctx.lineTo(px + r*0.06, py - r*(0.30 + b*1.05));
+      ctx.stroke();
+      ctx.fillStyle = "#d6d98a";
+      ctx.beginPath();
+      ctx.arc(px + r*0.06, py - r*(0.32 + b*1.05), r*0.16*b, 0, 6.283);
+      ctx.fill();
     }
     break; }
 
@@ -44291,24 +44377,33 @@ function drawLowCropDetail(key, k, px, py, r, grow, col){
    the thing you actually recognise a wheat field by from a distance, and
    there were none at all. And it nods: a ripe ear is heavy, so it tips over
    and the whole head hangs. */
-function drawWheatEar(cx, cy, h, ripe01, lean, k){
-  const droop = ripe01*ripe01*0.9;
+function drawWheatEar(cx, cy, h, ripe01, lean, k, over){
+  /* A RIPE EAR KEEPS GETTING HEAVIER. Drooping was tied to how full the ear
+     was and stopped the moment it filled, so days four to seven held one
+     pose. Grain goes on drying and the neck goes on bending: an ear that has
+     stood a week is nearly upside down, which is the whole look of a field
+     that is ready and starting to go over. */
+  const ov = Math.max(0, Math.min(1, over||0));
+  const droop = Math.min(1.35, ripe01*ripe01*0.9 + ov*0.55);
   // the ear's own axis, tipping over as it fills
   const ax = lean*0.35 + droop*0.55, ay = -1;
   const tipX = cx + ax*h, tipY = cy + ay*h*(1 - droop*0.30);
-  const grainCol = k.headCol;
+  // bleaching from a live amber toward dry straw as it stands
+  const grainCol = mixCol(k.headCol, "#c9ab6a", ov*0.65);
   const dark = shade(grainCol, -0.22);
 
   // awns first, behind the grain, splaying up off the top
-  ctx.strokeStyle = shade(grainCol, 0.16);
+  ctx.strokeStyle = shade(mixCol(grainCol, "#e0cd9a", ov*0.7), 0.16);
   ctx.lineWidth = Math.max(0.14, h*0.045);
   ctx.lineCap = "round";
+  // and they splay wider as they dry off, the way a dry ear bristles
+  const splay = 1 + ov*0.8;
   for(let i=-2;i<=2;i++){
     if(!i && ripe01 < 0.4) continue;
     ctx.beginPath();
     ctx.moveTo(cx + ax*h*0.55, cy + ay*h*0.55);
-    ctx.quadraticCurveTo(tipX + i*h*0.10, tipY - h*0.20,
-                         tipX + i*h*0.26, tipY - h*0.42);
+    ctx.quadraticCurveTo(tipX + i*h*0.10*splay, tipY - h*0.20,
+                         tipX + i*h*0.26*splay, tipY - h*0.42);
     ctx.stroke();
   }
   ctx.lineCap = "butt";
@@ -44338,8 +44433,15 @@ function drawWheatEar(cx, cy, h, ripe01, lean, k){
    tapered petals, a seeded centre, green sepals showing behind, and a head
    that NODS as it fills with seed, because a ripe sunflower is too heavy to
    hold itself up straight. Nothing here below CROP_DETAIL_ZOOM. */
-function drawSunflowerHead(cx, cy, r, ripe01, k, leafCol){
-  const droop = ripe01*ripe01;                 // heavy heads nod, and nod late
+function drawSunflowerHead(cx, cy, r, ripe01, k, leafCol, over){
+  /* A HEAD GETS HEAVIER THE LONGER IT STANDS. Nodding was tied to how far
+     open the flower was and stopped there, so a sunflower held the same
+     pose for the four days between ripening and the season turning. The
+     weight of seed keeps arriving after the petals are out: it nods
+     further, tips further away from you, and by the end it is looking at
+     the ground. */
+  const ov = Math.max(0, Math.min(1, over||0));
+  const droop = Math.min(1, ripe01*ripe01 + ov*0.75);
   const hy = cy + r*0.30*droop;
   const sq = 1 - droop*0.28;                   // foreshortened as they tip
 
@@ -44352,20 +44454,36 @@ function drawSunflowerHead(cx, cy, r, ripe01, k, leafCol){
                 r*0.42, r*0.20, a, 0, 6.283);
     ctx.fill();
   }
-  // petals
+  /* Petals, and they DROP. Not all at once and not evenly - each one goes
+     at its own point, off its own index, so a head halfway through losing
+     them is gap-toothed rather than thinned all round. */
   const petals = 14;
   for(let i=0;i<petals;i++){
+    /* Coprime with the petal count, or this does not spread at all: with 14
+       petals, i*7 % 14 is only ever 0 or 7, so there were TWO turns to go
+       rather than fourteen and the ring shed in two big steps. 5 and 14
+       share no factor, so every petal gets its own moment. */
+    const gone = ((i*5)%petals)/petals;        // this petal's own turn to go
+    /* Not ALL of them. At full over the first pass dropped every petal and
+       a day-seven field read as rows of small dark dots rather than as
+       sunflowers gone to seed. About a third hang on, ragged, which is what
+       a seed head actually looks like. */
+    if(ov > 0.42 + gone*0.85) continue;
     const a = i/petals*6.283;
     // every third petal a shade off, so the ring is not one flat wheel
-    ctx.fillStyle = (i%3===0) ? shade(k.headCol, -0.12) : k.headCol;
+    // and what is left browns at the edges as it stands
+    const pc = mixCol(k.headCol, "#a8802e", ov*0.6);
+    ctx.fillStyle = (i%3===0) ? shade(pc, -0.12) : pc;
     ctx.beginPath();
     ctx.ellipse(cx + Math.cos(a)*r*0.66, hy + Math.sin(a)*r*0.66*sq,
                 r*0.44, r*0.19, a, 0, 6.283);
     ctx.fill();
   }
-  // the seeded centre
-  ctx.fillStyle = k.headCentre;
-  ctx.beginPath(); ctx.ellipse(cx, hy, r*0.48, r*0.48*sq, 0, 0, 6.283); ctx.fill();
+  // the seeded centre - darker and fuller the longer it has stood
+  ctx.fillStyle = shade(k.headCentre, -ov*0.25);
+  ctx.beginPath();
+  ctx.ellipse(cx, hy, r*(0.48+ov*0.10), r*(0.48+ov*0.10)*sq, 0, 0, 6.283);
+  ctx.fill();
   /* Seeds, in two rings - they only show once there is seed to show, which
      is the whole reason the middle of a sunflower goes dark. */
   if(ripe01 > 0.25){
@@ -44399,9 +44517,10 @@ function drawSunflowerLeaves(px, py, topx, hgt, leafCol){
   }
 }
 
-function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
+function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare, overFrac){
   const k = CROP_KINDS[kindKey];
   if(!k) return;
+  const over = Math.max(0, Math.min(1, overFrac||0));   // how long past ripe
   if(bare){
     ctx.strokeStyle = "#7d6a44"; ctx.lineWidth = 1.4; ctx.lineCap = "round";
     for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
@@ -44465,7 +44584,15 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
   const cornClose = k.headStyle === "cob" && G.cam.z > CROP_DETAIL_ZOOM;
   /* Leaf green, held back from the ripe gold the stalk itself goes to. Only
      the close-up parts use it, so it cannot disagree with the far view. */
-  const cornLeaf = cornClose ? mixCol(k.colYoung, col, 0.30) : col;
+  /* CORN STANDING PAST RIPE. Days four to seven used to be four copies of
+     day three. A cob does not keep growing once it is made - what happens
+     is that the plant around it DRIES: the leaves and husks go from green
+     to straw, and the stalk pales with them. So the green that was held
+     back from the ripe gold gets handed over to it after all, slowly,
+     across the rest of the season. */
+  const cornLeaf = cornClose
+    ? mixCol(mixCol(k.colYoung, col, 0.30), "#c2a55e", over*0.85) : col;
+  const cornStalk = mixCol(col, "#c9b071", over*0.45);
 
   if(k.shape === "stalk" || k.shape === "flower"){
     /* HOW FAR THIS STALK IS LEANING, worked out once and used by the stalk
@@ -44487,8 +44614,23 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
       k.tallMax*gf + Math.sin(G.t*1.4 + rx*0.7 + ry)*0.6;
     const sunClose = k.shape === "flower" && G.cam.z > CROP_DETAIL_ZOOM;
     const earClose = k.headStyle === "grain" && G.cam.z > CROP_DETAIL_ZOOM;
-    const sunLeaf  = sunClose ? shade(col, -0.06) : col;
-    ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.lineCap = "round";
+    /* The straw bleaches under the ear. Wheat standing past ripe goes from a
+       live gold to the pale dry colour of a field waiting to be cut. */
+    const strawCol = (k.headStyle === "grain")
+      ? mixCol(col, "#e2d3a4", over*0.55) : col;
+    /* The pea vine yellows off too, and it has to be worked out HERE rather
+       than in the pod branch below - the stalks are drawn first, so a colour
+       defined down there left green stems holding dry pods. */
+    const vineCol = (k.headStyle === "pod")
+      ? mixCol(col, "#c6bf86", over*0.55) : col;
+    /* SUNFLOWERS STANDING PAST RIPE. The leaves go off the same way the
+       corn's do - a plant left in the sun dries whatever it is. */
+    const sunLeaf  = sunClose
+      ? mixCol(shade(col, -0.06), "#b8a566", over*0.8) : col;
+    ctx.strokeStyle = (k.headStyle==="cob") ? cornStalk
+                    : (k.headStyle==="grain") ? strawCol
+                    : (k.headStyle==="pod")   ? vineCol : col;
+    ctx.lineWidth = 1.7; ctx.lineCap = "round";
     for(let ry=0; ry<k.rows; ry++){
       for(let rx=0; rx<k.cols; rx++){
         const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
@@ -44498,8 +44640,8 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
         const topx = px + swayOf(rx);
         ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(topx, py-hgt); ctx.stroke();
         if(cornClose && hgt > 3){
-          drawCornStalkDetail(px, py, topx, py-hgt, hgt, cornLeaf, col, growFrac);
-          ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.lineCap = "round";
+          drawCornStalkDetail(px, py, topx, py-hgt, hgt, cornLeaf, cornStalk, growFrac);
+          ctx.strokeStyle = cornStalk; ctx.lineWidth = 1.7; ctx.lineCap = "round";
         }
         if(sunClose && hgt > 4){
           drawSunflowerLeaves(px, py, topx, hgt, sunLeaf);
@@ -44520,7 +44662,7 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
         const cx = px + swayOf(rx)*0.6;          // partway up, partway over
         if(cornClose){
           const lean = swayOf(rx) / Math.max(0.001, k.tallMax*gf);
-          drawCornCob(cx, py, Math.max(2.4, k.tallMax*gf*0.34), fill, lean, cornLeaf);
+          drawCornCob(cx, py, Math.max(2.4, k.tallMax*gf*0.34), fill, lean, cornLeaf, over);
         } else {
           ctx.fillRect(cx-0.8, py-1.6, 1.6, 3.2);
         }
@@ -44539,7 +44681,7 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
         const sx = px + swayOf(rx);
         if(earClose){
           drawWheatEar(sx, py, Math.max(2.2, k.tallMax*gf*0.30), fill,
-                       swayOf(rx)/Math.max(0.001, k.tallMax*gf), k);
+                       swayOf(rx)/Math.max(0.001, k.tallMax*gf), k, over);
         } else {
           ctx.beginPath(); ctx.ellipse(sx, py, 0.9, 1.9, 0.2, 0, 6.283); ctx.fill();
         }
@@ -44555,7 +44697,7 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
         const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf*0.55;
         const sx = px + swayOf(rx)*0.55;
         if(podClose){
-          drawPeaPod(sx, py, Math.max(2.0, k.tallMax*gf*0.34), fill, k, col);
+          drawPeaPod(sx, py, Math.max(2.0, k.tallMax*gf*0.34), fill, k, vineCol, over);
         } else {
           ctx.beginPath(); ctx.ellipse(sx, py, 0.8, 1.4, 0, 0, 6.283); ctx.fill();
         }
@@ -44568,7 +44710,7 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
         const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - hgtOf(rx, ry);
         if(headOpen>0 && sunClose){
           // petals, seeds, sepals and a head heavy enough to nod
-          drawSunflowerHead(px, py, 2.1*headOpen, headOpen, k, sunLeaf);
+          drawSunflowerHead(px, py, 2.1*headOpen, headOpen, k, sunLeaf, over);
         } else if(headOpen>0){
           ctx.fillStyle = k.headCol;
           ctx.beginPath(); ctx.arc(px, py, 2.1*headOpen, 0, 6.283); ctx.fill();
@@ -44596,7 +44738,7 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
         if(taken(rx, ry)){ stubs.push(px, py); continue; }
         const r = k.tallMax*0.5*gf + 1;
         if(lowClose){
-          drawLowCropDetail(kindKey, k, px, py, r, growFrac, col);
+          drawLowCropDetail(kindKey, k, px, py, r, growFrac, col, over);
           ctx.fillStyle = col;
         } else {
           ctx.beginPath(); ctx.ellipse(px, py, r, r*0.6, 0, 0, 6.283); ctx.fill();
