@@ -328,7 +328,12 @@
     100% { transform:translateX(0) scaleX(-1);    opacity:.35; }
   }
   #btnwrap{flex:1;position:relative;min-width:0;display:flex;}
-  #selinfo{width:104px;flex:none;border-right:1px solid var(--line);padding-right:8px;}
+  /* A column, so the stats below can take what room is left and scroll in
+     it rather than shoving the name off the top. min-height:0 because a
+     flex child will not shrink below its content without it, and without
+     that the overflow never happens and the panel just gets taller. */
+  #selinfo{width:104px;flex:none;border-right:1px solid var(--line);padding-right:8px;
+    display:flex;flex-direction:column;min-height:0;}
   /* When there is something worth explaining - what a building does, before
      you commit to putting it up - the left strip narrows and the description
      gets a panel of its own out to the right, where there is actually room
@@ -366,7 +371,18 @@
   #selname{font-family:Georgia,serif;font-size:13px;color:var(--parch);margin-bottom:1px;
     line-height:1.15;}
   #selsub{font-size:8.5px;color:var(--parch-dim);text-transform:uppercase;letter-spacing:.8px;}
-  #selstats{font-size:9.5px;color:var(--parch-dim);margin-top:4px;line-height:1.35;}
+  /* What they are doing right now - the live line, so it takes the eye
+     before the numbers do. */
+  #seljob{font-size:9.5px;color:var(--gold);margin-top:3px;line-height:1.25;}
+  /* Vertical only. overflow-x hidden as well as overflow-y auto, or a long
+     unbroken word (a deed line, a trade name) makes the column scroll
+     sideways instead and the stats slide out of the panel. -webkit-
+     overflow-scrolling so it takes a finger properly on the tablet. */
+  #selstats{font-size:9.5px;color:var(--parch-dim);margin-top:4px;line-height:1.35;
+    flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;scrollbar-width:thin;word-break:break-word;}
+  #selstats::-webkit-scrollbar{width:4px;}
+  #selstats::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px;}
   /* One horizontal row that slides. Buttons stretch to fill the width when
      there are only a few, and scroll sideways when there are many - nothing
      ever gets clipped off the bottom the way a wrapping grid did. */
@@ -837,6 +853,7 @@
   <div id="selinfo">
     <div id="selname">Nothing selected</div>
     <div id="selsub">—</div>
+    <div id="seljob"></div>
     <div id="selstats"></div>
   </div>
   <div id="about" class="hide"><div id="aboutbody"></div></div>
@@ -1055,6 +1072,77 @@
         <ul>
           <li>The <strong>farm panel names what is growing in it</strong> &mdash; corn, cabbages, strawberries and the rest &mdash; instead of only telling you how much was left of something unnamed</li>
           <li>The <strong>army holds its ground</strong>. A soldier used to go to bed over a single lost hit point; they now stay out whatever the hour until they are down to a fifth of their health, and may then break off <em>mid-battle</em> for their own barracks and be patched up there at any time of day</li>
+          <li>A rival clan could <strong>stall for an entire match and never raise an army</strong>. Once they decided to put a barracks up they began saving wood for it &mdash; and, while saving, refused to build a woodcutter&rsquo;s camp, because a camp costs wood. So a clan that reached that decision before it happened to have a camp standing was holding out for wood it had no way of earning: it sat on a growing pile of food, never quite reached the price of the barracks, and fielded nobody at all. Woodcutters&rsquo; camps now go up regardless, since a camp is the one thing that pays the saving back. The trap had been there all along and was only ever avoided by luck &mdash; the clans that escaped it were the ones that happened to build a camp first</li>
+          <li>The town centre&rsquo;s <strong>first upgrade is priced for the age it belongs to</strong>. The hens kept the cost they had when they were a separate purchase much later on &mdash; which asked for a good deal of <em>knowledge</em>, a thing you have almost none of that early. It now asks for timber, stone and feed, in line with every other first rung in the game</li>
+        </ul>
+        <div class="sec">Three trades are earned by doing the work</div>
+        <ul>
+          <li><strong>Nobody finds a gardener in the woods any more.</strong> Three of the finds are gone &mdash; the cuttings, the odd heavy stone and the old tool. Those trades have an ordinary job behind them, so they go to whoever has actually been doing it, three days at a stretch: <strong>days among the trees make a Gardener, days in the fields make a Caretaker, days at the rock face makes a Geologist</strong>. One job each, so no two of them are ever chasing the same villager&rsquo;s work</li>
+          <li><strong>And somebody who has earned a trade is somebody everywhere.</strong> They walk about under a name and a title from the moment they earn it &mdash; <em>Saga the Caretaker</em> &mdash; so the panel calls them by it instead of &ldquo;Villager&rdquo;, they wear the trade&rsquo;s own colours, and putting them in a group no longer drags every villager in the place in behind them. The caretaker also keeps the clothes they were wearing when their cottage goes up, rather than turning into a stranger the moment they move in</li>
+          <li><strong>The moonlit mushroom belongs to the whole village</strong>, not to whoever picked it up. It is the one find the founder may fetch &mdash; they carry the only torch after dark, so they are the one out where a thing that glows in the dark is found &mdash; and it costs them nothing, because it is whoever <em>raises the hut</em> who becomes the herbalist. Any villager but the founder can be the one to do that</li>
+          <li><strong>They are still yours until the cottage stands.</strong> They take the name, the title and the clothes straight away, and go on being an ordinary villager you can order anywhere &mdash; the title does not lapse if you send them off to chop wood. Raising their cottage is their own button, and finishing it is the moment they become the specialist and leave your hands for good</li>
+          <li><strong>And it is the one who earned it who takes it</strong>, not whoever happens to lay the last plank &mdash; with a build crew that is very often somebody else who came over to help</li>
+          <li>The founder is never eligible, for these as for everything else. It is a village of other people</li>
+        </ul>
+        <div class="sec">Spotted, and put right</div>
+        <ul>
+          <li><strong>The whole village kept ending up in the fisherman&rsquo;s group.</strong> A group remembers the <em>kinds</em> of unit in it, so anything you train later of the same kind falls straight in &mdash; which is right for eight spearmen and quite wrong for the fisherman, because a fisherman <em>is</em> a villager. Putting him in a group claimed every villager in the game for it, and every one raised afterwards was swept in behind him. The same fault meant two trades could never hold a group each: grouping the bug catcher tore the claim back off the fisherman&rsquo;s group. The people who are somebody in particular &mdash; the founder and the trades &mdash; can sit in a group now without lending their kind to it</li>
+          <li><strong>The granary&rsquo;s man never went to bed.</strong> Everyone else with a building of their own turns in at dusk; he had simply never been given the rule, and was still out at midnight pottering about the yard a few steps from his own door. He walks back and goes in now, and comes out again in the morning</li>
+          <li><strong>Villagers were walking about underneath the fields.</strong> A field is ground you walk over &mdash; that has always been true &mdash; so it is drawn behind everyone standing on it. When the crops grew tall enough to be worth looking at, fields were moved into the ordinary depth order so a berry bush behind one would stop covering the corn; and that put the soil itself over anybody working at the field&rsquo;s top edge. Both wants are real, so a field is drawn in two parts now: the soil and the far fence at the very back where they belong, and the tall crop standing in the world in its own right. A bush behind the field goes down first, a villager on the field walks in front of it, and one standing among the corn is partly hidden by the rows nearer you</li>
+          <li><strong>The bees were hidden almost all year.</strong> Bees and butterflies fade in with the blossom &mdash; but blossom only ever happens in <em>spring</em>, so every bee in the game was skipped outright for the other three seasons. Six of the eight kinds are all-year or autumn creatures, and the Ivy Bee, whose own note in the book reads &ldquo;the very last bee of the year, and it works until the frost&rdquo;, had never once been drawn. Spring still brings them out with the flowers; the rest of the year they are simply about</li>
+          <li><strong>The panel for whoever you have selected was squashed.</strong> It is a column about a hundred pixels wide &mdash; narrower still when a building&rsquo;s description sits beside it &mdash; and it was being handed six lines at once: name, type, health, attack, what they were carrying, how long they had been about and every deed they had earned, all in the same small grey text. It now answers the question you clicked them to ask, in three lines: <strong>who they are, what they are</strong> &mdash; Founder, Fisherman, Bug catcher, Spearman &mdash; <strong>and what they are doing right now</strong>. Everything with a number on it moved below, where it scrolls</li>
+          <li>The <strong>health figure is gone from the top of that panel</strong>. Anyone hurt already carries a bar over their head, so the number was spending a line of a very narrow column repeating something the world was showing anyway. It is still there among the stats</li>
+          <li><strong>All the hens ended up in one heap.</strong> Two faults on top of each other. The walk towards somebody carrying a full basket aimed every bird at very nearly the same point &mdash; and re-aimed her there sixty times a second, so they converged and then jittered in the pile. And there was no rule anywhere keeping hens out of each other&rsquo;s way, so <em>any</em> shared attraction stacked the yard: a full basket, the door in a downpour, a farm they all set off to visit. Measured with five hens and somebody stood still holding food, the closest two went from twelve pixels apart to <strong>less than half a pixel</strong>, with every pair in the yard inside six. Each hen keeps her own side of the basket now, fixed when she hatches, and hens standing about make room for one another</li>
+          <li><strong>The seasonal drifts can be caught now.</strong> Spring&rsquo;s bloomtide beetles and summer&rsquo;s dragonflies have drifted over the fields for a long time in a system of their own that the bug book knew nothing about &mdash; you could watch them and nothing happened when you tapped one. They are proper species now: summer&rsquo;s jewel colours turn out to be the damselflies and chasers the book already had, and and spring&rsquo;s pastel bloomtide beetles go in as <strong>May Bugs</strong>, the spring beetle it already had. The book stays at 101. Autumn&rsquo;s gossamer and winter&rsquo;s diamond dust stay uncatchable on purpose &mdash; one is spider silk and the other is ice</li>
+          <li><strong>Villagers kneel to pick berries</strong> instead of gathering from a bush bolt upright with one arm out. One knee down, the other up, and they lower themselves into it and get up again rather than snapping. A farm&rsquo;s own crop is still worked standing</li>
+          <li><strong>The yellow box round a selected building went over the top of it</strong> &mdash; straight across the front of the roof. Units, the elder and the beasts have drawn their selection ring from underneath themselves for a long time, precisely so it would not sit painted over them; buildings had simply been left out of it. A building stands in its box now</li>
+          <li><strong>No more glow on the magnifying glass at dusk.</strong> That light is there because the other trade finds are things you go out into the dark and hunt &mdash; a glitter in the treeline, something flowering past the last field. The starting glass lies two tiles from your hall and a line tells you it is there, so the glow was doing no work</li>
+          <li><strong>The northern lights fill the sky.</strong> They were three ribbons across the top hundred pixels and nothing below &mdash; on a tall screen it read as a decorated border. Nine bands over the whole view now, each with its own drift and thickness, fading down towards the ground so it still reads as something happening far overhead. It is one of the rarest sights in the game and it was easy to miss entirely</li>
+        </ul>
+        <div class="sec">The other eight crops</div>
+        <ul>
+          <li><strong>Seven of the nine crops were the same picture in different greens.</strong> Cabbage, kale, turnip, carrot, strawberry, pumpkin and sweet potato all came out of the same three lines &mdash; one flat oval a plant, plus a coloured dot if the crop had fruit. Two of them have no fruit at all, so they were not merely similar, they were identical. Come in close and each is itself now: a <strong>cabbage</strong> is a tight ball of leaves wrapped round a pale heart; <strong>kale</strong> is loose and very frilly with no ball at all; a <strong>turnip</strong> and a <strong>carrot</strong> show the shoulder of the root above the soil, one with broad tops and one with fine feathery ones; <strong>strawberries</strong> have three leaflets to a leaf and pips on the fruit; a <strong>pumpkin</strong> is a ribbed gourd with a stalk and a vine leaf behind it; the <strong>sweet potato</strong> trails a vine of heart-shaped leaves</li>
+          <li><strong>Pea pods have peas in them</strong>, and the tendril that holds the vine up &mdash; which is what you recognise a row of peas by</li>
+          <li><strong>Three crops could barely be seen at all.</strong> Kale and the sweet potato are pure foliage &mdash; no fruit, no ear, no flower &mdash; so their leaf colour was the only thing between them and the earth, and it was not enough: a field of either was very nearly an empty field, at any zoom. The pea pod had the same fault against its own vine, and was <em>darker</em> than the leaves it hung among. All three now stand as far off their background as the cabbage always did</li>
+          <li>None of the close-up work is drawn until you are close enough to make it out, so an ordinary view costs nothing</li>
+        </ul>
+        <div class="sec">Bringing a harvest in</div>
+        <ul>
+          <li><strong>A field being cut looked like nothing at all.</strong> Working it only ever made the crop a little <em>shorter</em> &mdash; by at most a third &mdash; and left its colour and the number of plants alone. Taking a field of corn from full down to a fifth changed under three per cent of what you could see, less than a single day&rsquo;s growth, and then it went to bare drills all at once. The half of the cycle you actually cause was the half that did not show</li>
+          <li><strong>A field is taken plant by plant now, from the near edge back</strong>, leaving pale stubble on the turned earth behind. What is still standing stands at <em>full height</em> &mdash; it has not shrunk, it has not been cut yet &mdash; so you can watch the standing crop retreat towards the far fence as the crew work through it. Near edge first on purpose: cut from the back and the crop still standing hides its own stubble, which looks like nothing again</li>
+          <li>The cut line is ragged rather than row by row, so a field does not blink out a whole row at a time</li>
+          <li>This is every crop, not just the ones with a close-up &mdash; corn, sunflowers, wheat, and the six still to come</li>
+        </ul>
+        <div class="sec">Wheat</div>
+        <ul>
+          <li><strong>An ear of wheat was a single bead on the end of a stick</strong>, in a colour so close to the straw it grew on that it read as the stalk being slightly fatter at the tip. An ear is a <em>spike</em>: grains in two staggered ranks, and the long bristles &mdash; awns &mdash; going up off the top, which are what you actually recognise a wheat field by. It has both now, and the ear <strong>nods as it fills</strong>, because a ripe one is heavy</li>
+          <li><strong>The grain fills from the base of the ear upwards</strong>, so a field just come into ear is not a field ready to cut. Before this, a field on day two and the same field in full ear were very nearly the same picture</li>
+          <li>The ears also read from an ordinary distance now, not only close up: they stand nearly twice as far off the straw in colour as they did, which is about where the corn&rsquo;s cobs sit</li>
+        </ul>
+        <div class="sec">Sunflowers, and what was standing in front of them</div>
+        <ul>
+          <li><strong>A sunflower was a yellow disc with a brown dot in it</strong> &mdash; a bullseye on a green pole. Close in it now has a ring of petals, a seeded centre that only darkens once there is seed to show, green sepals behind, and the <strong>broad drooping leaves</strong> that are most of what makes a sunflower a sunflower. A ripe head <em>nods</em>, because one full of seed is too heavy to hold itself up</li>
+          <li><strong>The flower was not attached to its own stem.</strong> The stalk leaned in the wind and breathed a little in height &mdash; and the head did neither, because it was placed from its own arithmetic rather than the stalk&rsquo;s. So in any breeze a sunflower head sat beside its stalk and drifted against it, on both axes, by as much as four pixels on a head three across. Reported exactly that way. Head and stalk take their lean and their height from one place now, so they cannot disagree. The same fault had wheat&rsquo;s ears and the pea pods off their stems too</li>
+          <li><strong>A field was drawn behind everything on the map.</strong> Right while a field was flat green rows on the ground; wrong the day the crops grew tall, because a berry bush standing well behind a field was still painted over the top of the sunflowers in front of it. Fields take their place in the world like anything else now &mdash; what is behind them goes down first, what is in front comes after, and the workers on them stay visible</li>
+        </ul>
+        <div class="sec">Corn, close up</div>
+        <ul>
+          <li><strong>An ear of corn is an ear of corn now.</strong> It was a filled rectangle a pixel and a half wide &mdash; which is the right drawing from an ordinary view, and nothing at all once you lean right in. Come close and a cob has husk leaves gripping it, a body that swells and turns from pale to gold, and <strong>kernels in staggered rows</strong>, with silk at the tip once it is ready. The stalks have their long drooping leaves and a tassel on top, which is most of what makes corn read as corn from across a field</li>
+          <li><strong>And the ear fills in as it ripens</strong>, from the base upwards &mdash; 45 kernels on one that has just set, 195 on one ready to cut. Without that a new cob carried exactly as many kernels as a ripe one and merely got bigger, so being able to see them told you nothing</li>
+          <li>None of it is drawn until you are close enough to resolve a kernel, so an ordinary view pays nothing for it</li>
+          <li><strong>The far side of a field&rsquo;s fence was standing in front of the crop.</strong> Posts and rails were all drawn after whatever was growing, so the back row of stakes and the top rail sat on top of the back row of plants. That was wrong for every crop and unmissable once the corn was tall enough to reach them. A field is a box you look into: the far side goes down first, the near side last</li>
+          <li>Behind it, a colour bug that had been quietly painting things black. The routine that lightens or darkens a colour only ever understood <em>#hex</em>, and half the colours in the game are mixed ones handed over in another form &mdash; fed one of those it produced a near-black that threw no error and looked like a deliberate dark outline. So every mixed-then-shaded colour in the game drew black. It had been found twice before and stepped around both times without the routine itself being fixed; one line does the lot. The sunflower&rsquo;s closed bud, black since the day it was added, is <strong>green</strong></li>
+        </ul>
+        <div class="sec">The grass knows you are walking through it</div>
+        <ul>
+          <li><strong>The bed itself parts now.</strong> Walk somebody across a meadow and the grass they are actually standing in leans away from them &mdash; opening ahead, closing behind, and easing back upright over a second or so rather than snapping to attention the moment a boot leaves it. It is the grass that was already on the ground doing this, not a few blades worn on the shins: the tiles somebody is standing in stop being stamped and are drawn blade by blade instead, from the same pattern the field is built from, so they are the very blades that were there a moment before</li>
+          <li><strong>Animals move it too.</strong> A deer crossing a meadow parts the grass exactly as a villager does, and so do the dogs. Beasts and raiders are left out on purpose &mdash; grass reacting in the middle of a fight is detail nobody is looking at</li>
+          <li><strong>And it was a comb before.</strong> What used to happen was four blades at fixed spacing, all leaning the same way, the only difference between one villager and the next being one of three possible offsets &mdash; which is why it looked identical on everybody, all the time. Blades are now scattered, sized and stiffened individually, so no two people stand in the same grass</li>
+          <li><strong>Grass was growing on the beach, and not on a third of the grass.</strong> Every place in the game that asked "does grass grow here?" asked it the same wrong way &mdash; and the comment sitting beside the question said what was meant: water, sand, bare dirt. But it named the <em>darker of the three grasses</em> where it meant sand. So one grass tile in three was left bald, and the beaches were sown instead &mdash; and since sand sits right on the waterline with the sea drawn over part of it, that is what put <strong>grass in the ocean</strong>. Grass grows on grass now, and a beach is a beach</li>
+          <li><strong>A blade is a shape now, not a stick.</strong> Every blade in the game was a drawn line with a rounded end &mdash; the same width at the tip as at the root, with a dome on top. That is a capsule, and at any size it reads as a scatter of little green sticks. It was the real reason the grass never looked right however short it was cut: the height had already come down and it still looked wrong, because the height was never the problem. Blades are proper tapered shapes now, wide where they leave the ground and meeting at a point</li>
+          <li><strong>And the blades at somebody&rsquo;s boots are the ground&rsquo;s own.</strong> They used to be a separate little bunch invented for each villager &mdash; and with the bed itself faint close up, those few were the only grass you could see, so everyone walked about wearing a small green bush. The blades crossing a pair of boots are now simply the ones that happen to grow there, at the angle the ground has them. There is nothing left to look attached</li>
+          <li><strong>And it came down to the knee.</strong> A villager is sixteen pixels tall and the tallest blades were fourteen &mdash; the grass stood at four-fifths the height of the people walking through it. Nobody noticed while it was a flat texture; the moment blades began bending one at a time they read as separate stalks and the village turned out to be wading through a wheat field</li>
+          <li>Behind all of this: the version of that effect written to make grass part around a walker <strong>had never once run</strong>. A second function of the same name sat below it in the same file and silently replaced it &mdash; so what everybody saw was an older, simpler version leaning only on the wind. There is now a check that refuses to let any two functions share a name, because this cannot be seen at runtime: the feature simply looks worse than the code says it should</li>
         </ul>
         <div class="sec">No two animals quite the same</div>
         <ul>
@@ -2244,8 +2332,22 @@ function shade(hex, amt){
   return out;
 }
 function _shade(hex, amt){
-  const n = parseInt(hex.slice(1),16);
-  let r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  /* parseCol, NOT parseInt(hex.slice(1),16) - because half the colours in
+     this game are not hex by the time they get here.
+
+     mixCol() hands back an "rgb(r,g,b)" string, and so does _shade itself.
+     Fed one of those, the old line did parseInt("gb(201,162,63)", 16), got
+     NaN, and returned rgb(12,12,12) - a perfectly plausible near-black that
+     throws nothing and looks like a deliberate dark outline. So every
+     shade(mixCol(...)) in the game silently drew BLACK.
+
+     It had been found twice before and worked around at the call site both
+     times (there are comments about it in 04c by the tree and the roof) but
+     the helper itself was never made safe, so it kept catching things: the
+     sunflower's closed bud drew black, and so did the husk and leaves of the
+     new corn. One line here fixes every call site at once. */
+  const pc = parseCol(hex);
+  let r=pc[0], g=pc[1], b=pc[2];
   if(amt>=0){ r+=(255-r)*amt; g+=(255-g)*amt; b+=(255-b)*amt; }
   else { r*=(1+amt); g*=(1+amt); b*=(1+amt); }
   return "rgb("+(r|0)+","+(g|0)+","+(b|0)+")";
@@ -13647,12 +13749,12 @@ function assignGroup(n){
      group if that is how you want to play it. Recomputed from the group's
      own actual full membership rather than tracked separately, so it can
      never drift from what is really in there. */
-  const types = [...new Set(G.groups[n].map(u=>u.type))];
+  const types = [...new Set(G.groups[n].filter(u=>!namedIndividual(u)).map(u=>u.type))];
   G.groupTypes[n] = types;
   // a unit type's AUTO-JOIN claim belongs to one group at a time, otherwise
   // recalling gets murky - but that only affects units trained LATER, never
   // units already individually placed in another group (see above)
-  const joinedTypes = [...new Set(units.map(u=>u.type))];
+  const joinedTypes = [...new Set(units.filter(u=>!namedIndividual(u)).map(u=>u.type))];
   for(const k in G.groupTypes){
     if(+k === n) continue;
     G.groupTypes[k] = G.groupTypes[k].filter(t=>!joinedTypes.includes(t));
@@ -13662,6 +13764,33 @@ function assignGroup(n){
   const names = types.map(t=>UNITS[t].name.toLowerCase()).join(", ");
   hint("Group " + n + ": " + G.groups[n].length + " units. New " + names + " will join it.");
   refreshUI();
+}
+
+/* SOMEBODY IN PARTICULAR, as against a kind of unit.
+
+   A group remembers the KINDS of unit in it so anything you train later of
+   the same kind falls straight in - which is right for eight spearmen and
+   catastrophically wrong for the fisherman, because a fisherman's type IS
+   "villager". Putting him in a group claimed every villager in the game for
+   it, and every one trained afterwards was swept in behind him. Reported
+   exactly that way: after the town bell, the whole village had quietly
+   become group four.
+
+   And the second half of it: the auto-join claim on a type belongs to one
+   group at a time, so grouping the bug catcher - also a villager - tore the
+   claim off the fisherman's group. Two trades could never hold a group each.
+
+   These people are individuals. They can sit in a group; they just do not
+   lend their TYPE to it. */
+function namedIndividual(u){
+  /* A CLAIM ON A TRADE counts too. Somebody who has done three days in the
+     fields is Saga the Caretaker from that moment, cottage or no cottage -
+     and without this they would lend "villager" to any group they were put
+     in and drag the whole village in behind them, which is the exact fault
+     this function exists to stop. It came straight back the day trades
+     started being earned rather than found. */
+  return !!(u.founder || u.firstVillager || u.fisherman ||
+            u.bugCatcher || u.beekeeper || u.gardener || u.tradeFound);
 }
 
 /* called whenever a unit is produced, so it inherits its group */
@@ -14582,6 +14711,11 @@ function makeFieldWorker(cottage, kindTag){
     clothes: kindTag==="gardener"  ? ["#5a7a3a", "#3f5628"]
            : kindTag==="geologist" ? ["#6a6055", "#4a423a"]
            : kindTag==="herbalist" ? ["#6a5a7a", "#4a3f5a"]
+           /* Matching what they wore while they were still yours - the
+              caretaker used to draw a random leisure outfit, so the person
+              who spent days in your fields turned into a stranger the day
+              their cottage went up. */
+           : kindTag==="caretaker" ? ["#7a6642", "#57492e"]
            : LEISURE_CLOTHES[(Math.random()*LEISURE_CLOTHES.length)|0],
     look: (Math.random()*VILLAGER_LOOKS.length)|0,
     tall: 0.92 + Math.random()*0.16
@@ -15220,9 +15354,37 @@ function updateFarmhands(dt){
   G.farmhands = G.farmhands.filter(o =>
     o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
 
+  /* AND HE GOES TO BED. He never did: the granary's man was still out at
+     midnight, pottering about the yard on his idle timer, twenty-odd pixels
+     from his own door, while the whole village slept. Reported exactly that
+     way. Everybody else with a building of their own turns in - this one
+     had simply never been given the rule.
+
+     Days only, the same words the baker's round uses. He walks to the
+     granary door rather than blinking out where he stands, which is the
+     whole point of watching these people: you see him pack up and go in. */
+  const daytime = (G.phase === "day");
+
   for(const o of G.farmhands){
     const p = o.p;
     const doorAt = () => ({ x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 });
+
+    if(!daytime){
+      if(o.indoors) continue;                       // already abed
+      if(o.state !== "turnin"){
+        stopLiving(o);
+        o.target = null; o.errand = null;
+        o.state = "turnin"; o.legT = 0; o.dest = doorAt();
+      }
+      if(farmhandWalk(o, dt)){ o.indoors = true; o.moving = false; }
+      continue;
+    }
+    if(o.indoors){                                  // and out again in the morning
+      const d = doorAt();
+      o.indoors = false; o.moving = false;
+      o.x = d.x; o.y = d.y;
+      o.state = "idle"; o.cd = FARMHAND_INTERVAL*0.5; o.errand = null;
+    }
 
     if(o.state === "idle"){
       o.cd = (o.cd||0) - dt;
@@ -16830,6 +16992,7 @@ function tick(dt){
   updateNightBugs(dt);      // the ordinary nightly texture, not the swarm event
   updateMilkyWay(dt);
   updateDepthLayers(dt);  // cloud shade, sun shafts, the near layer, mist
+  updateGrassPress(dt);   // what walkers are doing to the bed underfoot (05)
   updateMoonDragon(dt);
   updateDucks(dt);
   updateFoxChases(dt);
@@ -17915,6 +18078,28 @@ function updateUnit(u, dt){
                                     * farmYieldUp * ancientFarmUp * ancientMineUp * nightCatch
                                     * dropPlateRate(u, n) * dropWorkMult(u, n) * deedUp * hoardUp, n.amt);   // moonstone plating, and the drop-off's own ladder
             n.amt -= take; u.carry += take; u.carryKind = n.kind;
+            /* TIME AT THE JOB, for the two trades that are earned rather
+               than found (earnSpecialistByWork, 05g). Counted here because
+               this is the one line in the game where somebody is actually
+               working a resource - anywhere earlier and it counts walking
+               to it, anywhere later and it counts carrying it home.
+
+               Seconds of real work, not elapsed days: a villager spends a
+               good part of every day on the road with a load, so counting
+               the clock would hand the title to whoever stood about
+               longest. Measured on a working farm, a villager is at the
+               node about a third of the time, so 150 seconds of it lands
+               at roughly two and a half days - "a couple of days farming",
+               which is the ask. */
+            if(typeof creditSpecialistWork === "function" &&
+               u.p===P_YOU && !u.firstVillager && !u.tradeFound){
+              /* farmOf FIRST: a sown field's node is kind "food" the same
+                 as a wild berry bush, and only farmOf tells them apart. */
+              if(n.farmOf) creditSpecialistWork(u, "farm", take);
+              else if(n.kind==="wood") creditSpecialistWork(u, "wood", take);
+              else if(n.kind==="stone" || n.kind==="gold" || n.kind==="iron")
+                creditSpecialistWork(u, "mine", take);
+            }
             /* What colour the fruit in the basket is. Taken at the moment it
                is picked rather than worked out again on the walk home, so a
                basket carried across a season boundary still holds the berries
@@ -18115,7 +18300,22 @@ function updateUnit(u, dt){
           if(typeof promoteToTrade === "function" && BLDG[b.type] &&
              (BLDG[b.type].bakery || BLDG[b.type].gardener || BLDG[b.type].geologist ||
               BLDG[b.type].herbalist || BLDG[b.type].caretaker || BLDG[b.type].beehive)){
-            if(u.firstVillager){
+            /* THE ONE WHO EARNED IT, not whoever happened to lay the last
+               plank. The gardener and the geologist are earned by working
+               (earnSpecialistByWork, 05g), and a build crew means the
+               villager who finishes the cottage is quite often somebody
+               else who came over to help - so the trade would have gone to
+               a bystander while the person who spent days in the fields
+               went back to carrying wood. Their claim comes first; anyone
+               else finishing it only inherits the job if nobody earned it. */
+            const kindKey = BLDG[b.type].gardener ? "gardener"
+                          : BLDG[b.type].geologist ? "geologist" : null;
+            const earner = kindKey
+              ? G.units.find(w => w.p===b.p && w.hp>0 && w.tradeFound===kindKey && !w.firstVillager)
+              : null;
+            if(earner){
+              promoteToTrade(earner, b);
+            } else if(u.firstVillager){
               if(b.p===P_YOU)
                 hint("It is built, but it wants somebody to work it - garrison a villager here.");
             } else {
@@ -23410,6 +23610,7 @@ function draw(){
   drawDrifters(x0,y0,x1,y1);          // the daylight half of the same idea
   drawNightBugs(x0,y0,x1,y1,false);   // moths and spiders, lit by the night like everything else
   drawGrassSway(x0,y0,x1,y1);
+  drawGrassLive();                // the tiles somebody is standing in, blade by blade
   drawGrassDetail(x0,y0,x1,y1);   // the finer bed, only once you are close in
 
   for(const p of G.puddles||[]){
@@ -23599,8 +23800,30 @@ function draw(){
     // painted over by the building despite standing in front of it.
     const bd = BLDG[b.type];
     const shrink = (bd.farm || b.type==="wall") ? 1 : (bd.shrink || 0.70);
+    /* A FIELD USED TO SORT BEHIND EVERYTHING ON THE MAP (-1e6), which was
+       the right answer while a field was flat: rows of low green on the
+       ground, with people and bushes and everything else standing on top of
+       it. It stopped being right the day the crops grew tall. Corn stands
+       fifteen pixels and a sunflower seventeen plus its head, and every
+       berry bush behind the field was still being painted over the top of
+       them - reported as a bush blocking a sunflower, which is exactly what
+       it was.
+
+       A field sorts by its own back edge now, like anything else: whatever
+       is behind it goes down first and the crop stands in front of it,
+       whatever is in front of it is drawn after. Workers on the field still
+       come after it and stay visible, because they are further down the
+       screen than its back edge. */
+    /* A field goes to the very BACK again - it is ground, and blocked()
+       says fields are walkable, so anyone standing on one has to draw over
+       it. Sorting it like an ordinary building put the soil over villagers
+       working at its top edge. Its tall crop is a separate entry below,
+       which is what keeps a bush behind a field from covering the corn. */
     const key = bd.farm ? -1e6 + b.ty : b.y + b.h*TILE*shrink/2;
     drawList.push({ e:b, y:key, kind:2 });
+    // corn and sunflowers stand in the world; cabbages stay with the soil
+    if(bd.farm && farmTallCrop(b))
+      drawList.push({ e:b, y:b.y + b.h*TILE, kind:28 });
   }
   for(const u of G.units){
     if(u.indoors) continue;            // indoors for the night
@@ -23678,6 +23901,7 @@ function draw(){
   }
   // the Granary's farmhand: same shape of thing again, same drawing
   for(const o of G.farmhands||[]){
+    if(o.indoors) continue;                 // abed in the granary for the night
     if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
     if(!visibleTo(P_YOU,o.x,o.y)) continue;
     drawList.push({ e:o, y:o.y, kind:18 });
@@ -23818,6 +24042,7 @@ function draw(){
     switch(it.kind){
       case 1: drawNode(it.e); break;
       case 2: drawBuilding(it.e); break;
+      case 28: drawFarmCrop(it.e); break;   // the tall crop, in its own place
       case 3: drawUnit(it.e); drawGrassAtFeet(it.e); break;
       case 4: drawCritter(it.e); break;
       case 5: drawElder(); break;
@@ -24131,7 +24356,20 @@ function draw(){
          a bee and a butterfly feed on flowers, everything else does not.
          Note butterflies carry no flag of their own, only a shape. */
       const flowerFed = bg.bee || bg.shape === "butterfly";
-      const bloomless = !flowerFed;
+      /* ...but the blossom only gates them IN SPRING, which is the only
+         season G.bloom ever rises in ("flowers only in spring", 03c). Tying
+         flower-feeders to it outright meant every bee in the game was
+         invisible for three seasons out of four - and six of the eight
+         bee species are all-year or autumn ones. The Ivy Bee's own note in
+         the book reads "the very last bee of the year, and it works until
+         the frost", and it had never once been drawn: by autumn the bloom
+         is nought and it was skipped outright.
+
+         Which season a creature belongs to is already decided when it is
+         spawned, from its own entry in BUG_TYPES. If a bee is here at all,
+         it is in season, and it should be drawn. Spring keeps the fade-in,
+         because there the blossom really is arriving. */
+      const bloomless = !flowerFed || G.season !== "spring";
       /* A clock of its own for every bug, so nothing in a group of them is
          ever in step with its neighbour. Most of these bodies had NO
          per-frame movement at all - they were a still picture being slid
@@ -24667,16 +24905,11 @@ function draw(){
                   Math.min(1, u.singT/1.2) * (1 - rise/24) * 0.75, 1.3);
   }
 
-  // a small ring at the feet in your own colour - buildings only here; units,
-  // the elder and beasts draw their own ring from underneath themselves (see
-  // drawSelRing), so the ring doesn't sit painted over the top of them
-  for(const e of G.sel){
-    if(e.kind!=="bldg") continue;
-    const pl = G.players[e.p===undefined ? P_YOU : e.p];
-    const col = pl ? pl.col : "#f0e6cc";
-    ctx.strokeStyle = col; ctx.lineWidth = 1.8;
-    ctx.strokeRect(e.tx*TILE-2, e.ty*TILE-2, e.w*TILE+4, e.h*TILE+4);
-  }
+  /* Buildings used to have their selection box stroked HERE, in a pass that
+     runs after everything is drawn - so the box lay across the front of the
+     roof instead of round the building. It is drawn from inside drawBuilding
+     now (drawSelBox, 04d), the same way units, the elder and beasts have
+     always drawn theirs from underneath themselves. */
 
   // rally flags - only shown for whichever of your buildings is currently
   // selected, not painted across the whole map all the time
@@ -25311,6 +25544,14 @@ function draw(){
          where, and still well under a brazier. (TRADE_FINDS, 05g) */
       for(const n of G.nodes){
         if(n.kind !== "tradefind") continue;
+        /* Not the one lying on your own doorstep. The glow is here because
+           the OTHER finds are things you go out into the dark and hunt -
+           their clues say so: a glitter in the treeline, something flowering
+           past the last field. The starting magnifying glass is none of
+           that: it sits two or three tiles from the hall and a line tells
+           you it is there, so a light pool round it at dusk was doing no
+           work and reading as something magical about the glass itself. */
+        if(n.startFind) continue;
         if(!exploredTo(P_YOU, n.x, n.y)) continue;
         const pulse = 0.88 + 0.12*Math.sin(G.t*1.5 + (n.seed||0));
         const rad = BRAZIER_RADIUS * 0.60 * pulse;
@@ -25837,22 +26078,57 @@ function draw(){
     }
   }
 
-  // the aurora - wavy green (and a hint of blue) bands across the top of
-  // the sky, easing in and out over its lifetime
+  /* THE AURORA - wavy green and blue bands, over the WHOLE sky.
+
+     It used to be three bands at y=40, 62 and 84: a hundred pixels of it
+     along the very top of the screen and nothing anywhere else, so on a tall
+     view it read as a decorated border rather than as a sky. It is one of
+     the rarest things in the game - winter, a clear night, and a roll that
+     only comes off every few dozen matches - and you could easily not
+     notice it had happened.
+
+     Nine bands across the full height now. Each carries its own drift, its
+     own thickness, its own amplitude and its own alpha off a hash, because
+     nine identical ribbons evenly spaced is a lattice, not a curtain - the
+     same rule the blizzard is built on. Each one is also drawn twice, once
+     wide and faint underneath, so a band has a soft edge instead of being a
+     stroked line. */
   if(G.aurora){
     const a = Math.min(1, G.aurora.t/3, (G.aurora.life-G.aurora.t)/3);
     ctx.save();
-    ctx.globalAlpha = 0.35*a;
-    for(let i=0;i<3;i++){
-      const yy = 40+i*22;
-      ctx.strokeStyle = i%2 ? "rgba(120,220,150,.6)" : "rgba(140,160,230,.5)";
-      ctx.lineWidth = 14;
-      ctx.beginPath();
-      for(let x=0;x<=VW;x+=20){
-        const y = yy + Math.sin(x*0.02+G.t*0.6+i)*14;
-        if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    ctx.lineCap = "round";
+    const N = 9;
+    for(let i=0;i<N;i++){
+      const h1 = Math.sin(i*127.1 + 3.7)*43758.5453, r1 = h1 - Math.floor(h1);
+      const h2 = Math.sin(i*269.5 + 9.1)*43758.5453, r2 = h2 - Math.floor(h2);
+      const h3 = Math.sin(i*419.2 + 5.3)*43758.5453, r3 = h3 - Math.floor(h3);
+      // spread over the whole view, with the spacing wobbled off the hash
+      const yy  = VH * ((i + 0.5)/N) + (r1-0.5)*VH*0.06;
+      const amp = 12 + r2*26;
+      const spd = 0.35 + r3*0.55;
+      const wob = 0.012 + r1*0.016;
+      /* Fainter down the screen. An aurora is a thing in the sky, and the
+         bottom of the view is the ground nearest you - full strength all
+         the way down stops reading as distance and starts reading as a
+         green filter over the village. */
+      const depth = 1 - (i/N)*0.45;
+      const col = (i%2) ? "120,220,150" : "140,160,230";
+      /* The wide pass is the soft edge of a band, not a wash over the whole
+         map - at 0.10 nine of them stacked up into a flat green filter over
+         the village. The bright core carries the shape; the wide one only
+         has to stop it looking like a stroked line. */
+      for(const [mul, al] of [[2.6, 0.055], [1.0, 0.26]]){
+        ctx.strokeStyle = "rgba("+col+","+(al*(0.55+r2*0.5)).toFixed(3)+")";
+        ctx.globalAlpha = a * depth;
+        ctx.lineWidth = (10 + r3*14) * mul;
+        ctx.beginPath();
+        for(let x=0;x<=VW;x+=16){
+          const y = yy + Math.sin(x*wob + G.t*spd + i*1.7)*amp
+                       + Math.sin(x*wob*2.3 + G.t*spd*0.6)*amp*0.28;
+          if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
       }
-      ctx.stroke();
     }
     ctx.restore();
   }
@@ -27501,7 +27777,72 @@ function drawTreeFire(n){
   }
 }
 
+/* The selection box round a BUILDING, drawn underneath it - the same thing
+   drawSelRing does for units, the elder and beasts.
+
+   The note beside that one says it exists "so the ring doesn't sit painted
+   over the top of them", and buildings were simply left out of it: their box
+   was stroked in a pass that runs after everything is drawn, so a bright
+   yellow line came straight across the front of the roof and down over the
+   walls. Reported from a screenshot of a selected house with the box lying
+   over its own thatch. Drawn first now, so a building stands in its box. */
+/* A FIELD IS GROUND, BUT ITS CROP IS NOT.
+
+   A field sorts to the very back of the draw order, and it has to: it is
+   flat ground that people walk over - blocked() says so in as many words,
+   "fields are walkable" - so anything standing on one must draw on top of
+   it. Sorting it like an ordinary building by its back edge put the soil
+   and the crop OVER anyone working at the field's top edge, which is the
+   villagers-under-the-farm this is here to fix, and which I caused.
+
+   But the crop is not ground. Corn stands fifteen pixels and a sunflower
+   seventeen plus its head, and while the whole field sat at the back, a
+   berry bush well behind it was painted over the top of them.
+
+   Both are true at once, so the field is drawn in two passes: the soil, the
+   furrows and the far fence at the very back where they belong, and the
+   TALL crop as its own entry in the depth sort, standing at the field's
+   near edge. A bush behind the field then goes down before the corn; a
+   villager on the field walks in front of it; and one standing among it is
+   partly hidden by the rows nearer the camera, which is right. Low crops -
+   cabbages, turnips, strawberries - stay with the ground: nothing at ankle
+   height needs its own place in the sort. */
+function farmTallCrop(b){
+  const d = BLDG[b.type];
+  if(!d || !d.farm || !b.done) return null;
+  const kindKey = b.veg || (b.seasonalCrop && SEASONAL_CROP_KIND[b.seasonalCrop]);
+  if(!kindKey) return null;
+  const k = CROP_KINDS[kindKey];
+  if(!k || (k.shape !== "stalk" && k.shape !== "flower")) return null;
+  return kindKey;
+}
+
+function drawFarmCrop(b){
+  const kindKey = farmTallCrop(b);
+  if(!kindKey) return;
+  // a farm draws at its full footprint (SHRINK is 1 for fields)
+  const w = b.w*TILE, dep = b.h*TILE;
+  const x = b.tx*TILE, y = b.ty*TILE;
+  const ripe = b.node ? b.node.amt/b.node.max : 1;
+  const growFrac = Math.min(1, (b.cropGrowT||0) / (CROP_GROW_DAYS*DAY_LEN));
+  ctx.globalAlpha = (visibleTo(P_YOU,b.x,b.y) || b.p===P_YOU) ? 1 : 0.72;
+  drawCropField(x, y, w, dep, kindKey, growFrac, ripe, ripe <= 0.001);
+  // and the near row of posts in front of it, where it belongs
+  ctx.fillStyle = "#6b5233";
+  for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
+  ctx.globalAlpha = 1;
+}
+
+function drawSelBox(b){
+  if(!G.sel.includes(b)) return;
+  const pl = G.players[b.p===undefined ? P_YOU : b.p];
+  ctx.strokeStyle = pl ? pl.col : "#f0e6cc";
+  ctx.lineWidth = 1.8;
+  ctx.strokeRect(b.tx*TILE-2, b.ty*TILE-2, b.w*TILE+4, b.h*TILE+4);
+}
+
 function drawBuilding(b){
+  drawSelBox(b);
   if(BLDG[b.type].brazier) return drawBrazier(b);
   if(BLDG[b.type].moongarden) return drawMoonGarden(b);
   if(BLDG[b.type].noticeboard) return drawNoticeboard(b);
@@ -27691,13 +28032,27 @@ function drawBuilding(b){
     for(let i=1;i<6;i++){
       ctx.beginPath(); ctx.moveTo(x+3, y+dep*i/6); ctx.lineTo(x+w-3, y+dep*i/6); ctx.stroke();
     }
+    /* THE BACK OF THE FENCE GOES DOWN FIRST, before anything is growing.
+
+       Posts and rails were all drawn after the crop, so the back row of
+       stakes and the top rail stood in FRONT of the back row of plants -
+       which is wrong for every crop, and unmissable once the corn got tall
+       enough to reach them. A field is a box you look into: the far side is
+       behind what is in it, the near side is in front. Only the near row is
+       left to the end now. */
+    ctx.fillStyle = "#6b5233";
+    for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y-3, 2, 5);
+    ctx.strokeStyle="rgba(32,26,20,.45)"; ctx.lineWidth=1;
+    ctx.strokeRect(x, y, w, dep);
+
     /* What's actually growing (05-wildlife.js): an ordinary farm's own
        summer pick (b.veg - corn or sunflowers, purely a look, rolled and
        cleared as the season turns, 03c) or the Seasonal Farm's fixed
        crop (b.seasonalCrop), each with its own shape and a real per-farm
        growth clock (b.cropGrowT) rather than only reading ripe/bare.
        Neither touches yield/stats at all - only this drawing changes. */
-    const cropKind = b.veg || (b.seasonalCrop && SEASONAL_CROP_KIND[b.seasonalCrop]);
+    const cropKind = farmTallCrop(b) ? null
+                   : (b.veg || (b.seasonalCrop && SEASONAL_CROP_KIND[b.seasonalCrop]));
     if(cropKind){
       const growFrac = Math.min(1, (b.cropGrowT||0) / (CROP_GROW_DAYS*DAY_LEN));
       drawCropField(x, y, w, dep, cropKind, growFrac, ripe, bare);
@@ -27755,14 +28110,12 @@ function drawBuilding(b){
       ctx.fillRect(x+2, y+2, w-4, dep-4);
       ctx.globalAlpha = 1;
     }
-    // fence posts round the edge
-    ctx.fillStyle = "#6b5233";
-    for(let i=0;i<=4;i++){
-      ctx.fillRect(x-1 + i*(w)/4, y-3, 2, 5);
-      ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
+    // and the NEAR row of posts last, in front of the crop where it belongs -
+    // unless the crop is tall, in which case both go in the later pass
+    if(!farmTallCrop(b)){
+      ctx.fillStyle = "#6b5233";
+      for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
     }
-    ctx.strokeStyle="rgba(32,26,20,.45)"; ctx.lineWidth=1;
-    ctx.strokeRect(x, y, w, dep);
     if(bare && b.p===P_YOU){
       const pulse = 0.5+0.5*Math.sin(G.t*2.4+b.id);
       ctx.strokeStyle = "rgba(224,176,112,"+(0.35+pulse*0.4)+")";
@@ -30866,6 +31219,175 @@ const FISHERMAN_CLOTH = "#8a8560";
    the two of them stand in the same village and must not read as the same
    person in different hats. A soft moss green, and the glass does the rest. */
 const BUGCATCHER_CLOTH = "#6a7a52";
+/* The gardener and the geologist, while they are still YOURS. They are
+   earned by working rather than found in the woods, and they wear the trade
+   from the moment they earn it - a whole cottage before they become the
+   NPC. The same two colours the cottage's own worker wears (makeFieldWorker,
+   03b), so the person you have been ordering about and the figure who ends
+   up living there are recognisably one and the same. */
+const GARDENER_CLOTH  = "#5a7a3a";
+const GEOLOGIST_CLOTH = "#6a6055";
+const CARETAKER_CLOTH = "#7a6642";
+
+/* ---------- a face ----------
+   Two eyes, ONE EITHER SIDE of the face. They used to sit at headR*0.30 and
+   headR*0.72 - both of them on the same side of the skull, which at this
+   size read as a pair of dots stuck on rather than a face looking at you.
+   They straddle the centre line now, still weighted toward whichever way
+   the villager is facing so the head keeps its three-quarter turn, and set
+   a little wider and rounder besides, which is most of what makes a face
+   this small read as friendly.
+
+   And a little of what the villager is actually feeling. Every mood is read
+   LIVE off state the game already keeps - u.wary, u.soaked, u.dogHappy,
+   u.nightsAwake, u.mending, u.singT - so there is no new field to create,
+   nothing to initialise, nothing to save, and nothing left `undefined` on
+   everybody already alive in a months-old save. That last one is the point:
+   a mood FIELD would have been undefined for every existing villager and
+   `undefined <= 0` is false, so it would have silently never shown - the
+   trap CLAUDE.md documents. Same reasoning as the animals' blink (05). */
+const FACE_INK = "#2b2119";
+
+/* Every expression a face can wear, and what it actually is on the canvas.
+
+     lid   how much of the eye's own height is left. 1 is wide open, and
+           anything ABOVE 1 is wider than open, which is what alarm looks
+           like. Down at 0.5 it is a slit.
+     brow  "cross" slants down toward the middle of the face, "raised" sits
+           flat and high, "heavy" flat and low. null draws none at all -
+           most faces should not have brows, or every villager looks
+           permanently startled.
+     arc   drawn as two upward arches instead of a pair of eyes - the
+           closed-up happy squint. The number scales how deep the arch is.
+     shut  both eyes closed, and unlike the blink it stays that way.
+
+   A brow is what carries most of these at this size; a lid change of a few
+   hundredths of a pixel on its own reads as nothing at all. */
+const FACE_EXPRESSIONS = {
+  calm:     { lid:1.00, brow:null     },
+  working:  { lid:0.84, brow:null     },   // eyes down on the job
+  talking:  { lid:1.00, brow:"raised" },   // animated, mid-sentence
+  pleased:  { arc:1.00                },
+  laughing: { arc:1.30                },   // the same squint, further shut
+  resting:  { lid:0.62, brow:null     },   // mending, and glad to be sat down
+  tired:    { lid:0.72, brow:null     },
+  sleepy:   { lid:0.52, brow:"heavy"  },
+  wary:     { lid:1.16, brow:"raised" },   // wide - something is out there
+  fighting: { lid:0.80, brow:"cross"  },
+  asleep:   { shut:true               }
+};
+
+/* WHICH one, read live off state the game already keeps. There is no mood
+   field and there must not be one: it would be `undefined` on every
+   villager already alive in a months-old save, and `undefined <= 0` is
+   false, so the whole feature would silently never show - the trap
+   CLAUDE.md documents, and the same reasoning as the animals' blink (05).
+
+   Ordered most urgent first. A villager mid-fight is not "working" even
+   while carrying an axe, and one who has fallen asleep on a break is not
+   anything else at all. */
+function villagerMood(u){
+  if(!u) return "calm";
+  // asleep: lying down on a worker's break (tryWorkBreak, 03c)
+  if(u.lying) return "asleep";
+  // fighting: told to attack, or shouting about it (u.sayHot, 05)
+  if(u.order === "attack" || u.sayHot) return "fighting";
+  // wary: lived through a bad night and has not forgotten it
+  if(u.wary) return "wary";
+  // laughing: actually singing along to something
+  if((u.singT||0) > 0) return "laughing";
+  // pleased: making a fuss of a dog, or still glowing from having done
+  if((u.dogHappy||0) > 0 || (u.patAnim||0) > 0 || u.order === "playdog") return "pleased";
+  // talking: stopped for a word with somebody (u.chatT, 05)
+  if((u.chatT||0) > 0) return "talking";
+  // resting: mending overnight in the quarters where they trained
+  if(u.mending) return "resting";
+  // sleepy: up at an hour they shouldn't be, or it is properly dark
+  if(u.awakeAtNight || (u.nightsAwake||0) > 0 || (G.dark||0) > 0.7) return "sleepy";
+  // tired: wet through, or badly knocked about
+  if(u.soaked || (u.maxhp && u.hp < u.maxhp*0.55)) return "tired";
+  /* working: eyes on whatever is in front of them. Last, so it is the
+     fallback for anyone actually busy rather than something that outranks
+     how they feel - and it asks villagerJob (above), the same live read the
+     work clothes use, so a villager sent from the trees to the stone is
+     wearing the look by the time they arrive. */
+  if(u.sit || u.order === "build" || u.order === "catchbug" ||
+     (typeof villagerJob === "function" && villagerJob(u))) return "working";
+  return "calm";
+}
+
+function drawFaceEyes(u, headR, headY){
+  const mood = villagerMood(u);
+  const spec = FACE_EXPRESSIONS[mood] || FACE_EXPRESSIONS.calm;
+  const nx = headR*0.50, fx = -headR*0.26;      // near eye, far eye
+  /* BELOW the head's centre line, on the exposed face - not level with it.
+     The hair is a filled pie whose two straight edges meet at the head's
+     own centre, so the centre line IS the hairline: at headY-headR*0.05
+     (where these used to sit) an eye straddles it, and the mop was painted
+     straight over them. EVERYTHING here has to clear headY downward, and
+     the highest thing is not the eye but a "raised" brow - which is what
+     sets this offset. See tests/villager-faces.js, which pins it. */
+  const ny = headY + headR*0.30;
+  const rr = headR*0.125, fs = 0.90;            // the far one is a shade smaller
+  const seed = (u && (u.id || 0)) + 0.5;
+
+  const lids = (h) => {                          // a pair of closed lid lines
+    ctx.strokeStyle = FACE_INK; ctx.lineWidth = Math.max(0.55, rr*0.72);
+    ctx.beginPath();
+    ctx.moveTo(nx-rr, h);    ctx.lineTo(nx+rr, h);
+    ctx.moveTo(fx-rr*fs, h); ctx.lineTo(fx+rr*fs, h);
+    ctx.stroke();
+  };
+
+  /* Asleep stays shut; the blink is shut only for a moment. Both outrank
+     every expression below, because a shut eye has no expression in it. */
+  if(spec.shut){ lids(ny); return; }
+  if(typeof blinkShut === "function" && blinkShut(seed)){ lids(ny); return; }
+
+  /* The happy squint - both eyes closed up into an arch. Not a pair of
+     dots at all, which is why it is the one shape drawn separately. */
+  if(spec.arc){
+    const d = spec.arc;
+    ctx.strokeStyle = FACE_INK; ctx.lineWidth = Math.max(0.6, rr*0.62);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.arc(nx, ny+rr*0.45*d, rr*1.05*d, Math.PI*1.15, Math.PI*1.85);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(fx, ny+rr*0.45*d, rr*1.05*d*fs, Math.PI*1.15, Math.PI*1.85);
+    ctx.stroke();
+    return;
+  }
+
+  const lid = spec.lid === undefined ? 1 : spec.lid;
+  ctx.fillStyle = FACE_INK;
+  ctx.beginPath(); ctx.ellipse(nx, ny, rr,    Math.max(0.2, rr*lid),    0, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(fx, ny, rr*fs, Math.max(0.2, rr*lid*fs), 0, 0, 6.283); ctx.fill();
+
+  /* The brow is what actually carries most of these. A lid change alone is
+     a fraction of a pixel at this size and reads as nothing whatever.
+       cross   slants DOWN toward the middle of the face
+       raised  flat and high - startled, or talking
+       heavy   flat and low - the lids are going
+     BROW_DROP is capped so the highest brow still clears the hairline; the
+     test asserts it, so raising it means moving the eyes down as well. */
+  if(spec.brow){
+    const drop  = spec.brow === "raised" ? rr*1.05
+                : spec.brow === "cross"  ? rr*0.55
+                :                          rr*0.30;
+    const slant = spec.brow === "cross" ? rr*0.62 : 0;
+    ctx.strokeStyle = FACE_INK; ctx.lineWidth = Math.max(0.55, rr*0.44);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    // near brow: outer end high, inner end low
+    ctx.moveTo(nx+rr*1.05, ny-rr-drop);
+    ctx.lineTo(nx-rr*0.95, ny-rr-drop+slant);
+    // far brow, mirrored about the face's own centre
+    ctx.moveTo(fx-rr*1.05*fs, ny-rr-drop);
+    ctx.lineTo(fx+rr*0.95*fs, ny-rr-drop+slant);
+    ctx.stroke();
+  }
+}
 
 /* ---------- a little person ----------
    Chunky proportions in the spirit of The Settlers: a big round head, a short
@@ -31027,6 +31549,9 @@ function drawPerson(u, pl, yOff){
   const baseCloth = u.nightWear ? NIGHTWEAR_CLOTH
     : u.bugCatcher ? BUGCATCHER_CLOTH
     : u.fisherman ? FISHERMAN_CLOTH
+    : u.tradeFound === "gardener"  ? GARDENER_CLOTH
+    : u.tradeFound === "geologist" ? GEOLOGIST_CLOTH
+    : u.tradeFound === "caretaker" ? CARETAKER_CLOTH
     : u.cloth || (job==="wood" ? FLANNEL : null) || TINT[u.type] || pl.col;
   /* The baker's whites are the one outfit whose whole job is to be
      recognisable at a glance ("always dressed for the one thing he does" -
@@ -31107,6 +31632,28 @@ function drawPerson(u, pl, yOff){
   const reachLY   = patting ? (u.patAt.y - u.y) : pickLY;
   const reachLean = patting ? Math.max(-3, Math.min(3, reachLX*0.16)) : pickLean;
 
+  /* DOWN ON ONE KNEE TO PICK BERRIES.
+
+     A bush is knee-high, and a villager was gathering from one bolt upright
+     with an arm out - the reach was there, the rest of them was standing at
+     a bus stop. Only a WILD food node: a farm's own crop is worked standing
+     (its nodes carry farmOf), and the fisherman's water is not this at all.
+
+     Eased in and out rather than snapped, so they lower themselves into it
+     and get up again - a pose that appears between two frames reads as a
+     glitch, which is the same rule the work-break poses follow. */
+  const berrying = picking && pickAt && !pickAt.farmOf && !pickAt.water;
+  /* Timed off G.t, not counted per frame. A per-frame step would have made
+     how fast somebody kneels depend on the frame rate, which is the sort of
+     thing that looks fine on the machine it was written on. Capped per step
+     so a stall does not slam the pose to the floor in one jump. */
+  const kNow = G.t || 0;
+  const kDt  = Math.max(0, Math.min(0.1, kNow - (u._kneelAt === undefined ? kNow : u._kneelAt)));
+  u._kneelAt = kNow;
+  u._kneel = Math.max(0, Math.min(1,
+    (u._kneel||0) + (berrying ? kDt*3.2 : -kDt*4.5)));
+  const kneel = u._kneel;
+
   const lit = shade(tint, 0.20), dim = shade(tint, -0.30);
   const skinDim = shade(skin, -0.22), skinLit = shade(skin, 0.14);
   const outline = "rgba(28,24,20,.55)";
@@ -31116,7 +31663,7 @@ function drawPerson(u, pl, yOff){
      so it has to be undone by the flip, or a villager facing left leans away
      from the very thing they are picking. */
   ctx.translate(reach ? reachLean*(u.face<0 ? -1 : 1)*(0.5+0.5*rCyc) : 0,
-                yOff - bob + work*H*0.05);
+                yOff - bob + work*H*0.05 + kneel*H*0.17);
   /* A villager standing around with genuinely nothing on - not walking, not
      working, not picking, not sat down - gets a small restless sway rather
      than holding dead still like a mannequin. No new state and no pathing:
@@ -31194,6 +31741,32 @@ function drawPerson(u, pl, yOff){
     ctx.fillStyle = "#33281c";
     ctx.beginPath(); ctx.ellipse(-tw*1.05, footY-H*0.03, H*0.085, H*0.05, 0,0,6.283); ctx.fill();
     ctx.beginPath(); ctx.ellipse( tw*1.05, footY-H*0.03, H*0.085, H*0.05, 0,0,6.283); ctx.fill();
+  } else if(kneel > 0.15){
+    /* One knee on the ground and the other up, the way anybody picks from
+       something low. The trailing shin goes back along the ground, the
+       forward boot sits flat under a raised knee. Both feet stay at footY -
+       the body has already come down by the same amount in the translate,
+       so the legs fold rather than the whole villager sinking into the
+       ground. */
+    const k = Math.min(1, (kneel-0.15)/0.85);
+    const fx = u.face < 0 ? -1 : 1;
+    // forward leg: hip out to a raised knee, then down to a flat boot
+    ctx.beginPath();
+    ctx.moveTo(tw*0.42*fx, hipY);
+    ctx.lineTo(tw*(0.42+0.55*k)*fx, footY - H*0.17*k);
+    ctx.lineTo(tw*(0.42+0.34*k)*fx, footY);
+    ctx.stroke();
+    // trailing leg: knee down on the ground, shin back behind them
+    ctx.beginPath();
+    ctx.moveTo(-tw*0.42*fx, hipY);
+    ctx.lineTo(-tw*(0.42-0.10*k)*fx, footY);
+    ctx.lineTo(-tw*(0.42+0.70*k)*fx, footY - H*0.02*k);
+    ctx.stroke();
+    ctx.fillStyle = "#33281c";
+    ctx.beginPath();
+    ctx.ellipse(tw*(0.42+0.34*k)*fx, footY, H*0.085, H*0.05, 0,0,6.283); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(-tw*(0.42+0.70*k)*fx, footY - H*0.02*k, H*0.085, H*0.05, 0,0,6.283); ctx.fill();
   } else {
   ctx.beginPath(); ctx.moveTo(-tw*0.42, hipY); ctx.lineTo(lx2*0.8, footY-H*0.03); ctx.stroke();
   ctx.beginPath(); ctx.moveTo( tw*0.42, hipY); ctx.lineTo(lx1*0.8, footY-H*0.03); ctx.stroke();
@@ -31497,10 +32070,23 @@ function drawPerson(u, pl, yOff){
   ctx.strokeStyle = outline; ctx.lineWidth = 0.9;
   ctx.beginPath(); ctx.arc(0, headY, headR, 0, 6.283); ctx.stroke();
 
-  // eyes - two dots, enough personality at this size
-  ctx.fillStyle = "#2b2119";
-  ctx.beginPath(); ctx.arc(headR*0.30, headY-headR*0.05, headR*0.115, 0, 6.283); ctx.fill();
-  ctx.beginPath(); ctx.arc(headR*0.72, headY-headR*0.05, headR*0.115, 0, 6.283); ctx.fill();
+  /* The face goes on BEFORE the hair, so that any hair, fringe, hat brim,
+     beard or veil drawn below sits over the top of it - which is the right
+     way round: a beard hides a chin, hair hides a forehead.
+
+     What made this look broken was never the order, it was the HEIGHT. The
+     mop every plain villager wears is a filled pie from 1.10pi to 1.96pi at
+     radius 0.96*headR, and the two straight edges of that pie meet at the
+     head's own centre - so headY is the hairline. These used to sit at
+     headY-headR*0.05, straddling it, and the hair was painted straight over
+     them: the inner eye of the pair (headR*0.30, about 350deg) was inside
+     the pie and had been invisible its entire life, while the outer one
+     (headR*0.72, about 356deg) cleared the pie's edge by three degrees.
+     Which is exactly why a villager read as having one eye. Proved by
+     painting FACE_INK magenta and rebuilding: not one magenta pixel on the
+     head. drawFaceEyes puts them well below headY now, so the mop clears
+     them and the order can stay the sensible way round. */
+  drawFaceEyes(u, headR, headY);
 
   // ---- hair, scarves, hats, beards ----
   const hairCol = look ? look.hair : "rgba(44,32,22,.85)";
@@ -35165,6 +35751,11 @@ function drawPet(p){
   ctx.ellipse(headX+1.7, headY+0.5, p.species==="dog"?1.3:0.9, 0.9, 0, 0, 6.283);
   ctx.fill();
 
+  /* Eyes, one either side, under an ear each. AFTER the snout on purpose:
+     the dog's snout is wide enough to reach back over where the near eye
+     sits, so drawn before it the eye was simply painted out. */
+  drawEyePair(headX+0.95, headY-0.45, headX-0.55, headY-0.50, 0.34, "#241f19", p.seed);
+
   // grooming - a little paw-to-face touch, only while sitting and mid-lick
   if(sitting){
     const groom = Math.max(0, Math.sin(G.t*1.3+p.seed*3));
@@ -35798,6 +36389,107 @@ function drawSnowGlints(x0, y0, x1, y1){
   ctx.globalAlpha = 1;
 }
 
+/* ---------- eyes, and the blink ----------
+   Every animal wears a PAIR of eyes now, one either side of the head,
+   rather than what was actually there before: a single dot on the fox,
+   the boar and the village dog, and no eyes at all on a rabbit, a deer
+   or a bear. Every one of these heads already draws two EARS at two
+   different x positions - it is a three-quarter view, not a flat
+   profile - so a lone eye was the odd thing out, not the pair.
+
+   THE BLINK IS WORKED OUT FROM THE CLOCK AND THE ANIMAL'S OWN SEED,
+   never kept as a field on the animal. Deliberately: a blink timer added
+   to a dozen existing creature types would be `undefined` on every
+   animal already alive in a save, and `undefined <= 0` is false, so the
+   blink would silently never fire for any of them - which is exactly the
+   trap CLAUDE.md warns about and which has already cost this project
+   time twice (the child that would never pat its dog, trySkyEvents' NaN
+   cooldown). Nothing to initialise, nothing to save, nothing to clear at
+   dawn, and an animal out of a months-old save blinks like a new one.
+
+   The owl keeps its own stateful lids (o.blinkT) and is left alone: it
+   sits still on a roof being looked at, and its eyes are half of what it
+   is. These numbers are its numbers, so the two read as the same world. */
+const BLINK_SHUT  = 0.16;         // the owl's own figure, which reads well
+const BLINK_EVERY = [2.6, 6.4];   // its own rhythm, so a herd never blinks as one
+
+/* Is this animal mid-blink this frame? `seed` is whatever the creature
+   already carries (every one of them has a `seed` or an `id`); it only has
+   to differ between animals, not mean anything. */
+function blinkShut(seed){
+  const s = Math.abs(seed || 0);
+  const period = BLINK_EVERY[0] + ((s * 0.6180339887) % 1) * (BLINK_EVERY[1] - BLINK_EVERY[0]);
+  // a slower, heavier blink after dark, on top of the lids already sitting
+  // lower (EYE_SLEEPY_MAX) - a tired blink is a long one
+  const shut = BLINK_SHUT * (1 + (G.dark || 0) * 1.4);
+  return ((G.t + s * 3.7) % period) < shut;
+}
+
+/* A pair of eyes, in the animal's own local space - after its translate
+   and after the `face` flip, so these are the same coordinates the rest
+   of its head is drawn in and they flip with it for free.
+
+   (ax,ay) is the NEAR eye and (bx,by) the far one, on the other side of
+   the skull; the far one comes out a shade smaller because it is further
+   away, which is what stops a pair reading as two dots pasted on a disc.
+   `rad` is the near eye's radius, with a floor under it - a rabbit's head
+   is r*0.6 of r=3.5, and a proportional eye on that would vanish to
+   nothing at any zoom below about three. Shut, both become a short lid
+   line, exactly as the owl's do. */
+/* `farScale` is for the handful of faces seen straight ON rather than
+   three-quarter: a beast's pair of lights in the dark is symmetric, and
+   shrinking one of them only makes it look wrong. Defaults to the
+   three-quarter 0.85 every other animal here wants. */
+/* Every eye in the game passes through here, so the size lives in ONE
+   number rather than in eleven call sites - the first pass came out too
+   big and beady and was pulled back from here in a single edit. */
+const EYE_SCALE = 0.74;
+/* There WAS a catchlight here for a moment - a pale dot inside each eye,
+   on the theory that it would read as cute. It did not: the fox's plain
+   dark bead was better than the fox's bead with a highlight in it, said
+   so on sight, and at the size these actually draw the pale dot mostly
+   just greys the eye out. A small solid dark eye is the look. Don't add
+   it back without looking at a fox first. */
+
+/* How heavy the lids sit. Nought by day, and by full dark the eye is
+   drawn a little over half its own height - which is the whole of what
+   makes an animal look sleepy rather than merely dark. Read off G.dark,
+   which tick() recalculates from the clock, so this follows dusk into
+   night and lifts again at dawn without a flag of its own to clear. */
+const EYE_SLEEPY_MAX = 0.46;
+/* And a slow drift, so an open eye is not a dead dot. Deliberately tiny -
+   a fifth of the eye's own radius - and applied to BOTH eyes by the same
+   amount, because eyes that wander independently read as cross-eyed
+   rather than as alive. */
+const EYE_DRIFT = 0.20;
+
+function drawEyePair(ax, ay, bx, by, rad, col, seed, farScale){
+  const rr = Math.max(0.34, rad * EYE_SCALE);
+  const fs = (farScale === undefined) ? 0.85 : farScale;
+  const s  = Math.abs(seed || 0);
+  const sleepy = (G.dark || 0) * EYE_SLEEPY_MAX;
+
+  if(blinkShut(seed)){
+    ctx.strokeStyle = col;
+    ctx.lineWidth = Math.max(0.5, rr*0.72);
+    ctx.beginPath();
+    ctx.moveTo(ax-rr, ay);    ctx.lineTo(ax+rr, ay);
+    ctx.moveTo(bx-rr*fs, by); ctx.lineTo(bx+rr*fs, by);
+    ctx.stroke();
+    return;
+  }
+  /* Both eyes look the same way at the same time. Two waves well out of
+     step with each other, so it drifts about rather than sweeping back
+     and forth on one obvious beat. */
+  const dx = (Math.sin(G.t*0.55 + s*2.1)*0.7 + Math.sin(G.t*0.23 + s*5.3)*0.3) * rr*EYE_DRIFT;
+  const dy = Math.sin(G.t*0.37 + s*3.9) * rr*EYE_DRIFT*0.5;
+  const ry = rr * (1 - sleepy);              // the lid, coming down after dark
+
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.ellipse(ax+dx, ay+dy, rr, Math.max(0.18, ry), 0, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(bx+dx, by+dy, rr*fs, Math.max(0.18, ry*fs), 0, 0, 6.283); ctx.fill();
+}
+
 /* The markings, drawn over a body that has already been filled. Kept in
    one place so every size of animal gets the same vocabulary rather than
    three near-copies, and clipped to nothing when the animal is plain -
@@ -35915,8 +36607,13 @@ function drawBrushAnimal(c, sp, r, col, hy){
   ctx.moveTo(r*0.94, hy-r*0.56); ctx.lineTo(r*1.04, hy-r*0.94);
   ctx.lineTo(r*1.22, hy-r*0.52); ctx.closePath(); ctx.fill();
 
-  ctx.fillStyle = shade(col, -0.62);                // eye and nose
-  ctx.beginPath(); ctx.arc(r*1.06, hy-r*0.34, r*0.075, 0, 6.283); ctx.fill();
+  /* Eyes, one either side of the skull - under its own ear each, the near
+     one toward the muzzle exactly where the single eye used to sit. */
+  const dark = shade(col, -0.62);
+  // r*0.101 through EYE_SCALE lands on r*0.075, which is exactly the size
+  // the fox's single eye was before any of this - it was right already
+  drawEyePair(r*1.06, hy-r*0.34, r*0.80, hy-r*0.40, r*0.101, dark, c.seed);
+  ctx.fillStyle = dark;                             // and the nose
   ctx.beginPath(); ctx.ellipse(r*1.64, hy-r*0.28, r*0.09, r*0.075, 0, 0, 6.283); ctx.fill();
 }
 
@@ -36013,6 +36710,9 @@ function drawCritter(c){
     ctx.strokeStyle=col; ctx.lineWidth=r*0.34; ctx.lineCap="round";
     ctx.beginPath(); ctx.moveTo(r*0.85,-r*0.95); ctx.lineTo(r*(0.55+fidget),-r*2.1); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(r*1.15,-r*0.95); ctx.lineTo(r*(1.15-fidget*0.6),-r*2.0); ctx.stroke();
+    // a rabbit's eyes sit high and well back on the sides of the skull,
+    // one under each ear - it had none at all before this
+    drawEyePair(r*1.16,-r*0.56, r*0.66,-r*0.60, r*0.13, shade(col,-0.62), c.seed);
     ctx.fillStyle = (c.species==="snowhare") ? "#cfd6df" : "#efe6d6";
     ctx.beginPath(); ctx.arc(-r*1.05,r*0.1,r*0.45,0,6.283); ctx.fill();
     if(sp.spots){                             // a fawn
@@ -36041,6 +36741,9 @@ function drawCritter(c){
       ctx.moveTo(r*0.5,-r*0.2); ctx.lineTo(r*0.95,-r*1.1);
       ctx.lineTo(r*1.3,-r*1.0); ctx.lineTo(r*0.85,-r*0.05); ctx.closePath(); ctx.fill();
       ctx.beginPath(); ctx.arc(r*1.15,-r*1.15,r*0.32,0,6.283); ctx.fill();
+      // one either side of a narrow skull - a deer had no eyes before this
+      drawEyePair(r*1.30,-r*1.18, r*1.00,-r*1.20, r*0.095, shade(col,-0.62), c.seed);
+      ctx.fillStyle = col;
       if(sp.antlers){
         ctx.strokeStyle=shade(col,0.25); ctx.lineWidth=r*0.14;
         ctx.beginPath(); ctx.moveTo(r*1.05,-r*1.4); ctx.lineTo(r*0.85,-r*2.0);
@@ -36084,8 +36787,9 @@ function drawCritter(c){
       ctx.closePath(); ctx.fill();
       ctx.fillStyle = shade(col, -0.34);        // the snout disc
       ctx.beginPath(); ctx.ellipse(r*1.38, r*0.16, r*0.17, r*0.15, 0, 0, 6.283); ctx.fill();
-      ctx.fillStyle = shade(col, -0.55);        // and the eye
-      ctx.beginPath(); ctx.arc(r*0.98,-r*0.10, r*0.075, 0, 6.283); ctx.fill();
+      // and the eyes, one either side of the wedge - it wore only the near
+      // one before this. Both set well back from the snout, as a pig's are.
+      drawEyePair(r*0.98,-r*0.10, r*0.76,-r*0.20, r*0.085, shade(col,-0.55), c.seed);
       // the tusk: a short curve of ivory sweeping up out of the jaw
       ctx.strokeStyle = "#e8e0cf"; ctx.lineWidth = r*0.11; ctx.lineCap = "round";
       ctx.beginPath();
@@ -36105,6 +36809,9 @@ function drawCritter(c){
       ctx.beginPath(); ctx.arc(r*1.15,-r*0.28,r*0.46,0,6.283); ctx.fill();
       ctx.beginPath(); ctx.arc(r*0.95,-r*0.78,r*0.20,0,6.283); ctx.fill();
       ctx.beginPath(); ctx.arc(r*1.42,-r*0.72,r*0.20,0,6.283); ctx.fill();
+      // small eyes, one under each of those ears - a bear had none before
+      // this, only a snout, which is why its face read as a blank disc
+      drawEyePair(r*1.36,-r*0.32, r*0.96,-r*0.34, r*0.095, shade(col,-0.62), c.seed);
       ctx.fillStyle=shade(col,-0.35);
       ctx.beginPath(); ctx.ellipse(r*1.52,-r*0.20,r*0.20,r*0.15,0,0,6.283); ctx.fill();
     }
@@ -36718,9 +37425,10 @@ function drawBeast(b){
            : -r*0.34;
   const glow = 0.72 + 0.28*Math.sin(G.t*4 + b.id);
   ctx.globalAlpha = Math.max(0.35, (G.dark||0)) * glow;
-  ctx.fillStyle = B.eye;
-  ctx.beginPath(); ctx.arc(ex - r*0.16, ey, r*0.13, 0, 6.283); ctx.fill();
-  ctx.beginPath(); ctx.arc(ex + r*0.16, ey, r*0.13, 0, 6.283); ctx.fill();
+  /* Already a pair - these only needed the blink, and a beast's is worth
+     more than a rabbit's: a pair of lights in the dark going out for a
+     moment and coming back is the whole of what makes them unsettling. */
+  drawEyePair(ex + r*0.16, ey, ex - r*0.16, ey, r*0.13, B.eye, b.id, 1);
   ctx.globalAlpha = 1;
 
   ctx.restore();
@@ -37705,6 +38413,9 @@ function drawSquirrel(sq){
   ctx.fillStyle = shade(sq.grey ? "#8f8a80" : "#8a5a34", sq.tone || 0);
   ctx.beginPath(); ctx.ellipse(0,0,2.6,1.9,0,0,6.283); ctx.fill();
   ctx.beginPath(); ctx.arc(1.9,-1.1,1.3,0,6.283); ctx.fill();
+  // a squirrel's eye is the big dark bead on the side of its head, and it
+  // has one on each side - it had neither before this
+  drawEyePair(2.42,-1.30, 1.42,-1.34, 0.34, "#241f19", sq.seed);
 
   // the tail is most of the point - held up and curled over the back
   // the darker parts follow the same coat, or a grey squirrel keeps a red tail
@@ -39756,6 +40467,43 @@ const GRASS_COL = {
 };
 function grassTone(){ return GRASS_COL[G.season] || GRASS_COL.summer; }
 
+/* ONE BLADE'S HEIGHT, in world pixels. Shared, and it has to be: the bake
+   and the live buckets each work out where every blade is, and if the two
+   formulas ever drift a tile going live would visibly pop as its blades
+   changed size. It was written out twice before this.
+
+   And it came down. A villager is drawn r*2.35 tall - just 16.5 pixels - and
+   the front rank of the bake ran to FOURTEEN, so the grass stood at better
+   than four-fifths of the height of the people walking through it. Nobody
+   noticed while it was a flat blitted texture; the moment blades started
+   bending individually they read as separate stalks, and the village turned
+   out to be wading through a wheat field. Six and a half at the tallest is
+   about the knee, which is what a lawn looks like from up here. */
+const GRASS_H_MIN = 2.4;
+const GRASS_H_VAR = 4.2;
+function grassBladeH(r, hMul){ return (GRASS_H_MIN + r*GRASS_H_VAR) * hMul; }
+
+/* ONE BLADE, as a shape rather than a line.
+
+   Every blade in the game was a stroked line with a round cap, which is a
+   CAPSULE: the same width at the tip as at the root, with a dome on the end.
+   At any distance that reads as a scatter of little green sticks, and it is
+   why the grass never looked like grass however short it was made. A real
+   blade is wide where it leaves the ground and comes to a point.
+
+   So they are filled slivers now - two curves meeting at the tip - and the
+   bake, the live tiles, the close-up layer and the blades crossing a pair of
+   boots all come through here, so a blade is the same blade in all four. */
+function grassBladePath(c, x, y, h, lean, w){
+  const tipX = x + lean*h*0.55, tipY = y - h;
+  const cx = x + lean*h*0.2, cy = y - h*0.58;
+  const hw = w*0.5;
+  c.moveTo(x - hw, y);
+  c.quadraticCurveTo(cx - hw*0.45, cy, tipX, tipY);
+  c.quadraticCurveTo(cx + hw*0.45, cy, x + hw, y);
+  c.closePath();
+}
+
 function bakeGrassMats(){
   const size = GRASS_MAT_TILES * TILE;
   const tone = grassTone();
@@ -39773,9 +40521,9 @@ function bakeGrassMats(){
          the bed has some depth in itself rather than being one flat scribble.
          Every blade in every phase comes off the same hash, so a blade is the
          same blade in all three. */
-      for(const [rank, alpha, hMul, wLine] of [[0, 0.30, 0.72, 0.8], [1, 0.46, 1.0, 0.95]]){
-        g.strokeStyle = tone + alpha + ")";
-        g.lineWidth = wLine;
+      for(const [rank, alpha, hMul, wLine] of GRASS_RANKS){
+        // a fill covers more ink than a hairline, so the alphas come down
+        g.fillStyle = tone + (alpha*0.82).toFixed(3) + ")";
         g.beginPath();
         const n = 210;                        // blades per rank per mat
         for(let i=0;i<n;i++){
@@ -39784,11 +40532,10 @@ function bakeGrassMats(){
           const h3 = Math.sin(i*419.2 + v*371.9 + rank*97.1)*43758.5453;
           const bx = (h1 - Math.floor(h1)) * size;
           const by = (h2 - Math.floor(h2)) * size;
-          const bh = (5 + (h3 - Math.floor(h3))*9) * hMul;
-          g.moveTo(bx, by);
-          g.lineTo(bx + lean*bh*0.55, by - bh);
+          const bh = grassBladeH(h3 - Math.floor(h3), hMul);
+          grassBladePath(g, bx, by, bh, lean, wLine);
         }
-        g.stroke();
+        g.fill();
       }
       phases.push(cv);
     }
@@ -39807,16 +40554,248 @@ function grassMats(){
 
 /* Is this whole 4x4 block of ground grass? Inland it nearly always is, and
    then the block goes down in one blit instead of sixteen. */
+/* WHERE GRASS GROWS. Terrain is: 0 grass, 1 lighter grass, 2 DARKER grass,
+   3 dirt, 4 sand, 5 water (02c-mapgen).
+
+   Every one of the five places that asked this question asked it as
+   "k===5 || k===2 || k===3", and the comment written beside the first of
+   them says what was meant: "water, sand, bare dirt". But 2 is not sand.
+   2 is the darker of the three GRASSES; sand is 4. So for as long as the
+   bed has existed it has refused to grow on one grass in three and grown
+   happily on the beach instead.
+
+   Measured over three maps: 885 tiles of perfectly good darker grass (8.8%
+   of the map) were left bare, and 654 tiles of sand (6.5%) were sown. The
+   sand is the giveaway - beach tiles sit right on the waterline and the
+   shore art paints the sea over part of them, so grass on sand reads as
+   grass growing in the ocean. Which is exactly how it was reported.
+
+   One predicate now, because five copies of a list is how the typo survived
+   being read five times. */
+function grassGrowsOn(k){ return k !== 5 && k !== 4 && k !== 3; }
+
 function grassBlockClear(bx, by){
   for(let ty=by; ty<by+GRASS_MAT_TILES; ty++){
     if(ty<0||ty>=MAPH) return false;
     for(let tx=bx; tx<bx+GRASS_MAT_TILES; tx++){
       if(tx<0||tx>=MAPW) return false;
       const k = G.terrain[ty*MAPW+tx];
-      if(k===5 || k===2 || k===3) return false;   // water, sand, bare dirt
+      if(!grassGrowsOn(k)) return false;
     }
   }
   return true;
+}
+
+/* ============================================================
+   WHAT A WALKER DOES TO THE GRASS THAT IS ALREADY THERE
+   ============================================================
+
+   The bed is a BAKED BITMAP - 210 blades a mat, stamped per four-by-four
+   block in one of three lean phases. That is what makes a field of it
+   affordable, and it is also why the bed cannot know anybody is walking
+   through it: you cannot bend one blade of a bitmap.
+
+   The old answer was to draw a few extra blades over the boots. It read as
+   grass worn on the shins rather than grass on the ground - four strokes at
+   fixed spacing, all leaning the same way, the only difference between one
+   villager and the next being ((id*7)%3)-1, which is three possibilities.
+
+   So instead: the tiles somebody is standing on stop being stamped at all
+   and are drawn LIVE, blade for blade, out of the same hash the bake uses.
+   They are not extra grass laid on top - they are the very blades that were
+   in the bitmap a moment ago, now free to move. A tile carries about
+   twenty-six of them, buckets are worked out once, and only the two-by-two
+   patch around each walker ever goes live, so the field stays a blit.
+
+   Blades are pushed ASIDE - away from the line the walker is on, plus a
+   shove along the way they are heading - so the bed opens in front of them
+   and closes behind. The press is remembered for a second and a half and
+   eases off over it, which is the wake: grass does not snap upright the
+   instant a boot leaves it. */
+const GRASS_LIVE_ZOOM  = 1.0;    // below this nobody can resolve a blade anyway
+const GRASS_PRESS_R    = TILE*0.55;   // about half a tile, as agreed
+const GRASS_PRESS_LIFE = 1.5;    // how long a footfall is remembered
+const GRASS_PRESS_STEP = 0.09;   // seconds between points laid down
+const GRASS_PRESS_CAP  = 240;    // hard ceiling on remembered footfalls
+const GRASS_BEND_MAX   = 1.15;  // a blade laid right over, and no further
+
+/* The blades of a mat, sorted into the tile each one falls in. Straight out
+   of bakeGrassMats' own hash, so a live blade IS the baked blade rather than
+   a lookalike - same position, same height, same rank. Worked out once: the
+   hash has no season in it (only the tone does), so unlike the mats these
+   never need baking again. */
+const GRASS_RANKS = [[0, 0.30, 0.72, 0.8], [1, 0.46, 1.0, 0.95]];
+let GRASS_BLADES = null;
+function grassBlades(){
+  if(GRASS_BLADES) return GRASS_BLADES;
+  const size = GRASS_MAT_TILES * TILE;
+  GRASS_BLADES = [];
+  for(let v=0; v<GRASS_VARIANTS; v++){
+    const buckets = [];
+    for(let i=0;i<GRASS_MAT_TILES*GRASS_MAT_TILES;i++) buckets.push([]);
+    for(const [rank, alpha, hMul, wLine] of GRASS_RANKS){
+      for(let i=0;i<210;i++){
+        const h1 = Math.sin(i*127.1 + v*311.7 + rank*74.7)*43758.5453;
+        const h2 = Math.sin(i*269.5 + v*183.3 + rank*41.9)*43758.5453;
+        const h3 = Math.sin(i*419.2 + v*371.9 + rank*97.1)*43758.5453;
+        const bx = (h1 - Math.floor(h1)) * size;
+        const by = (h2 - Math.floor(h2)) * size;
+        const bh = grassBladeH(h3 - Math.floor(h3), hMul);
+        const tx = Math.min(GRASS_MAT_TILES-1, (bx/TILE)|0);
+        const ty = Math.min(GRASS_MAT_TILES-1, (by/TILE)|0);
+        buckets[ty*GRASS_MAT_TILES+tx].push({ x:bx, y:by, h:bh, a:alpha, w:wLine });
+      }
+    }
+    GRASS_BLADES.push(buckets);
+  }
+  return GRASS_BLADES;
+}
+
+/* Everything with feet. Villagers and soldiers, the Kennels' dogs, Gumby and
+   Floyd, and the wildlife - a deer crossing a meadow moves it the same as a
+   man does. Beasts and raiders are left out on purpose: grass reacting in
+   the middle of a fight is detail nobody is looking at. */
+function grassPressers(out){
+  out.length = 0;
+  for(const u of G.units) if(!u.indoors && u.hp > 0) out.push(u);
+  for(const c of G.critters||[]) if(!(c.underground > 0)) out.push(c);
+  for(const d of G.villageDogs||[]) if(!d.indoors) out.push(d);
+  for(const pt of G.pets||[]) if(!pt.indoors) out.push(pt);
+  if(G.gumby && !G.gumby.indoors) out.push(G.gumby);
+  if(G.floyd && !G.floyd.indoors) out.push(G.floyd);
+  return out;
+}
+
+/* On screen, near enough to matter. Without this every animal on the map
+   lays footfalls - measured at the full 240-point cap inside a second and a
+   half on an ordinary map, which both starves the walker you are actually
+   watching (their own points get shifted out from under them) and spends the
+   live pass on tiles nobody can see: 152 tiles live with one villager
+   walking, where the answer should be a handful. */
+function grassInView(x, y, m){
+  const c = G.cam;
+  if(!c) return true;
+  return x > c.x - m && y > c.y - m
+      && x < c.x + VW/c.z + m && y < c.y + VH/c.z + m;
+}
+
+const _grassPressBuf = [];
+function updateGrassPress(dt){
+  const pts = G.grassPress || (G.grassPress = []);
+  for(let i=pts.length-1;i>=0;i--){
+    pts[i].t += dt;
+    if(pts[i].t >= GRASS_PRESS_LIFE) pts.splice(i,1);
+  }
+  /* Pulled out far enough and a blade is under a pixel - stop remembering
+     footfalls rather than keeping a list nobody can see. The points already
+     laid down still age out normally above, so zooming out mid-stride lets
+     the wake finish rather than dropping it. */
+  if(!G.cam || G.cam.z < GRASS_LIVE_ZOOM) return;
+  for(const e of grassPressers(_grassPressBuf)){
+    const lx = e._gpx, ly = e._gpy;
+    e._gpx = e.x; e._gpy = e.y;
+    if(lx === undefined) continue;
+    const dx = e.x - lx, dy = e.y - ly;
+    const moved = Math.hypot(dx, dy);
+    /* Standing still lays nothing down. Somebody who has stopped is still
+       standing IN the grass - the blades around them stay parted while the
+       points they already laid age out, and then the bed closes over them. */
+    if(moved < 0.35){ e._gpT = 0; continue; }
+    if(!grassInView(e.x, e.y, TILE*2)) continue;
+    e._gpT = (e._gpT || 0) + dt;
+    if(e._gpT < GRASS_PRESS_STEP) continue;
+    e._gpT = 0;
+    const k = 1/moved;
+    pts.push({ x:e.x, y:e.y, dx:dx*k, dy:dy*k, t:0 });
+    if(pts.length > GRASS_PRESS_CAP) pts.shift();
+  }
+}
+
+/* Which tiles are to be drawn live this frame, and which footfalls are near
+   enough to each to matter. Built once and handed to both passes: the bed
+   skips these tiles, the live pass draws them. */
+function grassLiveTiles(){
+  const map = new Map();
+  if(!G.cam || G.cam.z < GRASS_LIVE_ZOOM) return map;
+  const rr = GRASS_PRESS_R;
+  for(const p of G.grassPress||[]){
+    if(!grassInView(p.x, p.y, TILE)) continue;
+    const t0x=((p.x-rr)/TILE)|0, t1x=((p.x+rr)/TILE)|0;
+    const t0y=((p.y-rr)/TILE)|0, t1y=((p.y+rr)/TILE)|0;
+    for(let ty=t0y; ty<=t1y; ty++){
+      if(ty<0||ty>=MAPH) continue;
+      for(let tx=t0x; tx<=t1x; tx++){
+        if(tx<0||tx>=MAPW) continue;
+        /* The SAME ground test the bed uses. Without it a live tile is
+           picked purely by being near a footfall, and the live pass then
+           happily draws a tile the bed had deliberately left bare - so
+           somebody walking a shoreline grew grass on the open sea. Measured
+           at the water's edge: nine tiles went live and SEVEN of them were
+           water. (terrain 5 is water; 2 and 3 are the other bare kinds.) */
+        const kk = G.terrain[ty*MAPW+tx];
+        if(!grassGrowsOn(kk)) continue;
+        const key = ty*MAPW+tx;
+        let a = map.get(key);
+        if(!a){ a = []; map.set(key, a); }
+        a.push(p);
+      }
+    }
+  }
+  /* And the tile anybody is STANDING in, walking or not - with no footfalls
+     attached, so nothing bends. The design note above says "the tiles
+     somebody is standing in stop being stamped", and standing is the word:
+     drawGrassAtFeet redraws a few of a tile's own blades over the boots so
+     the unit is not a sticker laid on the ground, and those have to be the
+     same blades at the same angle as the ground has. A stamped tile only
+     carries one of three baked leans, so overdrawing it at a continuous
+     angle leaves a faint double image of every blade. Live, they agree
+     exactly. */
+  for(const e of grassPressers(_grassPressBuf)){
+    if(!grassInView(e.x, e.y, TILE)) continue;
+    const tx = (e.x/TILE)|0, ty = (e.y/TILE)|0;
+    if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) continue;
+    if(!grassGrowsOn(G.terrain[ty*MAPW+tx])) continue;
+    const key = ty*MAPW+tx;
+    if(!map.has(key)) map.set(key, []);
+  }
+  return map;
+}
+
+/* How far this blade is bent, and which way. Aside from the walker's line
+   first - that is what "parting" means - and then a shove along the way they
+   were going, so the bed opens ahead of them rather than only flattening. */
+function grassBendAt(wx, wy, pts){
+  /* The STRONGEST footfall near this blade, not the sum of them.
+
+     Summing looked right until you watched it: a walker lays a point every
+     GRASS_PRESS_STEP seconds, so a blade beside their path sees eight or ten
+     of them at once, the total slams into the clamp, and the grass goes over
+     at forty-five degrees as though a gale had crossed the field rather than
+     one person having walked past. Worse, the strength then depended on how
+     often points happen to be laid down - a sampling rate, not anything
+     about the world, so tightening the step would have quietly doubled it.
+
+     One blade can only be pushed over by so much, however many times it is
+     pushed. Taking the strongest contribution says exactly that, and makes
+     the look independent of the step. */
+  let bend = 0, best = 0;
+  for(let i=0;i<pts.length;i++){
+    const p = pts[i];
+    const ddx = wx - p.x, ddy = wy - p.y;
+    const d = Math.hypot(ddx, ddy);
+    if(d > GRASS_PRESS_R) continue;
+    const fall = 1 - d/GRASS_PRESS_R;
+    const age  = 1 - p.t/GRASS_PRESS_LIFE;      // eases back up, never snaps
+    const aside = d > 0.01 ? ddx/d : 0;
+    /* Aside leads, the shove follows. With the two anywhere near even the
+       forward push swamps the parting and every blade around a walker leans
+       the same way again - measured at -0.05 against +0.52 either side of
+       somebody, which is a lean, not a parting. At these weights it is -0.55
+       against +1.45: both sides move, and they move apart. */
+    const c = (aside*1.0 + p.dx*0.45) * fall*fall * age;
+    if(Math.abs(c) > best){ best = Math.abs(c); bend = c; }
+  }
+  return Math.max(-GRASS_BEND_MAX, Math.min(GRASS_BEND_MAX, bend*1.15));
 }
 
 function drawGrassSway(x0, y0, x1, y1){
@@ -39853,6 +40832,12 @@ function drawGrassSway(x0, y0, x1, y1){
   const bx0 = Math.floor(x0/GRASS_MAT_TILES)*GRASS_MAT_TILES;
   const by0 = Math.floor(y0/GRASS_MAT_TILES)*GRASS_MAT_TILES;
 
+  /* Tiles somebody is standing in are not stamped at all - drawGrassLive
+     draws those blade by blade instead. Worked out here, once, because this
+     pass runs first and the live pass needs the same answer. */
+  const live = G.grassLive = grassLiveTiles();
+  const anyLive = live.size > 0;
+
   for(let by=by0; by<y1; by+=GRASS_MAT_TILES){
     for(let bx=bx0; bx<x1; bx+=GRASS_MAT_TILES){
       // which mat, and which way round - so a field is not one square repeated
@@ -39869,7 +40854,15 @@ function drawGrassSway(x0, y0, x1, y1){
 
       const ph = phaseAt((bx + GRASS_MAT_TILES*0.5)*TILE, (by + GRASS_MAT_TILES*0.5)*TILE);
       const i0 = ph.i0, i1 = ph.i1, k = ph.k;
-      if(grassBlockClear(bx, by)){
+      /* The one-blit fast path is only available if nobody is standing in
+         this block - a single stamp cannot leave a hole for them. */
+      let blockLive = false;
+      if(anyLive){
+        for(let ty=by; ty<by+GRASS_MAT_TILES && !blockLive; ty++)
+          for(let tx=bx; tx<bx+GRASS_MAT_TILES; tx++)
+            if(live.has(ty*MAPW+tx)){ blockLive = true; break; }
+      }
+      if(!blockLive && grassBlockClear(bx, by)){
         put(mats[v][i0], 0, 0, size, size, bx*TILE, by*TILE, (1-k)*fade);
         if(k > 0.01) put(mats[v][i1], 0, 0, size, size, bx*TILE, by*TILE, k*fade);
         continue;
@@ -39880,7 +40873,8 @@ function drawGrassSway(x0, y0, x1, y1){
         for(let tx=bx; tx<bx+GRASS_MAT_TILES; tx++){
           if(tx<x0-1||tx>=x1+1||tx<0||tx>=MAPW) continue;
           const kk = G.terrain[ty*MAPW+tx];
-          if(kk===5 || kk===2 || kk===3) continue;
+          if(!grassGrowsOn(kk)) continue;
+          if(anyLive && live.has(ty*MAPW+tx)) continue;   // drawn live instead
           const sx = (tx-bx)*TILE, sy = (ty-by)*TILE;
           put(mats[v][i0], sx, sy, TILE, TILE, tx*TILE, ty*TILE, (1-k)*fade);
           if(k > 0.01) put(mats[v][i1], sx, sy, TILE, TILE, tx*TILE, ty*TILE, k*fade);
@@ -39889,6 +40883,64 @@ function drawGrassSway(x0, y0, x1, y1){
     }
   }
   ctx.globalAlpha = 1;
+}
+
+/* The tiles a walker is standing in, drawn blade by blade so they can move.
+
+   Same hash as the bake, so these are the bed's own blades - the tile was a
+   stamp a moment ago and will be again the moment the wake fades. The lean is
+   continuous here rather than one of three baked phases, which costs nothing
+   now that the blade is being drawn anyway, so a tile going live does not
+   pop: it is the same blade at very nearly the same angle.
+
+   Batched into one path per rank, the way the bake is, since a stroke a blade
+   would be six hundred calls where two will do. */
+function drawGrassLive(){
+  const live = G.grassLive;
+  if(!live || !live.size) return;
+  const snow = G.snow || 0;
+  if(snow > 0.8) return;
+  const zoom = Math.min(1, Math.max(0, (G.cam.z - 0.85) / 0.5));
+  if(zoom <= 0.01) return;
+  const fade = (snow > 0.3 ? (1 - (snow-0.3)/0.5) : 1) * zoom;
+  const buckets = grassBlades();
+  const tone = grassTone();
+  const windAmt = (typeof G.windDir === "number") ? G.windDir : 0;
+  const gust = G.weather ? (G.weatherAmt||0) : 0;
+  const w = Math.max(-1, Math.min(1,
+    windAmt*0.7 + Math.sin(G.t*0.55)*0.35 + Math.sin(G.t*1.7)*0.12*(1+gust*2)));
+
+  for(let r=0; r<GRASS_RANKS.length; r++){
+    const alpha = GRASS_RANKS[r][1], wLine = GRASS_RANKS[r][3];
+    ctx.fillStyle = tone + (alpha*0.82*fade).toFixed(3) + ")";
+    ctx.beginPath();
+    for(const [key, pts] of live){
+      const tx = key % MAPW, ty = (key / MAPW)|0;
+      const bx = Math.floor(tx/GRASS_MAT_TILES)*GRASS_MAT_TILES;
+      const by = Math.floor(ty/GRASS_MAT_TILES)*GRASS_MAT_TILES;
+      const hv = Math.sin(bx*12.9898 + by*78.233)*43758.5453;
+      const v  = Math.floor((hv - Math.floor(hv)) * GRASS_VARIANTS) % GRASS_VARIANTS;
+      const bucket = buckets[v][(ty-by)*GRASS_MAT_TILES + (tx-bx)];
+      // the mat's own origin in the world, so a blade lands exactly where the
+      // stamp had it
+      const ox = bx*TILE, oy = by*TILE;
+      const lean0 = Math.max(-1, Math.min(1,
+        w + gustAt(tx*TILE+TILE*0.5, ty*TILE+TILE*0.5)*0.9)) * 0.62;
+      for(let i=0;i<bucket.length;i++){
+        const bl = bucket[i];
+        if(bl.a !== alpha) continue;              // this rank only
+        const wx = ox + bl.x, wy = oy + bl.y;
+        const lean = lean0 + grassBendAt(wx, wy, pts);
+        /* A blade laid over is SHORTER than one standing up - without this
+           the grass swings about at full height like wipers and reads as
+           rotation rather than as being pushed down. */
+        const lay = Math.min(0.85, Math.abs(lean));
+        const h = bl.h * (1 - lay*0.28);
+        grassBladePath(ctx, wx, wy, h, lean, bl.w);
+      }
+    }
+    ctx.fill();
+  }
 }
 
 /* ---------- what you find when you come in close ----------
@@ -39903,6 +40955,7 @@ function drawGrassSway(x0, y0, x1, y1){
    four times in there are twenty-odd, and eight blades apiece is nothing. The
    cost falls as the reward rises. */
 function drawGrassDetail(x0, y0, x1, y1){
+  const live = G.grassLive;      // set by drawGrassSway, which runs first
   const z = G.cam.z;
   if(z < 1.9) return;
   if((G.snow||0) > 0.8) return;
@@ -39911,9 +40964,7 @@ function drawGrassDetail(x0, y0, x1, y1){
   const gust = G.weather ? (G.weatherAmt||0) : 0;
   const tone = grassTone();
 
-  ctx.strokeStyle = tone + (0.42*amt).toFixed(2) + ")";
-  ctx.lineWidth = 0.7;
-  ctx.lineCap = "round";
+  ctx.fillStyle = tone + (0.36*amt).toFixed(3) + ")";
   ctx.beginPath();
   const heads = [];
   for(let ty=y0; ty<y1; ty++){
@@ -39921,24 +40972,36 @@ function drawGrassDetail(x0, y0, x1, y1){
     for(let tx=x0; tx<x1; tx++){
       if(tx<0||tx>=MAPW) continue;
       const k = G.terrain[ty*MAPW+tx];
-      if(k===5||k===2||k===3) continue;
+      if(!grassGrowsOn(k)) continue;
+      /* This is the layer you are actually looking at once you come in close
+         - taller, lighter and drawn live - so it has to answer a walker too.
+         Without it the fine bed underneath parts around somebody while the
+         big blades standing over it carry on as though nobody were there,
+         which reads as the effect happening to the wrong grass. One lookup
+         a tile; the blades are already being drawn one at a time. */
+      const pts = live && live.get(ty*MAPW+tx);
       for(let i=0;i<8;i++){
         const h1 = Math.sin(tx*127.1 + ty*311.7 + i*74.7)*43758.5453;
         const h2 = Math.sin(tx*269.5 + ty*183.3 + i*41.9)*43758.5453;
         const h3 = Math.sin(tx*419.2 + ty*371.9 + i*97.1)*43758.5453;
         const r1 = h1 - Math.floor(h1), r2 = h2 - Math.floor(h2), r3 = h3 - Math.floor(h3);
         const bx = (tx + r1)*TILE, by = (ty + r2)*TILE;
-        const bh = 4 + r3*11;
-        const lean = (windAmt*0.5 + Math.sin(G.t*0.9 + r1*40)*0.4) * (1 + gust*1.6)
-                   + gustAt(bx, by)*0.9;
-        ctx.moveTo(bx, by);
-        ctx.quadraticCurveTo(bx + lean*bh*0.22, by - bh*0.55, bx + lean*bh*0.6, by - bh);
+        // the close-up layer is the taller, finer grass - but taller than
+        // the bed, not taller than the people (see grassBladeH)
+        const bh = 2.6 + r3*4.6;
+        let lean = (windAmt*0.5 + Math.sin(G.t*0.9 + r1*40)*0.4) * (1 + gust*1.6)
+                 + gustAt(bx, by)*0.9;
+        if(pts) lean += grassBendAt(bx, by, pts);
+        // laid over is shorter than standing up, or it swings like a wiper
+        const lay = Math.min(0.85, Math.abs(lean));
+        const bh2 = bh * (1 - lay*0.26);
+        grassBladePath(ctx, bx, by, bh2, lean, 0.8);
         // one blade in eight carries a seed head, collected and drawn after
-        if(r3 > 0.88) heads.push(bx + lean*bh*0.6, by - bh, r1);
+        if(r3 > 0.88) heads.push(bx + lean*bh2*0.6, by - bh2, r1);
       }
     }
   }
-  ctx.stroke();
+  ctx.fill();
 
   if(heads.length && z > 2.6){
     ctx.fillStyle = tone + (0.5*amt).toFixed(2) + ")";
@@ -39951,87 +41014,72 @@ function drawGrassDetail(x0, y0, x1, y1){
   ctx.lineCap = "butt";
 }
 
-/* Blades over the boots of whoever is standing in it, PUSHED ASIDE by them.
+/* The few of a tile's OWN blades that cross the boots, redrawn after the
+   unit so they pass in front of it. Not a separate little bunch of grass
+   invented per villager - the same blades the ground already has, at the
+   same angle, picked out by where they happen to fall.
 
-   The baked bed cannot know anybody is walking through it, so the few blades
-   that matter - the ones actually touching a pair of feet - are drawn live
-   here. They lean away from the direction the unit is travelling, so the
-   grass parts as somebody comes through it and springs back behind them.
+   This started as five hand-made blades and that was the whole complaint.
+   With the bed itself faint at close range, those five were the only grass
+   you could see, so every villager looked like they were wearing a small
+   green bush rather than standing in a field - which is exactly what "it
+   looks attached to their legs" meant. Take the blades from the ground and
+   there is nothing to look attached: they belong to the tile, and the unit
+   simply happens to be among them.
 
-   Never higher than the boot: this is standing in grass, not hiding in it. */
+   There were TWO functions of this name once, one silently replacing the
+   other for the whole life of the feature - see the check in smoke.js. */
+const GRASS_FEET_NONE = [];
 function drawGrassAtFeet(u){
-  if(G.cam.z < 1.0) return;
+  if(G.cam.z < GRASS_LIVE_ZOOM) return;
   if(u.indoors || u.hp <= 0) return;
   const d = UNITS[u.type];
   if(!d || d.naval) return;
-  if((G.snow||0) > 0.8) return;
+  const snow = G.snow || 0;
+  if(snow > 0.8) return;
   const tx = (u.x/TILE)|0, ty = (u.y/TILE)|0;
   if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return;
-  const k = G.terrain[ty*MAPW+tx];
-  if(k === 5 || k === 2 || k === 3) return;
+  if(!grassGrowsOn(G.terrain[ty*MAPW+tx])) return;
+
+  const key = ty*MAPW+tx;
+  const live = G.grassLive;
+  // only over a live tile: on a stamped one these would ghost (grassLiveTiles)
+  if(!live || !live.has(key)) return;
+  const pts = live.get(key) || GRASS_FEET_NONE;
+
+  const bx0 = Math.floor(tx/GRASS_MAT_TILES)*GRASS_MAT_TILES;
+  const by0 = Math.floor(ty/GRASS_MAT_TILES)*GRASS_MAT_TILES;
+  const hv = Math.sin(bx0*12.9898 + by0*78.233)*43758.5453;
+  const v  = Math.floor((hv - Math.floor(hv)) * GRASS_VARIANTS) % GRASS_VARIANTS;
+  const bucket = grassBlades()[v][(ty-by0)*GRASS_MAT_TILES + (tx-bx0)];
+  const ox = bx0*TILE, oy = by0*TILE;
+
   const windAmt = (typeof G.windDir === "number") ? G.windDir : 0;
   const gust = G.weather ? (G.weatherAmt||0) : 0;
-  const wind = (windAmt*0.5 + Math.sin(G.t*0.9 + u.id)*0.35) * (1 + gust*1.6)
-             + gustAt(u.x, u.y)*0.9;
-  /* Pushed by the walker: face is +1 or -1 and is which way they are headed,
-     so the blades in front of them go over harder than the wind alone would
-     take them, and a standing villager's grass just leans on the wind. */
-  const push = u.moving ? (u.face < 0 ? -1 : 1) * 1.15 : 0;
-  ctx.strokeStyle = grassTone() + (0.60 * (1 - (G.snow||0)*0.7)).toFixed(2) + ")";
-  ctx.lineWidth = 0.95;
-  ctx.lineCap = "round";
+  const w = Math.max(-1, Math.min(1,
+    windAmt*0.7 + Math.sin(G.t*0.55)*0.35 + Math.sin(G.t*1.7)*0.12*(1+gust*2)));
+  const lean0 = Math.max(-1, Math.min(1, w + gustAt(u.x, u.y)*0.9)) * 0.62;
+  const fade = (snow > 0.3 ? (1 - (snow-0.3)/0.5) : 1);
+
+  /* Only the ones actually at the feet. Anything higher up the tile would
+     be drawn over the body, which is grass in front of somebody's chest. */
+  const span = u.r*1.15;
+  ctx.fillStyle = grassTone() + (0.34*fade).toFixed(3) + ")";
   ctx.beginPath();
-  const by = u.y + u.r*0.52;
-  for(let b=0; b<4; b++){
-    const bx = u.x + (b-1.5)*2.7 + ((u.id*7)%3) - 1;
-    const bh = 6.4 * (b===1||b===2 ? 1 : 0.76);
-    // the ones the walker is heading into bend hardest
-    const near = 1 - Math.abs((b-1.5)/2.2);
-    const lean = wind + push*near;
-    ctx.moveTo(bx, by);
-    ctx.lineTo(bx + lean*bh*0.5, by - bh*(1 - Math.abs(lean)*0.14));
+  let n = 0;
+  for(let i=0;i<bucket.length;i++){
+    const bl = bucket[i];
+    const wx = ox + bl.x, wy = oy + bl.y;
+    if(Math.abs(wx - u.x) > span) continue;
+    if(wy < u.y - u.r*0.15 || wy > u.y + u.r*0.85) continue;
+    const lean = lean0 + grassBendAt(wx, wy, pts);
+    const lay = Math.min(0.85, Math.abs(lean));
+    grassBladePath(ctx, wx, wy, bl.h * (1 - lay*0.28), lean, bl.w);
+    n++;
   }
-  ctx.stroke();
-  ctx.lineCap = "butt";
+  if(n) ctx.fill();
 }
 
-/* A few blades over the boots of whoever is standing in it.
-
-   This is the whole point of the bed: a unit drawn ON TOP of flat ground is a
-   sticker, and a unit with three blades crossing its feet is standing in
-   something. Drawn per unit rather than by sorting the whole bed into the
-   depth pass - a bed dense enough to read is several hundred clumps, and
-   sorting those every frame to catch the half-dozen that happen to be in
-   front of somebody is not a trade worth making.
-
-   Never higher than the boot: it must not read as cover. */
-function drawGrassAtFeet(u){
-  if(G.cam.z < 1.05) return;
-  if(u.indoors || u.hp <= 0) return;
-  const d = UNITS[u.type];
-  if(!d || d.naval) return;
-  if((G.snow||0) > 0.75) return;
-  const tx = (u.x/TILE)|0, ty = (u.y/TILE)|0;
-  if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return;
-  const k = ty*MAPW+tx;
-  if(G.terrain[k] === 5 || G.terrain[k] === 2 || G.terrain[k] === 3) return;
-  const windAmt = (typeof G.windDir === "number") ? G.windDir : 0;
-  const gust = G.weather ? (G.weatherAmt||0) : 0;
-  const lean = (windAmt*0.5 + Math.sin(G.t*0.9 + u.id)*0.35) * (1 + gust*1.6);
-  ctx.strokeStyle = grassTone() + (0.52 * (1 - (G.snow||0)*0.7)).toFixed(2) + ")";
-  ctx.lineWidth = 0.9;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  for(let b=-1; b<=1; b++){
-    const bx = u.x + b*2.6 + ((u.id*7)%3) - 1;
-    const bh = 4.4 * (b ? 0.8 : 1);
-    const by = u.y + u.r*0.52;
-    ctx.moveTo(bx, by);
-    ctx.quadraticCurveTo(bx + lean*bh*0.22, by - bh*0.55, bx + lean*bh*0.55, by - bh);
-  }
-  ctx.stroke();
-  ctx.lineCap = "butt";
-}
 
 
 /* ============================================================
@@ -42550,6 +43598,43 @@ function drawFireflies(x0, y0, x1, y1){
    They do nothing. Nothing to gather, nothing buffed, nothing hiding among
    them - like the fireflies, they are only worth having while they stay that
    way. */
+/* Which shape of creature each season's drift actually is - and so which
+   part of the bug book it belongs to. Autumn and winter are deliberately
+   absent: gossamer is spider silk on the wind and diamond dust is ice in
+   the air, and neither is a thing you can catch. */
+const DRIFT_BUG_SHAPE = { spring:"beetle", summer:"dragonfly" };
+
+/* The nearest species in the book, by colour, among the ones of that shape.
+   Colour is what tells these apart - "every one of them a different colour"
+   is the whole point of the spring drift - so colour is what picks. */
+function driftBugKey(season, col){
+  const shape = DRIFT_BUG_SHAPE[season];
+  if(!shape || typeof BUG_TYPES === "undefined") return null;
+  /* A species that CLAIMS this drift wins outright - the May Bug claims
+     spring's. Only then fall back to nearest colour.
+
+     The spring drift's pastels match nothing in the book, and adding a
+     species for them would have broken it: the book is deliberately a
+     hundred plus the storm beetle, exactly one longer than the hundred
+     fish, eleven to a season. Its own test says so in four places. So the
+     bloomtide beetles go in the book as May Bugs, which is the spring
+     beetle it already had - the drift keeps its colours, the book keeps
+     its shape. Worth raising if you would rather they were their own
+     entry, because that costs the 101. */
+  for(const t of BUG_TYPES) if(t.drift === season) return t.key;
+  const c = parseCol(col);
+  let best = null, bd = Infinity;
+  for(const t of BUG_TYPES){
+    if(t.shape !== shape || t.rare || t.storm) continue;
+    // and never a species that is out of its own season
+    if(t.season && t.season !== season) continue;
+    const q = parseCol(t.col);
+    const d = Math.hypot(c[0]-q[0], c[1]-q[1], c[2]-q[2]);
+    if(d < bd){ bd = d; best = t; }
+  }
+  return best ? best.key : null;
+}
+
 const DRIFTS = {
   spring: {
     name: "beetles",
@@ -42608,10 +43693,21 @@ function tryDrift(){
   const n = D.n[0] + Math.floor(Math.random()*D.n[1]);
   for(let i=0;i<n;i++){
     const a = Math.random()*6.283, r = 50+Math.random()*250;
+    const dcol = D.cols[(Math.random()*D.cols.length)|0];
     G.drifters.push({
       x: town.x+Math.cos(a)*r, y: town.y+Math.sin(a)*r,
       hx: town.x+Math.cos(a)*r, hy: town.y+Math.sin(a)*r,
-      col: D.cols[(Math.random()*D.cols.length)|0],
+      col: dcol,
+      /* WHICH SPECIES THIS ONE IS, so it can be caught. The drifters were a
+         separate system from the bug book - lovely to look at, and nothing
+         happened when you tapped them, which is exactly how it was reported.
+
+         No new entries in the book: the seasonal drifts ARE species that are
+         already in it, and the colours say which. A jewel-blue drift is the
+         Blue Damselfly, a gold one the Golden-Ringed Dragonfly. Autumn and
+         winter get no key on purpose - gossamer is spider silk and diamond
+         dust is ice, and neither is an animal you could put in a jar. */
+      key: driftBugKey(G.season, dcol),
       seed: Math.random()*99, t:0,
       life: 55+Math.random()*45,
       /* Not a blink. A firefly is a light going on and off; everything here is
@@ -42796,10 +43892,19 @@ const CROP_KINDS = {
                 colYoung:"#4a7a3a", colReady:"#4a7a3a", fruitCol:"#c9536a", flowerCol:"#f4f0e6" },
   pumpkin:    { shape:"low",    rows:5, cols:5, tallMax:4.5,
                 colYoung:"#4a6a2a", colReady:"#6a7a2a", fruitCol:"#d97a2f", fruitBig:true },
+  /* Kale and the sweet potato are the two crops that are ALL foliage - no
+     fruit, no ear, no flower - so their leaf colour is the only thing
+     standing between them and the soil. At their old greens they measured 37
+     and 42 away from turned earth, and a field of either was very nearly an
+     empty field at any zoom. Lifted to 94 and 97, about where the cabbage
+     already sat at 96. */
   sweetpotato:{ shape:"low",    rows:6, cols:7, tallMax:3.5,
-                colYoung:"#4a5a3a", colReady:"#5a6a4a", fruitCol:null },
+                colYoung:"#5f7048", colReady:"#86996a", fruitCol:null },
+  /* headCol was #c9962f, only 42 away from the ripe stalk it sits on, so
+     the ears vanished into the straw at any distance. #a8761f is 89 away -
+     about what the corn cob has, and the ears read as ears. */
   wheat:      { shape:"stalk",  rows:6, cols:5, tallMax:13,  headStyle:"grain",
-                colYoung:"#6a8a45", colReady:"#d9b24a", headCol:"#c9962f" },
+                colYoung:"#6a8a45", colReady:"#d9b24a", headCol:"#a8761f" },
   cabbage:    { shape:"low",    rows:4, cols:4, tallMax:5.5,
                 colYoung:"#3a5a2a", colReady:"#8a9a6a", fruitCol:null },
   turnip:     { shape:"low",    rows:6, cols:7, tallMax:3.5,
@@ -42808,9 +43913,12 @@ const CROP_KINDS = {
                    winter snow - see feedback_pale_prop_contrast */
                 fruitCol:"#ede4dd", fruitStroke:"#8a6a5a" },
   kale:       { shape:"low",    rows:5, cols:5, tallMax:5,
-                colYoung:"#354a34", colReady:"#4a6048", fruitCol:null },
+                colYoung:"#5e7a62", colReady:"#7d9a72", fruitCol:null },
+  /* The pod was DARKER than the vine it hangs on and only 48 away from it -
+     the same fault the wheat ear had at 42. A pea pod is a paler, brighter
+     green than its own leaves; at 101 the pods read. */
   peas:       { shape:"stalk",  rows:6, cols:5, tallMax:9,   headStyle:"pod",
-                colYoung:"#7aae5a", colReady:"#5a8a3a", headCol:"#3a6a2a" },
+                colYoung:"#7aae5a", colReady:"#5a8a3a", headCol:"#9ccb63" },
   carrot:     { shape:"low",    rows:6, cols:7, tallMax:3.5,
                 colYoung:"#4a7a3a", colReady:"#5a8a3a", fruitCol:"#e8752f", fruitBig:false }
 };
@@ -42833,6 +43941,464 @@ const ORDINARY_FARM_VEG = { summer: ["corn","sunflower"], autumn: ["wheat","cabb
    ripe/bare are the SAME harvest-remaining values the plain field
    already used: a fully-grown field just picked clean still shows as
    short stubble, exactly as before. */
+/* CORN, CLOSE UP.
+
+   A cob was a filled rectangle 1.6 by 3.2 pixels on every other stalk. At
+   any normal zoom that is the right answer - it is two pixels of gold and it
+   reads as an ear of corn. But the camera goes to 4.4 now, and at that range
+   the whole field was thirty little brown boxes on sticks.
+
+   So once you are actually close enough to resolve it, a cob becomes a cob:
+   husk leaves wrapping it, a body that fills out and turns from pale to
+   gold as it ripens, kernels in staggered rows the way they really sit, and
+   silk at the tip once it is ready. The stalk gets its long drooping leaves
+   and a tassel on top, which is most of what makes corn read as corn.
+
+   None of it is drawn below CROP_DETAIL_ZOOM, so an ordinary view pays
+   nothing for it - the old two-pixel rectangle is still the right drawing
+   from up there, and is still what gets drawn. */
+const CROP_DETAIL_ZOOM = 2.4;   // shared by every crop that has a close-up
+
+function drawCornCob(cx, cy, h, fill, lean, leafCol){
+  const w = h*0.44;
+  const tipX = cx + lean*h*0.30, tipY = cy - h*0.5;
+  const botX = cx - lean*h*0.10, botY = cy + h*0.5;
+
+  // husk, behind - two leaves gripping the cob, and they stay GREEN. The
+  // stalk colour has gone gold by now, and a husk that follows it makes the
+  // whole plant one colour, which is a wheat field, not a corn field.
+  ctx.fillStyle = shade(leafCol, 0.06);
+  for(const sgn of [-1, 1]){
+    ctx.beginPath();
+    ctx.moveTo(botX + sgn*w*0.72, botY);
+    ctx.quadraticCurveTo(cx + sgn*w*1.12, cy, tipX + sgn*w*0.26, tipY - h*0.10);
+    ctx.quadraticCurveTo(cx + sgn*w*0.18, cy, botX - sgn*w*0.10, botY);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // the cob itself, pale and thin when it sets, gold and full when ripe
+  const cobCol = mixCol("#c2a76a", "#f0c94a", fill);
+  const ox = cx + lean*h*0.12;
+  ctx.fillStyle = cobCol;
+  ctx.beginPath();
+  ctx.ellipse(ox, cy, w*(0.34 + fill*0.20), h*(0.36 + fill*0.11), lean*0.22, 0, 6.283);
+  ctx.fill();
+
+  /* Kernels, in staggered rows - offset every other row, which is how they
+     actually sit on a cob and what stops this reading as a dotted grid.
+
+     And they FILL IN, from the base of the ear upwards, rather than the cob
+     arriving fully packed and merely getting bigger. Without this a cob that
+     had just set carried exactly as many kernels as one ready to pick - the
+     same 195 across the field either way - so the whole point of being able
+     to see kernels at all was lost: they could not tell you anything. */
+  ctx.fillStyle = shade(cobCol, -0.20);
+  const kr = h*0.075, rows = 5;
+  for(let r=0; r<rows; r++){
+    // 0 at the bottom of the ear, 1 at the tip - the last to come in
+    const upFrom = 1 - r/(rows-1);
+    if(fill*1.08 < upFrom*0.92) continue;
+    for(let c=0; c<3; c++){
+      const uu = (c - 1 + (r%2 ? 0.5 : 0)) / 1.55;
+      const vv = (r/(rows-1) - 0.5) * 1.7;
+      if(uu*uu + vv*vv*0.72 > 1) continue;
+      ctx.beginPath();
+      ctx.arc(ox + uu*w*(0.30 + fill*0.16) - vv*lean*h*0.10,
+              cy + vv*h*(0.30 + fill*0.09), kr, 0, 6.283);
+      ctx.fill();
+    }
+  }
+
+  // silk at the tip, once there is something under it worth having
+  if(fill > 0.55){
+    ctx.strokeStyle = "rgba(176,88,58," + (0.4 + fill*0.4).toFixed(2) + ")";
+    ctx.lineWidth = Math.max(0.18, h*0.045);
+    ctx.lineCap = "round";
+    for(let i=-1; i<=1; i++){
+      ctx.beginPath();
+      ctx.moveTo(tipX + i*w*0.16, tipY + h*0.04);
+      ctx.quadraticCurveTo(tipX + i*w*0.48, tipY - h*0.16,
+                           tipX + i*w*0.70, tipY - h*0.28);
+      ctx.stroke();
+    }
+    ctx.lineCap = "butt";
+  }
+}
+
+/* The long drooping leaves and the tassel on top. Corn is recognisable from
+   these before you can see an ear at all. */
+function drawCornStalkDetail(px, py, topx, topy, hgt, leafCol, col, growFrac){
+  const lean = (topx - px) / Math.max(0.001, hgt);
+  ctx.strokeStyle = shade(leafCol, 0.04);
+  ctx.lineWidth = Math.max(0.2, hgt*0.055);
+  ctx.lineCap = "round";
+  for(const [at, sgn] of [[0.42, -1], [0.62, 1], [0.78, -1]]){
+    const ax = px + (topx-px)*at, ay = py - hgt*at;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.quadraticCurveTo(ax + sgn*hgt*0.26, ay - hgt*0.10,
+                         ax + sgn*hgt*0.34, ay + hgt*0.06);
+    ctx.stroke();
+  }
+  // tassel - straw, not leaf, so this one does follow the ripe colour
+  if(growFrac > 0.62){
+    ctx.strokeStyle = shade(col, 0.22);
+    ctx.lineWidth = Math.max(0.15, hgt*0.035);
+    for(let i=-1; i<=1; i++){
+      ctx.beginPath();
+      ctx.moveTo(topx, topy);
+      ctx.quadraticCurveTo(topx + i*hgt*0.06, topy - hgt*0.09,
+                           topx + i*hgt*0.13, topy - hgt*0.15);
+      ctx.stroke();
+    }
+  }
+  ctx.lineCap = "butt";
+}
+
+/* WHAT A FIELD BEING CUT ACTUALLY LOOKS LIKE.
+
+   It looked like nothing. Being worked only ever SHORTENED the crop, by at
+   most a third, and left the colour and the count alone - so measured on a
+   real field, taking it from full down to a fifth changed 2.8% of its
+   pixels, less than a single day of growth, and then it snapped to bare
+   drills. The whole harvest was one binary flip at the end, and the harvest
+   is the half the player causes.
+
+   A field is cut PLANT BY PLANT now, from the near edge backwards, leaving
+   stubble behind. The plants still standing are full height - they have not
+   shrunk, they have not been taken yet - and the ones that have are a row of
+   cut stems. Near edge first on purpose: cut from the back and the crop
+   still standing hides its own stubble, which looks like nothing again. */
+/* WHERE THIS PLANT SITS IN THE ORDER OF CUTTING - 0 is taken first, 1 last.
+   Near edge (the highest ry, nearest the viewer) goes first, with a little
+   per-plant jitter so the cut line is ragged rather than whole rows blinking
+   out together. Out here rather than inside the drawing so it can be tested
+   without a canvas. */
+function cropCutOrder(rx, ry, rows){
+  const h = Math.sin(rx*61.7 + ry*13.3)*43758.5453;
+  return ((rows-1-ry) + (h - Math.floor(h))*0.85) / rows;
+}
+
+function cropStubble(pts, col){
+  if(!pts.length) return;
+  /* PALE straw, not a darker version of the crop. Cut stems are bleached
+     and they stand on turned earth, which is the darkest thing on the
+     field - a dark stub on dark soil is 1,677 pixels of nothing, which is
+     what the first version drew. */
+  ctx.strokeStyle = mixCol(col, "#e8dcc0", 0.5);
+  ctx.lineWidth = 1.1;
+  ctx.lineCap = "butt";
+  ctx.beginPath();
+  for(let i=0;i<pts.length;i+=2){
+    ctx.moveTo(pts[i], pts[i+1]);
+    ctx.lineTo(pts[i], pts[i+1] - 1.9);
+  }
+  ctx.stroke();
+}
+
+/* A PEA POD, CLOSE UP - with peas in it, and the tendril that holds the
+   vine up, which is the thing you recognise a pea row by. */
+function drawPeaPod(px, py, h, fill, k, col){
+  // the tendril, curling off above the pod
+  ctx.strokeStyle = shade(col, 0.10);
+  ctx.lineWidth = Math.max(0.13, h*0.09);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(px, py - h*0.30);
+  ctx.quadraticCurveTo(px + h*0.34, py - h*0.86, px - h*0.10, py - h*1.05);
+  ctx.stroke();
+  ctx.lineCap = "butt";
+  // the pod, hanging and swelling as it fills
+  const pw = h*(0.26 + fill*0.16), ph = h*0.62;
+  ctx.fillStyle = k.headCol;
+  ctx.beginPath(); ctx.ellipse(px, py, pw, ph, 0.22, 0, 6.283); ctx.fill();
+  // and the peas showing through it
+  if(fill > 0.35){
+    ctx.fillStyle = shade(k.headCol, 0.26);
+    const n = 3;
+    for(let i=0;i<n;i++){
+      const t = (i/(n-1) - 0.5) * 1.35;
+      ctx.beginPath();
+      ctx.arc(px + t*ph*0.22, py + t*ph*0.74, pw*0.40, 0, 6.283);
+      ctx.fill();
+    }
+  }
+}
+
+/* THE LOW CROPS, CLOSE UP.
+
+   Seven of the nine crops are the "low" shape, and all seven were drawn by
+   the same three lines: one flat ellipse a plant, plus an optional coloured
+   dot for fruit. So a cabbage, a kale, a turnip, a carrot, a strawberry, a
+   pumpkin and a sweet potato were the same picture in different greens - the
+   only thing telling them apart was the dot, and two of them have no dot at
+   all. Up close each one is now itself.
+
+   Nothing here below CROP_DETAIL_ZOOM: from an ordinary view the flat
+   ellipse is the right drawing and it is still what gets drawn. */
+function drawLowCropDetail(key, k, px, py, r, grow, col){
+  const dark = shade(col, -0.16), lit = shade(col, 0.14);
+  switch(key){
+
+  case "cabbage": {
+    // a tight ball of leaves wrapped round a pale heart
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.ellipse(px, py, r*1.15, r*0.80, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.ellipse(px, py-r*0.10, r*0.86, r*0.62, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = lit; ctx.lineWidth = Math.max(0.16, r*0.09);
+    for(let i=-1;i<=1;i++){                       // the veins wrapping it
+      ctx.beginPath();
+      ctx.moveTo(px + i*r*0.42, py + r*0.30);
+      ctx.quadraticCurveTo(px + i*r*0.20, py - r*0.30, px + i*r*0.08, py - r*0.44);
+      ctx.stroke();
+    }
+    break; }
+
+  case "kale": {
+    // no ball at all - loose, upright, very frilly leaves
+    ctx.fillStyle = col;
+    for(let i=0;i<5;i++){
+      const a = -Math.PI/2 + (i-2)*0.48;
+      const lx = px + Math.cos(a)*r*0.95, ly = py + Math.sin(a)*r*0.78;
+      ctx.beginPath();
+      ctx.moveTo(px, py + r*0.24);
+      ctx.quadraticCurveTo(px + Math.cos(a)*r*0.30, ly + r*0.20, lx, ly);
+      ctx.quadraticCurveTo(px + Math.cos(a)*r*0.72, ly + r*0.34, px, py + r*0.24);
+      ctx.closePath(); ctx.fill();
+      // the ruffle along the edge, which is the whole look of kale
+      ctx.fillStyle = (i%2) ? dark : lit;
+      ctx.beginPath(); ctx.arc(lx, ly, r*0.18, 0, 6.283); ctx.fill();
+      ctx.fillStyle = col;
+    }
+    break; }
+
+  case "turnip": case "carrot": {
+    // a root crop: the shoulder of it showing above the soil, leaves over
+    const rootCol = k.fruitCol || "#e8d8c8";
+    const showing = Math.max(0, (grow-0.45)/0.55);
+    if(showing > 0){
+      ctx.fillStyle = rootCol;
+      ctx.beginPath();
+      ctx.ellipse(px, py + r*0.34, r*0.52*showing, r*0.34*showing, 0, 0, 6.283);
+      ctx.fill();
+      if(k.fruitStroke){                    // a pale turnip needs its own edge
+        ctx.strokeStyle = k.fruitStroke; ctx.lineWidth = Math.max(0.14, r*0.07);
+        ctx.stroke();
+      }
+    }
+    ctx.strokeStyle = col;
+    ctx.lineWidth = Math.max(0.16, r*(key==="carrot" ? 0.08 : 0.16));
+    ctx.lineCap = "round";
+    // carrot tops are fine and feathery; a turnip's are broad and few
+    const n = key==="carrot" ? 6 : 4;
+    for(let i=0;i<n;i++){
+      const a = -Math.PI/2 + (i-(n-1)/2)*(key==="carrot" ? 0.34 : 0.46);
+      ctx.beginPath();
+      ctx.moveTo(px, py + r*0.28);
+      ctx.quadraticCurveTo(px + Math.cos(a)*r*0.34, py + Math.sin(a)*r*0.62,
+                           px + Math.cos(a)*r*0.80, py + Math.sin(a)*r*0.98);
+      ctx.stroke();
+    }
+    ctx.lineCap = "butt";
+    break; }
+
+  case "strawberry": {
+    // three leaflets to a leaf, and the fruit under them
+    ctx.fillStyle = col;
+    for(let i=0;i<3;i++){
+      const a = -Math.PI/2 + (i-1)*0.85;
+      ctx.beginPath();
+      ctx.ellipse(px + Math.cos(a)*r*0.62, py + Math.sin(a)*r*0.50,
+                  r*0.44, r*0.32, a, 0, 6.283);
+      ctx.fill();
+    }
+    const fruit = Math.max(0, (grow-0.5)/0.5);
+    if(fruit > 0){
+      ctx.fillStyle = k.fruitCol;
+      ctx.beginPath();
+      ctx.ellipse(px + r*0.30, py + r*0.42, r*0.30*fruit, r*0.36*fruit, 0.3, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,240,210,.75)";      // the pips
+      for(let i=0;i<3;i++){
+        ctx.beginPath();
+        ctx.arc(px + r*(0.20+i*0.10), py + r*(0.30+ (i%2)*0.18), r*0.05*fruit, 0, 6.283);
+        ctx.fill();
+      }
+    } else if(k.flowerCol && grow > 0.2){
+      ctx.fillStyle = k.flowerCol;
+      ctx.beginPath(); ctx.arc(px + r*0.28, py + r*0.34, r*0.22, 0, 6.283); ctx.fill();
+    }
+    break; }
+
+  case "pumpkin": {
+    // a big ribbed gourd sitting on the ground, with a vine leaf behind it
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.ellipse(px - r*0.50, py - r*0.20, r*0.60, r*0.40, -0.4, 0, 6.283);
+    ctx.fill();
+    const swell = Math.max(0, (grow-0.45)/0.55);
+    if(swell > 0){
+      const gr = r*0.80*swell;
+      ctx.fillStyle = k.fruitCol;
+      ctx.beginPath(); ctx.ellipse(px + r*0.20, py + r*0.22, gr, gr*0.82, 0, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = shade(k.fruitCol, -0.20);
+      ctx.lineWidth = Math.max(0.14, gr*0.10);
+      for(let i=-1;i<=1;i++){                        // the ribs
+        ctx.beginPath();
+        ctx.moveTo(px + r*0.20 + i*gr*0.46, py + r*0.22 - gr*0.72);
+        ctx.quadraticCurveTo(px + r*0.20 + i*gr*0.62, py + r*0.22,
+                             px + r*0.20 + i*gr*0.46, py + r*0.22 + gr*0.72);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = shade(col, -0.30); ctx.lineWidth = Math.max(0.16, gr*0.16);
+      ctx.beginPath();                               // the stalk
+      ctx.moveTo(px + r*0.20, py + r*0.22 - gr*0.80);
+      ctx.lineTo(px + r*0.30, py + r*0.22 - gr*1.14);
+      ctx.stroke();
+    }
+    break; }
+
+  default: {
+    // sweet potato and anything new: a trailing vine of heart-shaped leaves
+    ctx.fillStyle = col;
+    for(let i=0;i<4;i++){
+      const a = i*1.9 + 0.6;
+      ctx.beginPath();
+      ctx.ellipse(px + Math.cos(a)*r*0.62, py + Math.sin(a)*r*0.44,
+                  r*0.42, r*0.30, a, 0, 6.283);
+      ctx.fill();
+    }
+    ctx.strokeStyle = dark; ctx.lineWidth = Math.max(0.14, r*0.10);
+    ctx.beginPath();
+    ctx.moveTo(px - r*0.80, py + r*0.18);
+    ctx.quadraticCurveTo(px, py - r*0.20, px + r*0.80, py + r*0.18);
+    ctx.stroke();
+    break; }
+  }
+}
+
+/* AN EAR OF WHEAT, CLOSE UP.
+
+   It was a single ellipse 0.9 by 1.9 at the top of the stalk, in a colour 42
+   away from the stalk it sat on - against the corn cob's 86 - so it read as
+   the stalk being slightly fatter at the tip, not as an ear. Measured: the
+   ears are 1.45% of the field's pixels, which is why a field on day two and
+   the same field in full ear were almost the same picture.
+
+   An ear of wheat is a SPIKE: grains in two staggered ranks up a short axis,
+   and awns - the long bristles - going up off the top of it. The awns are
+   the thing you actually recognise a wheat field by from a distance, and
+   there were none at all. And it nods: a ripe ear is heavy, so it tips over
+   and the whole head hangs. */
+function drawWheatEar(cx, cy, h, ripe01, lean, k){
+  const droop = ripe01*ripe01*0.9;
+  // the ear's own axis, tipping over as it fills
+  const ax = lean*0.35 + droop*0.55, ay = -1;
+  const tipX = cx + ax*h, tipY = cy + ay*h*(1 - droop*0.30);
+  const grainCol = k.headCol;
+  const dark = shade(grainCol, -0.22);
+
+  // awns first, behind the grain, splaying up off the top
+  ctx.strokeStyle = shade(grainCol, 0.16);
+  ctx.lineWidth = Math.max(0.14, h*0.045);
+  ctx.lineCap = "round";
+  for(let i=-2;i<=2;i++){
+    if(!i && ripe01 < 0.4) continue;
+    ctx.beginPath();
+    ctx.moveTo(cx + ax*h*0.55, cy + ay*h*0.55);
+    ctx.quadraticCurveTo(tipX + i*h*0.10, tipY - h*0.20,
+                         tipX + i*h*0.26, tipY - h*0.42);
+    ctx.stroke();
+  }
+  ctx.lineCap = "butt";
+
+  /* Grains, two ranks, staggered - and they fill from the BOTTOM of the ear
+     up, the same way the corn does, so an ear that has just set is not an
+     ear ready to cut. */
+  const rows = 5;
+  for(let r=0; r<rows; r++){
+    const up = r/(rows-1);
+    if(ripe01*1.1 < up*0.85) continue;
+    const gx = cx + ax*h*up, gy = cy + ay*h*up;
+    for(const sgn of [-1, 1]){
+      ctx.fillStyle = (r%2 && sgn<0) ? dark : grainCol;
+      ctx.beginPath();
+      ctx.ellipse(gx + sgn*h*0.13, gy, h*0.15, h*0.10,
+                  Math.atan2(ay, ax) + sgn*0.5, 0, 6.283);
+      ctx.fill();
+    }
+  }
+}
+
+/* A SUNFLOWER, CLOSE UP.
+
+   It was a yellow disc with a brown dot in the middle - a bullseye on a
+   green pole. Up close it gets what a sunflower actually has: a ring of
+   tapered petals, a seeded centre, green sepals showing behind, and a head
+   that NODS as it fills with seed, because a ripe sunflower is too heavy to
+   hold itself up straight. Nothing here below CROP_DETAIL_ZOOM. */
+function drawSunflowerHead(cx, cy, r, ripe01, k, leafCol){
+  const droop = ripe01*ripe01;                 // heavy heads nod, and nod late
+  const hy = cy + r*0.30*droop;
+  const sq = 1 - droop*0.28;                   // foreshortened as they tip
+
+  // sepals behind, a green star just wider than the petals
+  ctx.fillStyle = shade(leafCol, -0.06);
+  for(let i=0;i<7;i++){
+    const a = i/7*6.283 + 0.4;
+    ctx.beginPath();
+    ctx.ellipse(cx + Math.cos(a)*r*0.62, hy + Math.sin(a)*r*0.62*sq,
+                r*0.42, r*0.20, a, 0, 6.283);
+    ctx.fill();
+  }
+  // petals
+  const petals = 14;
+  for(let i=0;i<petals;i++){
+    const a = i/petals*6.283;
+    // every third petal a shade off, so the ring is not one flat wheel
+    ctx.fillStyle = (i%3===0) ? shade(k.headCol, -0.12) : k.headCol;
+    ctx.beginPath();
+    ctx.ellipse(cx + Math.cos(a)*r*0.66, hy + Math.sin(a)*r*0.66*sq,
+                r*0.44, r*0.19, a, 0, 6.283);
+    ctx.fill();
+  }
+  // the seeded centre
+  ctx.fillStyle = k.headCentre;
+  ctx.beginPath(); ctx.ellipse(cx, hy, r*0.48, r*0.48*sq, 0, 0, 6.283); ctx.fill();
+  /* Seeds, in two rings - they only show once there is seed to show, which
+     is the whole reason the middle of a sunflower goes dark. */
+  if(ripe01 > 0.25){
+    ctx.fillStyle = shade(k.headCentre, 0.18);
+    for(let ring=0; ring<2; ring++){
+      const rr = r*(0.18 + ring*0.19), cnt = ring ? 9 : 5;
+      for(let i=0;i<cnt;i++){
+        const a = i/cnt*6.283 + ring*0.35;
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(a)*rr, hy + Math.sin(a)*rr*sq, r*0.075, 0, 6.283);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+/* Sunflower leaves: broad and heart-shaped, hanging off the stalk - nothing
+   like corn's long straps, and the thing that stops a field of these reading
+   as a row of green poles. */
+function drawSunflowerLeaves(px, py, topx, hgt, leafCol){
+  ctx.fillStyle = leafCol;
+  for(const [at, sgn] of [[0.34, -1], [0.52, 1], [0.68, -1]]){
+    const ax = px + (topx-px)*at, ay = py - hgt*at;
+    const L = hgt*0.28, drop = hgt*0.10;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.quadraticCurveTo(ax + sgn*L*0.55, ay - L*0.34, ax + sgn*L, ay + drop*0.30);
+    ctx.quadraticCurveTo(ax + sgn*L*0.50, ay + drop*0.95, ax, ay + drop*0.30);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
 function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
   const k = CROP_KINDS[kindKey];
   if(!k) return;
@@ -42880,59 +44446,134 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
     ctx.lineCap = "butt";
     return;
   }
-  // a picked-over-but-regrowing field still stands a little shorter, the
-  // same "greener and taller the riper it is" idea the old field had
-  const gf = Math.max(0.08, growFrac) * (0.6 + ripe*0.4);
+  /* Height is what the plant has GROWN, and nothing else. It used to be
+     scaled by how much was left as well, so a field being cut got uniformly
+     shorter - every plant shrinking together, which is not what taking a
+     crop looks like. What is still standing stands full height; what has
+     been taken is gone (see cropStubble). */
+  const gf = Math.max(0.08, growFrac);
+  /* How much of the field has been taken, and in what order. Plants go from
+     the near edge backwards, with a little per-plant jitter so the cut line
+     is a ragged edge rather than whole rows blinking out together. */
+  const cutFrac = 1 - ripe;
+  const taken = (rx, ry) => cutFrac > cropCutOrder(rx, ry, k.rows);
+  const stubs = [];
   const col = mixCol(k.colYoung, k.colReady, growFrac);
   const blow = (typeof gustAt === "function") ? gustAt(x, y) : 0;
+  /* Close enough to resolve a kernel? Below this the old two-pixel ear is
+     the right drawing and nothing else is paid for. */
+  const cornClose = k.headStyle === "cob" && G.cam.z > CROP_DETAIL_ZOOM;
+  /* Leaf green, held back from the ripe gold the stalk itself goes to. Only
+     the close-up parts use it, so it cannot disagree with the far view. */
+  const cornLeaf = cornClose ? mixCol(k.colYoung, col, 0.30) : col;
 
   if(k.shape === "stalk" || k.shape === "flower"){
+    /* HOW FAR THIS STALK IS LEANING, worked out once and used by the stalk
+       AND by whatever it is carrying.
+
+       The stalk leaned but its head did not: the line was drawn to px+sway
+       while the flower, the ear and the pea pods were all drawn at plain
+       px. So in any wind a sunflower's head sat beside its own stalk rather
+       than on top of it - up to four pixels away on a head three across.
+       Heads ride at the top of the lean, things partway up ride part of it. */
+    const swayOf = (rx) =>
+      (Math.sin(G.t*1.1+rx)*1.0 + blow*3) * Math.min(1, gf+0.2);
+    /* And the same for its HEIGHT. The stalk breathes by +-0.6px on its own
+       clock; the head was placed at the flat k.tallMax*gf and so drifted up
+       and down against its own stalk as well as side to side. Both axes come
+       from here now, so a head cannot move independently of the stem it is
+       on - which is exactly how it looked. */
+    const hgtOf = (rx, ry) =>
+      k.tallMax*gf + Math.sin(G.t*1.4 + rx*0.7 + ry)*0.6;
+    const sunClose = k.shape === "flower" && G.cam.z > CROP_DETAIL_ZOOM;
+    const earClose = k.headStyle === "grain" && G.cam.z > CROP_DETAIL_ZOOM;
+    const sunLeaf  = sunClose ? shade(col, -0.06) : col;
     ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.lineCap = "round";
     for(let ry=0; ry<k.rows; ry++){
       for(let rx=0; rx<k.cols; rx++){
         const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
         const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1);
-        const hgt = k.tallMax*gf + Math.sin(G.t*1.4 + rx*0.7 + ry)*0.6;
-        const topx = px + (Math.sin(G.t*1.1+rx)*1.0 + blow*3)*Math.min(1,gf+0.2);
+        if(taken(rx, ry)){ stubs.push(px, py); continue; }
+        const hgt = hgtOf(rx, ry);
+        const topx = px + swayOf(rx);
         ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(topx, py-hgt); ctx.stroke();
+        if(cornClose && hgt > 3){
+          drawCornStalkDetail(px, py, topx, py-hgt, hgt, cornLeaf, col, growFrac);
+          ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.lineCap = "round";
+        }
+        if(sunClose && hgt > 4){
+          drawSunflowerLeaves(px, py, topx, hgt, sunLeaf);
+          ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.lineCap = "round";
+        }
       }
     }
     if(k.headStyle==="cob" && growFrac > 0.55){
-      // a cob, partway up the stalk
-      ctx.fillStyle = shade(k.accent, growFrac*0.2);
+      /* How far the ear itself has come on, as opposed to the plant: nothing
+         at all until the stalk is better than half up, then filling out over
+         the rest of the growth. It is what the kernels and the silk read. */
+      const fill = Math.max(0, Math.min(1, (growFrac - 0.55)/0.45));
+      if(!cornClose) ctx.fillStyle = shade(k.accent, growFrac*0.2);
       for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
-        if((rx+ry)%2) continue;
+        if((rx+ry)%2 || taken(rx, ry)) continue;
         const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
         const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf*0.6;
-        ctx.fillRect(px-0.8, py-1.6, 1.6, 3.2);
+        const cx = px + swayOf(rx)*0.6;          // partway up, partway over
+        if(cornClose){
+          const lean = swayOf(rx) / Math.max(0.001, k.tallMax*gf);
+          drawCornCob(cx, py, Math.max(2.4, k.tallMax*gf*0.34), fill, lean, cornLeaf);
+        } else {
+          ctx.fillRect(cx-0.8, py-1.6, 1.6, 3.2);
+        }
       }
     } else if(k.headStyle==="grain" && growFrac > 0.4){
       // a drooping ear right at the top of the stalk
-      ctx.fillStyle = k.headCol;
+      /* How full the ear is, as against how tall the plant is - grains and
+         awns come in over the back half of the growth, so a field that has
+         just come into ear is not a field ready to cut. */
+      const fill = Math.max(0, Math.min(1, (growFrac - 0.4)/0.6));
+      if(!earClose) ctx.fillStyle = k.headCol;
       for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
+        if(taken(rx, ry)) continue;
         const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
-        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf;
-        ctx.beginPath(); ctx.ellipse(px, py, 0.9, 1.9, 0.2, 0, 6.283); ctx.fill();
+        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - hgtOf(rx, ry);
+        const sx = px + swayOf(rx);
+        if(earClose){
+          drawWheatEar(sx, py, Math.max(2.2, k.tallMax*gf*0.30), fill,
+                       swayOf(rx)/Math.max(0.001, k.tallMax*gf), k);
+        } else {
+          ctx.beginPath(); ctx.ellipse(sx, py, 0.9, 1.9, 0.2, 0, 6.283); ctx.fill();
+        }
       }
     } else if(k.headStyle==="pod" && growFrac > 0.4){
       // pea pods, hanging in clusters partway up the vine
-      ctx.fillStyle = k.headCol;
+      const fill = Math.max(0, Math.min(1, (growFrac - 0.4)/0.6));
+      const podClose = G.cam.z > CROP_DETAIL_ZOOM;
+      if(!podClose) ctx.fillStyle = k.headCol;
       for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
-        if((rx+ry)%2) continue;
+        if((rx+ry)%2 || taken(rx, ry)) continue;
         const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
         const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf*0.55;
-        ctx.beginPath(); ctx.ellipse(px, py, 0.8, 1.4, 0, 0, 6.283); ctx.fill();
+        const sx = px + swayOf(rx)*0.55;
+        if(podClose){
+          drawPeaPod(sx, py, Math.max(2.0, k.tallMax*gf*0.34), fill, k, col);
+        } else {
+          ctx.beginPath(); ctx.ellipse(sx, py, 0.8, 1.4, 0, 0, 6.283); ctx.fill();
+        }
       }
     } else if(k.shape==="flower"){
       const headOpen = Math.max(0, (growFrac-0.5)/0.5);
       for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
-        const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
-        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - k.tallMax*gf;
-        if(headOpen>0){
+        if(taken(rx, ry)) continue;
+        const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1)  + swayOf(rx);
+        const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1) - hgtOf(rx, ry);
+        if(headOpen>0 && sunClose){
+          // petals, seeds, sepals and a head heavy enough to nod
+          drawSunflowerHead(px, py, 2.1*headOpen, headOpen, k, sunLeaf);
+        } else if(headOpen>0){
           ctx.fillStyle = k.headCol;
-          ctx.beginPath(); ctx.arc(px, py, 1.6*headOpen, 0, 6.283); ctx.fill();
+          ctx.beginPath(); ctx.arc(px, py, 2.1*headOpen, 0, 6.283); ctx.fill();
           ctx.fillStyle = k.headCentre;
-          ctx.beginPath(); ctx.arc(px, py, 0.7*headOpen, 0, 6.283); ctx.fill();
+          ctx.beginPath(); ctx.arc(px, py, 0.95*headOpen, 0, 6.283); ctx.fill();
         } else {
           // a closed green bud before it opens
           ctx.fillStyle = shade(col,-0.10);
@@ -42944,22 +44585,32 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
     // "low": strawberries, pumpkin, sweet potato - mounding foliage,
     // fruit optional (sweet potato has none: it's a root crop, dug up
     // rather than seen ripening on top)
+    /* Close enough to tell one of these from another? Seven crops share
+       this branch and shared exactly one drawing between them. */
+    const lowClose = G.cam.z > CROP_DETAIL_ZOOM;
     ctx.fillStyle = col;
     for(let ry=0; ry<k.rows; ry++){
       for(let rx=0; rx<k.cols; rx++){
         const px = x+4 + rx*(w-8)/Math.max(1,k.cols-1);
         const py = y+4 + ry*(dep-8)/Math.max(1,k.rows-1);
+        if(taken(rx, ry)){ stubs.push(px, py); continue; }
         const r = k.tallMax*0.5*gf + 1;
-        ctx.beginPath(); ctx.ellipse(px, py, r, r*0.6, 0, 0, 6.283); ctx.fill();
+        if(lowClose){
+          drawLowCropDetail(kindKey, k, px, py, r, growFrac, col);
+          ctx.fillStyle = col;
+        } else {
+          ctx.beginPath(); ctx.ellipse(px, py, r, r*0.6, 0, 0, 6.283); ctx.fill();
+        }
       }
     }
-    if(k.fruitCol){
+    // the close-up draws its own fruit and flowers, in their right places
+    if(k.fruitCol && !lowClose){
       const fruitFrac = Math.max(0, (growFrac-0.5)/0.5);
       if(fruitFrac>0){
         ctx.fillStyle = k.fruitCol;
         const fr = (k.fruitBig ? 1.6 : 0.7) * fruitFrac;
         for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
-          if((rx+ry) % (k.fruitBig?3:2)) continue;
+          if((rx+ry) % (k.fruitBig?3:2) || taken(rx, ry)) continue;
           const px = x+4 + rx*(w-8)/Math.max(1,k.cols-1) + 1.2;
           const py = y+4 + ry*(dep-8)/Math.max(1,k.rows-1) + 0.8;
           ctx.beginPath(); ctx.arc(px, py, fr, 0, 6.283); ctx.fill();
@@ -42969,10 +44620,10 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
             ctx.strokeStyle = k.fruitStroke; ctx.lineWidth = 0.6; ctx.stroke();
           }
         }
-      } else if(k.flowerCol && growFrac>0.2){
+      } else if(k.flowerCol && growFrac>0.2 && !lowClose){
         ctx.fillStyle = k.flowerCol;
         for(let ry=0; ry<k.rows; ry++) for(let rx=0; rx<k.cols; rx++){
-          if((rx+ry)%2) continue;
+          if((rx+ry)%2 || taken(rx, ry)) continue;
           const px = x+4 + rx*(w-8)/Math.max(1,k.cols-1);
           const py = y+4 + ry*(dep-8)/Math.max(1,k.rows-1);
           ctx.beginPath(); ctx.arc(px, py, 0.5, 0, 6.283); ctx.fill();
@@ -42980,6 +44631,8 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare){
       }
     }
   }
+  // what the crew have already taken, in one path for the whole field
+  cropStubble(stubs, col);
 }
 
 const SEASONAL_CROP_RADIUS = 480;   // reuses the wilderness-animal "outside the village" distance
@@ -43976,11 +45629,14 @@ function drawFrog(f){
   ctx.beginPath();
   ctx.ellipse(s*0.62, -s*0.12, s*0.5, s*(0.42 + puff), 0, 0, 6.283);
   ctx.fill();
-  // two eyes on top, which is most of what makes it read as a frog
+  /* Two eyes on top, which is most of what makes it read as a frog - and
+     for its whole life this comment has said "two" while the code drew
+     ONE, plus a pupil sitting inside it. Both bulges are here now, one
+     either side of the crown, each with its own pupil. */
   ctx.fillStyle = "#d8d2b4";
-  ctx.beginPath(); ctx.arc(s*0.72, -s*0.5, s*0.2, 0, 6.283); ctx.fill();
-  ctx.fillStyle = "#1e2a18";
-  ctx.beginPath(); ctx.arc(s*0.76, -s*0.5, s*0.1, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(s*0.72, -s*0.50, s*0.20, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(s*0.40, -s*0.54, s*0.17, 0, 6.283); ctx.fill();
+  drawEyePair(s*0.76, -s*0.50, s*0.44, -s*0.54, s*0.10, "#1e2a18", f.seed);
   ctx.restore();
 }
 
@@ -44382,8 +46038,18 @@ function updateChickens(dt){
          the farm the instant it began - traced with a per-second trace
          showing a hen who never got closer than 181px to a farm 207px
          away, target pinned to her own feet the whole time. */
-      c.tx = grain.x + (Math.random()-0.5)*16;
-      c.ty = grain.y + 8 + (Math.random()-0.5)*10;
+      /* Round the basket, not ON it - and the same place every frame.
+         This was a fresh Math.random() per hen PER FRAME inside a box
+         sixteen by ten, so every bird in the yard was aimed at very nearly
+         the same point and re-aimed sixty times a second. They converged
+         into one pile and jittered there. Measured with five hens and
+         somebody stood still holding food: the closest pair went from
+         11.8px to 0.4px in a minute, and all ten pairs ended up inside six
+         pixels of one another. c.seed is fixed at hatching, so each hen has
+         her own side of the basket and keeps it. */
+      const ga = c.seed;
+      c.tx = grain.x + Math.cos(ga)*19;
+      c.ty = grain.y + 8 + Math.sin(ga)*12;
     }
 
     /* An outing runs its own clock and picks its own spots, around the
@@ -44475,14 +46141,26 @@ function updateChickens(dt){
        per-frame test calls her stuck the instant she settles. This exact
        mistake has shipped three times in this codebase - the pilgrims and
        Gumby both had it. */
+    /* NET displacement over a whole second, not distance travelled since
+       the last frame. The frame version scored zero stuck time here: a
+       bird sliding along a wall alternates one way then the other, so she
+       covered plenty of ground every frame while going precisely nowhere,
+       and the counter reset on every one of them. This codebase has
+       shipped that mistake three times - the pilgrims and Gumby both had
+       it.
+
+       LEFT EXACTLY AS IT WAS when hens learned to push each other apart,
+       and that took two goes to get right. Widening it to three seconds
+       and measuring progress toward the target were both tried and both
+       made things worse: the first cancelled a visiting hen's outing, and
+       the second cannot work at all here, because the leash re-picks a
+       hen's target about once a second and throws the baseline away. The
+       answer was not to touch this check but to stop shoving hens who are
+       trying to walk somewhere - see the separation pass below. */
+
     if(c.lastX === undefined){ c.lastX = c.x; c.lastY = c.y; }
     c.stuckWin = (c.stuckWin||0) + dt;
     if(c.stuckWin >= 1){
-      /* NET displacement over a whole second, not distance travelled since
-         the last frame. The frame version scored zero stuck time here: a
-         bird sliding along a wall alternates one way then the other, so she
-         covered plenty of ground every frame while going precisely
-         nowhere, and the counter reset on every one of them. */
       const net = Math.hypot(c.x-c.lastX, c.y-c.lastY);
       const wantsToMove = Math.hypot(c.tx-c.x, c.ty-c.y) > 3;
       c.stuckT = (wantsToMove && net < 6) ? (c.stuckT||0) + c.stuckWin : 0;
@@ -44504,6 +46182,54 @@ function updateChickens(dt){
       }
     }
   }
+  /* AND THEY DO NOT STAND INSIDE ONE ANOTHER.
+
+     There was no separation between hens anywhere, so any shared attractor
+     stacked the whole yard into one bird-shaped pile: somebody standing
+     with a full basket, the door in a downpour, a farm they all set off to
+     visit. Reported from a screenshot of five hens in a heap.
+
+     A gentle push apart, applied to POSITION rather than to where she is
+     heading - a hen who has arrived and is pecking has no target to nudge,
+     and she is exactly the one being stood on. Ellipse-shaped, because the
+     yard is drawn squashed and a circle of clearance reads as too much room
+     side to side and not enough front to back. Never into water or a wall.
+     Five birds, so the pair loop costs nothing. */
+  const CHICKEN_APART = 10;
+  for(let i=0;i<G.chickens.length;i++){
+    for(let j=i+1;j<G.chickens.length;j++){
+      const a = G.chickens[i], b = G.chickens[j];
+      /* Only hens who have ARRIVED. Somebody still walking does not need
+         moving out of the way - she is about to leave anyway - and shoving
+         her is what broke the wedged-against-a-wall case: being jostled
+         sideways counts as movement to the stuck check, so a hen pinned
+         against the hall looked like a hen on the move for as long as she
+         had company, and never got freed. The heap this is here to fix is
+         hens standing STILL in a pile round a basket, and they have all
+         arrived by definition. */
+      if(Math.hypot(a.tx-a.x, a.ty-a.y) > 6) continue;
+      if(Math.hypot(b.tx-b.x, b.ty-b.y) > 6) continue;
+      let dx = b.x - a.x, dy = (b.y - a.y) / 0.7;
+      let d = Math.hypot(dx, dy);
+      if(d >= CHICKEN_APART) continue;
+      if(d < 0.01){
+        // exactly on top of each other: pick a side off their own ids, so
+        // they always part the same way rather than shuffling at random
+        const ang = (a.id * 2.399) % 6.283;
+        dx = Math.cos(ang); dy = Math.sin(ang); d = 1;
+      }
+      const push = (CHICKEN_APART - d) * 0.5 * Math.min(1, dt*8);
+      const ux = (dx/d) * push, uy = (dy/d) * push * 0.7;
+      const ax = a.x - ux, ay = a.y - uy;
+      const bx = b.x + ux, by = b.y + uy;
+      /* Being shoved is not going anywhere, and the stuck check knows it:
+         it measures ground made up toward the target, which a sideways
+         push cannot supply. Nothing to compensate for here. */
+      if(!isWater(ax,ay) && !blocked(ax,ay,null,false)){ a.x = ax; a.y = ay; }
+      if(!isWater(bx,by) && !blocked(bx,by,null,false)){ b.x = bx; b.y = by; }
+    }
+  }
+
   /* A leash, checked after everything else has had its say. Without one they
      drifted to 103px measured - the wander, the scatter and the walk toward
      a full basket each nudge outward and nothing ever pulled back, so "in
@@ -44650,8 +46376,9 @@ function drawChicken(c){
   ctx.lineTo(hx+s*0.95, hy+s*0.12);
   ctx.lineTo(hx+s*0.4, hy+s*0.24);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle = "#2b2219";
-  ctx.beginPath(); ctx.arc(hx+s*0.16, hy-s*0.08, s*0.11, 0, 6.283); ctx.fill();
+  // an eye each side of the head, and a blink - a hen's is a bright bead
+  // set well back from the beak. She wore only the near one before this.
+  drawEyePair(hx+s*0.16, hy-s*0.08, hx-s*0.20, hy-s*0.11, s*0.11, "#2b2219", c.seed);
   ctx.restore();      // the head group
   ctx.restore();      // the bird
 }
@@ -50910,32 +52637,18 @@ const TRADE_FINDS = [
     item:"a sheaf of wild grain",
     found:"Wild grain, growing thick where nobody sowed it.",
     home:"They know what to do with that. They can raise a Bakery now, and it will be theirs to keep." },
-  { key:"gardener",  flag:"tradeGardener",  bldg:"gardener",
-    clue:"Something is flowering out in the dark, well past the last field anybody planted.",
-    item:"a bundle of cuttings",
-    found:"Cuttings, taken from something old and well-kept that has no business being out here.",
-    home:"They can raise a Gardener's Cottage now, and it will be theirs to keep." },
-  { key:"geologist", flag:"tradeGeologist", bldg:"geologist",
-    clue:"There is a glitter in the treeline tonight that is not frost, and it does not move with the wind.",
-    item:"an odd heavy stone",
-    found:"A stone far heavier than it looks, with a seam of something bright through it.",
-    home:"They mean to understand it properly. They can raise a Geologist's Cottage now, and it will be theirs to keep." },
-  { key:"herbalist", flag:"tradeHerbalist", bldg:"herbalist",
+  /* THE ONE FIND THE FOUNDER MAY CARRY, and the one that belongs to the
+     whole village rather than to whoever picked it up. The founder is the
+     only villager who carries a torch after dark (carriesTorch, 05b), so
+     they are the one out where a thing that glows in the dark is found -
+     and because the hut's HERBALIST is whoever builds it rather than
+     whoever found it, carrying this home cannot spend them. Every other
+     find still belongs to its finder alone. */
+  { key:"herbalist", flag:"tradeHerbalist", bldg:"herbalist", village:true,
     clue:"The air coming off the woods is sharp and green tonight, like a room somebody has just been crushing herbs in.",
     item:"a moonlit mushroom",
     found:"A mushroom growing alone in the dark, pale as a knuckle and faintly lit.",
     home:"They can raise a Herbalist's Hut now, and it will be theirs to keep." },
-  { key:"caretaker", flag:"tradeCaretaker", bldg:"caretaker",
-    clue:"A hammer is going somewhere in the trees, slow and patient - and every hammer in the village is accounted for.",
-    item:"an old tool with a maker's mark",
-    found:"An old tool, mended and mended again, with somebody's mark still on the haft.",
-    home:"They can raise a Caretaker's Cottage now, and it will be theirs to keep." },
-  /* THE MAGNIFYING GLASS. The odd one out in this list and deliberately so:
-     every other find here unlocks a BUILDING and spends the villager who
-     raised it. This one makes them the bug catcher - a job they keep
-     while staying entirely yours to order about, the way the fisherman is.
-     `catcher:true` is what tells deliverSpecialistFind to mark the person
-     rather than open a build menu. (markBugCatcher, 05k) */
   { key:"bugcatcher", flag:"tradeBugCatcher", bldg:null, catcher:true,
     /* The noise first, the glint second. Every other clue in here names a
        SMELL or a SOUND the village notices before it sees anything - warm
@@ -51068,7 +52781,7 @@ function takeSpecialistFind(u, n){
      routes a unit onto a tradefind (a group order, a queued order given
      before this rule existed, a saved game mid-walk) has to hit the same
      wall, or the founder is quietly spent on a trade. */
-  if(u.firstVillager) return false;
+  if(u.firstVillager && !t.village) return false;
   u.carryTrade = n.trade;
   if(u.p===P_YOU){
     tellAndNote(t.found + " " + (u.nightName || "Somebody") +
@@ -51098,8 +52811,16 @@ function deliverSpecialistFind(u){
     return true;
   }
   /* Whose errand it was. The build button is theirs alone (refreshUI, 07),
-     the same way the Fisherman's House belongs to the fisherman. */
-  u.tradeFound = t.key;
+     the same way the Fisherman's House belongs to the fisherman - unless
+     the find is the village's, in which case the hut is offered to anybody
+     and the trade goes to whoever actually raises it. That is what lets the
+     founder fetch the mushroom without being spent on it. */
+  if(t.village){
+    G.tradeOpen = G.tradeOpen || {};
+    G.tradeOpen[t.bldg] = true;
+  } else {
+    u.tradeFound = t.key;
+  }
   if(u.p===P_YOU){
     tellAndNote((u.nightName || "Somebody") + " brings " + t.item + " back to the hall. " +
                 t.home, "good");
@@ -51111,9 +52832,141 @@ function deliverSpecialistFind(u){
 /* Is this villager the one who may raise this trade's building, and is
    there still room for it? One of each, ever - a second Bakery is not a
    thing the village can want. */
+/* EARNED, NOT FOUND.
+
+   The gardener and the geologist used to arrive the same way every other
+   trade does: a thing turns up in the woods, somebody carries it home, and
+   that person may then raise the cottage. Both of their finds are gone from
+   the table above. They are the two trades with an everyday job behind them
+   - somebody is farming and somebody is mining all day already - so they
+   are earned by doing the work rather than by luck in the trees.
+
+   What it grants is exactly what carrying a find home granted: u.tradeFound,
+   which is the key mayBuildTrade reads. So the rest of the pipeline is
+   untouched - they get the cottage as their own button, they put it up, and
+   finishing it spends them into it (the completion branch in 03c). The only
+   new part is that they are somebody in particular BEFORE the cottage: a
+   name, a title and the clothes, while still being entirely yours to order
+   about.
+
+   THE FOUNDER IS NEVER ELIGIBLE, the same as everywhere else - it is for
+   everybody else in the village. */
+const SPECIALIST_WORK = {
+  gardener:  { job:"wood", epithet:"the Gardener",  bldg:"gardener",
+               line:" has spent days among the trees and come to know what grows. " +
+                    "A Gardener's Cottage could be theirs now." },
+  caretaker: { job:"farm", epithet:"the Caretaker", bldg:"caretaker",
+               line:" has worked the fields season in and season out, and has the " +
+                    "patience for looking after things. A Caretaker's Cottage could be theirs now." },
+  geologist: { job:"mine", epithet:"the Geologist", bldg:"geologist",
+               line:" has been at the rock face day after day, and has the eye for it. " +
+                    "A Geologist's Cottage could be theirs now." }
+};
+/* Three jobs, three trades, one each - so no two of them can be chasing the
+   same villager's day's work. Wood makes the gardener, the fields make the
+   caretaker and the rock face makes the geologist. */
+function specialistForJob(job){
+  for(const k in SPECIALIST_WORK)
+    if(SPECIALIST_WORK[k].job === job && !specialistTaken(k)) return k;
+  return null;
+}
+/* DAYS ON WHICH THEY ACTUALLY DID THE JOB - not seconds at the rock face,
+   and not elapsed days either.
+
+   Seconds was tried first and is the wrong unit: measured on a working
+   farm, a villager is at the node only about 3% of the time - the rest is
+   spent carrying the load home - so any threshold worth a couple of days
+   came out as thirty-odd, and one field ran dry long before it. Elapsed
+   days is wrong the other way: it would hand the title to whoever stood
+   about longest.
+
+   So: a day counts if they put real work in on it. Two such days makes the
+   trade, which is "farms for a couple of days" said exactly. A day they
+   spend chopping wood simply does not count, and nothing is lost - the
+   count is theirs and keeps. */
+/* Three days on the job, not two. Two can be had in a little over ONE
+   elapsed day - start work late on a day, carry on into the next, and both
+   are banked before you have really seen anybody spend time at it. Measured
+   at two: earned after 1.1 days. Three reads as the "few days" that was
+   asked for and cannot be collected in an afternoon. */
+const SPECIALIST_WORK_DAYS = 3;
+/* HOW MUCH THEY BROUGHT IN that day, not how long they stood at the node.
+
+   Time was tried and is distance-dependent, which is the wrong thing
+   entirely: measured, a villager on a farm beside the hall banked plenty,
+   while one working a stone outcrop 868 pixels away managed six tenths of a
+   second a day, because almost all of a distant day is the walk. The miner
+   was doing MORE work and getting no credit for it.
+
+   What they actually gathered does not care how far they carried it. */
+/* Twelve, not twenty-four. Measured, a villager on a farm beside the hall
+   and one on a stone outcrop 868 pixels away BOTH bank about twenty-four in
+   a day - so a threshold of twenty-four sat exactly on the line and the
+   distant miner banked one day in eleven, depending on which side of the
+   rounding they fell. Half of a measured day's work is a day's work, and
+   leaves both of them clear room. */
+const SPECIALIST_DAY_AMT = 12;
+
+function creditSpecialistWork(u, job, amt){
+  if(!u || u.p !== P_YOU) return false;
+  if(u.firstVillager || u.tradeFound) return false;
+  const day = Math.floor(G.t / DAY_LEN);
+  const at = job;
+  // a fresh day resets the day's tally, never the days already banked
+  if(u[at+"Day"] !== day){ u[at+"Day"] = day; u[at+"DayT"] = 0; }
+  u[at+"DayT"] = (u[at+"DayT"]||0) + amt;
+  /* Compared against the DAY, not truthiness - "counted" holds a day number
+     and day zero is a perfectly good day. A !counted test would have let the
+     first day of a match be banked over and over. */
+  if(u[at+"DayT"] >= SPECIALIST_DAY_AMT && u[at+"Counted"] !== day){
+    u[at+"Counted"] = day;                       // this one is in the bag
+    u[at+"Days"] = (u[at+"Days"]||0) + 1;
+    if(u[at+"Days"] >= SPECIALIST_WORK_DAYS){
+      const kind = specialistForJob(job);
+      if(kind) return earnSpecialistByWork(u, kind);
+    }
+  }
+  return false;
+}
+
+function specialistTaken(kind){
+  const t = SPECIALIST_WORK[kind];
+  if(!t) return true;
+  // already somebody's, or the cottage already stands
+  if(G.units.some(u => u.p===P_YOU && u.tradeFound === kind)) return true;
+  if(G.bldgs.some(b => b.p===P_YOU && BLDG[b.type] && BLDG[b.type][kind])) return true;
+  return false;
+}
+
+function earnSpecialistByWork(u, kind){
+  const t = SPECIALIST_WORK[kind];
+  if(!t || !u || u.p !== P_YOU || u.hp <= 0) return false;
+  if(u.firstVillager || u.tradeFound) return false;      // not the founder, not twice
+  if(u.fisherman || u.bugCatcher) return false;          // already somebody
+  if(specialistTaken(kind)) return false;
+  u.tradeFound = kind;
+  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName();
+  u.epithet = t.epithet;
+  tellAndNote((u.nightName || "Somebody") + t.line, "good");
+  if(typeof refreshUI === "function") refreshUI();
+  return true;
+}
+
 function mayBuildTrade(u, type){
-  if(!u || !u.tradeFound) return false;
-  const t = tradeFindByKey(u.tradeFound);
+  if(!u) return false;
+  /* A village-wide find (the mushroom) is open to anybody but the founder -
+     raising the hut is what makes the herbalist, so the founder putting it
+     up would spend the one person who cannot be spent. */
+  if(G.tradeOpen && G.tradeOpen[type] && !u.firstVillager){
+    return !G.bldgs.some(b => b.p===u.p && b.type===type);
+  }
+  if(!u.tradeFound) return false;
+  /* Two ways to hold a claim now, and this must know about both: carrying a
+     find home (TRADE_FINDS) or having done the job for days on end
+     (SPECIALIST_WORK). The gardener and the geologist are no longer IN the
+     find table at all, so looking only there returned nothing and the person
+     who had earned it never got the button to raise their own cottage. */
+  const t = tradeFindByKey(u.tradeFound) || SPECIALIST_WORK[u.tradeFound];
   if(!t || t.bldg !== type) return false;
   if(G.bldgs.some(b => b.p===u.p && b.type===type)) return false;   // already have one
   return true;
@@ -52277,9 +54130,10 @@ function drawVillageDog(d){
     ctx.ellipse(headX+0.5, headY-0.9, 0.5, 1.3, 0.1, 0, 6.283); ctx.fill();
   }
 
-  // an eye, once there is enough dog to hang it on
-  ctx.fillStyle = "#241f19";
-  ctx.beginPath(); ctx.arc(headX+1.1, headY-0.3, 0.42, 0, 6.283); ctx.fill();
+  /* Eyes, one either side of the skull - it wore a single one before this,
+     which read oddly against a head that already shows both its ears.
+     drawEyePair and its blink live in 05-wildlife.js. */
+  drawEyePair(headX+1.1, headY-0.30, headX-0.35, headY-0.38, 0.42, "#241f19", d.seed);
 
   ctx.restore();
 
@@ -52707,7 +54561,7 @@ const BUG_TYPES = [
   /* ---- 31-54: seasonal, DAY only, six to a season ---- */
   { key:"orangetip",   name:"Orange-Tip",       num:31, when:"day", season:"spring", shape:"butterfly", col:"#e08a3a", note:"The first of the year worth stopping work for." },
   { key:"brimstone",   name:"Brimstone",        num:32, when:"day", season:"spring", shape:"butterfly", col:"#e6e08a", note:"The colour that gave butterflies their name, if the elder is to be believed." },
-  { key:"maybug",      name:"May Bug",          num:33, when:"day", season:"spring", shape:"beetle",    col:"#8a5a2a", note:"Blunders into everything, apologises to none of it." },
+  { key:"maybug",      name:"May Bug", drift:"spring",          num:33, when:"day", season:"spring", shape:"beetle",    col:"#8a5a2a", note:"Blunders into everything, apologises to none of it." },
   { key:"springtail",  name:"Springtail",       num:34, when:"day", season:"spring", shape:"hopper",    col:"#6a7a8a", note:"Too small to see until a thousand of them move at once." },
   { key:"mason",       name:"Mason Bee",        num:35, when:"day", season:"spring", shape:"bee",       col:"#b8783a", note:"Builds in the wall of the granary and asks nobody's permission." },
   { key:"greenveined", name:"Green-Veined White",num:36,when:"day", season:"spring", shape:"butterfly", col:"#dfe4d0", note:"Only green where the light catches it, and only for a moment." },
@@ -53105,12 +54959,19 @@ function pickAmbientBugKey(shape, ctx){
 const BUG_CATCH_R = 26;         // "somewhat near", in world units
 
 function catchableBugAt(x, y, tol){
-  if(!G.bugs) return null;
   let best = null, bd = Infinity;
-  for(const b of G.bugs){
-    if(!b.key) continue;                       // nothing that is not really out here
-    const d = Math.hypot(b.x-x, b.y-y);
-    if(d <= tol && d < bd){ bd = d; best = b; }
+  /* The ordinary bugs AND the seasonal drifts. The drifters - spring's
+     bloomtide beetles and summer's dragonflies - were a separate system
+     that drew beautifully and did nothing at all when you tapped it. They
+     carry a species key now (driftBugKey, 05) and come through the same
+     door as everything else, so all four tap paths pick them up at once. */
+  for(const list of [G.bugs, G.drifters]){
+    if(!list) continue;
+    for(const b of list){
+      if(!b.key) continue;                     // nothing that is not really out here
+      const d = Math.hypot(b.x-x, b.y-y);
+      if(d <= tol && d < bd){ bd = d; best = b; }
+    }
   }
   return best;
 }
@@ -53134,6 +54995,8 @@ function takeBug(u, bug){
   const entry = pl.bugLog[t.key] || (pl.bugLog[t.key] = { count:0 });
   entry.count++;
   if(G.bugs) G.bugs = G.bugs.filter(b => b !== bug);
+  // a drift is a different list, and one of them can be what was caught
+  if(G.drifters) G.drifters = G.drifters.filter(b => b !== bug);
   u.chasing = null;
   u.order = null;
   u.moving = false;
@@ -55965,6 +57828,59 @@ function setAbout(text, cost){
   }
 }
 
+/* WHO THIS IS and WHAT THEY ARE DOING, as two short lines.
+
+   The panel column is 104 pixels wide (68 when a building's About text is
+   up beside it) and it was being handed six lines at once: name, type, HP,
+   attack, what they were carrying, how long they had been about, and every
+   deed they had earned. All of it in 9.5px, all of it squashed into a
+   column narrower than the name itself.
+
+   The top of the panel answers "who is this and what are they up to" -
+   which is what you click a villager to find out - and the numbers go
+   below, where they can scroll. */
+/* What a claim on a trade is called, for somebody who holds one but whose
+   cottage is not up yet. They are already going about under a name and a
+   title - "Saga the Caretaker" - and the panel calling them a Villager
+   underneath that read as a different person. */
+const TRADE_ROLE = {
+  gardener:"Gardener", caretaker:"Caretaker", geologist:"Geologist",
+  bakery:"Baker", herbalist:"Herbalist", beehive:"Beekeeper",
+  bugcatcher:"Bug catcher"
+};
+function unitRole(u){
+  if(u.founder || u.firstVillager) return "Founder";
+  if(u.fisherman) return "Fisherman";
+  if(u.bugCatcher) return "Bug catcher";
+  if(u.beekeeper) return "Beekeeper";
+  if(u.gardener)  return "Gardener";
+  if(u.tradeFound && TRADE_ROLE[u.tradeFound]) return TRADE_ROLE[u.tradeFound];
+  const d = UNITS[u.type];
+  return d ? d.name : "Villager";
+}
+
+const UNIT_DOING = {
+  gather:   "Gathering",   build:  "Building",      attack:  "Fighting",
+  chase:    "Giving chase",follow: "Following",     move:    "On the move",
+  home:     "Heading home", nightcap:"Off to the hearth",
+  story:    "Hearing a story", playdog:"Playing with the dog",
+  totrade:  "Off to trade", carryfind:"Carrying a find home",
+  recruit:  "Talking to a traveller", relieve:"Taking over a post",
+  hold:     "Holding the line", board:"Boarding"
+};
+function unitDoing(u){
+  if(u.p !== P_YOU) return "Not one of yours";
+  if(G.autoUnit === u) return "Working on its own";
+  if(u.indoors) return "Indoors";
+  /* Carrying home reads better than the order underneath it: the order is
+     still "gather" the whole way back, and "Gathering" while walking away
+     from the trees with a full load is not what is happening. */
+  if(u.carry > 0 && u.carryKind) return "Carrying " + u.carryKind + " home";
+  if(u.order === "gather" && u.target && u.target.kind)
+    return "Gathering " + u.target.kind;
+  return UNIT_DOING[u.order] || "Waiting for work";
+}
+
 function refreshUI(){
   if(BTN_HELD>0){ UI_REFRESH_PENDING=true; return; }
   requestAnimationFrame(()=>{ updateBtnScrollHint(); updateAlmScrollHint(); });
@@ -56127,6 +58043,11 @@ function refreshUI(){
   }
   cmdrow.classList.remove("almanac-mode");
 
+  /* Cleared once, here, rather than in each of the twenty branches below -
+     only a selected unit has a "doing" line, and a stale one left over from
+     the last villager you clicked would sit under a building's name. */
+  $("seljob").textContent = "";
+
   const first=sel[0];
 
   // ---- the elder: who she is and what she is up to. She takes no orders.
@@ -56211,11 +58132,17 @@ function refreshUI(){
        a name here means somebody did something. (idea_villager_little_lives) */
     const named = villagerName(first);
     $("selname").textContent = named || d.name;
-    $("selsub").textContent =
-        (G.autoUnit===first) ? "Auto mode"
-      : named ? d.name
-      : first.p===P_YOU ? "Your unit" : "Enemy";
-    let s = "HP "+Math.ceil(first.hp)+"/"+first.maxhp+"<br>ATK "+Math.round(d.atk*(first.buffAtk||1));
+    // who they are, then what they are doing - the two things you clicked to find out
+    $("selsub").textContent = unitRole(first);
+    $("seljob").textContent = unitDoing(first);
+    /* And the numbers BELOW, where they can scroll. The health number in
+       particular does not belong up top: a hurt unit already carries a bar
+       over its head (drawUnit, 04d), so the figure was taking a line of a
+       104px column to repeat something the world was already showing. */
+    let s = "HP "+Math.ceil(first.hp)+"/"+first.maxhp
+          + "<br>ATK "+Math.round(d.atk*(first.buffAtk||1));
+    if(d.spd) s += "<br>SPD "+Math.round(d.spd);
+    if(d.rng > 12) s += "<br>RNG "+Math.round(d.rng);
     if(first.form) s += "<br>Form: "+FORMS[first.form].name;
     if(first.carry) s += "<br>Carrying "+Math.ceil(first.carry)+" "+first.carryKind;
     if(first.storiesHeard) s += "<br><span style='color:#e8d9a8'>Heard "+first.storiesHeard
@@ -56575,10 +58502,30 @@ function refreshUI(){
       /* Whoever brought a trade's find home may raise its building, and
          nobody else - the same shape the Fisherman's House has. One of
          each, ever; mayBuildTrade refuses once one stands. */
+      /* A village-wide find (the mushroom) is offered to ANY villager you
+         have selected, not only to whoever carried it home - the herbalist
+         is whoever raises the hut. Checked before the personal claim below
+         so the founder, who may fetch that one, is still refused the
+         building itself (mayBuildTrade). */
+      if(vills.length===1 && G.tradeOpen && typeof mayBuildTrade === "function"){
+        for(const bk in G.tradeOpen){
+          if(!G.tradeOpen[bk] || !BLDG[bk]) continue;
+          if(!mayBuildTrade(vills[0], bk)) continue;
+          const td = BLDG[bk];
+          addBtn("🌿 "+td.name, costStr(td.cost), canAfford(pl, td.cost),
+                 ()=>startPlacing(bk), null, true);
+        }
+      }
       if(vills.length===1 && vills[0].tradeFound &&
          typeof mayBuildTrade === "function"){
-        const tf = tradeFindByKey(vills[0].tradeFound);
-        if(tf && mayBuildTrade(vills[0], tf.bldg)){
+        /* The find table OR the earned trades - the gardener and the
+           geologist are not in TRADE_FINDS any more, so looking only there
+           left the person who had earned it with no way to raise their own
+           cottage. (SPECIALIST_WORK, 05g) */
+        const tf = tradeFindByKey(vills[0].tradeFound) ||
+                   (typeof SPECIALIST_WORK !== "undefined"
+                     ? SPECIALIST_WORK[vills[0].tradeFound] : null);
+        if(tf && tf.bldg && mayBuildTrade(vills[0], tf.bldg)){
           const td = BLDG[tf.bldg];
           /* No lock message: addBtn shows that INSTEAD of the subtitle when
              one is given, and on a build button the cost is the thing you
