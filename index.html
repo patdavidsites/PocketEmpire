@@ -1086,6 +1086,7 @@
         </ul>
         <div class="sec">Spotted, and put right</div>
         <ul>
+          <li>The <strong>northern lights are put away for now</strong>. Not removed &mdash; everything that draws them and lights the ground beneath them is still there and still right, and they can come back exactly as they were whenever you want them. Only the roll that starts one is refused</li>
           <li><strong>Two odd little tabs on the bottom corners of the hall&rsquo;s roof.</strong> Its first two ages draw a tall triangle of their own, and that triangle stood three pixels proud of the wall either side &mdash; an ordinary eave, and on an ordinary shallow roof it reads as one. This pitch is very nearly vertical where it meets the wall, so a flat little spur at the bottom of it did not read as an overhang at all. The triangle sits on its walls now, and is simply a triangle</li>
           <li><strong>The whole village kept ending up in the fisherman&rsquo;s group.</strong> A group remembers the <em>kinds</em> of unit in it, so anything you train later of the same kind falls straight in &mdash; which is right for eight spearmen and quite wrong for the fisherman, because a fisherman <em>is</em> a villager. Putting him in a group claimed every villager in the game for it, and every one raised afterwards was swept in behind him. The same fault meant two trades could never hold a group each: grouping the bug catcher tore the claim back off the fisherman&rsquo;s group. The people who are somebody in particular &mdash; the founder and the trades &mdash; can sit in a group now without lending their kind to it</li>
           <li><strong>The granary&rsquo;s man never went to bed.</strong> Everyone else with a building of their own turns in at dusk; he had simply never been given the rule, and was still out at midnight pottering about the yard a few steps from his own door. He walks back and goes in now, and comes out again in the morning</li>
@@ -1129,6 +1130,13 @@
         <div class="sec">A field goes on living after it ripens</div>
         <ul>
           <li><strong>Four of a crop&rsquo;s seven days were the same picture.</strong> A field reached full ear on day three and then stood <em>pixel for pixel identical</em> until somebody cut it or the season turned. The growth clock simply stopped. It runs on now, and what it tracks after ripeness is how long the crop has been standing there</li>
+          <li><strong>A pumpkin patch left standing gets barer, not busier.</strong> The vine dies back: the big leaves yellow, shrivel and go, and the gourds are left sitting out on open ground, which is the whole picture of a patch in late autumn. The fruit goes on curing meanwhile &mdash; a light orange deepening to a deep red-orange &mdash; and the stalk hardens off woody and grey</li>
+          <li><strong>The sweet potato cracks the ground open.</strong> It is the one crop whose crop is out of sight, so it had nothing to show for the days after it was ready. The tell is the ground itself: a tuber that goes on swelling heaves the earth until the soil splits above it, in fine fissures running out from the crown, and that is exactly what a grower looks for. It is a winter crop besides, so the vine bronzes and the leaves droop as the cold gets into them</li>
+          <li><strong>A strawberry bed left standing runs.</strong> Long bare stems reach out sideways from each crown and set a daughter plant down at the tip, so the bed sprawls out of its rows instead of sitting neatly in them &mdash; and any fruit still hanging goes from bright red to a dull deep crimson, slumped a little wider and lower, with the pale pips fading into it. Four days of a strawberry bed being left alone, and none of it was drawn</li>
+          <li><strong>Carrot tops stand tall.</strong> They are ferny things that go well above the row, and they were drawn at the same squat height as a turnip&rsquo;s &mdash; so a carrot bed read as a turnip bed with finer leaves. They are nearly four times taller at full growth now, taller than the peas and far above every other low crop, and the height comes on with the plant: barely up the day they are sown, towering by the time they are ready</li>
+          <li><strong>A carrot left in the ground greens at the crown.</strong> Its shoulder edges up out of the soil as it swells, and the part that has been out in the light makes chlorophyll &mdash; that green top is the mark of one that has been in the ground a while. The feathery tops darken with it. A turnip beside it does the opposite: it shoulders much further clear, and goes yellow rather than green</li>
+          <li><strong>Turnips heave out of the ground.</strong> A root goes on swelling after it is ready, and a swelling root lifts its own shoulder clear of the soil &mdash; which is the very thing you look for to know one is ready to pull. The tops coarsen, yellow and flop out over it as the days go by</li>
+          <li><strong>Kale goes lollipop.</strong> Kale is shed from the bottom up &mdash; the outer leaves go, the crown keeps putting up new ones &mdash; so a plant left standing ends as a tuft of leaves riding a bared stem, which is exactly what an old kale looks like. And the cold turns what is left toward purple, which is what kale does and what makes it a winter crop worth having</li>
           <li><strong>A cabbage left in the ground bolts.</strong> It used to sit there being a cabbage from the day it headed until somebody cut it. Now the outer leaves loosen and splay, and yellow from the edge inwards while the heart &mdash; wrapped up inside &mdash; keeps its colour longest. Leave it past about day five and it <em>bolts</em>: a flower stalk pushes straight up out of the middle, which is exactly what a crop left too long looks like</li>
           <li><strong>Peas dry on the vine.</strong> A pod stopped changing the moment it had its peas in it. One left standing dries instead: it shrinks <em>onto</em> the peas so they show harder rather than softer, the pod goes from bright green to a pale parchment, and the vine and its tendrils yellow off and curl tighter. A row that has stood a few days looks ready to pick</li>
           <li><strong>Wheat dries in the field.</strong> An ear stopped bending the moment it filled. Grain goes on drying after that, and the neck goes on bending with it &mdash; so from day three the ears hang further and further over, the straw bleaches from a live gold to the pale dry colour of a field waiting to be cut, and the awns splay out and bristle. A week-old field looks ready in a way a three-day-old one does not</li>
@@ -6377,6 +6385,18 @@ const AURORA_OFF_SEASON = 0.18;   // the lights out of season, but only just
    saw the thing. 0.08 puts it at roughly 1 match in 5, same band as the
    golden stag and the moon dragon. */
 const AURORA_CHANCE = 0.08, SHOOTINGSTAR_CHANCE = 0.01;
+/* THE NORTHERN LIGHTS ARE PARKED. Put away at the user's request, not
+   deleted - the same way DEPTH_SKY_PARKED holds the cloud shadows (05c).
+   Everything that draws them, lights the ground under them and answers to
+   them is untouched and still correct; only the roll that starts one is
+   refused. Set this false and they are back exactly as they were, with no
+   other change needed anywhere.
+
+   Gated at the SPAWN rather than in the drawing on purpose: G.aurora then
+   simply never gets set, so auroraGlowMult (05e), the night-sky pass (04c)
+   and the almanac all carry on reading a state that is honestly nought,
+   rather than each needing to know about a switch. */
+const AURORA_PARKED = true;
 const RAINBOW_CHANCE = 0.05, TORNADO_CHANCE = 0.012;
 
 function trySkyEvents(dt){
@@ -6390,7 +6410,7 @@ function trySkyEvents(dt){
      year - just rare enough that seeing them out of season is worth the
      look. AURORA_OFF_SEASON is the share of the winter odds they get. */
   const auroraSeason = (G.season==="winter") ? 1 : AURORA_OFF_SEASON;
-  if(!G.aurora && G.phase==="night" && !G.weather){
+  if(!AURORA_PARKED && !G.aurora && G.phase==="night" && !G.weather){
     G.auroraCd = (G.auroraCd===undefined) ? 20+Math.random()*20 : G.auroraCd-dt;
     if(G.auroraCd<=0){
       G.auroraCd = 20+Math.random()*20;
@@ -31595,6 +31615,27 @@ function drawPerson(u, pl, yOff){
   const tint = (wint>0.2 && !u.chef && !u.tradeCloth && !u.nightWear && !u.fisherman) ? shade(baseCloth, -0.10*wint) : baseCloth;
 
   const swing = u.moving ? Math.sin(u.walk)*0.85 : 0;
+  /* A BREATH WHILE STANDING.
+
+     The walk bob was gated on `moving` and went to exactly zero the moment
+     a figure stopped, so a standing person's silhouette was pinned to the
+     pixel - measured over eight times a second apart: top edge 23 and
+     bottom edge 146 at every one of them, against a walking control that
+     moved the top edge to 18.
+
+     Villagers were not quite dead - the idle sway further down rocks them
+     a couple of degrees - but a sway is a rotation about the feet and moves
+     nothing vertically, and it is gated on `isVill`, so every soldier in
+     the game stood absolutely still: measured, zero movement on BOTH axes.
+     The bear already breathes (05-wildlife.js) and it is the reason a bear
+     standing in a field reads as an animal waiting rather than a picture of
+     one; this is the same thing for everybody else.
+
+     Small on purpose: about a quarter of the walk bob, which is roughly the
+     one pixel that pixel art uses for this. Phased on the unit's own id so
+     a crowd does not breathe in unison. `bob` is computed here, before the
+     translate that uses it, so `work`/`reach` are read a few lines further
+     down - see idleBreath below, which is what actually feeds it. */
   const bob   = u.moving ? Math.abs(Math.sin(u.walk))*H*0.045 : 0;
   /* A soldier fighting hurt shows it in how they move rather than in a health
      bar floating over their head - readable danger with no UI element. Only
@@ -31686,8 +31727,15 @@ function drawPerson(u, pl, yOff){
   /* The lean is in WORLD x, before the facing flip is applied by the caller -
      so it has to be undone by the flip, or a villager facing left leans away
      from the very thing they are picking. */
+  /* Nothing standing on screen holds perfectly still. Not while working or
+     picking - those carry their own cycles and a breath on top only fights
+     them - and not lying down, where the whole figure is rotated flat and a
+     vertical nudge would slide them along the ground rather than lift a
+     chest. Everywhere else, everyone breathes. */
+  const stillPose  = !u.moving && !work && !reach && !u.lying;
+  const idleBreath = stillPose ? Math.sin(G.t*1.15 + u.id*2.7)*H*0.012 : 0;
   ctx.translate(reach ? reachLean*(u.face<0 ? -1 : 1)*(0.5+0.5*rCyc) : 0,
-                yOff - bob + work*H*0.05 + kneel*H*0.17);
+                yOff - bob - idleBreath + work*H*0.05 + kneel*H*0.17);
   /* A villager standing around with genuinely nothing on - not walking, not
      working, not picking, not sat down - gets a small restless sway rather
      than holding dead still like a mannequin. No new state and no pathing:
@@ -37139,9 +37187,20 @@ function drawBeast(b){
      skull, so the offsets live out here where the eyes can find them. */
   const isBear = (b.kind==="bear" || b.kind==="greatbear");
   const rear = (isBear && b.atkAnim>0) ? (1 - b.atkAnim/0.2) : 0;
-  // a slow roll of the shoulders walking, and a breath while standing
-  const bob = isBear ? (b.moving ? Math.sin(b.walk*1.3 + 1.1)*r*0.06
-                                 : Math.sin(G.t*1.05 + b.id)*r*0.035) : 0;
+  /* A slow roll of the shoulders walking, and a breath while standing.
+
+     The breath used to be the BEAR'S ALONE, and it is the reason a bear
+     standing in a field reads as an animal waiting while the wolf beside it
+     reads as a picture of one. Measured over six times a second apart, of
+     the eleven beast kinds exactly two moved at all while standing: the
+     bear, by three pixels, and the wraith, which floats because it is a
+     ghost. The other nine were pinned to the pixel on both axes.
+
+     Every beast breathes now. The bear keeps its own deeper one - it is a
+     big animal and it should shift more - and the others get about half
+     that, phased on their own id so a pack does not breathe together. */
+  const bob = b.moving ? (isBear ? Math.sin(b.walk*1.3 + 1.1)*r*0.06 : 0)
+                       : Math.sin(G.t*1.05 + b.id)*r*(isBear ? 0.035 : 0.018);
   const headDX = isBear ? -rear*r*0.28 : 0;
   const headDY = isBear ? (bob - rear*r*0.55) : 0;
 
@@ -37149,7 +37208,10 @@ function drawBeast(b){
   ctx.beginPath(); ctx.ellipse(b.x, b.y+r*0.45, r*0.95, r*0.34, 0,0,6.283); ctx.fill();
 
   ctx.save();
-  ctx.translate(b.x + (b.face<0?-lunge:lunge), b.y);
+  /* The breath lifts the whole animal, not just the skull. `bob` above only
+     ever reaches the head, and only a bear's - so on its own it left the
+     other nine kinds exactly as frozen as they were. */
+  ctx.translate(b.x + (b.face<0?-lunge:lunge), b.y - (isBear ? 0 : bob));
   ctx.scale(b.face<0?-1:1, 1);
 
   if(b.kind==="spider"){
@@ -44242,54 +44304,166 @@ function drawLowCropDetail(key, k, px, py, r, grow, col, over){
     break; }
 
   case "kale": {
-    // no ball at all - loose, upright, very frilly leaves
-    ctx.fillStyle = col;
-    for(let i=0;i<5;i++){
-      const a = -Math.PI/2 + (i-2)*0.48;
-      const lx = px + Math.cos(a)*r*0.95, ly = py + Math.sin(a)*r*0.78;
+    /* No ball at all - loose, upright, very frilly leaves. And kale left
+       standing goes LOLLIPOP: it is picked and shed from the bottom up, so
+       the outermost leaves yellow and drop away while the plant keeps
+       putting up new ones from the crown, leaving a bare stem with a tuft
+       on top. The leaves that remain deepen toward purple, which is what
+       kale does in the cold - and kale is a winter crop. */
+    const stem = r*0.55*ov;                       // bared as the low leaves go
+    const crownY = py + r*0.24 - stem;
+    if(stem > 0.2){                               // the stem it stands on
+      ctx.strokeStyle = mixCol(dark, "#9a9a63", ov*0.5);
+      ctx.lineWidth = Math.max(0.18, r*0.16);
       ctx.beginPath();
-      ctx.moveTo(px, py + r*0.24);
+      ctx.moveTo(px, py + r*0.24); ctx.lineTo(px, crownY);
+      ctx.stroke();
+    }
+    // colder and older: the green goes over toward a blue-purple
+    const kaleCol = mixCol(col, "#6a5a86", ov*0.45);
+    ctx.fillStyle = kaleCol;
+    for(let i=0;i<5;i++){
+      /* The outermost pair go first, then the next - shed from the outside
+         in, which is the order they actually go in. */
+      /* Only the OUTERMOST pair go. A first pass shed by a sliding
+         threshold and left a single leaf standing on a stick by day six -
+         a lollipop kale keeps a tuft, which is the whole point of the name.
+         Three on a bare stem is what one looks like. */
+      const outer = Math.abs(i-2)/2;              // 0 at the middle, 1 at the edge
+      if(outer > 0.9 && ov > 0.35) continue;
+      const a = -Math.PI/2 + (i-2)*0.48;
+      /* The whole rosette simply moves UP with the crown - tip offsets are
+         measured from py exactly as they were, less the stem. A first pass
+         re-added the base offset on top of the raised crown, which folded
+         the leaves down into the stem and left a row of bare sticks. */
+      const lx = px + Math.cos(a)*r*0.95, ly = py + Math.sin(a)*r*0.78 - stem;
+      ctx.beginPath();
+      ctx.moveTo(px, crownY);
       ctx.quadraticCurveTo(px + Math.cos(a)*r*0.30, ly + r*0.20, lx, ly);
-      ctx.quadraticCurveTo(px + Math.cos(a)*r*0.72, ly + r*0.34, px, py + r*0.24);
+      ctx.quadraticCurveTo(px + Math.cos(a)*r*0.72, ly + r*0.34, px, crownY);
       ctx.closePath(); ctx.fill();
       // the ruffle along the edge, which is the whole look of kale
-      ctx.fillStyle = (i%2) ? dark : lit;
+      ctx.fillStyle = (i%2) ? shade(kaleCol,-0.16) : shade(kaleCol,0.14);
       ctx.beginPath(); ctx.arc(lx, ly, r*0.18, 0, 6.283); ctx.fill();
-      ctx.fillStyle = col;
+      ctx.fillStyle = kaleCol;
     }
     break; }
 
   case "turnip": case "carrot": {
     // a root crop: the shoulder of it showing above the soil, leaves over
-    const rootCol = k.fruitCol || "#e8d8c8";
-    const showing = Math.max(0, (grow-0.45)/0.55);
+    /* A ROOT LEFT IN THE GROUND HEAVES OUT OF IT. It goes on swelling after
+       it is ready, and a swelling root lifts its own shoulder clear of the
+       soil - which is the thing you actually look for to know one is ready
+       to pull. The tops coarsen and flop with it. (Turnip only for now;
+       the carrot has its own trick and its own turn.) */
+    /* Both roots heave, but not alike: a turnip sits proud and globular and
+       shoulders well clear, a carrot only edges up. What a carrot does that
+       a turnip does not is GREEN AT THE CROWN - the shoulder that has been
+       out in the light makes chlorophyll, and that green top is the mark of
+       one that has been in the ground a while. */
+    const lift  = (key==="turnip") ? ov : ov*0.45;
+    const sunUp = (key==="carrot") ? ov : 0;
+    const rootCol = mixCol(k.fruitCol || "#e8d8c8", "#d8c4a8", lift*0.4);
+    const showing = Math.max(0, (grow-0.45)/0.55) * (1 + lift*0.42);
     if(showing > 0){
+      const rootY = py + r*(0.34 - lift*0.10);
       ctx.fillStyle = rootCol;
       ctx.beginPath();
-      ctx.ellipse(px, py + r*0.34, r*0.52*showing, r*0.34*showing, 0, 0, 6.283);
+      ctx.ellipse(px, rootY, r*0.52*showing, r*0.34*showing, 0, 0, 6.283);
       ctx.fill();
+      /* The greened crown, on the part actually out of the soil - a band
+         across the top of the shoulder rather than a tint over the whole
+         root, because it is only the exposed shoulder that sees any light. */
+      if(sunUp > 0.15){
+        const g = (sunUp - 0.15)/0.85;
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(px, rootY, r*0.52*showing, r*0.34*showing, 0, 0, 6.283);
+        ctx.clip();
+        ctx.fillStyle = mixCol(rootCol, "#6f8f3e", 0.35 + g*0.45);
+        ctx.beginPath();
+        ctx.ellipse(px, rootY - r*0.34*showing*(1 - g*0.45),
+                    r*0.52*showing, r*0.34*showing*(0.34 + g*0.30), 0, 0, 6.283);
+        ctx.fill();
+        ctx.restore();
+      }
       if(k.fruitStroke){                    // a pale turnip needs its own edge
         ctx.strokeStyle = k.fruitStroke; ctx.lineWidth = Math.max(0.14, r*0.07);
         ctx.stroke();
       }
     }
-    ctx.strokeStyle = col;
-    ctx.lineWidth = Math.max(0.16, r*(key==="carrot" ? 0.08 : 0.16));
+    // the tops go coarse and yellow, and flop outward off the shoulder
+    /* Turnip tops go coarse and yellow; carrot tops darken and take on the
+       dull red a bolting carrot gets, rather than bleaching. */
+    ctx.strokeStyle = (key==="carrot")
+      ? mixCol(col, "#6a5a3a", sunUp*0.55)
+      : mixCol(col, "#b5b063", lift*0.65);
+    ctx.lineWidth = Math.max(0.16, r*(key==="carrot" ? 0.08 : 0.16 + lift*0.05));
     ctx.lineCap = "round";
     // carrot tops are fine and feathery; a turnip's are broad and few
     const n = key==="carrot" ? 6 : 4;
+    const flop = 1 + lift*0.55;                 // splayed wider as they go over
+    /* CARROT TOPS STAND TALL. They are ferny things that go well above the
+       row - a turnip's are broad and low, and drawing both to the same
+       squat height made a carrot bed read as a turnip bed with finer
+       leaves. Scaled by how far grown it is, so the height IS the tell that
+       one is coming on: barely up when it is sown, towering by full growth. */
+    const topH = (key==="carrot") ? (1 + grow*2.9) : 1;
     for(let i=0;i<n;i++){
-      const a = -Math.PI/2 + (i-(n-1)/2)*(key==="carrot" ? 0.34 : 0.46);
+      const a = -Math.PI/2 + (i-(n-1)/2)*(key==="carrot" ? 0.34 : 0.46)*flop;
       ctx.beginPath();
       ctx.moveTo(px, py + r*0.28);
-      ctx.quadraticCurveTo(px + Math.cos(a)*r*0.34, py + Math.sin(a)*r*0.62,
-                           px + Math.cos(a)*r*0.80, py + Math.sin(a)*r*0.98);
+      ctx.quadraticCurveTo(px + Math.cos(a)*r*0.34, py + Math.sin(a)*r*0.62*topH,
+                           px + Math.cos(a)*r*0.80,
+                           py + Math.sin(a)*r*0.98*topH + r*lift*0.26);
       ctx.stroke();
     }
     ctx.lineCap = "butt";
     break; }
 
   case "strawberry": {
+    /* A strawberry bed left standing does the one thing a strawberry bed
+       is famous for: it RUNS. Long bare stems reach out sideways from the
+       crown and set a daughter plant down at the tip, so the bed sprawls
+       out of its rows instead of sitting in them - and any fruit still
+       hanging goes from bright red to a dull deep crimson with the pale
+       pips fading into it. That is four days of a strawberry bed being
+       left alone, and none of it was drawn. */
+    const sh = Math.sin(px*12.9898 + py*78.233)*43758.5453;
+    const side = (sh - Math.floor(sh)) < 0.5 ? -1 : 1;   // steady per plant
+
+    /* Runners first, so the crown's own leaves sit over where they start. */
+    const run = Math.max(0, (ov - 0.12)/0.88);
+    if(run > 0){
+      ctx.strokeStyle = shade(col, -0.08);
+      ctx.lineWidth = Math.max(0.14, r*0.10);
+      for(let i=0; i < (run > 0.55 ? 2 : 1); i++){
+        const sd  = i ? -side : side;
+        /* A runner reaches about one plant along, not three: any longer
+           and the edge of the bed trails out over the ground beyond the
+           plot, which is a farm that has grown past its own fence. */
+        const len = r*(0.7 + run*0.9) * (i ? 0.72 : 1);
+        const ex  = px + sd*len, ey = py + r*(0.34 + i*0.30);
+        ctx.beginPath();
+        ctx.moveTo(px, py + r*0.16);
+        ctx.quadraticCurveTo(px + sd*len*0.55, py - r*0.18, ex, ey);
+        ctx.stroke();
+        // the daughter plant that sets down at the tip, once it gets there
+        const set = (run - 0.30 - i*0.28)/0.40;
+        if(set > 0){
+          const dr = r*0.30*Math.min(1, set);
+          ctx.fillStyle = shade(col, 0.16);      // new growth, a shade paler
+          for(let j=0;j<3;j++){
+            const a = -Math.PI/2 + (j-1)*0.90;
+            ctx.beginPath();
+            ctx.ellipse(ex + Math.cos(a)*dr*0.55, ey + Math.sin(a)*dr*0.45,
+                        dr*0.50, dr*0.36, a, 0, 6.283);
+            ctx.fill();
+          }
+        }
+      }
+    }
+
     // three leaflets to a leaf, and the fruit under them
     ctx.fillStyle = col;
     for(let i=0;i<3;i++){
@@ -44301,14 +44475,20 @@ function drawLowCropDetail(key, k, px, py, r, grow, col, over){
     }
     const fruit = Math.max(0, (grow-0.5)/0.5);
     if(fruit > 0){
-      ctx.fillStyle = k.fruitCol;
+      /* Held too long it darkens and softens: a dull deep crimson, spread
+         a little wider and slumped a little lower than a firm one. */
+      const fy = py + r*(0.42 + ov*0.10);
+      ctx.fillStyle = mixCol(k.fruitCol, "#6e2436", ov*0.85);
       ctx.beginPath();
-      ctx.ellipse(px + r*0.30, py + r*0.42, r*0.30*fruit, r*0.36*fruit, 0.3, 0, 6.283);
+      ctx.ellipse(px + r*0.30, fy, r*0.30*fruit*(1 + ov*0.22),
+                  r*0.36*fruit*(1 - ov*0.12), 0.3, 0, 6.283);
       ctx.fill();
-      ctx.fillStyle = "rgba(255,240,210,.75)";      // the pips
+      // and the pips lose their contrast against the darker skin
+      ctx.fillStyle = "rgba(255,240,210,"+(0.75 - ov*0.60).toFixed(2)+")";
       for(let i=0;i<3;i++){
         ctx.beginPath();
-        ctx.arc(px + r*(0.20+i*0.10), py + r*(0.30+ (i%2)*0.18), r*0.05*fruit, 0, 6.283);
+        ctx.arc(px + r*(0.20+i*0.10), fy - r*0.12 + r*((i%2)*0.18),
+                r*0.05*fruit, 0, 6.283);
         ctx.fill();
       }
     } else if(k.flowerCol && grow > 0.2){
@@ -44318,17 +44498,29 @@ function drawLowCropDetail(key, k, px, py, r, grow, col, over){
     break; }
 
   case "pumpkin": {
-    // a big ribbed gourd sitting on the ground, with a vine leaf behind it
-    ctx.fillStyle = dark;
-    ctx.beginPath(); ctx.ellipse(px - r*0.50, py - r*0.20, r*0.60, r*0.40, -0.4, 0, 6.283);
-    ctx.fill();
+    /* A big ribbed gourd sitting on the ground, with a vine leaf behind it.
+
+       A patch left standing is the one crop here that gets BARER rather
+       than busier: the VINE DIES BACK. The big leaves yellow, shrivel and
+       go, and the gourds are left sitting out on open ground, which is the
+       whole picture of a pumpkin patch in late autumn. Meanwhile the fruit
+       cures - a light orange deepening to a deep red-orange - and the
+       stalk hardens off woody and grey. */
+    if(ov < 0.92){                        // gone altogether by the end
+      ctx.fillStyle = mixCol(dark, "#8a7434", ov*0.85);
+      ctx.beginPath();
+      ctx.ellipse(px - r*0.50, py - r*0.20, r*0.60*(1 - ov*0.62),
+                  r*0.40*(1 - ov*0.70), -0.4, 0, 6.283);
+      ctx.fill();
+    }
     const swell = Math.max(0, (grow-0.45)/0.55);
     if(swell > 0){
-      const gr = r*0.80*swell;
-      ctx.fillStyle = k.fruitCol;
+      const gr = r*0.80*swell*(1 + ov*0.10);
+      const cured = mixCol(k.fruitCol, "#a33d12", ov*0.75);
+      ctx.fillStyle = cured;
       ctx.beginPath(); ctx.ellipse(px + r*0.20, py + r*0.22, gr, gr*0.82, 0, 0, 6.283);
       ctx.fill();
-      ctx.strokeStyle = shade(k.fruitCol, -0.20);
+      ctx.strokeStyle = shade(cured, -0.20);
       ctx.lineWidth = Math.max(0.14, gr*0.10);
       for(let i=-1;i<=1;i++){                        // the ribs
         ctx.beginPath();
@@ -44337,8 +44529,10 @@ function drawLowCropDetail(key, k, px, py, r, grow, col, over){
                              px + r*0.20 + i*gr*0.46, py + r*0.22 + gr*0.72);
         ctx.stroke();
       }
-      ctx.strokeStyle = shade(col, -0.30); ctx.lineWidth = Math.max(0.16, gr*0.16);
-      ctx.beginPath();                               // the stalk
+      // the stalk, going woody and grey as the vine behind it dries off
+      ctx.strokeStyle = mixCol(shade(col, -0.30), "#8f8672", ov*0.80);
+      ctx.lineWidth = Math.max(0.16, gr*0.16);
+      ctx.beginPath();
       ctx.moveTo(px + r*0.20, py + r*0.22 - gr*0.80);
       ctx.lineTo(px + r*0.30, py + r*0.22 - gr*1.14);
       ctx.stroke();
@@ -44346,16 +44540,50 @@ function drawLowCropDetail(key, k, px, py, r, grow, col, over){
     break; }
 
   default: {
-    // sweet potato and anything new: a trailing vine of heart-shaped leaves
-    ctx.fillStyle = col;
+    /* Sweet potato and anything new: a trailing vine of heart-shaped leaves.
+
+       The sweet potato is the only crop here whose crop is out of sight -
+       the tuber is under the soil - so it had nothing to show for the four
+       days after it was ready. What it does show is the GROUND: a tuber
+       that goes on swelling heaves the earth over it until the soil cracks
+       open above, in fine fissures running out from the crown, and that is
+       exactly the sign a grower looks for. It is a winter crop besides, so
+       the vine bronzes and the leaves droop as the cold gets into them. */
+    const frost = (key === "sweetpotato") ? ov : 0;
+
+    // the cracking soil goes down first, so the vine lies over it
+    if(frost > 0.08){
+      const crack = (frost - 0.08)/0.92;
+      ctx.strokeStyle = "rgba(24,15,7," + (0.30 + crack*0.38).toFixed(2) + ")";
+      ctx.lineWidth = Math.max(0.12, r*0.085*crack);
+      for(let i=0;i<2;i++){
+        const a = 0.7 + i*2.60;                  // two ways out of the crown
+        /* Long enough to run out past the vine's own leaves, or the
+           whole thing is drawn underneath them and never seen - but no
+           further, or the fissures of one plant meet the next plant's and
+           the bed reads as a mesh of dark sticks laid over the soil. */
+        const l = r*(0.50 + crack*0.95);
+        ctx.beginPath();
+        ctx.moveTo(px, py + r*0.10);
+        ctx.lineTo(px + Math.cos(a)*l*0.55, py + Math.sin(a)*l*0.38);
+        ctx.lineTo(px + Math.cos(a+0.40)*l, py + Math.sin(a+0.40)*l*0.62);
+        ctx.stroke();
+      }
+    }
+
+    /* Bronze DARKENS. Mixed toward a pale mauve the vine only went grey
+       and looked faded rather than cold-struck. */
+    const bronzed = frost ? mixCol(col, "#6a4030", frost*0.45) : col;
+    ctx.fillStyle = bronzed;
     for(let i=0;i<4;i++){
       const a = i*1.9 + 0.6;
       ctx.beginPath();
       ctx.ellipse(px + Math.cos(a)*r*0.62, py + Math.sin(a)*r*0.44,
-                  r*0.42, r*0.30, a, 0, 6.283);
+                  r*0.42, r*0.30*(1 - frost*0.30), a, 0, 6.283);
       ctx.fill();
     }
-    ctx.strokeStyle = dark; ctx.lineWidth = Math.max(0.14, r*0.10);
+    ctx.strokeStyle = frost ? shade(bronzed, -0.16) : dark;
+    ctx.lineWidth = Math.max(0.14, r*0.10);
     ctx.beginPath();
     ctx.moveTo(px - r*0.80, py + r*0.18);
     ctx.quadraticCurveTo(px, py - r*0.20, px + r*0.80, py + r*0.18);
