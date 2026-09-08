@@ -1207,6 +1207,31 @@
           <li><strong>Moths at the ruin, and round your own torch.</strong> They were drawn at finished buildings only, so the one night with the least in it had none. Somebody is camped in that ruin with a fire going; the moths know it. And a moth goes to whatever light there is, so two of them now circle the founder&rsquo;s torch as she walks &mdash; two, not a cloud, because a swarm round somebody&rsquo;s head reads as an affliction</li>
           <li><strong>And something comes in to the fire.</strong> The opposite number to the eyes: a fox, a badger, a hedgehog, an ermine &mdash; whatever is in season &mdash; walks out of the dark, settles just outside the firelight for ten seconds or so, and goes back the way it came. It is an ordinary animal, so it gets the whole coat-and-markings pass every other animal gets, and if one of your people walks up to it, it bolts, which is the right thing for it to do. Measured at about one night in nine, and it is gone by first light. Not a word out of it either</li>
         </ul>
+        <div class="sec">Eight bugs nobody could ever catch</div>
+        <ul>
+          <li><strong>About one map in five had no grasshopper on it at all &mdash; and with no grasshopper anywhere, eight entries in the book of 101 could not be caught for that whole match.</strong> Field Grasshopper, Meadow Grasshopper, Field Cricket, Springtail, Snow Flea and Hollow Cricket among them. A kind can only be worn by a bug of its own shape, so a shape the map forgot to include takes all its entries with it</li>
+          <li>The cause: seven of the twelve bodies are placed on purpose and always exist, but the bee, the grasshopper and the butterfly all come out of a <em>single roll</em> taken about five times &mdash; and a roll can come up empty. A grasshopper is 28% of that roll, so it missed roughly one map in five; the butterfly about one in seven, the bee one in thirteen. That is not rarity, it is a species the map forgot. <strong>Every map now gets one of each body the book needs</strong>, put where that body belongs, and read off the book itself so a new kind brings its body along without anyone having to remember</li>
+          <li>The test had the same fault as the game and that is why it hid: it read the shapes off <em>one</em> map &mdash; the same unlucky one &mdash; so the same roll decided both what the world had and what the test expected. It checks every map on its own now</li>
+        </ul>
+        <div class="sec">A few things asked for after a night&rsquo;s play</div>
+        <ul>
+          <li><strong>The stars sit over the village now, and stop at the black.</strong> They were painted across the whole view; now they are over the lamplight and the people, and no star falls on ground nobody has walked. It had to be done as a mask rather than by drawing them under the fog &mdash; the fog is painted early, while the night darkness with the lamps punched out of it lands much later, so &ldquo;under the fog&rdquo; is also under the darkness, and it snuffed the sky out entirely</li>
+          <li><strong>The baker goes to bed.</strong> He was the last trade still standing outside all night: the caretaker, beekeeper, gardener, geologist and herbalist have all handed the night over for a while now, walked to their own door and put back out at it in the morning. His round simply set a cooldown when it was not daytime, so he stood at his oven in the dark until dawn</li>
+          <li><strong>The Caretaker&rsquo;s Cottage is one tile,</strong> like every other specialist house. It was the only one on a 2&times;2 footprint &mdash; the gardener, the geologist, the herbalist, the bakery and the beehive are all single &mdash; so it sat in a village looking like a barracks with a tin roof</li>
+          <li><strong>A war party is a party again, not one shape with several heads.</strong> Two people were allowed within twelve pixels, and a drawn body is wider than that, so a group squeezed to the floor overlapped. Measured over twelve days beforehand: goblins sat at a median closest pair of 11.1 pixels and armed rivals at 11.6, i.e. everybody pinned hard against the minimum. It is seventeen now, which measures out at 14.0 and 15.4</li>
+        </ul>
+        <div class="sec">A bug found, and a fix taken back out again</div>
+        <ul>
+          <li><strong>Villagers do work through the night, and it is a real fault.</strong> The call that sends everybody to bed runs <em>once</em>, on the stroke of dusk &mdash; so anybody who picks up a job after that instant works straight through to morning. Ordering five villagers onto trees in the morning and then leaving them be: seventy-five counts of somebody still gathering in the deep dark over three days, <strong>every one of them with a bed free and waiting</strong></li>
+          <li><strong>The fix for it was worse than the fault, so it is not here.</strong> A sweep that walked stragglers home every few seconds cut those seventy-five counts to fifteen and looked perfect on its own test. Measured across a whole game it was a disaster: the village went from thirty-two villagers and twenty buildings down to <strong>four villagers and one building</strong>, and on two other maps to a single villager. The village eats, and interrupting the gathering even once a night is enough to starve it. The measurements are written into the source where the fix would go, so the next attempt starts from them rather than from scratch</li>
+        </ul>
+        <div class="sec">The stars keep the night&rsquo;s own hours</div>
+        <ul>
+          <li><strong>Every star used to blink.</strong> Each one carried its own twinkle off a sine of the clock, and a few hundred dots blinking on their own beats reads as static rather than as a sky. The blink is gone. What is left is the variation that <em>places</em> them &mdash; each one still has its own size and brightness, fixed, so the field is uneven without anything flickering</li>
+          <li><strong>And the whole field now rides one arch across the night:</strong> nothing at dusk, climbing steadily, <strong>brightest in the middle of the small hours</strong>, then down again until it is gone by full morning. It used to run on a clock of its own &mdash; four seconds up, forty at full brightness, four down &mdash; so a clear night had stars for part of it and none for the rest. A starry night now lasts the night out</li>
+          <li>Worth recording the trap, because the obvious way to do this is wrong: it cannot be driven off <em>how dark it is</em>. That value is a trapezium &mdash; it climbs at dusk, then <strong>sits flat at full for the whole deep night</strong> before dropping at dawn &mdash; so stars driven off it would come up, hold at maximum for hours and drop away, which is the thing being replaced rather than the thing asked for. It runs off the night&rsquo;s own progress instead, which peaks exactly in the middle and has no flat part at all</li>
+          <li><strong>And they only fall in the black.</strong> The field was painted across the whole view, which put stars over the village, over the fields and over every scrap of ground you had walked. They belong to the part of the world you cannot see into, so each one is now checked against the fog where it lands and dropped if that ground has ever been seen. Note this had to be a <em>mask</em> rather than a change of draw order: unexplored fog is opaque, so drawing the stars underneath it would not have put them in the black, it would have deleted them</li>
+        </ul>
         <div class="sec">The northern lights are back, and they are not the same lights</div>
         <ul>
           <li><strong>They were put away because the drawing was wrong, not the event.</strong> Nine wavy bands stroked across the sky read as ribbons laid <em>on</em> the night rather than as the night changing colour. That drawing is gone. What is there now is <strong>layers of transparent colour</strong>: three broad, soft, edgeless washes, each with its own hue and its own slow drift and breath, deepest overhead and gone by the ground &mdash; the sky quietly taking on colour in patches, which is what a faint aurora looks like from underneath one</li>
@@ -9581,8 +9606,15 @@ const BLDG = {
            shrinkW:0.44, shrink:0.42, roof:"none", build:11, vision:4, beacon:true },
   kiln:{ name:"Charcoal Kiln", age:1, hp:190, w:1, h:1, cost:{wood:70,stone:40}, hgt:9,
          shrinkW:0.66, shrink:0.60, roof:"dome", build:13, vision:3, kiln:true },
-  caretaker:{ name:"Caretaker's Cottage", age:1, hp:220, w:2, h:2, cost:{wood:127,stone:60,food:70}, hgt:10, shrinkW:0.62, shrink:0.56, roof:"gable", build:16,
-              vision:3, caretaker:true },
+  /* ONE TILE, like every other specialist house. It was the only cottage on a
+     2x2 footprint - the gardener, the geologist, the herbalist, the bakery and
+     the beehive are all 1x1 - so it sat in a village looking like a barracks
+     with a tin roof. shrinkW/shrink go with it: that pair exists to pull a 2x2
+     box in so it does not read as a warehouse, and at one tile the other
+     cottages do the same job with roofScale. Same roof, same colours, same
+     detail pass; only the footprint changes. */
+  caretaker:{ name:"Caretaker's Cottage", age:1, hp:220, w:1, h:1, cost:{wood:127,stone:60,food:70}, hgt:9,
+              roof:"gable", roofScale:0.62, build:16, vision:3, caretaker:true },
   /* Bronze Age, house-sized, and the same labour-saver shape as the
      Caretaker's Cottage - but for the wild trees and ore veins themselves,
      not a farm. A tree or vein that hits zero is gone from G.nodes outright
@@ -13048,10 +13080,57 @@ function spawnBugs(){
   }
   spawnTheOtherBodies();
   stockTheWaterside();
+  stockEveryShape();
   /* What the map is meant to hold, recorded from what it actually got, so
      the top-up restores THIS map's population rather than an idea of one. */
   G.bugQuota = {};
   for(const b of G.bugs) G.bugQuota[b.shape] = (G.bugQuota[b.shape]||0) + 1;
+}
+
+/* ---------- AND ONE OF EVERY BODY, GUARANTEED ----------
+   The seven bodies in spawnTheOtherBodies are placed deliberately, so they
+   always exist. The other five - bee, hopper, butterfly, ladybird, dragonfly -
+   are not: the first three come out of one roll taken about five times in
+   spawnBugs, and a roll can simply come up empty.
+
+   Measured: a hopper is 28% of that roll, so about one map in five has no
+   grasshopper anywhere on it - and with no hopper body in the world, all eight
+   grasshopper-and-cricket entries in the book are unreachable for that whole
+   match. Field Grasshopper, Meadow Grasshopper, Field Cricket, Springtail,
+   Snow Flea and Hollow Cricket among them. The butterfly is worse odds still
+   at about one map in seven, and the bee one in thirteen.
+
+   That is not rarity, it is a species the map forgot to include. So after
+   everything else has been placed, any shape the BOOK needs and the map has
+   not got gets one, put where that body belongs.
+
+   Read off BUG_TYPES rather than written down here, exactly as the waterside
+   stocking is, so a new shape added to the book brings its body along without
+   anyone having to remember. */
+function bugShapesTheBookNeeds(){
+  const want = {};
+  for(const b of BUG_TYPES) want[b.shape] = true;
+  return Object.keys(want);
+}
+function stockEveryShape(){
+  for(const shape of bugShapesTheBookNeeds()){
+    if(G.bugs.some(b => b.shape === shape)) continue;
+    /* Where that body belongs - the same table the opening spawn and the
+       top-up both use, so a guaranteed one is not dropped somewhere its own
+       entries can never name it. */
+    const spot = bugSpotWhere(BUG_BODY_HOME[shape] || null, 200);
+    if(!spot) continue;                       // no ground for it on this map
+    G.bugs.push(Object.assign({
+      shape, key:null, bee:false, hopper:false,
+      x:spot.x, y:spot.y, hx:spot.x, hy:spot.y,
+      a:Math.random()*6.283, seed:Math.random()*6.283,
+      wait:Math.random()*3,
+      /* The bee is the one body drawn in its own colours; everything else in
+         that first roll takes a spring dot, so a guaranteed butterfly or
+         hopper is coloured the same way one from the roll would be. */
+      col: (shape === "bee") ? null : SPRING_DOTS[(Math.random()*SPRING_DOTS.length)|0]
+    }, BUG_BODY_FLAGS[shape] || {}));
+  }
 }
 
 /* ---------- somebody has to be AT the water ----------
@@ -14927,6 +15006,11 @@ function zoomAt(sx, sy, f){
    site the moment it finishes one (carryOn, 03b), which is the same result
    without a mode to arm first. */
 function giveOrder(u, fields){
+  /* HOW DARK IT WAS WHEN THIS ORDER WAS GIVEN. Read by the straggler sweep
+     (sendStragglersHome, 05b), which walks villagers home who were still at
+     work after dusk - and which must not undo an order the player has just
+     given ON PURPOSE at midnight. An order issued in the dark is meant. */
+  if(typeof G !== "undefined" && G) u.orderDark = G.dark || 0;
   /* Any new order cancels a trip to go and see a dog. It is not enough to
      overwrite u.order: the dog-play branch (03c) reads u.playWith, and a
      token left behind would have them wander back to the dog the moment
@@ -17661,6 +17745,20 @@ function updateBaker(dt){
     const p = o.p;
     const doorAt = () => ({ x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 });
 
+    /* HE GOES TO BED. The other five trades have done this for a while - the
+       caretaker, beekeeper, gardener, geologist and herbalist all hand the
+       night to workerNight (05j), which walks them to their own door, keeps
+       them in, and puts them back out at the door in the morning. The baker
+       was the one left out: his idle branch simply set a cooldown when it was
+       not daytime, so he stood at his oven all night with nothing to do, in
+       the dark, with things about.
+
+       Before anything else in the round, and the same rule as the rest: a man
+       on his way to the door is not also doing a delivery. And the same
+       exception as the rest, too - garrison somebody in the bakery and it
+       works nights (worksAtNight), and then he does not turn in at all. */
+    if(workerNight(o, dt, BAKER_SPD)) continue;
+
     if(o.state === "idle"){
       o.laden = false;
       // nobody delivers at midnight, and nothing to deliver to is a quiet day
@@ -19331,6 +19429,7 @@ function tick(dt){
      see peacefulMirror (04b). On its own slow clock rather than inside
      aiThink, so it catches up steadily whatever the AI is busy with. */
   peacefulMirror(dt);
+  peacefulArmyMirror(dt);   // and they keep pace with your army too (04b)
   /* The first nightfall of the Wandering Age brings its one visitor. */
   if(!G.firstNightDone && !settled(P_YOU) && (G.dark||0) > 0.5) firstNightVisitor();
   wandererGrit(dt);
@@ -21260,7 +21359,23 @@ function separate(){
       const a=arr[i], b=arr[j];
       const dx=b.x-a.x, dy=b.y-a.y;
       let d=Math.hypot(dx,dy);
-      const min=a.r+b.r-2;
+      /* HOW CLOSE TWO PEOPLE MAY STAND. It was r+r-2, which for ordinary
+         units is twelve pixels - and since a drawn body is wider than its
+         radius, a group squeezed to that floor overlaps. Measured over twelve
+         days: goblins sat at a median closest pair of 11.1px and armed rivals
+         at 11.6px, i.e. everybody pinned hard against the minimum, which is
+         what "way too bunched together" looks like from above.
+         r+r+3 gives seventeen, so a war party reads as a group of people
+         rather than one shape with several heads. */
+      /* HOW CLOSE TWO PEOPLE MAY STAND. It was r+r-2 - twelve pixels for an
+         ordinary unit - and a drawn body is wider than its radius, so a group
+         squeezed to that floor overlaps into one shape with several heads.
+         Measured over twelve days before this: goblins at a median closest
+         pair of 11.1px and armed rivals at 11.6px, i.e. everybody pinned hard
+         against the minimum. r+r+3 is seventeen, and a war party reads as a
+         party. Checked against the economy either side of the change, since
+         de-stacking touches every unit in the game: unchanged. */
+      const min=a.r+b.r+3;
       // A small deadzone stops pairs shuffling back and forth over a
       // fraction of a pixel every frame, which read as a permanent twitch.
       if(d<min-0.6 && d>0.01){
@@ -24796,12 +24911,19 @@ function aiSettle(pl){
       instant you finish yours. They will always be a little behind, which
       is the right feeling.
 
-   4. NEVER THE ARMY. Peaceful promises they do not come for you and there
-      is a treaty saying so. Matching a BARRACKS is fair - it is a
-      building, and the ask named it. Matching soldiers is not, and
-      training stays gated on the peace actually being broken. Walls and
-      towers are left out for the same reason: a mirrored fortress is a
-      threat, whatever the treaty says. */
+   4. THE ARMY TOO, AS OF 8 SEP - see peacefulArmyMirror below. This rule
+      used to read "NEVER THE ARMY", on the reasoning that matching
+      soldiers makes them a threat whatever the treaty says. Asked for
+      again, and looked at properly: the promise that they never come for
+      you is not kept by holding their army down, it is kept outright by
+      the push gate, which forces `pushing` false in Peaceful for as long
+      as the peace holds - however many soldiers they have. So they can
+      match you man for man and still never march.
+
+      WALLS AND TOWERS ARE STILL OUT, and for a reason that survives the
+      above: those are the two things that would make breaking the peace
+      unwinnable rather than merely harder, and nothing about them scales
+      with what you built. */
 const MIRROR_EVERY = 26;          // seconds between catch-up steps
 const MIRROR_SKIP  = ["wall", "gate", "tower"];   // never mirrored - see rule 4
 
@@ -24840,6 +24962,85 @@ function mirrorTierOf(p, type){
     if((b.tierLvl||0) > best) best = b.tierLvl||0;
   }
   return best;
+}
+
+/* ---------- AND THE ARMY, MATCHED THE SAME WAY ----------
+ *
+ * Rule 4 above used to read "NEVER THE ARMY", on the reasoning that matching
+ * soldiers makes them a threat whatever the treaty says. Asked for directly,
+ * and it is safe: "they never come for you" is not enforced by keeping them
+ * small, it is enforced outright a few hundred lines down -
+ *
+ *     if(DIFFICULTY === "peaceful" && !G.peaceBroken){ G.ai.pushing = false; }
+ *
+ * - which holds however many soldiers they have. They can stand twenty deep
+ * and still never march while the peace is kept. So the guard rule 4 wanted is
+ * already in place and does not need the army kept short to work.
+ *
+ * The other three rules carry over exactly:
+ *
+ *   CATCH UP, NEVER AHEAD. One soldier only while they are behind YOUR count,
+ *   and nothing at all once they have matched it. Break the peace with a
+ *   village that has kept pace and it is a real fight; the point is that it
+ *   scales to whatever you built, not that it beats it.
+ *
+ *   SLOWLY, and on its own clock, so an army does not appear the moment you
+ *   train one. They stay a little behind, which is the right feeling.
+ *
+ *   FREE, which is the cheating the ask allowed. Working out an economy that
+ *   keeps pace with a human is a far harder problem than this is worth - and
+ *   the peaceful AI's own economy demonstrably cannot: left to itself it
+ *   stalls at four soldiers for want of food.
+ */
+const MIRROR_ARMY_EVERY = 34;     // its own clock, a little slower than buildings
+function mirrorArmyCount(p){
+  return G.units.filter(u => u.p===p && u.hp>0 &&
+                             UNITS[u.type] && UNITS[u.type].atk &&
+                             u.type!=="villager" && UNITS[u.type].cls!=="civ").length;
+}
+function peacefulArmyMirror(dt){
+  if(DIFFICULTY !== "peaceful") return false;
+  const pl = G.players[P_AI];
+  if(!pl || !pl.settled) return false;                 // still wandering
+  G.mirrorArmyT = (G.mirrorArmyT === undefined ? MIRROR_ARMY_EVERY : G.mirrorArmyT) - dt;
+  if(G.mirrorArmyT > 0) return false;
+  G.mirrorArmyT = MIRROR_ARMY_EVERY;
+
+  const mine = mirrorArmyCount(P_YOU);
+  if(mine <= 0) return false;                          // nothing to match yet
+  if(mirrorArmyCount(P_AI) >= mine) return false;      // level, or ahead - leave it
+
+  /* The best thing they could actually field at their own age, from their own
+     buildings - so a mirrored army is the army that village would have had,
+     not a squad of whatever the table lists first. Falls back to a plain
+     warrior, which every barracks can always turn out. */
+  let type = null;
+  for(const b of G.bldgs){
+    if(b.p!==P_AI || !b.done || !BLDG[b.type] || !BLDG[b.type].trains) continue;
+    for(const t of BLDG[b.type].trains){
+      if(!UNITS[t] || UNITS[t].cls==="civ" || !UNITS[t].atk) continue;
+      if(UNITS[t].age > pl.age) continue;
+      if(!type || UNITS[t].atk > UNITS[type].atk) type = t;
+    }
+  }
+  if(!type) type = "warrior";
+  if(!UNITS[type]) return false;
+
+  /* Out of the door of somewhere of theirs - a barracks if they have one, the
+     hall otherwise. Not dropped in a field: a soldier appearing in open
+     country reads as a spawn, one walking out of a building reads as a
+     village. */
+  const from = G.bldgs.find(b => b.p===P_AI && b.done && BLDG[b.type] && BLDG[b.type].trains &&
+                                BLDG[b.type].trains.includes(type))
+            || G.bldgs.find(b => b.p===P_AI && b.done && b.type==="town")
+            || G.bldgs.find(b => b.p===P_AI && b.done);
+  if(!from) return false;
+  const x = from.x + (Math.random()-0.5)*10;
+  const y = from.y + from.h*TILE/2 + 8;
+  const u = makeUnit(type, P_AI, x, y);
+  if(!u) return false;
+  rivalNews("Word from the Ashkin: they have been drilling.");
+  return true;
 }
 
 function peacefulMirror(dt){
@@ -25383,7 +25584,33 @@ function aiThink(dt){
   if(pl.age < 2){
     const c = AGE_COST[pl.age+1];
     const holdAt = DIFFICULTY==="peaceful" ? 0.92 : 0.65;
-    if(pl.res.know >= c.know*holdAt) reserve = c;
+    /* NEAR IT ON EVERY RESOURCE, not just on knowledge.
+     *
+     * This used to read `pl.res.know >= c.know*holdAt` alone, and knowledge is
+     * the one thing the AI always has too much of - it accrues on its own and
+     * nothing else spends it. So the hold came on early and stayed on for the
+     * rest of the match, whatever the state of the stores.
+     *
+     * That was a deadlock, and a self-locking one. Measured over fifty minutes
+     * of peaceful, four seeds, every one identical: the army reached exactly
+     * FOUR soldiers by the half hour and never grew again. The Iron Age wants
+     * know 260, food 210, gold 110; at fifty minutes the AI held know 2307 -
+     * nine times over - and food 125. So the reserve was on, it was holding
+     * back 210 food the AI did not even possess, and every unit that costs any
+     * food at all (a swordsman is 70, an archer 23) was unaffordable for ever.
+     * Meanwhile the age-up it was rationing for could never happen either,
+     * because the thing actually short was the food, not the knowledge.
+     *
+     * The tell was the hoard: knowledge 2307 and iron 326 piled up while food,
+     * wood and stone sat near empty - the same tell as the barracks deadlock
+     * (aiBuild, below), where it saved wood for a building while banning the
+     * camp that earns wood.
+     *
+     * Rationing only makes sense when the purchase is actually in reach. If
+     * one resource is miles off, holding the others back does not bring the
+     * age any closer - it just stops the AI doing anything else with them. */
+    const nearIt = Object.keys(c).every(k => (pl.res[k]||0) >= c[k]*holdAt);
+    if(nearIt) reserve = c;
   }
   /* A crossing needs a hull, and a hull needs a population slot like
      anything else. Fill every last slot with soldiers and the transport can
@@ -28529,7 +28756,20 @@ function draw(){
     ctx.restore();
   }
 
-  drawMilkyWay();   // the band of stars, on a properly clear night (pack 9)
+  /* THE STARS GO HERE, above the night darkness, and NOT down beside the cloud
+     shade and the sun shafts where the fog would cover them.
+
+     The brief was "on top of the light and the villager, and under the black
+     fog of war", and those two cannot both be had by position: the fog is
+     painted early, in world space, while the night darkness with the lamps
+     punched out of it lands much later. Drawn under the fog, the stars end up
+     under the darkness as well, and it crushes them - tried, and the sky went
+     out altogether.
+
+     So the fog's job is done with a mask instead. Same result, one pass: the
+     field sits over the lamplight and the people, and no star is drawn on the
+     pure black nobody has walked into. */
+  drawMilkyWay();
 
   // a shooting star - one quick streak, gone in under two seconds
   if(G.shootingStar){
@@ -50373,21 +50613,62 @@ const LANTERN_GUIDE_PATIENCE = 90;
    above everything because it is genuinely on a roof. Also means the
    generic Follow-target search (pickAt's wanderer loop) already finds
    this with no special case, unlike the owl's own G.owl carve-out. */
+/* WHICH SEASON THEY BELONG TO. The second, third or fourth - never the first,
+   which has the opening in it and quite enough to be getting on with. Rolled
+   once and kept, so the lanterns have a season of their own rather than a
+   nightly lottery. */
+function hermitSeason(){
+  if(G.hermitSeasonNo === undefined) G.hermitSeasonNo = 1 + ((Math.random()*3)|0);
+  return G.hermitSeasonNo;
+}
+
+/* THE LANTERNS STAY UNTIL SOMEBODY GOES OUT TO THEM - but only ever at night,
+   so each night is still a short window and you do have to act.
+ *
+ * It used to be one chance in a whole match, and measured, that chance was not
+ * takeable. `hermitSeen` was set the moment they SPAWNED rather than when they
+ * were met, so the night they appeared was the only night they would ever
+ * appear. They lived exactly one night phase - 35.4 seconds, killed at dawn -
+ * while LANTERN_GUIDE_PATIENCE said 90, a number that could never be reached.
+ * And over fourteen matches with a perfect follower the hermit was met ONCE:
+ * the lanterns turned up in six of them and dawn took five.
+ *
+ * Worse, and the thing that made it hopeless rather than merely rare: while
+ * the lanterns were lit there was never a villager outdoors to send. Zero, on
+ * every seed, across a thousand samples - because they are night-only and at
+ * night everybody is indoors asleep. So somebody has to be woken for this, and
+ * now there are as many nights as it takes to work that out.
+ */
 function trySpawnLanternGuide(){
-  if(G.disc.hermitSeen || (G.wanderers||[]).some(w=>w.kind==="lanternguide")) return false;
+  if(G.disc.hermitMet) return false;                             // done, for good
+  if((G.wanderers||[]).some(w=>w.kind==="lanternguide")) return false;
   if(G.phase !== "night") return false;
-  if(Math.random() > LANTERN_GUIDE_CHANCE) return false;
+  if((G.seasonNo||0) < hermitSeason()) return false;             // not their season yet
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return false;
   if(!G.wanderers) G.wanderers = [];
-  G.disc.hermitSeen = true;
-  const spot = nearbyLandSpot(town, 280);
+  /* The same place every night. They are a path to somewhere, not a wandering
+     light - moving them would make the whole thing feel like a different
+     event each time rather than one you have been putting off. */
+  if(!G.disc.hermitSpot){
+    const spot = nearbyLandSpot(town, 280);
+    if(!spot) return false;
+    G.disc.hermitSpot = { x:spot.x, y:spot.y };
+  }
+  const at = G.disc.hermitSpot;
   G.wanderers.push({
     kindTag:"wanderer", kind:"lanternguide", name:"a lit path",
-    x: spot.x, y: spot.y,
+    x: at.x, y: at.y,
     state:"waiting", t:0, walk:0, face:1, seed:Math.random()*6.283
   });
-  hint("A line of lanterns glows at the edge of the village, leading off into the dark.");
+  /* Announced properly the first time. After that they are mentioned now and
+     then rather than every single night, which would be nagging. */
+  if(!G.disc.hermitSeen){
+    G.disc.hermitSeen = true;
+    hint("A line of lanterns glows at the edge of the village, leading off into the dark.");
+  } else if(Math.random() < 0.34){
+    hint("The lanterns are lit again at the edge of the village, waiting.");
+  }
   return true;
 }
 
@@ -50428,7 +50709,23 @@ function updateLanternGuide(dt){
       return;
     }
   }
-  if(G.phase !== "night") G.wanderers = (G.wanderers||[]).filter(w=>w.kind!=="lanternguide");
+  /* GONE WITH THE DARK - which is the point of them, and now costs nothing
+     permanent: they are lit again the next night, in the same place, until
+     somebody finally walks out to them.
+
+     Whoever was following is let go rather than left walking at a light that
+     is no longer there. A follow order whose target has been spliced out of
+     the array is a villager trudging toward a ghost until something else
+     happens to them. */
+  if(G.phase !== "night"){
+    for(const w of (G.wanderers||[])){
+      if(w.kind !== "lanternguide") continue;
+      for(const u of G.units){
+        if(u.order === "follow" && u.target === w){ u.order = null; u.target = null; }
+      }
+    }
+    G.wanderers = (G.wanderers||[]).filter(w=>w.kind!=="lanternguide");
+  }
 }
 
 function drawLanternGuide(g){
@@ -50674,7 +50971,33 @@ function drawMilkyWay(){
   const diag = Math.hypot(VW, VH);
   const n = Math.max(150, Math.round(diag/4.5));
 
+  /* WHERE THIS SITS IN THE STACK: over the ground, the lamplight and the
+     people, and UNDER the fog of war - the same slot the cloud shade and the
+     sun shafts already use, and for the same reason. The sky is above the
+     village, so it goes over the village; but the fog is a curtain drawn
+     across country you have not walked, and nothing shows through it.
+
+     It was briefly done the other way, as a per-star fog MASK that dropped any
+     star landing on ground you had seen. That put the sky in the void and
+     nothing over the village, which is backwards. The mask is gone; the fog
+     pass does the hiding, because that is exactly what a fog pass is for.
+
+     Drawn in screen space, so it resets the transform itself rather than
+     depending on where in the world pass it is called from. */
+  /* NOT ON THE BLACK. Every star is checked against the fog where it falls and
+     dropped if that ground has never been seen - which is what "under the
+     black fog of war" comes to, given the fog is painted long before the night
+     darkness the stars have to sit above.
+
+     Note this is the opposite mask to the one tried first. That one kept the
+     stars ONLY on unwalked ground, which put the sky in the void and nothing
+     at all over the village. This keeps them everywhere you know about,
+     including over the lamplight and the people, and stops them at the edge of
+     the black. Ground you have walked but cannot currently see still counts:
+     it is grey, not black, and the sky over it is still your sky. */
+  const fog = G.fog && G.fog[P_YOU];
   ctx.save();
+  ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.fillStyle = "#f4f2e8";
   for(let i=0;i<n;i++){
     const h1 = Math.sin(i*12.9898 + mw.seed)*43758.5453;
@@ -50683,6 +51006,12 @@ function drawMilkyWay(){
     const sx = (h1 - Math.floor(h1)) * VW;
     const sy = (h2 - Math.floor(h2)) * VH;
     const size = (h3 - Math.floor(h3));
+    if(fog){
+      const wx = G.cam.x + sx / G.cam.z, wy = G.cam.y + sy / G.cam.z;
+      const tx = (wx/TILE)|0, ty = (wy/TILE)|0;
+      const onMap = tx>=0 && ty>=0 && tx<MAPW && ty<MAPH;
+      if(!onMap || fog[ty*MAPW+tx] === 0) continue;   // the black: no sky there
+    }
     /* Each one keeps its own brightness, so a sky of identical dots does not
        read as a texture - but it no longer keeps its own TWINKLE. That was
        |sin(t*1.4 + i*0.7)| per star, which is a blink, and a few hundred dots
@@ -56853,6 +57182,69 @@ function villagerDeedLines(u){
     return d ? (d.line.charAt(0).toUpperCase() + d.line.slice(1)) : null;
   }).filter(Boolean);
 }
+
+
+/* ---------- THE ONES WHO MISSED THE BELL: A REAL BUG, AND A FIX THAT WAS
+   WORSE THAN IT ----------
+ *
+ * The bug is real and measured. sendHome() above runs ONCE, on the dusk
+ * transition, so anybody who picks up a job after that instant works straight
+ * through until morning. Ordering five villagers onto trees in the morning and
+ * then leaving them alone: 75 samples of somebody still gathering in the deep
+ * dark over three days, and every one of them had a bed free and waiting. It
+ * is not a housing shortage - they are simply never asked.
+ *
+ * A sweep was written for it: every three seconds of dark, walk any villager
+ * still on a work order home, with every exception sendHome itself honours,
+ * bounded to one attempt per villager per night, and skipping anyone the dusk
+ * pass had already spoken to. It cut the 75 samples to 15 and left bedtime
+ * untouched on that fixture.
+ *
+ * IT ALSO DESTROYED THE VILLAGE. Measured over twelve days, peaceful, with the
+ * test bot playing:
+ *
+ *     sweep off   you 32 villagers / 20 buildings     rival 12 / 28
+ *     sweep on    you  4 villagers /  1 building      rival 11 / 11
+ *
+ * and on two other seeds the player ended on ONE villager. The rival's slide
+ * was a knock-on - it mirrors the player's age - but the player's is the
+ * point: the village eats (upkeep is player-only), and interrupting gathering
+ * even once a night is enough to starve it. The first version, unbounded and
+ * applied to every side, took the rival to one villager as well.
+ *
+ * TWO MORE ATTEMPTS, AND WHAT THEY TAUGHT. A second pass was tried at the one
+ * point in a gatherer's loop where nothing is being interrupted - the instant
+ * the load goes down at the drop-off, before they turn round for the next
+ * trip. Both of these came out of it and are worth keeping written down:
+ *
+ * 1. wakeUp() RUNS ONCE, ON THE DAWN TRANSITION - and it is still dark enough
+ *    to qualify for bed well after it has fired, because the light returns
+ *    over the whole dawn phase and `dark` is 0.7 in the middle of it. Anybody
+ *    put to bed after that point sleeps through the ENTIRE following day and
+ *    is not let out until the next dusk. This is what actually caused the
+ *    "economy collapse" above: traced one villager and the village was not
+ *    starving, it was asleep - the founder went to bed at dawn on day one and
+ *    stayed there, so the pop never left 1. Any future attempt must refuse
+ *    while G.phase is "dawn", not merely test how dark it is.
+ *
+ * 2. AND THEN IT HAD NOTHING TO DO. With that guard in, the hook fired 47
+ *    times across three days and sent nobody: 13 of those moments were dawn,
+ *    15 were broad daylight, and 19 were somebody already indoors. NONE were
+ *    at night. A gatherer's night is one unbroken cycle - they chop through
+ *    the dark and only carry the load home as the light comes back - so the
+ *    drop-off, which is the one safe moment, never happens while it is night.
+ *
+ * Which leaves the real shape of it: there IS no safe moment. The only way to
+ * stop somebody working through the night is to interrupt them mid-work, and
+ * that is exactly what the dusk pass does, once, deliberately. So this is a
+ * balance question rather than a patch - those night hours are feeding the
+ * village - and it wants deciding rather than fixing quietly.
+ *
+ * The giveOrder stamp the first attempt relied on (u.orderDark, 03a) is left
+ * in place: it is correct, it costs nothing, and it is what any replacement
+ * will want in order to tell a villager who was missed from one deliberately
+ * sent out at midnight.
+ */
 
 /* ============================================================
    THE DAY'S OWN EVENT POOL
