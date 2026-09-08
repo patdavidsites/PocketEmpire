@@ -1199,6 +1199,102 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn">
+        <summary>Patch 21.34</summary>
+        <div class="sec">An order given after dark was thrown away</div>
+        <ul>
+          <li><strong>Build a Watchtower at midnight and nothing whatever happened.</strong> Reported as &ldquo;a night event and all my villagers idle after I clicked build a scout tower with the founder&rdquo;, and it is worse than it sounded: the site was staked out, the 95 wood and 25 stone and 15 food were taken, the founder&rsquo;s order genuinely read &ldquo;build&rdquo; &mdash; and they lay in bed all night, because the movement code skips anybody who is indoors outright. Then first light restores what everyone was doing before dusk and <em>wiped the order</em>. By morning there was no trace of it: a hole in the stores, a foundation nobody ever visits, and a village of idle people</li>
+          <li>Measured before the fix, over a whole night: progress <strong>0.000</strong>, and after dawn the order null and the target gone. After it, <strong>1.000</strong> &mdash; the tower goes up overnight</li>
+          <li><strong>They are woken and come out to do it.</strong> It is not free: being pulled out of bed costs that villager the night, exactly as it always has, and they go back to bed the next night regardless. But it is not silently swallowed either. This applies to every order, not just building &mdash; tapping a tree after dark had the same hole in it</li>
+          <li><strong>And a stray order no longer turns the village out.</strong> Placing a building with nobody selected picks up to three volunteers who have &ldquo;no orders&rdquo; &mdash; which is true of <em>everybody asleep</em>, since coming home clears the order. Three sleepers were handed a job they could not go to. Volunteers must be awake now; somebody you actually selected is a different matter, because selecting them is you saying so</li>
+        </ul>
+        <div class="sec">Asleep is not idle</div>
+        <ul>
+          <li><strong>&ldquo;IDLE 7&rdquo; over seven people curled up asleep in the dark.</strong> My own fault, and one patch old: the counter skipped anybody indoors, which was the whole test until the town centre was capped at two &mdash; the overflow sleeps on the ground <em>outside</em>, so they were not indoors, had no orders, and the whole sleeping village was reported as standing about doing nothing. The Idle button would have jumped you to one of them, too</li>
+        </ul>
+        <div class="sec">Somebody finally throws the ball</div>
+        <ul>
+          <li><strong>The dog dropped a ball at your villager&rsquo;s feet, bowed, waited &mdash; and then gave up.</strong> Nobody ever picked it up. The whole invitation was a question with no answer to it, which is a strange thing to watch: the dog asks, waits, and the ball is gone until tomorrow</li>
+          <li><strong>Now it gets thrown.</strong> Somebody stops what they are doing, picks it up, and puts it three tiles across the grass; the dog goes after it flat out, brings it back, drops it at their feet, and round again for two to four throws before the ball is carried off and lost under a hedge for a day or two. Thrown <em>away</em> from the middle of the village, on ground that has been checked, so it never lands under a building</li>
+          <li>The first version threw it 26 pixels &mdash; under one tile, shorter than the dog is long &mdash; and the whole chase was over in a third of a second. A ball you throw for a dog has to go further than the dog can reach standing still</li>
+          <li><strong>And with two dogs, they race for it.</strong> Both go, only one comes back with it, and the loser is left standing over nothing &mdash; which is exactly what happens. Two dogs and one ball is the point of having two dogs</li>
+          <li>Whoever throws it stops for about a second with an arm up and then goes back to work. It rides on the same &ldquo;stand still for a beat&rdquo; timer as stopping for a word, so it always runs down and any order you give cuts it short &mdash; nobody can be left frozen holding a ball</li>
+        </ul>
+        <div class="sec">The dogs, up close</div>
+        <ul>
+          <li><strong>A collar each</strong>, in leathers and a couple of dyed colours, with a little brass tag on about half of them &mdash; and George and Moose always. At this size a band across the neck is the single clearest way to say an animal belongs to somebody, and it tells two dogs of similar colouring apart at a glance in a way the saddle patch never quite managed</li>
+          <li><strong>Paws</strong> on the ends of the legs, which were bare tapering strokes and read as sticks. <strong>A paler underside</strong> and <strong>the curve of the hind quarter</strong>, which is what turns a flat coloured shape into an animal with a body. <strong>A brow ridge</strong> and a cheek shadow on a head that was one flat ellipse with a muzzle stuck on it. And <strong>the inside of the near ear</strong> &mdash; only the near one, because two pale triangles start to look like horns</li>
+          <li>Every one of these is derived from that dog&rsquo;s own coat rather than fixed, so a pale dog gets a pale dog&rsquo;s belly instead of a near-white patch that disappears against snow</li>
+        </ul>
+        <div class="sec">The bees swarm in spring now, on the third day</div>
+        <ul>
+          <li><strong>Moved from summer to spring</strong>, and it is the better answer anyway: a colony swarms when it has built up faster than its box, which in this country is late spring, and it puts the one route to a hive at the <em>start</em> of the growing year rather than halfway through it</li>
+          <li><strong>And on the third day of spring, every time</strong>, rather than a random day. The one day of the year a village can get a hive is now something you can learn and plan for instead of something you have to catch. The bees are noticed from the first morning &mdash; more of them about the blossom, then the sound of them, then a restlessness &mdash; and they settle on the third</li>
+          <li>Renamed underneath as well, which is not usually worth saying: the field that remembers it was called <code>beeSummer</code>, and a field called beeSummer holding a spring event is a comment that lies to the next person who reads it</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.33</summary>
+        <div class="sec">Two beds in the town centre, and no more</div>
+        <ul>
+          <li><strong>The town centre used to sleep everybody.</strong> It was the fallback bed for anyone the houses could not fit, with no limit at all &mdash; so a village of thirty slept thirty in one building, and the reason to put up a house had quietly stopped existing. <strong>It sleeps two now.</strong> That covers whoever founded the village and one other from the first night; the third person you take on has nowhere to be until you build them somewhere</li>
+          <li><strong>What a bed is actually worth, said plainly:</strong> a night indoors leaves somebody <em>rested</em> &mdash; a quarter faster at everything they gather, for the first half of the next day. Sleeping on the ground does not. So three unhoused founders cost you roughly a tenth of a day&rsquo;s work between them, every day, until you put a roof up. That is the whole of the pressure, and a House is 47 wood and 23 food and sleeps four</li>
+          <li><strong>And the ones with no bed sleep outside, rather than working.</strong> This is the other half of the same change and it is not optional: the old &ldquo;nowhere to sleep&rdquo; path simply left them at whatever they were doing, which is exactly the villager-still-swinging-an-axe-at-midnight that was reported this morning. They bed down on the ground by the town centre instead &mdash; no exhaustion, no penalty of any kind, up at dawn with everyone else. It is a picture, and the picture is the point: people curled up outside is what a village that needs houses looks like</li>
+        </ul>
+        <div class="sec">Waking somebody up lasted for ever</div>
+        <ul>
+          <li><strong>Pull a villager out of bed once and they were out every night for the rest of the match.</strong> The flag was never cleared, and the dusk routine checks it and skips that person before it ever gets as far as finding them a bed. So they shed a twentieth of their maximum health every single night, and the only thing that ever ended it was you noticing and ringing them home by hand. Nothing told you. A villager you woke on the third day was still out on the thirtieth, and looked like any other worker</li>
+          <li><strong>It lasts one night now.</strong> Waking somebody still costs them that night &mdash; the health, the strength and the speed all stay lost &mdash; but the next dusk sends them to bed with everybody else. Keeping somebody out two nights running is still possible and still kills them; it just has to be something you do twice, rather than something you did once and forgot about. A real night indoors is what wipes the tally</li>
+        </ul>
+        <div class="sec">The baker had a very short day</div>
+        <ul>
+          <li><strong>He stepped inside his own bakery and was hauled straight back out on the next tick.</strong> Every time, all match. He was given a bedtime this morning, which put the night rule ahead of his own routine, and that rule ejects anybody indoors the moment it is not night &mdash; including a man who went in on purpose at two in the afternoon and meant to come out himself. Measured at eight frames indoors against sixteen hundred pottering at the step over eight minutes: the branch was running, it just never survived long enough to be seen. It is now about a minute and a half indoors over the same stretch</li>
+          <li><strong>And there is a good deal more to his day.</strong> The bread round is still the job and still outranks everything &mdash; nothing below is ever picked while there is a soldier to feed. But the rest of the day used to be three things, and it is now eight: in and out of the bakery, pottering at the step, a loaf to somebody&rsquo;s doorstep, <strong>scattering yesterday&rsquo;s crumbs for the hens</strong>, <strong>round the kennel with the scraps</strong>, <strong>out to look over the farm</strong>, and <strong>a loaf carried out to the ones actually working the woods and the seams</strong></li>
+          <li>It has a rhythm rather than a shuffle: a few turns in and out of his own door, then off somewhere, then back to the door again. Nobody gets the same call twice in a row, everybody working gets their turn over a few days, and the whole loop takes days rather than minutes. None of it grants the army&rsquo;s loaf &mdash; that would make the round stop mattering, which is the one thing a Bakery is for</li>
+        </ul>
+        <div class="sec">Two dogs to a village, and they know each other</div>
+        <ul>
+          <li><strong>Two dogs could stand ten feet apart all day and never once acknowledge each other.</strong> What a dog reaches for when it wants company only ever returned a <em>person</em> &mdash; there was no such thing as another dog as far as either of them was concerned. They find each other now: one trots over, and then <em>both</em> of them play, one bowing and one bouncing. Setting only the one who walked over would have left the other calmly sniffing the grass while it was being bowed at, which is the picture this replaces</li>
+          <li><strong>The Kennels hands over two dogs, and that is your two.</strong> George and Moose arriving together is the pair &mdash; they are not to be separated and they are the whole allowance. A second Kennels gets you nothing extra</li>
+          <li><strong>A third and a fourth can be had, at a hundred of every resource.</strong> A dog you had to save iron and gold for is a decision; a fourth free dog was a number going up. The button sits on the Kennels and greys out with the reason once the kennel is full</li>
+        </ul>
+        <div class="sec">Double-tapping a group that is fast asleep</div>
+        <ul>
+          <li><strong>You arrived at an empty street.</strong> Tapping a group&rsquo;s number twice jumps the camera to the average of where everyone is stood &mdash; which is right for a group in a field and wrong for a group in bed, because a villager who goes indoors is not moved, only stopped being drawn. With a group spread over several houses the roof they were actually under could be off the screen entirely. <strong>If every one of them is indoors or garrisoned, it now centres the building holding the most of them</strong>, and names it. They stay selected, so you can still ring them out or give the tower an order</li>
+        </ul>
+        <div class="sec">The arms were never behind anybody&rsquo;s back</div>
+        <ul>
+          <li><strong>A villager stood holding a tool looked like a hand and a mallet with no arm attached.</strong> Reported as the arms being drawn behind the body &mdash; and they never were: they are painted <em>after</em> the body, on top of it. What they were missing was an edge</li>
+          <li>An arm is stroked in the torso&rsquo;s own colour, and it only got a dark rim round it when seen from behind. The reasoning at the time was sound as far as it went: facing you, the swing carries an arm out past the body&rsquo;s edge, so you read it against the grass and it needs no help. That is true of somebody <em>walking</em> &mdash; and false of somebody standing still with a tool in their hands, where there is no swing at all, the arm lies inside the silhouette in the same colour as the body, and there is nothing to read it against. <strong>Every view rims its arms now.</strong> The rim is proportional to the arm, so a front view pays nothing for it</li>
+        </ul>
+        <div class="sec">Nobody has ever met the beekeeper</div>
+        <ul>
+          <li><strong>The swarm has never once hung on a branch.</strong> Counted over six matches and fifteen summers: its day was rolled three times and the bees turned up on <em>none</em> of them. So the whole chain behind it &mdash; boxing the swarm, carrying it home, the villager who takes up the veil and the smock, and every Beehive that follows &mdash; has been unreachable in every game ever played</li>
+          <li><strong>Two faults, and the first is a single word.</strong> The block that calls the swarm on its day works out which day it is with <em>round</em> &mdash; and says why, in a comment directly above: the season clock is reset flat at each turn and drops the overshoot, so at the instant a day rolls over it is still a fraction short, and rounding asks &ldquo;which day is starting&rdquo; while flooring answers &ldquo;the one before&rdquo;. The swarm checked with <em>floor</em>. So the caller fired on the right day and the spawn refused it, every time. That exact fault had already been found and fixed for the midwinter long night &mdash; three lines above the call the swarm makes</li>
+          <li><strong>And the second: the box never got carried home.</strong> Boxing a swarm takes it off the map and leaves the villager holding it with no target &mdash; and the gather routine cancels any order with no target in its second line, while the code that walks a swarm-carrier home sits nearly two hundred lines below that. So they stood in the field with the box for the rest of the match: through dusk, indoors overnight, out again at dawn, still carrying it. Both fixed &mdash; a swarm is boxed at six seconds and home by eleven, and the village has its beekeeper</li>
+          <li>Worth saying plainly: it is a <strong>summer</strong> event and always was, about one summer in three, on one day, with three days of clues counting down to it. Leave it hanging past dusk and it lifts off and goes</li>
+        </ul>
+        <div class="sec">The Ashkin were stuck at four soldiers, for ever</div>
+        <ul>
+          <li><strong>Peaceful builds a village but never an army &mdash; and it stopped at exactly four.</strong> Counted over fifty minutes on four maps, every one identical: the rival puts up 26 to 34 buildings and keeps going, but its army reaches four soldiers by the half hour and then does not move again for the next twenty minutes. Not variance, a wall</li>
+          <li><strong>The cause was a hold that could never let go.</strong> Under four soldiers the Ashkin train desperately &mdash; anything they can pay for. At four they switch to &ldquo;best unit only, and keep the next age&rsquo;s cost untouched&rdquo;. That hold came on when their KNOWLEDGE reached 92% of the age-up price &mdash; and knowledge is the one thing they always have too much of, since it accrues on its own and nothing else spends it. So the hold latched on early and never came off. The Iron Age wants 260 knowledge, 210 food and 110 gold; at fifty minutes they held <strong>2307 knowledge and 125 food</strong>. They were rationing 210 food they did not have, which made every soldier that costs any food at all &mdash; a swordsman is 70, an archer 23 &mdash; unaffordable for the rest of the match. And the age they were saving for could never come either, because what was short was the food, not the knowledge</li>
+          <li>The tell was the hoard: knowledge and iron piled up while food, wood and stone sat near empty &mdash; the same tell as the old barracks deadlock, where they saved wood for a building while banning the camp that earns wood. <strong>They only ration now when the age-up is actually in reach on every resource.</strong> Measured after, same four maps: four soldiers at fifty minutes became <strong>13, 13, 16 and 20</strong>, and the army climbs steadily from the half hour instead of flatlining. Buildings unchanged, and the harder difficulties are untouched &mdash; hard still pushes first at 9 to 10 minutes, then medium, then easy</li>
+        </ul>
+        <div class="sec">And now they keep pace with your army too</div>
+        <ul>
+          <li><strong>Ask for it and the Ashkin match what you have.</strong> They already copied your buildings and your upgrades; now they match your soldiers as well, one at a time, on their own slow clock, and <em>never</em> past your own count. Free, which is the cheating that was allowed &mdash; their own economy demonstrably cannot keep pace with a person</li>
+          <li>The old rule said never the army, on the grounds that a rival with soldiers is a threat whatever the treaty says. Looked at properly, that is not what keeps the promise: <strong>they are barred from marching outright</strong> for as long as the peace holds, however many soldiers they have. Checked over fifty minutes on four maps with no player action at all &mdash; never once pushed, peace never broken, with rival armies of six to eleven stood there. So they can match you man for man and still never come. Measured with a player raising an army: 20m 1 v 1, 30m 13 v 12, 40m 31 v 31, 50m 50 v 49 &mdash; level, never ahead. Walls and towers are still excluded, because those are what would make breaking the peace unwinnable rather than merely harder</li>
+        </ul>
+        <div class="sec">The lanterns in the dark, and the old man at the end of them</div>
+        <ul>
+          <li><strong>It was not a quest, it was a closed door.</strong> Over fourteen matches, with a perfect player sending somebody the instant the lanterns lit, the hermit was met <strong>once</strong>. The lanterns appeared in six of those matches and the dawn took five &mdash; every failure identical: alive for 35.4 seconds, never got as far as leading anybody, gone at first light. 35.4 seconds is the whole night; the code&rsquo;s own patience said ninety, a number it could never reach. And the one chance was spent the moment they APPEARED rather than when they were met, so the night you saw them was the only night you ever would</li>
+          <li>What made it hopeless rather than merely rare: <strong>while the lanterns were lit there was never a villager outdoors to send</strong>. Zero, on every map, across a thousand checks &mdash; they only come at night and at night everybody is asleep. Somebody has to be woken for this, and now there is time to work that out</li>
+          <li><strong>They are an autumn thing now, and they keep coming back.</strong> Lanterns in the dark, a hut going to ruin, an old man who wants wood in before the winter &mdash; one season&rsquo;s story. They light every few nights through the autumn, <strong>in a different place each time</strong>, until somebody finally walks out to them, and they are gone by morning as they always were, so a night is still a night</li>
+          <li><strong>And there is something at the end of it now.</strong> Following them no longer finishes anything: you arrive at a ruin of a hut that nobody has lived in for years. It takes <strong>three nights</strong> to put right, one night&rsquo;s work a night, so it cannot be rushed by parking the village on it. Whoever finishes it is changed by the doing of it &mdash; they come back an elder, and they alone can raise an <strong>Elder&rsquo;s Cottage</strong> at home, one tile like every other specialist house. Once it stands, the hut in the woods is done with and they stop taking orders: they are the figure you see about the village after dark. Deliberately not the Elder&rsquo;s Lodge elder &mdash; no story nights, no bonfire, nobody gathered round. Just somebody who is out there, with a word now and then</li>
+        </ul>
+      </details>
+
+      <details class="pn">
         <summary>Patch 21.32</summary>
         <div class="sec">More to see after dark</div>
         <ul>
@@ -9669,6 +9765,17 @@ const BLDG = {
      trees read as an ordinary map tree's own size, not a landmark. */
   herbalist:{ name:"Herbalist's Hut", age:0, hp:190, w:1, h:1, cost:{wood:75,food:45,stone:15}, hgt:9,
               roof:"gable", roofScale:0.62, build:13, vision:3, herbalist:true },
+  /* THE ELDER'S COTTAGE. Raised only by the villager who put the old hut in
+     the woods back together (u.elderling, see updateHermitRepair, 05) - not a
+     menu building anybody can pick, which is why it carries no age gate and
+     sits outside BUILD_ORDER. One tile, like every other specialist house.
+     When it is finished the hut in the woods is done with, and whoever built
+     this stops being yours to order about: they become the hermit who walks
+     the village after dark. (eldercottage handling: 03b) */
+  eldercottage:{ name:"Elder's Cottage", age:0, hp:200, w:1, h:1,
+                 cost:{wood:70,stone:25,food:30}, hgt:9,
+                 roof:"gable", roofScale:0.62, build:14, vision:3,
+                 eldercottage:true, know:0.2 },
   /* A one-time discovery, not a tech-gated build - see idea_discovery_events
      and the moonflower spawn/gather-tick special case (01e/03c). No age
      gate at all: it is unlocked the night the flower is found, whenever
@@ -10773,7 +10880,7 @@ function defaultGameState(){
     newcomersJoined: 0,        // strangers the founder has talked into staying, this match (NEWCOMER_MAX_PER_MATCH)
     swarmsHome: 0,             // swarms actually carried back - one Beehive each
     beekeepers: [],            // the hives' own walkers, on their honey rounds
-    beeSummer: null,           // whether THIS summer has a swarm in it, and when
+    beeYear: null,             // whether THIS year's spring has a swarm in it, and when
     heatT: 0, heatToldFixed:false,   // the hot summer, and whether the well fixed it
     springSite: null,          // a free well site, this season only
     bakerShortT: 0,            // the bakery out of flour, and how long for
@@ -15005,7 +15112,76 @@ function zoomAt(sx, sy, f){
    walk away - a builder now does on its own, taking up the next unfinished
    site the moment it finishes one (carryOn, 03b), which is the same result
    without a mode to arm first. */
+/* SOMEBODY WHO IS INDOORS HAS TO COME OUT TO DO IT.
+
+   Without this an order given to a villager who is asleep was simply
+   swallowed. It set u.order on somebody the movement code skips outright
+   (`if(u.indoors) return`), so they lay in bed with a job they never went to
+   - and then wakeUp restores u.dayOrder at first light and wipes it, so by
+   morning there was no trace of it at all.
+
+   Measured, because it was reported as a mystery rather than a bug: select
+   the founder at midnight, place a Watchtower, run the whole night. The site
+   is staked out and paid for (95 wood, 25 stone, 15 food), the founder's
+   order reads "build", progress is 0.000 at dawn, and after wakeUp the order
+   is null and the target is gone. Every villager idle in the morning, a hole
+   in the stores and a foundation nobody ever visits. That is the "night
+   event and all my villagers idle after I built a scout tower" report.
+
+   Two different situations, deliberately treated differently:
+
+   - ABED, at dusk or in the night. They are woken, and it costs them the
+     night exactly as wakeVillagerForNight always has - which is the rule as
+     the user stated it: the player CAN tell somebody to do something after
+     dark, and they go back to bed the next night regardless (awakeAtNight
+     is cleared at dawn, 05b). Ordering somebody out of bed should not be
+     free, and it should not be silent either - that function says whose
+     night it is.
+   - SHELTERING in daylight (the bell, foul weather). Nothing to pay: out of
+     the door and on with it.
+
+   Never a garrison. Coming out of a tower is its own action with its own
+   button, and a stray order must not empty a watchtower by accident. */
+function stepOutToWork(u){
+  if(!u) return;
+  /* A ROUGH SLEEPER is not indoors - they are lying on the ground outside the
+     town centre because every roof was full (sendRoughHome, 05b). Ordering one
+     has to get them up, or they walk to the job still drawn flat on their
+     back, since u.lying is a pose field nothing else here would clear. Same
+     price as anybody else woken after dark. */
+  if(u.roughing || u.lying){
+    u.roughing = false; u.lying = false; u.armA = undefined;
+    if((G.phase === "night" || G.phase === "dusk") && !u.awakeAtNight){
+      if(!u.nightName && typeof pickNightName === "function") u.nightName = pickNightName();
+      u.awakeAtNight = true;
+    }
+  }
+  if(!u.indoors || u.garrisonedIn) return;
+  const abed = (typeof G !== "undefined" && G) &&
+               (G.phase === "night" || G.phase === "dusk");
+  if(abed && u.home && typeof wakeVillagerForNight === "function"){
+    wakeVillagerForNight(u, u.home);
+    return;
+  }
+  u.indoors = false;
+  const h = u.home;
+  if(h){
+    u.x = h.x + (Math.random()-0.5)*14;
+    u.y = h.y + h.h*TILE/2 + u.r + 3;
+    let guard = 0;
+    while(blocked(u.x, u.y, null, false) && guard++ < 20){
+      const a = Math.random()*6.283, d = h.h*TILE/2 + 10 + guard*3;
+      u.x = h.x + Math.cos(a)*d; u.y = h.y + Math.sin(a)*d;
+    }
+  }
+}
+
 function giveOrder(u, fields){
+  /* Out of the house first, or the order below is given to somebody the
+     movement code will not look at. See stepOutToWork above. Only for a real
+     order - clearing one (order:null) should leave a sleeper where they are,
+     or a stray deselect would turn the whole village out of bed. */
+  if(u.indoors && fields && fields.order) stepOutToWork(u);
   /* HOW DARK IT WAS WHEN THIS ORDER WAS GIVEN. Read by the straggler sweep
      (sendStragglersHome, 05b), which walks villagers home who were still at
      work after dusk - and which must not undo an order the player has just
@@ -16014,12 +16190,42 @@ function recallGroup(n, jump){
   if(!live.length){ hint("Group " + n + " is empty."); return; }
   resetModes();
   G.sel = live.slice();
+  let inside = null;
   if(jump){
-    const cx = live.reduce((a,u)=>a+u.x,0)/live.length;
-    const cy = live.reduce((a,u)=>a+u.y,0)/live.length;
+    /* WHERE TO JUMP TO WHEN THEY ARE ALL INDOORS.
+
+       The average of everybody's x/y is right for a group standing in a
+       field and wrong for a group in bed. A villager who goes indoors is not
+       moved - they are just stopped being drawn - so the average still
+       lands somewhere sensible, but what you arrive at is an empty street
+       with nobody in it, and the roof they are actually under can easily be
+       off to one side or off the screen entirely if the group is spread
+       over several houses. So: if every one of them is indoors or
+       garrisoned, centre the building holding the most of them instead, and
+       point at it by name. They stay selected - you can still ring them
+       out, wake them, or give the tower an order - this only changes what
+       the camera looks at. */
+    /* Not the rough sleepers (05b): they are lying in the open where you can
+       see them, so the plain average is already right for those. */
+    const roofOf = (u) => u.garrisonedIn || (u.indoors ? (u.home || u.target) : null);
+    const under = live.map(roofOf).filter(b => b && b.hp > 0);
+    let cx, cy;
+    if(under.length === live.length && under.length){
+      const tally = new Map();
+      for(const b of under) tally.set(b, (tally.get(b)||0) + 1);
+      let host = under[0], most = 0;
+      for(const [b, c] of tally) if(c > most){ host = b; most = c; }
+      cx = host.x; cy = host.y;
+      inside = host;
+    } else {
+      cx = live.reduce((a,u)=>a+u.x,0)/live.length;
+      cy = live.reduce((a,u)=>a+u.y,0)/live.length;
+    }
     G.cam.x = cx - VW/G.cam.z/2; G.cam.y = cy - VH/G.cam.z/2; clampCam();
   }
-  hint("Group " + n + ": " + live.length + " units.");
+  hint(inside
+       ? "Group " + n + ": " + live.length + " inside the " + (BLDG[inside.type]||{}).name + "."
+       : "Group " + n + ": " + live.length + " units.");
   refreshUI();
 }
 
@@ -16351,13 +16557,15 @@ function confirmPlace(){
     }
     if(!made.length){ hint("There is no room for that run - try turning it, or shortening it."); return; }
     const vs = G.sel.filter(u=>u.kind==="unit" && u.type==="villager" && u.p===P_YOU);
+    // awake volunteers only - see the note on the same pair of lines below
     const send = vs.length ? vs
-               : G.units.filter(u=>u.p===P_YOU && u.type==="villager" && !u.order).slice(0,3);
+               : G.units.filter(u=>u.p===P_YOU && u.type==="villager" &&
+                                   !u.order && !u.indoors).slice(0,3);
     /* One builder per site where there are enough hands, so a long run is not
        three people shuffling along it one stone at a time. Anybody left over
        starts at the near end; carryOn walks them down the rest of it. */
     send.forEach((v,i)=>{ const b=made[i % made.length];
-      v.order="build"; v.target=b; v.workplace=null; v.path=null; });
+      giveOrder(v, { order:"build", target:b, workplace:null, path:null }); });
     hint(made.length===1 ? "A wall goes up."
        : made.length + " lengths of wall staked out" +
          (made.length < G.placing.run ? " - the rest would not fit." : "."));
@@ -16406,9 +16614,21 @@ function confirmPlace(){
      (moonstone manor) */
   const crew = d.moonstone ? "moonvillager" : "villager";
   const vs = G.sel.filter(u=>u.kind==="unit" && u.type===crew && u.p===P_YOU);
+  /* THE VOLUNTEERS MUST BE AWAKE. `!u.order` is true of everybody asleep in
+     bed - arriving home clears the order - so with nothing selected this
+     picked three sleepers and handed them a job they could not go to.
+     Somebody the player SELECTED is a different matter: giveOrder wakes
+     them, because choosing them is the player saying so. */
   const send = vs.length ? vs
-             : G.units.filter(u=>u.p===P_YOU && u.type===crew && !u.order).slice(0,3);
-  send.forEach(v=>{ v.order="build"; v.target=b; v.workplace=null; v.path=null; });
+             : G.units.filter(u=>u.p===P_YOU && u.type===crew &&
+                                 !u.order && !u.indoors).slice(0,3);
+  /* Through giveOrder rather than assigning the fields here. It is what
+     wakes somebody who is indoors (stepOutToWork, 03a) - without it a build
+     ordered after dark was set on a sleeping villager, never acted on, and
+     wiped by wakeUp at first light, leaving a paid-for foundation nobody
+     ever visited. It also clears the ambient pause and the break pose, which
+     this line had never done. */
+  send.forEach(v=>giveOrder(v, { order:"build", target:b, workplace:null, path:null }));
   G.placing = null;
   G.uiMode = "main";
   refreshUI();
@@ -16710,6 +16930,41 @@ function updateAncientRuin(){
   ruin.towerLvl = TOWER_UPGRADES.length;
   G.disc.owlTower = true;
   if(ruin.p===P_YOU) hint("The ruin stands whole again - it was a watchtower, and an old trick with it: every watchtower you hold sees a little further now.");
+}
+
+/* THE ELDER'S COTTAGE, ONCE IT STANDS.
+ *
+ * The last step of the lantern path. Whoever put the old hut in the woods
+ * right (u.elderling, updateHermitRepair in 05) walks home and raises this;
+ * the moment it is finished the hut out in the trees has served its purpose
+ * and is done with, and the builder stops being a villager you order about.
+ * They become the hermit who walks the village after dark - the same wandering
+ * figure that already existed, which is deliberately NOT the Elder's Lodge
+ * elder: no story nights, no bonfire, nobody gathered round. Just somebody who
+ * is about after dark and has a word now and then.
+ */
+function updateElderCottage(){
+  if(!G.disc || G.disc.elderCottageDone) return;
+  const c = G.bldgs.find(b => b.p===P_YOU && b.type==="eldercottage" && b.done && b.hp>0);
+  if(!c) return;
+  G.disc.elderCottageDone = true;
+  /* The hut in the woods goes. Its coordinates are kept, because the hermit
+     still walks out from there and the deed still remembers it. */
+  G.disc.hermitHutGone = true;
+  const who = G.units.find(u => u.p===P_YOU && u.elderling && u.hp>0);
+  if(who){
+    G.disc.hermitName = who.nightName || null;
+    /* Out of the roster. The hermit is a wanderer, not a unit - it is what
+       lets them be about at night without being ordered around, garrisoned or
+       counted against the population. */
+    const i2 = G.units.indexOf(who);
+    if(i2 >= 0) G.units.splice(i2, 1);
+    if(G.sel) G.sel = G.sel.filter(x => x !== who);
+  }
+  hint((G.disc.hermitName || "The one who mended the hut")
+     + " has a cottage of their own now, and will not be taking orders any more. "
+     + "You will see them about after dark.");
+  refreshUI();
 }
 
 /* The Caretaker's Cottage: a labour-saver, nothing more. Every so often it
@@ -17707,6 +17962,105 @@ function bakerNearbyHouse(p){
   return houses.length ? houses[(Math.random()*houses.length)|0] : null;
 }
 
+/* ---------- WHAT ELSE A BAKER DOES ALL DAY ----------
+   The bread round is the job and stays first in the queue: nothing below is
+   ever picked while there is a soldier to feed. Everything below is what he
+   does with the rest of the day, which used to be three things and is now
+   eight, because a man who only ever stood at his own door or walked one loaf
+   to one house was a very short loop to watch.
+
+   None of these grant breadT. That is deliberate and load-bearing: if
+   pottering could feed the army then the round - the one thing the Bakery is
+   actually for - would stop being the thing that matters. They are pictures.
+   The one exception is the dogs, who get a wag out of it, which is not a
+   number anybody balances a match around.
+
+   Each finder returns a point to walk to, or null if there is nothing of that
+   kind in the village today, and the picker below only ever offers errands
+   whose finder found something - so a village with no chickens simply never
+   sees the crumbs errand rather than sending the baker to stand in a field. */
+
+// the hens, if this side keeps any. Player side only, which is where the
+// chickens live (updateChickens, 05) - the rival has no flock to scatter to.
+function bakerChickens(p){
+  if(p !== P_YOU) return null;
+  const flock = G.chickens || [];
+  if(!flock.length) return null;
+  const c = flock[(Math.random()*flock.length)|0];
+  return { x:c.x, y:c.y, kind:"crumbs" };
+}
+
+// the dogs, if there are any. Whichever is nearest, since a dog that sees
+// him coming will meet him halfway anyway.
+function bakerDog(p, from){
+  const dogs = (G.villageDogs||[]).filter(d => d.p===p && !d.indoors);
+  if(!dogs.length) return null;
+  let best=null, bd=1e9;
+  for(const d of dogs){
+    const dd = Math.hypot(d.x-from.x, d.y-from.y);
+    if(dd < bd){ best=d; bd=dd; }
+  }
+  return best ? { x:best.x, y:best.y, kind:"dogs", dog:best } : null;
+}
+
+// a farm to go and look over - the flour has to come from somewhere, and a
+// baker with an interest in this year's wheat is the whole idea
+function bakerFarm(p){
+  const farms = G.bldgs.filter(b => b.p===p && b.done && b.hp>0 && isAFarm(b));
+  if(!farms.length) return null;
+  const f = farms[(Math.random()*farms.length)|0];
+  return { x:f.x, y:f.y + f.h*TILE/2 + 6, kind:"farm" };
+}
+
+/* Somebody out working - a woodcutter at a tree, a miner at a seam. A loaf
+   to the people actually doing the work, which is the errand the request
+   asked for by name. Anyone gathering, outdoors, on their own feet: not
+   filtered to particular jobs, because "wood choppers, miners etc" is every
+   job there is, and a baker walking a loaf out to a fisherman on the shore
+   is the same picture. */
+function bakerWorker(p, from){
+  const out = G.units.filter(u => u.p===p && u.hp>0 && u.type==="villager" &&
+                                  !u.indoors && u.order==="gather" && u.target &&
+                                  !u.bakerFed);
+  if(!out.length) return null;
+  let best=null, bd=1e9;
+  for(const u of out){
+    const d = Math.hypot(u.x-from.x, u.y-from.y);
+    if(d < bd){ best=u; bd=d; }
+  }
+  return best ? { x:best.x, y:best.y, kind:"workers", who:best } : null;
+}
+
+/* WHICH ERRAND, AND THE IN-OUT-IN-OUT RHYTHM.
+
+   Not a flat roll over everything. He potters about his own door for a few
+   turns - in, out, tending the step - and only then goes off somewhere, then
+   comes back and potters again. o.potter counts the pottering turns still
+   owed; a real errand is only picked when it runs out, and picking one
+   refills it. That is the shape the request described, and it is also just
+   what a man with an oven to watch would actually do: he cannot be halfway
+   across the village all afternoon.
+
+   The whole loop takes days rather than minutes, which is the other half of
+   it - five errands, each offered at most once per refill, spaced by three
+   or four turns at the bakery, on a BAKER_ROUND cooldown throughout. */
+function bakerErrand(o){
+  const p = o.p;
+  const opts = [];
+  const house = bakerNearbyHouse(p);
+  if(house) opts.push({ x:house.x, y:house.y + house.h*TILE/2 + 6, kind:"house" });
+  const c = bakerChickens(p);   if(c) opts.push(c);
+  const d = bakerDog(p, o);     if(d) opts.push(d);
+  const f = bakerFarm(p);       if(f) opts.push(f);
+  const w = bakerWorker(p, o);  if(w) opts.push(w);
+  if(!opts.length) return null;
+  /* Not the same one twice running, as long as there is anything else to
+     do - one repeat in a row reads as a habit, two reads as a stuck loop. */
+  const fresh = opts.filter(e => e.kind !== o.lastErrand);
+  const pool = fresh.length ? fresh : opts;
+  return pool[(Math.random()*pool.length)|0];
+}
+
 function makeBakerVillager(bakery){
   const doorX = bakery.x + (Math.random()-0.5)*10;
   const doorY = bakery.y + bakery.h*TILE/2 + 6;
@@ -17767,29 +18121,37 @@ function updateBaker(dt){
       if(o.cd > 0) continue;
       const stop = bakerBestStop(p, o);
       if(!stop){
-        /* Nothing for the real round today - a quiet stretch, not a
-           villager frozen at his own door. Three ways to spend it, picked
-           at random: step inside for a spell (he's already standing right
-           there), potter about outside the oven, or carry a loaf over to
-           somebody's doorstep. Flavour only - no breadT granted by any of
-           them, so none can ever substitute for the real round above. */
+        /* Nothing for the real round today - a quiet stretch, not a villager
+           frozen at his own door. In and out of the bakery a few turns, then
+           off somewhere, then back to in-and-out again. See bakerErrand for
+           the rhythm and for what "somewhere" can be. */
         o.cd = BAKER_ROUND*0.5;
-        const r = Math.random();
-        if(r < 0.34){
-          o.indoors = true; o.moving = false;
-          o.waitT = 6 + Math.random()*10;
-          o.state = "inside";
-        } else if(r < 0.67){
-          o.moving = false;
-          o.workT = 4 + Math.random()*4;
-          o.state = "tending";
-        } else {
-          const house = bakerNearbyHouse(p);
-          if(house){
-            o.dest = { x:house.x, y:house.y + house.h*TILE/2 + 6 };
-            o.legT = 0; o.laden = true; o.state = "visiting";
+        if(o.potter === undefined) o.potter = 1 + ((Math.random()*3)|0);
+        if(o.potter > 0){
+          o.potter--;
+          if(Math.random() < 0.5){
+            // dayIndoors: see workerNight (05j) - without it the night rule
+            // pulls him straight back out on the very next tick
+            o.indoors = true; o.dayIndoors = true; o.moving = false;
+            o.waitT = 6 + Math.random()*10;
+            o.state = "inside";
+          } else {
+            o.moving = false;
+            o.workT = 4 + Math.random()*4;
+            o.state = "tending";
           }
+          continue;
         }
+        const errand = bakerErrand(o);
+        if(!errand){ o.potter = 2; continue; }        // nothing to go to today
+        o.potter = 2 + ((Math.random()*3)|0);         // and then settle down again
+        o.lastErrand = errand.kind;
+        o.errand = errand;
+        o.dest = { x:errand.x, y:errand.y };
+        o.legT = 0;
+        // he carries something to everything except a look round the farm
+        o.laden = (errand.kind !== "farm");
+        o.state = "visiting";
         continue;
       }
       o.stop = stop; o.dest = { x:stop.x, y:stop.y }; o.legT = 0;
@@ -17797,7 +18159,13 @@ function updateBaker(dt){
 
     } else if(o.state === "inside"){
       o.waitT -= dt;
-      if(o.waitT <= 0){ o.indoors = false; o.state = "idle"; o.cd = BAKER_ROUND*0.5; }
+      if(o.waitT <= 0){
+        o.indoors = false; o.dayIndoors = false;
+        o.state = "idle"; o.cd = BAKER_ROUND*0.5;
+      }
+      /* Dusk while he is in there: hand him to the night rule cleanly rather
+         than leaving dayIndoors set and him barricaded in until morning. */
+      if(!daytime){ o.indoors = false; o.dayIndoors = false; o.state = "idle"; }
 
     } else if(o.state === "tending"){
       // pottering about right outside his own door - stacking crates,
@@ -17815,6 +18183,27 @@ function updateBaker(dt){
       o.handT -= dt;
       if(Math.random() < 0.08) fxWork(o.x, o.y-4, "#e8cf94");
       if(o.handT <= 0){
+        /* Whatever he came out to do, done. Each errand leaves one small
+           mark and no numbers - a wagging dog, a villager who has had a
+           loaf and will not be offered another today. */
+        const e = o.errand;
+        if(e && e.kind === "dogs" && e.dog && (G.villageDogs||[]).indexOf(e.dog) >= 0){
+          e.dog.tail = Math.max(e.dog.tail||0, 2.2);
+          if(p===P_YOU && Math.random() < 0.5)
+            hint("The baker has been round the kennel with the scraps" +
+                 (e.dog.name ? " - " + e.dog.name + " is delighted." : "."));
+        }
+        if(e && e.kind === "workers" && e.who && e.who.hp > 0){
+          /* Marked, not fed: it stops him walking the same loaf to the same
+             woodcutter every round, and it is cleared at dawn (wakeUp) so
+             everybody gets a turn over a few days. */
+          e.who.bakerFed = true;
+          if(p===P_YOU && Math.random() < 0.34)
+            hint("The baker has taken a loaf out to the ones working the woods and the seams.");
+        }
+        if(e && e.kind === "crumbs" && p===P_YOU && Math.random() < 0.34)
+          hint("The baker scatters yesterday's crumbs for the hens.");
+        o.errand = null;
         o.laden = false; o.dest = doorAt(); o.legT = 0; o.state = "home";
       }
 
@@ -18819,8 +19208,8 @@ function tick(dt){
     /* The swarm keeps its appointment. Its day was picked when the summer was
        rolled and the clues have been counting down to it, so it arrives on
        that day rather than taking its chances in the pool. */
-    if(G.season==="summer" && G.beeSummer && G.beeSummer.day === dayOfSeason &&
-       G.beeSummer.year === yearNumber()){
+    if(G.season===SWARM_SEASON && G.beeYear && G.beeYear.day === dayOfSeason &&
+       G.beeYear.year === yearNumber()){
       for(let tries=0; tries<40 && !G.nodes.some(n=>n.kind==="swarm"); tries++) trySpawnBeeSwarm();
     }
     const wasFest = G.festivalToday;
@@ -19105,7 +19494,7 @@ function tick(dt){
     reseason();
     spawnWildAnimals();   // top the deep-country population back up for the new season
     rollWeather();
-    rollBeeSummer();      // and whether this summer is one that swarms (05d)
+    rollSwarmYear();      // and whether this spring is one that swarms (05d)
     trySpawnWanderer("cat");
     // and somebody's sheep, out of its field and ambling across yours
     if(G.season!=="winter" && trySpawnWanderer("sheep"))
@@ -19309,6 +19698,8 @@ function tick(dt){
   updatePlayfulFox(dt);
   updateFoxAway();
   updateLanternGuide(dt);
+  updateHermitRepair();     // three nights of work on the old hut (05)
+  updateElderCottage();     // and the cottage that ends the path (03b)
   updateHermit(dt);
   updateFireflies(dt);
   updateDrifters(dt);   // and the same thing by day, one for each season
@@ -19935,7 +20326,11 @@ function updateUnit(u, dt){
            every dusk would be the wallpaper updateHomeLife exists to avoid. */
         if(u.offDutyNight && u.p === P_YOU && h.type === "house" &&
            typeof greetAtDoor === "function") greetAtDoor(h);
-        u.indoors = true;
+        /* Nobody indoors for the rough sleepers: they lie down where they
+           stand. u.lying is the same field the break poses use, so the
+           existing "asleep" pose draws them with no new art at all. */
+        if(u.roughing){ u.lying = true; }
+        else u.indoors = true;
         u.moving = false;
         u.order = null;
         u.homeT = 0; u.homeD = undefined;
@@ -20030,6 +20425,31 @@ function updateUnit(u, dt){
       break;
     }
     case "gather": {
+      /* A BOX OF BEES HAS NO NODE. Boxing a swarm removes it from the map and
+         leaves the carrier with order "gather" and NO target, so the bail just
+         below cancelled the order on the very next tick - and the haul-home
+         block that explicitly admits a swarm carrier sits nearly two hundred
+         lines further down, where it could never be reached.
+         The effect: the villager stood in the field holding the box for the
+         rest of the match. Measured - carrySwarm true, haulHome true, no
+         order, through dusk, indoors overnight, out again at dawn, still
+         carrying it. The swarm never once reached the village, so the
+         beekeeper, the veil and every hive behind them were unreachable.
+         Admitted here, before the bail. Kept small on purpose: a swarm has no
+         carryKind and no amount, so none of the resource machinery below
+         applies to it. */
+      if(!u.target && u.haulHome && u.carrySwarm){
+        u.hauling = true;
+        const dpb = nearestDrop(u);
+        if(!dpb){ u.order = null; u.haulHome = false; u.hauling = false; break; }
+        const anchorB = bestDropAnchor(u, dpb);
+        if(moveToward(u, anchorB.x, anchorB.y, spd, dt, Math.max(dpb.w,dpb.h)*TILE/2 + 6)){
+          landSwarm(u);
+          u.haulHome = false; u.hauling = false;
+          u.order = null; u.target = null;
+        }
+        break;
+      }
       const n = u.target;
       if(!n){ u.order=null; break; }
       /* Gone from the map - a wild moonstone vein at dawn, or anything
@@ -35692,6 +36112,13 @@ const WORK_BREAK_POSE = {
   sit:      u => { u.sit = true; u.armA = 0.85; },                       // down on the ground, hands loose in the lap
   yoyo:     u => { u.armA = 1.35 + Math.sin(G.t*4.2 + u.id)*0.18; },     // exactly the leisure system's own pose (05-wildlife.js)
   kite:     u => { u.armA = KITE_ARM_A; },                               // held steady - the kite itself does the moving
+  /* NOT one of WORK_BREAK_ACTIVITIES - it is never picked at random. Set by
+     throwTheBall (05i) when somebody picks up a dog's ball, and it lives here
+     for one reason: 03c lets go of breakActivity the instant chatT runs out,
+     so an arm put up by this can never be left up. The wind-up and the throw
+     in one motion, back over the shoulder and through. */
+  throwball: u => { const t = ((G.t*1.7 + (u.id||0)) % 1);
+                    u.armA = t < 0.45 ? (2.5 - t*1.2) : (1.05 - (t-0.45)*0.5); },
   clouds:   u => { u.lying = true; },                                    // flat on their back - see the leg/torso branch below
   stretch:  u => { u.armA = 1.55 + Math.sin(G.t*1.3 + u.id)*0.10; },     // slow, not a swing - working a stiff back loose
   drink:    u => { u.armA = 1.5; },                                      // tipped up toward the mouth - 1.7 put
@@ -37332,7 +37759,18 @@ function drawPerson(u, pl, yOff){
      the same trick the torso uses, and it is what makes a limb sit IN
      FRONT of the mass behind it rather than in it. */
   const armEdge = (x0, y0, x1, y1) => {
-    if(!backView) return;
+    /* EVERY VIEW, not only from behind. This returned early unless backView,
+       on the reasoning quoted above: facing you, the swing carries both arms
+       out past the body's edge, so you read them against the grass.
+
+       That holds for somebody WALKING. It fails for somebody standing still
+       with a tool in their hands - there is no swing to carry the arm clear,
+       so it lies inside the silhouette in the torso's own colour with no edge
+       on it, and all you can see is a hand and a mallet floating at the body's
+       side. Reported exactly that way, of a builder stood at a site: "the arms
+       for all tools are behind the back". They were never behind anything -
+       they are drawn after the body - they simply had nothing to read against.
+       The rim is proportional to the arm, so it costs a front view nothing. */
     const w = ctx.lineWidth;
     ctx.save();
     ctx.strokeStyle = outline;
@@ -50613,15 +51051,6 @@ const LANTERN_GUIDE_PATIENCE = 90;
    above everything because it is genuinely on a roof. Also means the
    generic Follow-target search (pickAt's wanderer loop) already finds
    this with no special case, unlike the owl's own G.owl carve-out. */
-/* WHICH SEASON THEY BELONG TO. The second, third or fourth - never the first,
-   which has the opening in it and quite enough to be getting on with. Rolled
-   once and kept, so the lanterns have a season of their own rather than a
-   nightly lottery. */
-function hermitSeason(){
-  if(G.hermitSeasonNo === undefined) G.hermitSeasonNo = 1 + ((Math.random()*3)|0);
-  return G.hermitSeasonNo;
-}
-
 /* THE LANTERNS STAY UNTIL SOMEBODY GOES OUT TO THEM - but only ever at night,
    so each night is still a short window and you do have to act.
  *
@@ -50643,19 +51072,28 @@ function trySpawnLanternGuide(){
   if(G.disc.hermitMet) return false;                             // done, for good
   if((G.wanderers||[]).some(w=>w.kind==="lanternguide")) return false;
   if(G.phase !== "night") return false;
-  if((G.seasonNo||0) < hermitSeason()) return false;             // not their season yet
+  /* AN AUTUMN THING. Lanterns in the dark, a hut going to ruin, an old man who
+     wants wood in before the winter - it is all one season's story, so it only
+     happens in that season. It comes round again every autumn until somebody
+     finally walks out to them, rather than being a single year's chance. */
+  if(G.season !== "autumn") return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return false;
   if(!G.wanderers) G.wanderers = [];
-  /* The same place every night. They are a path to somewhere, not a wandering
-     light - moving them would make the whole thing feel like a different
-     event each time rather than one you have been putting off. */
-  if(!G.disc.hermitSpot){
-    const spot = nearbyLandSpot(town, 280);
-    if(!spot) return false;
-    G.disc.hermitSpot = { x:spot.x, y:spot.y };
-  }
-  const at = G.disc.hermitSpot;
+  /* EVERY FEW NIGHTS, NOT EVERY NIGHT. Once their season comes round they are
+     unlocked rather than scheduled: they turn up again after a couple of
+     nights' gap, indefinitely, until somebody finally goes out to them. Nightly
+     would make them furniture; a gap keeps each one worth walking to. */
+  if(G.hermitNextNight === undefined) G.hermitNextNight = G.nightNo || 0;
+  if((G.nightNo || 0) < G.hermitNextNight) return false;
+
+  /* AND SOMEWHERE NEW EACH TIME. They were pinned to one spot, which made them
+     a landmark you could ignore; a fresh corner of the dark each time means
+     actually looking for them. */
+  const spot = nearbyLandSpot(town, 240 + Math.random()*120);
+  if(!spot) return false;
+  const at = { x:spot.x, y:spot.y };
+  G.hermitNextNight = (G.nightNo || 0) + 2 + ((Math.random()*3)|0);   // 2-4 nights off
   G.wanderers.push({
     kindTag:"wanderer", kind:"lanternguide", name:"a lit path",
     x: at.x, y: at.y,
@@ -50695,14 +51133,16 @@ function updateLanternGuide(dt){
     if(arrived){
       const u = g.follower;
       if(u && u.order==="follow" && u.target===g && u.hp>0 && !G.disc.hermitMet){
-        G.disc.hermitMet = true;
-        G.disc.hermitHut = { x:g.x, y:g.y };
-        u.hermitTouched = true;
+        /* THE HUT IS FOUND, NOT FIXED. Arriving used to finish the whole thing
+           in a single frame - walk up, take 60 knowledge, done. It is the
+           start of the work now: a ruin of a hut that wants three nights of
+           somebody's time (updateHermitRepair, below). */
+        if(!G.disc.hermitHut){
+          G.disc.hermitHut = { x:g.x, y:g.y, prog:0, night:-1 };
+          hint("An old hut, half-swallowed by the garden grown up round it - nobody has lived here in years. "
+             + "It could be put right again, but not in one night.");
+        }
         u.order = null; u.target = null;
-        const gift = 60;
-        G.players[P_YOU].res.know = (G.players[P_YOU].res.know||0) + gift;
-        hint("An old hermit's hut, half-swallowed by the garden grown up round it. They share what they know before you go - "
-           + gift + " knowledge - and something about how they've made do here stays with you. You could build the same, now.");
         refreshUI();
       }
       G.wanderers = G.wanderers.filter(w=>w!==g);
@@ -50747,6 +51187,56 @@ function drawLanternGuide(g){
   ctx.fillStyle = "rgba(255,214,140,"+(0.75+0.2*flick).toFixed(3)+")";
   ctx.fillRect(-1.4,-7.4,2.8,2.8);
   ctx.restore();
+}
+
+/* ---------- THREE NIGHTS TO PUT THE HUT RIGHT ----------
+ *
+ * The hut is a ruin when you find it, and it wants three nights of somebody
+ * standing at it - one night's work per night, so it cannot be rushed by
+ * parking the whole village on it. It is only there after dark, like the
+ * lanterns that led you to it, and gone again by morning; the work already
+ * done keeps, or three nights would be impossible.
+ *
+ * Whoever finishes it is changed by it. They stop being an ordinary villager
+ * and become an elder-in-the-making (`elderling`), which is what lets them
+ * raise the cottage back in the village - see the Elder's Cottage in the build
+ * list. Until that cottage goes up they are still yours to move about; after
+ * it, they are the hermit who walks the village at night.
+ */
+const HERMIT_REPAIR_NIGHTS = 3;
+const HERMIT_REPAIR_REACH  = 30;      // how near "at the hut" is
+
+function updateHermitRepair(){
+  const hut = G.disc && G.disc.hermitHut;
+  if(!hut || G.disc.hermitMet) return false;
+  if(G.phase !== "night") return false;                 // the hut is a night thing
+  if(hut.night === (G.nightNo||0)) return false;        // one night's work a night
+  const who = G.units.find(u => u.p===P_YOU && u.hp>0 && !u.indoors &&
+                                u.type==="villager" &&
+                                Math.hypot(u.x-hut.x, u.y-hut.y) < HERMIT_REPAIR_REACH);
+  if(!who) return false;
+
+  hut.night = G.nightNo||0;
+  hut.prog = (hut.prog||0) + 1;
+  who.hermitTouched = true;                             // the deed remembers who
+
+  if(hut.prog < HERMIT_REPAIR_NIGHTS){
+    hint((who.nightName||"Somebody")+" works on the old hut until the light goes - "
+       + hut.prog + " night" + (hut.prog===1?"":"s") + " of three, and it is beginning to look like a house again.");
+    return true;
+  }
+
+  /* Done. The hut stands, and whoever put it back together has become
+     something else in the doing of it. */
+  G.disc.hermitMet = true;
+  const gift = 60;
+  G.players[P_YOU].res.know = (G.players[P_YOU].res.know||0) + gift;
+  who.elderling = true;
+  if(!who.nightName) who.nightName = pickNightName();
+  hint("The hut is whole again, and "+(who.nightName||"whoever did it")+" has the look of somebody who has "
+     + "learned something out here - " + gift + " knowledge. Bring them home and they can raise a cottage of their own.");
+  refreshUI();
+  return true;
 }
 
 /* ---------- the hermit ----------
@@ -55413,6 +55903,16 @@ function pickLine(list, key){
    everyone born since has a house to go to. Work stops at dusk and picks up
    again at first light. */
 const HOUSE_ROOM = 4;      // how many a house will take before it is full
+/* And how many the TOWN CENTRE will take, which is a very different number
+   and deliberately so. The hall used to be the fallback bed for anybody the
+   houses could not fit, with no limit at all, so a village of thirty could
+   sleep thirty in one building and never need a single house. Two is the
+   whole of the pressure to build: it covers the founder and one other from
+   the first night, and the third villager you recruit has nowhere to be
+   until you put a roof up. (See sendRoughHome below for where the overflow
+   actually goes - not back to work, which is what the old "nowhere to
+   sleep" fallthrough did.) */
+const HALL_ROOM = 2;
 const RESTED_TIME  = 80;          // half a day (DAY_LEN is 161, above)
 const RESTED_BOOST = 1.25;        // and how much brisker it makes them
 
@@ -55489,7 +55989,53 @@ function findHome(u){
     const d = Math.hypot(b.x-u.x, b.y-u.y);
     if(d < bd){ best=b; bd=d; }
   }
-  return best || hall || null;
+  if(best) return best;
+  /* The hall, but only if it is not already full. Counted the same way a
+     house is - who is homed there right now - so it follows the village
+     rather than needing to be kept in step with it. */
+  if(hall && G.units.filter(w=>w.home===hall).length < HALL_ROOM) return hall;
+  return null;
+}
+
+/* NOWHERE INDOORS TO SLEEP: they bed down outside instead.
+
+   This exists because of the hall cap above. Without it the overflow hits
+   the old "nowhere to sleep: stay out" fallthrough in sendHome and simply
+   carries on working, which is precisely the thing that was reported as a
+   bug earlier today - a villager still swinging an axe at midnight. Sleeping
+   rough is not a punishment mechanic and costs nothing: they take no
+   exhaustion (awakeAtNight is never set here) and they are up at dawn with
+   everyone else. It is a picture, and the picture is the point - people
+   curled up on the ground by the town centre is what a village that needs
+   houses looks like.
+
+   The spot is a ring round the hall rather than a doorstep: they are not
+   queueing to get in, they are lying down outside it. Ground-checked, since
+   a lakeside village will happily offer a ring spot in the water - the same
+   trap the hearth ring fell into. */
+function roughBedSpot(u, hall, i){
+  const a = (i * 2.39996) % 6.283;                  // golden angle, so they never stack
+  const d = Math.max(hall.w, hall.h)*TILE*0.5 + u.r + 14 + (i%3)*9;
+  let x = hall.x + Math.cos(a)*d, y = hall.y + Math.sin(a)*d;
+  if(blocked(x, y, null, false)){
+    const open = standableNear(x, y);
+    if(open){ x = open.x; y = open.y; }
+    else return null;                               // hemmed in - caller keeps them working
+  }
+  return { x, y };
+}
+
+function sendRoughHome(u){
+  const hall = G.bldgs.find(b=>b.p===u.p && b.done && b.type==="town");
+  if(!hall) return false;                           // no village to sleep beside yet
+  const rough = G.units.filter(w=>w.roughing && w.p===u.p).length;   // this side's ring, not both
+  const spot = roughBedSpot(u, hall, rough);
+  if(!spot) return false;
+  u.home = null;                                    // they have no bed, and nothing should think they do
+  u.roughing = true;
+  u.homeSpot = spot;
+  u.order = "home"; u.target = hall; u.path = null;
+  return true;
 }
 
 /* Old English, Swedish and Norse names, given once and permanently: to a
@@ -55575,7 +56121,11 @@ function homeDoorSpot(u, home, lane, row){
 
 function sendOneHome(u){
   const home = findHome(u);
-  if(!home) return false;
+  /* Every roof is full: outdoors, by the hall, rather than back to work.
+     Villagers only - a soldier reaching here is a wounded one looking for a
+     bed, and the rule for a soldier with no bed is already "stay on their
+     feet", which is what they would be doing anyway. */
+  if(!home) return (u.type === "villager") ? sendRoughHome(u) : false;
   u.home = home;
   const spread = G.units.filter(w=>w.home===home).length;
   const lane = spread % 5, row = (spread/5)|0;
@@ -56157,8 +56707,41 @@ function moonfolkTurnIn(){
 }
 
 function wakeUp(){
+  /* BEING WOKEN LASTS ONE NIGHT, AND ONE NIGHT ONLY.
+     u.awakeAtNight used to be permanent once set. sendHome sees it and skips
+     that villager entirely - "continue" before ever reaching sendOneHome - so
+     a villager the player pulled out of bed once was out EVERY night after
+     that, losing max health each time, and the only thing that ever put them
+     back was the player noticing and ringing them home by hand. Nothing in
+     the game told you that, and a villager you woke on day three was still
+     out on day thirty.
+     Dawn now ends it. Waking somebody still costs them that night - the
+     health, the strength, the speed, all of which stay lost - but the next
+     dusk sends them to bed with everybody else. Keeping somebody out two
+     nights running is still possible and still lethal; it just has to be
+     something the player does twice, rather than something they did once and
+     forgot. nightsAwake is deliberately NOT cleared here, only by a real
+     night's sleep below, so the second forced night still escalates.
+     A separate loop because the one underneath only looks at people who are
+     indoors or on their way - somebody left out all night is neither, and
+     they are exactly who this is for. */
   for(const u of G.units){
-    if(!u.indoors && u.order!=="home") continue;
+    if(u.type!=="villager") continue;
+    u.awakeAtNight = false;
+    u.collapsing = false;      // they lasted the night; the emergency is over
+    /* And everybody is due a loaf again. The baker marks whoever he has
+       carried one out to (bakerWorker, 03b) so he does not walk the same
+       loaf to the same woodcutter every round; clearing it at dawn is what
+       makes his rounds work through the village over several days rather
+       than stopping once. */
+    u.bakerFed = false;
+  }
+  for(const u of G.units){
+    if(!u.indoors && u.order!=="home" && !u.roughing) continue;
+    /* Whoever slept on the ground gets up where they lay. No RESTED_TIME -
+       that is for a bed - but no penalty either, and their day is restored
+       below exactly like anybody else's. */
+    if(u.roughing){ u.roughing = false; u.lying = false; u.armA = undefined; }
     /* Soldiers who went home off duty come out with everyone else. Filtered to
        villagers alone, anybody the evening put indoors stayed there for good -
        which is a fine way to lose an army. */
@@ -56193,7 +56776,9 @@ function wakeUp(){
         u.x = u.home.x + Math.cos(a)*d; u.y = u.home.y + Math.sin(a)*d;
       }
     }
-    if(u.indoors) u.rested = RESTED_TIME;   // only those who actually slept
+    // only those who actually slept - and a real night indoors is what
+    // clears the tally of forced nights, so it takes a bed to wipe the slate
+    if(u.indoors){ u.rested = RESTED_TIME; u.nightsAwake = 0; }
     u.indoors = false;
     /* If the bell is still ringing, morning does not send anyone back to
        work - it sends them to the Town Centre, which is what the bell means.
@@ -58019,49 +58604,70 @@ function resolveNewcomerJoin(u, o){
 const SWARM_HONEY   = 70;     // food, on taking it
 const SWARM_HIVE_FOOD = 0.35; // and a trickle ever after, per hive
 
-/* Bees are a SUMMER thing, and not every summer. A swarm you can count on
-   every few weeks is a resource; one that comes round every third summer or so
-   is an occasion you remember - and it is the only way to get a hive at all,
-   so a village that misses one waits a year for the next.
+/* Bees are a SPRING thing, and not every spring. A swarm you can count on
+   every few weeks is a resource; one that comes round every third spring or
+   so is an occasion you remember - and it is the only way to get a hive at
+   all, so a village that misses one waits a year for the next.
+
+   It was a SUMMER event until 9 Sep, on the reasoning that bees swarm when
+   the hive is crowded and warm. Moved to spring at the user's call, and it is
+   the better answer anyway: a colony swarms when it has built up faster than
+   its box, which in this country is late spring, and it puts the one route to
+   a hive at the START of the growing year rather than halfway through it.
+
+   The season lives in SWARM_SEASON alone, so moving it again is one line. The
+   state field was renamed with it - G.beeYear, not G.beeSummer - along with
+   rollSwarmYear and SWARM_SEASON_CHANCE, because a field called beeSummer
+   holding a spring event is a comment that lies, and the next person to read
+   it would believe it.
 
    It is announced by degrees rather than arriving out of nowhere. On the days
-   before, the village notices bees about: more of them in the clover, then
+   before, the village notices bees about: more of them in the blossom, then
    the sound of them, then a restlessness in the air. Those lines are the
    whole point of the design - a player who reads them knows to keep somebody
    free, and a player who does not gets no swarm and no idea why the bees were
-   mentioned. The clues only ever run in a summer that IS going to produce one,
-   so they are a genuine signal and never a red herring. */
+   mentioned. The clues only ever run in a spring that IS going to produce
+   one, so they are a genuine signal and never a red herring. */
+const SWARM_SEASON = "spring";
+const SWARM_DAY    = 3;      // the third day of it, every time - see rollSwarmYear
 /* And what is said on the day itself, when it actually settles. */
 const SWARM_LINES = [
   "A swarm has settled on a branch near the village - a humming brown weight the size of a lamb.",
   "There it is: the bees have swarmed, and hung themselves in a knot in the trees.",
   "The swarm has come out and settled low, patient as anything, waiting to be asked."
 ];
-const SWARM_SUMMER_CHANCE = 0.34;   // about one summer in three
+const SWARM_SEASON_CHANCE = 0.34;   // about one spring in three
 const SWARM_CLUE_DAYS     = 3;      // how long the bees are noticed beforehand
 const SWARM_CLUES = [
-  "There are a great many bees about the clover this week - far more than the flowers can account for.",
+  "There are a great many bees about the blossom this week - far more than the flowers can account for.",
   "You can hear the bees from the doorstep now. Something in the hive beyond the trees has got crowded.",
   "The bees are restless and going up in knots over the hedge. Somebody who knows about them says they will go soon."
 ];
-/* Rolled at the turn into summer. Picks the day as well as the fact, so the
-   clues can count down to something real. */
-function rollBeeSummer(){
-  if(G.season !== "summer") return false;
+/* Rolled at the turn into the swarm's season. Picks the day as well as the
+   fact, so the clues can count down to something real. */
+function rollSwarmYear(){
+  if(G.season !== SWARM_SEASON) return false;
   const year = yearNumber();
-  if(G.beeSummer && G.beeSummer.year === year) return false;
-  if(Math.random() > SWARM_SUMMER_CHANCE){ G.beeSummer = { year, day:-1 }; return false; }
-  // somewhere in the middle of the season, with room for the clues in front
-  const day = SWARM_CLUE_DAYS + Math.floor(Math.random()*(SEASON_DAYS - SWARM_CLUE_DAYS - 1));
-  G.beeSummer = { year, day, told:0 };
+  if(G.beeYear && G.beeYear.year === year) return false;
+  if(Math.random() > SWARM_SEASON_CHANCE){ G.beeYear = { year, day:-1 }; return false; }
+  /* THE THIRD DAY OF SPRING, fixed, at the user's call - so it never lands on
+     a player still finding their feet. It used to be a random day in {3,4,5}
+     (the clue run needs SWARM_CLUE_DAYS in front of it, which already kept it
+     off days 0-2); pinning it makes the one day of the year a village can get
+     a hive a thing you can learn and plan for rather than a thing you have to
+     catch. The three clue days fall on days 0, 1 and 2 as a result, so the
+     bees are noticed from the first morning of spring and settle on the
+     third. */
+  const day = SWARM_DAY;
+  G.beeYear = { year, day, told:0 };
   return true;
 }
 /* The clues, one a day, on the run-up. Its own pool entry so it competes for
    the day like everything else - but it declines on every day that is not one
    of the three, which is most of them. */
 function tryBeeClue(){
-  const b = G.beeSummer;
-  if(!b || b.day < 0 || G.season !== "summer") return false;
+  const b = G.beeYear;
+  if(!b || b.day < 0 || G.season !== SWARM_SEASON) return false;
   if(b.year !== yearNumber()) return false;
   const today = Math.floor(G.seasonT/DAY_LEN);
   const out = b.day - today;                    // days until the swarm
@@ -58075,13 +58681,25 @@ function tryBeeClue(){
 
 function trySpawnBeeSwarm(){
   if(G.nodes.some(n=>n.kind==="swarm" && n.amt>0)) return false;
-  /* Summer only, and only on the day this summer's roll picked - which most
-     summers is no day at all. Bees swarm when the hive is crowded and warm,
-     and the rarity is what makes the clues worth reading. */
-  if(G.season !== "summer") return false;
-  const b = G.beeSummer;
+  /* Its own season only, and only on the day that season's roll picked -
+     which most years is no day at all. The rarity is what makes the clues
+     worth reading. */
+  if(G.season !== SWARM_SEASON) return false;
+  const b = G.beeYear;
   if(!b || b.day < 0 || b.year !== yearNumber()) return false;
-  if(Math.floor(G.seasonT/DAY_LEN) !== b.day) return false;
+  /* ROUND, matching the caller. This read Math.floor and the day-turn block
+     that calls it reads Math.round, and the two disagree by one at exactly the
+     moment the call is made: G.seasonT is reset to a flat 0 each turn and
+     drops the overshoot, so at the instant a day rolls over the season clock
+     is still a fraction short. Round asks "which day is starting", floor
+     answers "the one before".
+     So the caller fired on the right day and this refused it, every time. The
+     swarm has never once hung on a branch: measured over fifteen summers, the
+     day was rolled three times and the bees appeared on none of them, which
+     means the beekeeper - the trade, the veil, the hives - has never been
+     reachable at all. The identical fault was found and fixed for the long
+     night, in the comment right above the call site; the swarm was missed. */
+  if(Math.round(G.seasonT/DAY_LEN) !== b.day) return false;
   const spot = pickNightCropSpot(nearAnyTree);        // the same placer the feather uses
   if(!spot) return false;
   G.nodes.push({ id:G.nextId++, isNode:true, kind:"swarm",
@@ -62180,7 +62798,45 @@ function updateDeeds(dt){
    order: you get it when your people and the dogs happen to meet.
    (idea_kennel_as_village_dogs) */
 
-const DOGS_MAX          = 4;      // however many kennels you build
+const DOGS_MAX          = 4;      // the ceiling, free ones and bought ones together
+/* HOW MANY THE KENNELS HAND OVER ON THEIR OWN. Two, and George and Moose
+   arriving together IS your two - that pair is a whole village's worth of
+   dog and the point of them is that they are not to be separated. A third
+   and a fourth can still be had, but they have to be paid for: see
+   EXTRA_DOG_COST, which is deliberately a hundred of everything rather than
+   a wood-and-food price, because a dog you had to save iron and gold for is
+   a decision and a fourth free dog was just a number going up. */
+const DOGS_FREE         = 2;
+const EXTRA_DOG_COST    = { wood:100, food:100, stone:100, gold:100, iron:100 };
+
+/* Whether the player may take on another beyond the free two: a Kennels to
+   put it in, room under the ceiling, and the price. Read by the UI for the
+   button and again by buyAnotherDog itself, so the button being enabled and
+   the purchase going through can never disagree. */
+function dogsBoughtBy(p){ return (G.dogsBought && G.dogsBought[p]) || 0; }
+/* TWO DOGS TO A VILLAGE, not two dogs to a kennel. A Kennels standing gets
+   you both of them; a second Kennels gets you nothing extra, which is the
+   point - "if you get Moose and George that's it". This replaces the
+   one-dog-per-kennel rule that stood before it, where four dogs meant four
+   Kennels; the price of a third and a fourth has moved off the building and
+   onto the dog. */
+function dogWantOf(p){
+  if(!kennelsOf(p).length) return 0;
+  return Math.min(DOGS_MAX, DOGS_FREE + dogsBoughtBy(p));
+}
+function mayBuyDog(p){
+  return kennelsOf(p).length > 0 && dogWantOf(p) < DOGS_MAX;
+}
+function buyAnotherDog(p){
+  if(!mayBuyDog(p)) return false;
+  const pl = G.players[p];
+  if(!canAfford(pl, EXTRA_DOG_COST)){ if(p===P_YOU) hint("Not enough to take on another dog."); return false; }
+  pay(pl, EXTRA_DOG_COST);
+  if(!G.dogsBought) G.dogsBought = {};
+  G.dogsBought[p] = dogsBoughtBy(p) + 1;
+  if(p===P_YOU) hint("Word goes round that the kennel has room for one more.");
+  return true;
+}
 const DOG_TROT          = 34;     // an unhurried trot
 const DOG_RUN           = 62;     // and the sudden dash
 const DOG_HOME_R        = 300;    // how far from its kennel a dog will get
@@ -62203,6 +62859,30 @@ const DOG_BALL_DAYS     = [1.5, 3.5];   // between one ball and the next
 const DOG_BALL_FIRST    = [0.4, 1.6];   // and how soon the first one shows up
 const DOG_PRANCE_TIME   = 5.2;    // how long the invitation lasts
 const DOG_BALL_COLS     = ["#c0392b", "#3a6fa8"];   // a plain red or blue ball
+/* A COLLAR, and a different one each. Worth more than it costs: at this size
+   a band of flat colour across the neck is the single clearest signal that an
+   animal belongs to somebody, and it tells four dogs of similar coats apart
+   at a glance in a way a saddle patch never quite managed. Leathers and a
+   couple of dyed ones - nothing bright enough to compete with the ball. */
+const DOG_COLLARS = ["#8c4a2f", "#5d6b3a", "#7a4256", "#3f5a6b", "#6b5330", "#8a6f3c"];
+/* ---- AND SOMEBODY ACTUALLY THROWS IT ----
+   The dog dropped a ball at a villager's feet, bowed, and then the invitation
+   simply timed out and the ball was written off. Nobody ever picked it up.
+   The whole gesture was a question with no answer to it, which is a strange
+   thing to build and stranger to watch: the dog asks, waits, gives up, and
+   the ball is gone until tomorrow.
+   So: they throw it, the dog runs it down, brings it back, drops it again,
+   and that is a round. A few rounds and the game is over the way it always
+   ended - the ball carried off, lost under a hedge, not seen for a day. */
+const FETCH_ROUNDS   = [2, 4];    // how many throws before they call it a day
+/* Three tiles or so. It was 26 - under a single tile, shorter than the dog
+   is long - and the whole chase was over in a third of a second: 26 frames of
+   running across two minutes of play. A ball you throw for a dog goes further
+   than the dog can reach standing still, or there is no point throwing it. */
+const FETCH_THROW    = 96;        // how far it is thrown, in world pixels
+const FETCH_FLY      = 0.75;      // seconds in the air
+const FETCH_WAIT     = 1.1;       // the beat before the throw - winding up
+const FETCH_DASH     = 92;        // after it flat out; the trot is 34
 /* The play bow on its own - the same gesture the ball drops into, but not
    waiting on one. Offered to whoever's nearest if anyone is, otherwise
    just done alone; unlike "prance" it never touches the ball, and it ends
@@ -62300,6 +62980,8 @@ function makeVillageDog(home, i){
     face: Math.random()<0.5?-1:1, walk: Math.random()*6,
     seed: Math.random()*6.283,
     coat:c.coat, patch:c.patch, tip:c.tip,
+    collar: DOG_COLLARS[(Math.random()*DOG_COLLARS.length)|0],
+    tag: Math.random() < 0.55,          // and about half of them have a tag on it
     size: 0.88 + Math.random()*0.26,      // no two quite the same size
     tail: 0, ear: Math.random()*0.4,
     patT: 0, target:null,
@@ -62326,6 +63008,11 @@ function makeGoldenDog(home, i, name){
   d.patch = c.patch;
   d.tip = c.tip;
   if(isMoose) d.size += MOOSE_SIZE_BONUS;
+  /* One collar each, and never the same one - they turn up together and are
+     always seen together, so a matching pair would read as one dog drawn
+     twice. Both tagged: they are somebody's, and obviously so. */
+  d.collar = isMoose ? "#3f5a6b" : "#8c4a2f";
+  d.tag = true;
   d.name = name;
   return d;
 }
@@ -62354,6 +63041,89 @@ function dogFindFriend(d){
     if((u.dogPatCd||0) > 0) continue;
     const dist = Math.hypot(u.x-d.x, u.y-d.y);
     if(dist < bd){ bd = dist; best = u; }
+  }
+  return best;
+}
+
+/* ANOTHER DOG TO PLAY WITH. dogFindFriend above finds a PERSON - and for as
+   long as there have been two dogs in a village, a person was the only thing
+   either of them ever went looking for. Two dogs could stand ten feet apart
+   all day and never once acknowledge each other, which is not what two dogs
+   do. This is the other half of it.
+
+   Not one who is already busy: a dog on its way to the kennel at dusk, barking
+   at something, greeting a visitor or being patted has somewhere to be, and
+   being jumped on by the other one should not pull it off that. */
+const DOG_PAL_R    = 190;      // near enough to be worth trotting over for
+const DOG_PLAY_TIME = 3.4;     // how long the pair of them carry on
+/* SOMEBODY PICKS THE BALL UP AND THROWS IT.
+
+   The villager is held with u.chatT, which is the shared "stand still for a
+   beat" primitive the midday break and stopping for a word already ride on -
+   so it always counts down, a fresh order from the player cuts it short
+   (giveOrder, 03a), and nobody can be left frozen holding a ball. The pose
+   rides on u.breakActivity for exactly the same reason: 03c lets go of it
+   the moment chatT runs out, so there is no way to leave an arm up.
+
+   Thrown AWAY from the village where there is room, not in a fixed
+   direction - a ball thrown into the town centre is a ball under a building.
+   The landing spot is ground-checked, and short-thrown if it has to be. */
+const BALL_FLIGHT_H = 26;          // how high the arc goes, world pixels
+function throwTheBall(d, u){
+  const town = G.bldgs.find(b=>b.p===u.p && b.type==="town");
+  // away from the middle of the village, with a good spread either side
+  let a = town ? Math.atan2(u.y-town.y, u.x-town.x) : Math.random()*6.283;
+  a += (Math.random()-0.5)*1.6;
+  let dist = FETCH_THROW * (0.75 + Math.random()*0.5);
+  let tx = u.x + Math.cos(a)*dist, ty = u.y + Math.sin(a)*dist;
+  for(let k=0; k<5 && blocked(tx, ty, null, false); k++){
+    dist *= 0.7;
+    tx = u.x + Math.cos(a)*dist; ty = u.y + Math.sin(a)*dist;
+  }
+  if(blocked(tx, ty, null, false)){ tx = u.x; ty = u.y + 10; }   // straight down, at their feet
+
+  d.ballFly = { x0:u.x, y0:u.y-8, x1:tx, y1:ty, t:0, dur:FETCH_FLY };
+  d.ballAt  = null;
+  d.danceAt = null; d.danceT = 0;
+  d.state = "throwing"; d.stateT = FETCH_FLY;
+  d.target = u;
+  if(!d.fetchWant) d.fetchWant = FETCH_ROUNDS[0] +
+    ((Math.random()*(FETCH_ROUNDS[1]-FETCH_ROUNDS[0]+1))|0);
+
+  // the person: held for the throw, arm up, and back to work after
+  u.chatT = Math.max(u.chatT||0, FETCH_FLY + 0.5);
+  u.breakActivity = "throwball";
+  u.throwT = 0;
+  if(u.x !== d.x) u.face = (tx - u.x) < 0 ? -1 : 1;
+
+  if(d.p === P_YOU && !G.dogFetchToldOnce){
+    G.dogFetchToldOnce = true;
+    hint("Somebody has picked the ball up and thrown it, and there is now a dog going after it "+
+         "as though nothing else has ever mattered.");
+  }
+}
+
+// the game is over, however it ended - one place, so the ball's own clock is
+// always restarted and a dog is never left holding a state with no ball in it
+function endTheGame(d){
+  d.hasBall = false; d.ballAt = null; d.ballFly = null; d.chaseAt = null;
+  d.ballCd = DAY_LEN * (DOG_BALL_DAYS[0] + Math.random()*(DOG_BALL_DAYS[1]-DOG_BALL_DAYS[0]));
+  d.danceAt = null; d.danceT = 0;
+  d.fetches = 0; d.fetchWant = 0; d.chasing = null;
+  d.state = "idle"; d.stateT = 0.5+Math.random()*1.6; d.target = null; d.dest = null;
+}
+
+function dogFindPlaymate(d){
+  /* Not fetch/retrieve/throwing/prance: a dog already in a game of ball has
+     somewhere to be. Not tokennel, bark, greet or pat either, all of which
+     outrank being jumped on. */
+  const free = { idle:1, sniff:1, sit:1, trot:1, dash:1 };
+  let best=null, bd=DOG_PAL_R;
+  for(const o of (G.villageDogs||[])){
+    if(o === d || o.p !== d.p || o.indoors) continue;
+    if(!free[o.state]) continue;
+    const dist = Math.hypot(o.x-d.x, o.y-d.y);
+    if(dist < bd){ bd = dist; best = o; }
   }
   return best;
 }
@@ -62401,15 +63171,16 @@ function dogKennelSpot(d){
 function updateVillageDogs(dt){
   if(!G.villageDogs) G.villageDogs = [];
 
-  /* ONE DOG PER KENNELS. Literally one - the line below used to read
-     kennels.length * DOGS_MAX, so a single Kennels handed over the whole
-     pack of four at once and there was never a reason to build a second.
-     The comment above it already said "one dog per kennel"; the code did
-     not. Four dogs is now four Kennels, and they are priced accordingly. */
+  /* HOW MANY DOGS THIS SIDE IS ENTITLED TO - see dogWantOf. Two for free
+     once a Kennels is up, and any beyond that bought one at a time. This
+     line has now been three different rules: kennels.length * DOGS_MAX (a
+     single Kennels handing over the whole pack at once, so there was never
+     a reason to build a second), then one dog per Kennels, and now a flat
+     two per village with the rest paid for. */
   for(const p of [P_YOU, P_AI]){
     const kennels = kennelsOf(p);
     const mine = G.villageDogs.filter(d => d.p===p);
-    const want = Math.min(DOGS_MAX, kennels.length);
+    const want = dogWantOf(p);
     if(kennels.length && mine.length < want){
       /* George and Moose: a small chance, on the player's own side only,
          that the dog (or dogs) due right now are the pair instead of one
@@ -62417,7 +63188,7 @@ function updateVillageDogs(dt){
          later one through this same line, and can only ever happen once
          (G.disc.georgeAndMoose). Needs room for two at once, or it's held
          over for whenever the next Kennels opens up enough room. */
-      if(p===P_YOU && !G.disc.georgeAndMoose && mine.length <= DOGS_MAX-2 &&
+      if(p===P_YOU && !G.disc.georgeAndMoose && mine.length <= want-2 &&
          Math.random() < GEORGE_MOOSE_CHANCE){
         const home = kennels[mine.length % kennels.length];
         G.villageDogs.push(makeGoldenDog(home, mine.length, GEORGE_MOOSE_NAMES[0]));
@@ -62662,14 +63433,122 @@ function updateVillageDogs(dt){
       if(Math.abs(sway) > 0.25) d.face = Math.cos(d.danceT*1.9) < 0 ? -1 : 1;
       const u = d.target;
       const gone = !u || u.hp<=0 || Math.hypot(u.x-d.x, u.y-d.y) > DOG_PAT_R*2.6;
+
+      /* THE THROW. A beat of bowing first - a person does not pick a ball
+         off the grass the instant it lands at their feet - and then it goes.
+         Only for a villager who is on their feet and not under orders: the
+         player told that one to chop wood, and a dog is not a reason to stop.
+         An idle one, or one working nearby, can spare a minute. */
+      if(!gone && d.ballAt && (d.stateT <= DOG_PRANCE_TIME - FETCH_WAIT) &&
+         u.type === "villager" && !u.indoors && !u.roughing && !u.lying &&
+         (!u.order || u.order === "gather")){
+        throwTheBall(d, u);
+        continue;
+      }
+
       if(d.stateT <= 0 || gone){
-        /* The ball goes with the game. It is carried off, lost under a hedge,
-           or simply not seen again for a day or two - which is the point:
-           a dog with a ball should be something you notice. */
-        d.hasBall = false; d.ballAt = null;
-        d.ballCd = DAY_LEN * (DOG_BALL_DAYS[0] + Math.random()*(DOG_BALL_DAYS[1]-DOG_BALL_DAYS[0]));
+        /* Nobody picked it up. The ball goes with the game - carried off,
+           lost under a hedge, not seen again for a day or two, which is the
+           point: a dog with a ball should be something you notice. */
+        endTheGame(d);
+      }
+      continue;
+    }
+
+    /* Watching it go. The dog does not set off until it lands - a dog that
+       started running before the throw looked like it was fleeing. */
+    if(d.state === "throwing"){
+      d.moving = false;
+      d.tail = 1;
+      const f = d.ballFly;
+      if(!f){ endTheGame(d); continue; }
+      f.t += dt;
+      // it turns its head to follow the ball across
+      if(f.x1 !== d.x) d.face = (f.x1 - d.x) < 0 ? -1 : 1;
+      if(f.t >= f.dur){
+        d.ballAt = { x:f.x1, y:f.y1 };     // it is HIS ball on the grass - only one dog draws it
+        d.ballFly = null;
+        d.chaseAt = { x:f.x1, y:f.y1 };
+        d.chasing = G.nextId++;              // a token for this one throw
+        d.state = "fetch"; d.stateT = 12;
+        /* AND THE OTHER DOG GOES TOO. Two dogs and one ball is the whole
+           point of having two dogs - they race for it, and only one of them
+           can win, which is the bit worth watching. Only a dog that has
+           nothing else on: not one already in a game, barking, greeting or
+           on its way to the kennel. */
+        const mate = dogFindPlaymate(d);
+        if(mate && Math.random() < 0.8){
+          /* chaseAt, NOT ballAt. The ball on the grass is drawn from ballAt,
+             so handing the second dog the same field draws the thing twice
+             and leaves two dogs each believing they own it. The chaser gets
+             somewhere to run to and nothing else; whoever arrives first
+             takes ownership below. */
+          mate.state = "fetch"; mate.stateT = 12;
+          mate.chaseAt = { x:d.ballAt.x, y:d.ballAt.y };
+          mate.chasing = d.chasing;
+          mate.target = d.target;
+          mate.ball = d.ball;                // same ball, so it looks the same in either mouth
+          mate.dest = { x:d.ballAt.x, y:d.ballAt.y };
+        }
+      }
+      continue;
+    }
+
+    /* ---- after it ---- */
+    if(d.state === "fetch"){
+      const ball = d.chaseAt;
+      if(!ball){ endTheGame(d); continue; }
+      d.stateT -= dt;
+      d.dest = { x:ball.x, y:ball.y };
+      const there = dogWalk(d, dt, FETCH_DASH) ||
+                    Math.hypot(ball.x-d.x, ball.y-d.y) < 7;
+      if(there){
+        /* Whoever gets there first has it, and that need not be the dog
+           whose ball it was - the second one is faster often enough for the
+           race to be worth watching. Everybody else in this chase is left
+           standing over nothing, which is exactly what happens, and turns
+           them back to their own devices rather than running at a ball that
+           has gone. */
+        const token = d.chasing;
+        d.hasBall = true; d.ballAt = null; d.chaseAt = null; d.chasing = null;
+        for(const o of (G.villageDogs||[])){
+          if(o === d || o.chasing !== token) continue;
+          o.ballAt = null; o.chaseAt = null; o.chasing = null;
+          o.dest = null; o.target = null;
+          o.state = "idle"; o.stateT = 0.4+Math.random()*1.2;
+        }
+        d.state = "retrieve"; d.stateT = 14;
+      } else if(d.stateT <= 0){
+        endTheGame(d);
+      }
+      continue;
+    }
+
+    if(d.state === "retrieve"){
+      const u = d.target;
+      if(!u || u.hp<=0 || u.indoors){ endTheGame(d); continue; }
+      d.stateT -= dt;
+      d.dest = { x:u.x, y:u.y };
+      const back = dogWalk(d, dt, DOG_TROT*1.5) ||
+                   Math.hypot(u.x-d.x, u.y-d.y) < DOG_PAT_R*0.8;
+      if(back || d.stateT <= 0){
+        d.fetches = (d.fetches||0) + 1;
+        const want = d.fetchWant || FETCH_ROUNDS[0];
+        if(d.fetches >= want){
+          /* Enough. The dog keeps the ball this time and wanders off with
+             it, which is the nicest way for it to end and the reason it is
+             gone tomorrow. */
+          d.hasBall = false; d.ballAt = null;
+          d.ballCd = DAY_LEN * (DOG_BALL_DAYS[0] + Math.random()*(DOG_BALL_DAYS[1]-DOG_BALL_DAYS[0]));
+          d.fetches = 0; d.tail = Math.max(d.tail||0, 2.5);
+          d.state = "idle"; d.stateT = 0.6+Math.random()*1.4; d.target = null; d.dest = null;
+          continue;
+        }
+        // dropped at their feet again, and we go round once more
+        d.hasBall = false;
+        d.ballAt = { x: u.x + (Math.random()-0.5)*8, y: u.y + 5 + Math.random()*4 };
         d.danceAt = null; d.danceT = 0;
-        d.state = "idle"; d.stateT = 0.5+Math.random()*1.6; d.target = null;
+        d.state = "prance"; d.stateT = DOG_PRANCE_TIME; d.moving = false;
       }
       continue;
     }
@@ -62686,8 +63565,15 @@ function updateVillageDogs(dt){
          the rest are the punctuation - a dog that sat down as often as it
          walked would read as a tired dog. */
       const friend = dogFindFriend(d);
+      const pal = dogFindPlaymate(d);
       const roll = Math.random();
-      if(friend && roll < 0.42){
+      /* The other dog comes FIRST, and at a decent weight. Two dogs in one
+         village ought to be the most interesting thing either of them can
+         see, and the pair arriving together (George and Moose) is now the
+         common case rather than a rarity. */
+      if(pal && roll < 0.30){
+        d.state="topal"; d.target=pal; d.dest={x:pal.x, y:pal.y}; d.stateT=8;
+      } else if(friend && roll < 0.42){
         d.state="tofriend"; d.target=friend; d.dest={x:friend.x, y:friend.y}; d.stateT=8;
       } else if(roll < 0.62){
         d.state="sniff"; d.stateT=1.4+Math.random()*2.2;
@@ -62729,6 +63615,44 @@ function updateVillageDogs(dt){
     if(d.state === "jump"){
       d.moving = false;
       if(d.stateT <= 0){ d.state = "idle"; d.stateT = 0.3+Math.random()*1.4; }
+      continue;
+    }
+
+    /* ---- the two of them ---- */
+    if(d.state === "topal"){
+      const o = d.target;
+      // gone indoors, gone home, or got pulled into something else
+      if(!o || o.indoors || (G.villageDogs||[]).indexOf(o) < 0){
+        d.state="idle"; d.stateT=0.5; d.target=null; continue;
+      }
+      d.dest = {x:o.x, y:o.y};
+      d.stateT -= dt;
+      if(dogWalk(d, dt, DOG_TROT) || Math.hypot(o.x-d.x, o.y-d.y) < d.size*22 || d.stateT<=0){
+        /* BOTH of them play, not just the one who walked over. Set here
+           rather than waiting for the other dog's own idle roll to notice:
+           a dog bowing at another dog that is calmly sniffing the grass is
+           the picture this was meant to replace. The other one is only ever
+           taken out of a state the finder already called free. */
+        d.state="play"; d.stateT=DOG_PLAY_TIME; d.playJump=0; d.moving=false;
+        o.state="play"; o.stateT=DOG_PLAY_TIME; o.playJump=DOG_PLAY_TIME*0.5;
+        o.target=d; o.moving=false; o.dest=null;
+        if(o.x !== d.x) o.face = (d.x - o.x) < 0 ? -1 : 1;
+        if(d.x !== o.x) d.face = (o.x - d.x) < 0 ? -1 : 1;
+      }
+      continue;
+    }
+
+    if(d.state === "play"){
+      d.moving = false;
+      d.walk += dt * 3.6;
+      d.tail = 1;
+      d.playJump = (d.playJump||0) - dt;      // <=0 bounces, >0 bows: see drawVillageDog
+      const o = d.target;
+      const gone = !o || o.indoors || (G.villageDogs||[]).indexOf(o) < 0 ||
+                   Math.hypot(o.x-d.x, o.y-d.y) > DOG_PAL_R;
+      if(d.stateT <= 0 || gone){
+        d.state="idle"; d.stateT=0.4+Math.random()*1.4; d.target=null; d.playJump=0;
+      }
       continue;
     }
 
@@ -62783,7 +63707,7 @@ function dogHappyMult(u){
 function drawVillageDog(d){
   const s = d.size;
   const gait = Math.sin(d.walk*4.6);
-  const run  = d.state==="dash";
+  const run  = d.state==="dash" || d.state==="fetch";   // flat out after a ball
   const sit  = d.state==="sit";
   const sniff= d.state==="sniff";
   /* The prance. A dog inviting you to play drops its front end right down,
@@ -62792,7 +63716,8 @@ function drawVillageDog(d){
      beat. `pr` runs 0..1 and back over and over; the bow is deepest at the
      bottom of it and the spring is at the top, which is the order a real dog
      does them in. */
-  const pranc = d.state==="prance" || d.state==="bow" || d.state==="greet";
+  const pranc = d.state==="prance" || d.state==="bow" || d.state==="greet" ||
+                (d.state==="play" && (d.playJump||0) > 0);
   /* Slowed right down from 7.2. At that rate the bow and the spring blurred
      into a vibration; at 3.6 you can see it drop, hold for an instant and
      push off, which is what makes it read as playing rather than shivering. */
@@ -62801,7 +63726,7 @@ function drawVillageDog(d){
   const bow   = pranc ? (1-pr) * 0.46 : 0;      // radians, front end down
   /* One big hop, not a bounce - a single sine arc across the whole state's
      lifetime rather than something oscillating off d.walk. */
-  const jump  = d.state==="jump";
+  const jump  = d.state==="jump" || (d.state==="play" && (d.playJump||0) <= 0);
   const jumpArc = jump ? Math.sin(Math.PI * (1 - Math.max(0,d.stateT)/DOG_JUMP_TIME)) * DOG_JUMP_HEIGHT : 0;
   const bob  = pranc ? hop
              : jump ? jumpArc
@@ -62878,6 +63803,20 @@ function drawVillageDog(d){
       ctx.moveTo( 3.7, 1.2); ctx.lineTo( 3.7 + gait*sw*0.7, 4.8);
     }
     ctx.stroke();
+    /* Paws. The legs were bare strokes tapering to a point, which at this
+       size reads as a stick rather than a leg. A darker cap on the end of
+       each is enough to finish it. Only for the ordinary standing gait -
+       the folded, tucked and stretched poses put the feet in four different
+       places each and a wrong paw is worse than none. */
+    if(!sit && !pranc && !jump && d.disability !== "threeleg"){
+      const sw2 = run ? 2.6 : 1.7;
+      ctx.fillStyle = shade(d.coat,-0.40);
+      const feet = [[-3.4 + gait*sw2, 4.9], [-2.4 - gait*sw2*0.7, 4.9],
+                    [ 2.8 - gait*sw2,  4.9], [ 3.7 + gait*sw2*0.7, 4.9]];
+      for(const f of feet){
+        ctx.beginPath(); ctx.ellipse(f[0], f[1], 0.85, 0.55, 0, 0, 6.283); ctx.fill();
+      }
+    }
   }
 
   // ---- body: a deeper chest and a tucked waist, not the terriers' sausage
@@ -62949,6 +63888,26 @@ function drawVillageDog(d){
     ctx.beginPath(); ctx.ellipse(-1.0, -1.0, 3.0, 1.5, -0.15, 0, 6.283); ctx.fill();
   }
 
+  /* ---- a paler underside and a haunch line. Two cheap strokes that do most
+     of the work of turning a flat coloured blob into an animal with a
+     shape: the belly of nearly every dog is lighter than its back, and the
+     curve of the hind quarter is what separates "body" from "leg". Both
+     derived from the coat rather than fixed, so a pale dog gets a pale-dog
+     belly instead of a near-white patch that vanishes on snow. */
+  if(!sit){
+    ctx.fillStyle = shade(d.coat, 0.16);
+    ctx.beginPath();
+    ctx.moveTo(-3.4, 1.5);
+    ctx.quadraticCurveTo(0.4, 2.9, 4.0, 1.2);
+    ctx.quadraticCurveTo(0.4, 2.2, -3.4, 1.5);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.strokeStyle = shade(d.coat, -0.20); ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(-3.9, -1.5);
+  ctx.quadraticCurveTo(-2.4, 0.4, -2.7, 1.9);
+  ctx.stroke();
+
   // ---- the plumed tail, carried up over the back and wagging when pleased
   /* THE HAPPY WAG HAD NO SEED. The resting line right below it does, so a
      pack lying about looked like dogs while a pack that was pleased - the
@@ -62977,8 +63936,43 @@ function drawVillageDog(d){
   ctx.strokeStyle = d.coat; ctx.lineWidth = 2.6; ctx.lineCap="round";
   ctx.beginPath(); ctx.moveTo(3.4, -0.6); ctx.lineTo(headX-0.8, headY+0.6); ctx.stroke();
 
+  /* THE COLLAR, across the neck - after the neck is drawn so it sits on top
+     of it, before the head so the jaw overlaps it the way it would. Drawn
+     square to the neck rather than along it: a band round a cylinder reads
+     as a band, a stripe running the length of one reads as a scar. */
+  if(d.collar){
+    const nx = (3.4 + headX-0.8)/2, ny = (-0.6 + headY+0.6)/2;
+    const ang = Math.atan2((headY+0.6) - (-0.6), (headX-0.8) - 3.4);
+    ctx.save();
+    ctx.translate(nx, ny); ctx.rotate(ang);
+    /* 1.7 along the neck, not 0.9. At 0.9 against a neck stroked 2.6 wide it
+       came out narrower than it was tall and read as a stray dot at the
+       throat rather than a band round it - and that is at five times the
+       size a dog is actually drawn, where it would have been sub-pixel. It
+       wants to be clearly wider than the gap either side of it. */
+    ctx.fillStyle = d.collar;
+    ctx.fillRect(-0.85, -1.7, 1.7, 3.4);
+    ctx.fillStyle = shade(d.collar, -0.32);
+    ctx.fillRect(-0.85, -1.7, 1.7, 0.7);          // the shaded far side of the band
+    ctx.fillStyle = shade(d.collar, 0.22);
+    ctx.fillRect(-0.85, 0.9, 1.7, 0.45);          // and a highlight along the near edge
+    // a little brass tag hanging off the underside of it
+    if(d.tag){
+      ctx.fillStyle = "#c9a227";
+      ctx.beginPath(); ctx.arc(0, 2.25, 0.62, 0, 6.283); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.40)";
+      ctx.beginPath(); ctx.arc(-0.18, 2.05, 0.24, 0, 6.283); ctx.fill();
+    }
+    ctx.restore();
+  }
+
   ctx.fillStyle = d.coat;
   ctx.beginPath(); ctx.ellipse(headX, headY, 2.5, 2.1, sniff?0.5:0, 0, 6.283); ctx.fill();
+  /* A brow ridge and a cheek line. The head was one flat ellipse with a
+     muzzle stuck on it; two soft shadows give it a top and a side. */
+  ctx.fillStyle = shade(d.coat, -0.13);
+  ctx.beginPath();
+  ctx.ellipse(headX-0.5, headY-1.25, 1.9, 0.75, sniff?0.5:-0.06, 0, 6.283); ctx.fill();
 
   // a long muzzle - the terriers have a blunt one
   ctx.beginPath();
@@ -63048,6 +64042,14 @@ function drawVillageDog(d){
     ctx.lineTo(headX+0.5, headY-4.5 - perk);
     ctx.lineTo(headX+2.0, headY-1.6);
     ctx.closePath(); ctx.fill();
+    /* The inside of the nearer ear, a shade warmer. Only the near one - both
+       would read as two pale triangles and start looking like horns. */
+    ctx.fillStyle = shade(d.coat, 0.30);
+    ctx.beginPath();
+    ctx.moveTo(headX+0.95, headY-1.9);
+    ctx.lineTo(headX+0.85, headY-3.8 - perk);
+    ctx.lineTo(headX+1.65, headY-1.95);
+    ctx.closePath(); ctx.fill();
   }
 
   // and the piebald's blaze, up the muzzle and between the eyes
@@ -63070,6 +64072,22 @@ function drawVillageDog(d){
   /* The ball, drawn in world space after the dog's own transform is done with
      - a ball lying on the ground is not attached to the animal, and one
        carried in the mouth has to sit at the muzzle whichever way it faces. */
+  /* IN THE AIR. A straight line from hand to landing spot with a sine arc
+     lifted off it, and the shadow tracking the ground position underneath -
+     the gap between ball and shadow is the whole read of "this is above the
+     ground", the same trick the dog's own jump uses. */
+  if(d.ballFly){
+    const f = d.ballFly;
+    const t = Math.min(1, f.t / f.dur);
+    const gx = f.x0 + (f.x1-f.x0)*t, gy = f.y0 + (f.y1-f.y0)*t;
+    const lift = Math.sin(Math.PI*t) * BALL_FLIGHT_H;
+    ctx.fillStyle = "rgba(0,0,0,"+(0.20*(1-lift/(BALL_FLIGHT_H*1.6))).toFixed(3)+")";
+    ctx.beginPath(); ctx.ellipse(gx, gy+1.4, 2.2, 0.9, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = d.ball;
+    ctx.beginPath(); ctx.arc(gx, gy - lift, 2.2, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.30)";
+    ctx.beginPath(); ctx.arc(gx-0.7, gy - lift - 0.8, 0.8, 0, 6.283); ctx.fill();
+  }
   if(d.ballAt){
     ctx.fillStyle = "rgba(0,0,0,.2)";
     ctx.beginPath(); ctx.ellipse(d.ballAt.x, d.ballAt.y+1.4, 2.4, 1.0, 0, 0, 6.283); ctx.fill();
@@ -63276,8 +64294,19 @@ function workerTurnsIn(o){
 function workerNight(o, dt, spd){
   if(!workerTurnsIn(o)){
     /* Morning, or a villager has just been posted in. Out they come, at the
-       door, ready for the ordinary idle round. */
-    if(o.indoors){
+       door, ready for the ordinary idle round.
+
+       Except somebody who stepped indoors ON PURPOSE, in broad daylight, and
+       means to come out again himself. o.dayIndoors marks that; only the
+       baker sets it so far, for the in-and-out-of-the-bakery pottering, and
+       this line was quietly cancelling it. He was given a bedtime this
+       morning, which put workerNight ahead of his own state machine, and
+       from that moment his "step inside for a spell" lasted exactly one
+       tick: in on one frame, hauled back out on the next, every time, for
+       the rest of the match. Measured at 8 frames indoors against 1686
+       pottering at the step over eight minutes - the branch was running, it
+       just never survived to be seen. */
+    if(o.indoors && !o.dayIndoors){
       const d = workerDoor(o);
       o.indoors = false; o.x = d.x; o.y = d.y; o.dest = { x:d.x, y:d.y };
       o.state = "idle"; o.task = null; o.legT = 0; o.moving = false;
@@ -66934,8 +67963,14 @@ function idleUnits(){
   // carry check used to hide anyone who had finished a load and been given
   // nothing else to do - they stood in the field holding it, and the counter
   // cheerfully reported nobody idle.
+  /* Nor anybody asleep. `!u.indoors` was the whole test until the town
+     centre was capped at two: the overflow sleeps on the ground OUTSIDE
+     (u.roughing, 05b), so they are not indoors, they have no order, and the
+     counter cheerfully reported the entire sleeping village as idle - "IDLE
+     7" over seven people curled up in the dark. The Idle button would have
+     jumped you to one of them, too. */
   return G.units.filter(u=>u.p===P_YOU && u.type==="villager" &&
-                           !u.order && !u.indoors);
+                           !u.order && !u.indoors && !u.roughing);
 }
 function jumpToIdle(){
   const idle = idleUnits();
@@ -67760,6 +68795,18 @@ function refreshUI(){
                      : FISHERMAN_HOUSE_CATCHES+" catches lands the house - "+caught+" so far.",
                true);
       }
+      /* THE ELDER'S COTTAGE, and only for the one who earned it. The same
+         shape as the two above: not in any category, offered only while the
+         villager who mended the hut out in the woods is the one selected.
+         Once it is up the path is finished and the button is gone with it. */
+      if(vills.length===1 && vills[0].elderling &&
+         !G.bldgs.some(b=>b.p===P_YOU && b.type==="eldercottage")){
+        const ec = BLDG.eldercottage;
+        addBtn("\u{1F56F} "+ec.name, costStr(ec.cost), canAfford(pl, ec.cost),
+               ()=>startPlacing("eldercottage"),
+               "They mended the old hut in the woods. Give them a cottage here and they will stay.",
+               true);
+      }
       for(const cat of BUILD_CATEGORIES){
         addBtn(cat.label, "choose a building", true, ()=>{
           G.buildCat = cat.key; refreshUI();
@@ -68137,6 +69184,19 @@ function refreshUI(){
       /* The hens are the hall's first upgrade RUNG now, not a button of
          their own - so there is nothing to add here. The ordinary upgrade
          button below offers them like any other rung. */
+    }
+    /* ANOTHER DOG. The Kennels hands over two on its own and no more (see
+       DOGS_FREE, 05i) - a third and a fourth are bought, at a hundred of
+       everything, which is why the button carries its price the way a build
+       button does. Greyed rather than hidden once the ceiling is reached, so
+       "why can I not have another" has an answer on the panel. */
+    if(BLDG[b.type].kennel2 && b.done && typeof mayBuyDog === "function"){
+      const room = mayBuyDog(P_YOU);
+      addBtn("\u{1F415} Another dog", room ? costStr(EXTRA_DOG_COST) : "the kennel is full",
+             room && canAfford(pl, EXTRA_DOG_COST),
+             ()=>{ if(buyAnotherDog(P_YOU)) refreshUI(); },
+             room ? null : "Two dogs to a kennel, and two more if you pay for them.",
+             true);
     }
     // and the Manor's own, for its own people
     if(BLDG[b.type].manor && b.done){
