@@ -1199,6 +1199,161 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn">
+        <summary>Patch 21.44</summary>
+        <div class="sec">Snow was falling on ground nobody has ever walked</div>
+        <ul>
+          <li><strong>Reported with a picture: a winter map, a small island of explored ground, and flakes drifting through the black void all round it.</strong> Weather is drawn in screen space &mdash; deliberately, so it costs the same at any zoom &mdash; and screen space takes no notice of the fog of war, so every flake was painted over the whole viewport whether or not there was any world under it</li>
+          <li>The stars already had exactly this fix and it is the same one here: turn the point back into a place on the map and drop it if that ground has never been seen. One test now serves the winter snowfall, the blizzard, the rain, the squall&rsquo;s petals and the gale&rsquo;s dead leaves &mdash; all four were painting into the void</li>
+          <li><strong>Ground you have walked but cannot currently see still counts.</strong> That is grey, not black, and your sky is still over it &mdash; it snows there</li>
+        </ul>
+        <div class="sec">Nothing you cannot fight is allowed to level a building</div>
+        <ul>
+          <li><strong>A lightning fire could burn a building to nothing.</strong> There is no bucket in this game &mdash; the answer to a burning roof is to repair it once the fire is out &mdash; and a building that burned away entirely left nothing to repair, only a gap. A bolt out of a clear sky was deleting buildings outright with no counterplay at all</li>
+          <li>Fire now stops at a smoking tenth of a building&rsquo;s health. The threat is untouched: it is nearly gone, its brazier is out, and it wants a long repair. But the last blow has to come from something with legs</li>
+          <li><strong>Midden rats could demolish a town centre.</strong> They are a thief at the door &mdash; they come for the stores, and their bite at the timber is meant to be nothing &mdash; but nothing stops a dozen of them biting for ever. Measured: twelve rats took a full-health 560&ndash;point town centre to rubble in five minutes. They now gnaw as far as half and no further</li>
+          <li><strong>Both of these were quietly killing the rival village.</strong> On one map the Ashkin&rsquo;s centre was chewed to 210 by a night raid and then finished by a fire &mdash; and a village with no town centre can never train another villager, so that settlement sat frozen on three villagers and two buildings for the rest of the match. It reads as an enemy that simply gave up. It had been razed</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.43</summary>
+        <div class="sec">The bees gave their last warning on the day they arrived</div>
+        <ul>
+          <li><strong>The three clues that count down to the swarm ran a whole day late.</strong> The first morning of spring was silent when it should have carried the first of them, and the last one &mdash; <em>&ldquo;they are restless and going up in knots&hellip; they will go soon&rdquo;</em> &mdash; landed on the very morning the bees were already hanging on the branch. Which is no use to anybody: the entire point of the clues is that somebody who reads them keeps a villager free</li>
+          <li>The day-turn asks which day is starting by <em>rounding</em>, because the day clock and the season clock are separate and the season is a hair short at the moment a day rolls over. The clue code re-derived the day by <em>flooring</em> &mdash; and on the first day of the season that reads as <strong>minus one</strong>, outside the window entirely. This is the third time this exact fault has been found, in the third place; the swarm itself and the midwinter night both had it before</li>
+          <li>The test that should have caught it set the clock to an exact whole day &mdash; the one position where flooring and rounding agree &mdash; so it passed for months while the game was wrong. It uses the clock a real day-turn actually produces now</li>
+        </ul>
+        <div class="sec">The bug catcher was wearing two hats</div>
+        <ul>
+          <li><strong>Reported with a picture: the farm&rsquo;s straw brim and the bug catcher&rsquo;s own cap, stacked on the same head.</strong> The job hats and the trade hats are one chain &mdash; farm, beekeeper, chef, mine, nightwear, fisherman &mdash; and the catcher&rsquo;s cap was written as a <em>separate</em> block after it, so it went on over whatever the chain had already put there. Down a seam they got the miner&rsquo;s hard hat and the cap</li>
+          <li>A trade&rsquo;s own hat is their only hat now. When you make somebody a bug catcher, that is their costume</li>
+        </ul>
+        <div class="sec">You have to reach the building to unload</div>
+        <ul>
+          <li><strong>Villagers were dropping wood at the town centre from two and a half tiles away.</strong> Measured before the fix: goods landed in the stores from 80 to 95 pixels of its middle, when the building&rsquo;s own wall is at 34</li>
+          <li>Two faults, both from one assumption written down in the code itself &mdash; &ldquo;most drop-offs are aimed at by their <em>centre</em>, with a stop radius the size of the building, which already means touch it anywhere&rdquo;. True of most buildings. Not true of the lumber camp, the mine, the manor or the town centre, which are aimed at by a <em>door</em> on the ring &mdash; already a step outside the wall &mdash; and then had the building&rsquo;s half-width added a second time</li>
+          <li>And the second: a villager walking in on the diagonal took a <em>corner</em> rather than a side, because every way in was sorted by distance alone. A corner of the town centre is 57 pixels from the middle against a side&rsquo;s 40. Sides are preferred now, with corners kept as the fallback they were meant to be for when a side is built over</li>
+          <li><strong>43 to 50 pixels from all eight approaches now</strong>, against a wall at 34 &mdash; you have to be up against it, and any side will do</li>
+        </ul>
+        <div class="sec">A flag nothing read</div>
+        <ul>
+          <li>Villagers on a sanctioned night shift were being marked with a <code>nightShift</code> flag that <strong>nothing anywhere reads</strong>. Whether somebody is on a night shift is worked out from their workplace, and the wages they are owed at dawn come off a different field entirely. A write-only field with that name is exactly what persuades the next person it drives the night shift &mdash; the same trap as a dead copy of the opponent&rsquo;s node-picker removed last patch. Gone</li>
+        </ul>
+        <div class="sec">The stone by the village is a real vein, and you have to find it</div>
+        <ul>
+          <li><strong>It was a pebble, and it was handed to you.</strong> The guaranteed starting stone held 150 &mdash; about one node&rsquo;s worth &mdash; and was put down four to six tiles out, on or inside the town&rsquo;s own five tiles of sight. So on a good many starts the first thing you saw was your stone, and it ran out almost at once</li>
+          <li><strong>It is a full vein now</strong>, the same 1,750 and the same nine rocks the map&rsquo;s own veins carry, <strong>put down beyond the light so it has to be come across.</strong> Measured over thirty starts: every one gets stone, every one is a full vein, and the vein we place is still unseen after three seconds of play on twenty of the twenty-two starts that need one</li>
+          <li>The other eight are maps that already had a vein within seven tiles of the town, where nothing is planted at all &mdash; that is the map&rsquo;s own doing and has always been so. It is still guaranteed: if a crowded or watery ring defeats the vein, the ring widens, and only if all of that fails does the old small deposit go down. No stone at all is a far worse start than a small one</li>
+        </ul>
+        <div class="sec">A frightened villager never stopped looking frightened</div>
+        <ul>
+          <li><strong>A villager a beast once reached wore a frightened face for the rest of the match.</strong> The flag that records &ldquo;lived through a bad night&rdquo; is deliberately permanent &mdash; the leisure system reads it to steer that household&rsquo;s wanderings away from the treeline &mdash; and the face was reading the same flag</li>
+          <li>Worse than a stuck face: <em>wary</em> sits third in the order of expressions, above laughing, pleased, talking and resting. So that villager could never be seen pleased, never look like they were talking, never laugh again. Verified &mdash; patted by a dog, chatting <em>and</em> singing, the face still read wary; clearing the flag on the same villager gave &ldquo;laughing&rdquo;</li>
+          <li>The face runs on its own timer now: it shows through the fright and into the morning, then fades. <strong>The memory is kept</strong>, so the household still keeps away from the trees</li>
+        </ul>
+        <div class="sec">The dogs were playing with each other all afternoon</div>
+        <ul>
+          <li><strong>Two dogs spent nearly half the day on each other.</strong> The chance of one going over to the other was a flat 30% of every idle turn, which sounds modest until you notice an idle turn comes round every second or two. Measured: <strong>16 games a day, 46% of the time</strong>. Charming once, wallpaper by the afternoon, and it crowded out the sniffing, sitting, trotting and ball that make up the rest of a dog&rsquo;s day</li>
+          <li><strong>Once or twice a day now</strong> &mdash; measured at 1.7, taking about 6% of the time. The limit is a cooldown on both of them and the old roll is only the jitter on top, so it happens at a different hour each day rather than on a clock</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.42</summary>
+        <div class="sec">A second elder, who walked in off the road</div>
+        <ul>
+          <li><strong>Elder Wynn.</strong> Once a year at most, one of the visitors on the road is an elder looking for somewhere to stop. Answer her rightly and she stays &mdash; not as a villager, but as <strong>a second elder of the village</strong>, walking about and telling the same stories the Lodge&rsquo;s own tells, on exactly the same terms</li>
+          <li>She came for the village and not for the building, so she is the one elder who does <em>not</em> leave if the Lodge falls</li>
+          <li>The village only ever had room for one. The elder was a single slot read directly by thirty-odd lines across eight files &mdash; drawing, tapping, selecting, the tick&rsquo;s own sweep, the panel, the falling-out. It is &ldquo;the Lodge&rsquo;s own, plus any others&rdquo; now, so every one of those lines still means what it always meant and only the places that ought to see <em>all</em> the elders were changed</li>
+          <li>Her hair is a pale sea-green rather than the white she started with: Mabel Stout already has white, and two white heads in a village of forty is exactly the confusion the odd colours exist to prevent</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.41</summary>
+        <div class="sec">You are no longer told to do a thing you have just done</div>
+        <ul>
+          <li><strong>A tip waiting its turn had no memory of where it came from.</strong> The advice to go and cut wood could sit in the queue while you cut the wood, and you would still be told to cut wood &mdash; one more thing to tap away, about a job already finished. Measured on a player who never taps the X: one showing and <strong>two stacked behind it</strong></li>
+          <li>A queued tip now carries with it the same question that decided whether to say it at all, and is asked again at the moment it would appear. If the job is done it is dropped in silence. A tip with no such question &mdash; which is most of them &mdash; is never dropped</li>
+          <li><strong>What I tried first was worse, and a test caught it.</strong> The obvious fix is to stop issuing tips while one is still on screen. It works, and it also leaves the warning about the first night stuck behind a wood tip you have not read &mdash; which is precisely the failure the opening was designed to avoid, since the night is the one thing on day one that can actually kill somebody. They still queue; they just reconsider themselves</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.40</summary>
+        <div class="sec">&ldquo;Birgitta the Fisherman&rdquo;</div>
+        <ul>
+          <li><strong>A villager&rsquo;s name and their epithet had no way of agreeing, so about half the time they did not.</strong> The name is drawn from a pool of 168 with no gender recorded against any of it; the epithet is built from the villager&rsquo;s <em>look</em> &mdash; &ldquo;the Fisherwoman&rdquo; or &ldquo;the Fisherman&rdquo;, and the same for every deed title. Measured with the fix taken back out: <strong>851 mismatches in 1,600</strong>, and lines like &ldquo;Hereswith the Fisherman&rdquo; and &ldquo;Ragnar the Fisherwoman&rdquo;</li>
+          <li>It was never only the fisherman. Every named villager in the game was a coin toss: &ldquo;Gunnhild the Woodsman&rdquo;, &ldquo;Torvald the Fisherwoman&rdquo;</li>
+          <li><strong>The eighty women&rsquo;s names in the pool are now marked as such, and a name is picked to match the person.</strong> Zero mismatches over 3,200 draws in villages of forty and eighty. The pool itself is untouched &mdash; it is a deliberate block of three name traditions and rewriting it into pairs would have churned it for nothing</li>
+          <li>And nobody is ever left nameless: a village that has somehow used all eighty women&rsquo;s names still gets a name, it just can no longer match</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.39</summary>
+        <div class="sec">Seven people on the road, and every one of them somebody</div>
+        <ul>
+          <li><strong>Visitors have names now, and the name tells you what they are.</strong> Wren Swift is quick. Mabel Stout is hard to put down. Hollis Hammer hits. Perrin Reap brings more back. <strong>Bruce Flame carries his own light after dark</strong> &mdash; the only person in the village besides the founder who does. And <strong>Ash Vigil and Greta March turn up already armed</strong>, which is a fighter you did not train, did not build a barracks for, and in Peaceful cannot get any other way</li>
+          <li>They were four trades before &mdash; &ldquo;a drover&rdquo;, &ldquo;a travelling smith&rdquo; &mdash; and once they had joined they were one more villager among forty. <strong>Each has hair no villager is ever born with</strong>: lavender, red, white, purple, orange, blue, a hot pink. Three seasons later you can still pick them out of a crowd</li>
+          <li><strong>Up to three a season</strong>, and a season can hand you one or none, so meeting all seven takes more than a year. <strong>The question is a plain yes or no</strong> now, still about your own village &mdash; who founded it, what season it is, what you have standing, how many of you there are &mdash; except the visitor now states it and is right about half the time. Two answers means a guess is a coin toss; what stops that being free is that these are once-only people. Guess wrong on Bruce Flame and there is no second Bruce Flame this match</li>
+        </ul>
+        <div class="sec">Three things that went wrong on the way, and one that was already broken</div>
+        <ul>
+          <li><strong>The pacing was wrong twice.</strong> First I put a per-day dice roll inside the visitor itself &mdash; which is exactly what the day-event pool&rsquo;s own note warns against, having once measured <em>zero appearances in fourteen matches</em> from that same mistake. Then I raised the pool&rsquo;s weight instead, and measured <strong>one visitor per match</strong>: the pool fires one event a day out of forty-odd, and cannot deliver a per-season count. This game had already proved that on the fireflies. It rolls on its own now, as they do</li>
+          <li><strong>Two of the seven had no odd hair at all.</strong> Three of the six villager looks wear a hat or a headscarf over it. A wayfarer you are meant to recognise by their hair cannot be wearing a hat, so they get a look that shows it</li>
+          <li><strong>And the bees stopped arriving on one map, which turned out to be an older bug.</strong> The swarm was asked for forty times on its day and failed forty times &mdash; on a map with 2,495 trees. Every check inside it passed; it simply could not find ground. The helper that finds somewhere near the village to put a thing picked <em>one</em> random building and tried ninety points around only that one, giving up entirely if that building sat against the map edge or had water in its ring. It walks all the buildings now. Night crops and the owl feather were standing on the same fragility</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.38</summary>
+        <div class="sec">A builder turned away from you has arms</div>
+        <ul>
+          <li><strong>Reported: &ldquo;when a villager is building something and the back is facing the camera the arms are still behind the back instead of in front of them&rdquo;.</strong> And they were: a mallet floating beside somebody with no visible arms at all</li>
+          <li>The rule that swings a villager&rsquo;s arms clear of their body when they turn away applies only to <em>empty hands</em> &mdash; and a builder is holding a mallet. So a builder turned away got the narrow tucked-in arms, while the tool was separately shoved out past the body to compensate. <strong>The tool moved and the arm did not.</strong> Measured on the hand the tool hangs off: from behind and side-on it sat in exactly the same place, to two decimal places, for every one of the five tools</li>
+          <li><strong>The arm reaches the tool now</strong>, and the tool is drawn from the hand rather than nudged out on its own, so the two cannot part company again</li>
+          <li>The first attempt at this was wrong in an instructive way. I picked a modest reach, reasoning that a full splay would read as a shrug &mdash; and it moved the tool over an inch <em>inboard</em> of where it had been, straight back onto the shoulder blades. A test written weeks ago for exactly that failure caught it: the tamper cleared the body in 0 frames of 20. The number is not a matter of taste; it is set by where the tool has to end up</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.37</summary>
+        <div class="sec">A house sleeps four and is worth four</div>
+        <ul>
+          <li><strong>The two numbers you could see disagreed.</strong> A House has slept four for as long as there have been houses, and granted <em>six</em> population. Four and four now: every House you put up is four more people, which is a rule you can hold in your head</li>
+          <li><strong>And you start at 4.</strong> The free allowance was eight &mdash; on a start of one villager that is most of the early game before a roof matters at all, so the first House went up because you fancied one rather than because you needed one. <strong>You begin at 1/4, you can train your way to 4/4, and the fifth villager needs somewhere to sleep.</strong> With the town centre now sleeping two, the first House is the first thing your village actually needs</li>
+          <li>A foundation is worth nothing until it is finished, so you cannot stake out four of them and train against room you have not built</li>
+        </ul>
+        <div class="sec">And a note on what that did NOT break</div>
+        <ul>
+          <li>The Ashkin decide to build a house when they get within a fixed margin of their cap, and that margin was a flat 7 &mdash; which on a starting cap of 4 is a negative number, so the rule reads as true from the first frame. I wrote that this would have them laying foundations before cutting a stick of wood, and then measured it: <strong>it would not.</strong> A House costs 47 wood and the build routine has its own affordability gate, so the first Ashkin house goes up at the same minute either way &mdash; 6.0 minutes on Easy, 4.0 on Medium, identical across seeds</li>
+          <li>What the flat 7 actually cost was a little over-building: one more house than needed, and unused room peaking at 11&ndash;15 rather than 7&ndash;11 over four twenty-minute runs. The margin is read off the House&rsquo;s own worth now, so it cannot rot again the next time that number moves. A small efficiency fix, and worth not overselling</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.36</summary>
+        <div class="sec">Tap somebody asleep outside</div>
+        <ul>
+          <li><strong>The panel said &ldquo;Waiting for work&rdquo; over a villager plainly fast asleep on the ground.</strong> They have no orders, so that is literally what it read. It says <strong>Asleep outside</strong> now, and tells you why: there was no bed free when the light went, and a House sleeps four</li>
+          <li><strong>And a &ldquo;Wake villager&rdquo; button</strong>, with what it costs written on it. This was the last gap left by capping the town centre: rough sleepers are deliberately kept out of the Idle count &mdash; seven people asleep in the dark are not idle &mdash; so until now there was no way to reach one at all except by stumbling across them</li>
+          <li>The button does not do the waking itself. It hands to the same routine an order does, so being woken by the button and being woken by being told to chop wood are the same thing, with the same stretch, the same temper and the same warning &mdash; one rule rather than two copies of it drifting apart</li>
+        </ul>
+      </details>
+
+      <details class="pn">
+        <summary>Patch 21.35</summary>
+        <div class="sec">A beekeeper in your first spring</div>
+        <ul>
+          <li><strong>Bees swarm every spring now</strong>, not one spring in three. That rarity was right for a thing you already have and wrong for the <em>only</em> route to a hive in the game &mdash; the difference between an occasion and a lockout</li>
+          <li><strong>And your opening spring counts.</strong> This is the one that mattered: the roll is made at the turn <em>into</em> a season, and a match that begins in spring never had that turn &mdash; so its first spring had no swarm in it at all, whatever the odds said. Between that and one-in-three, a village waited about four years for a beekeeper and plenty never got one. Measured across eight seeds: <strong>eight of eight</strong> now see a swarm in their first spring</li>
+          <li><strong>The swarm hangs on the branch for the rest of spring</strong>, rather than lifting off at dusk on the day it settled. Measured at <strong>3.7 days on the branch</strong> against about half of one. Half a day was a very short window on the thing a whole trade hangs off, and missing it cost you a year. It still goes in the end, at the turn into summer &mdash; a swarm that waited indefinitely would stop being something you have to go out for</li>
+          <li>Worth correcting something said in the last patch: it is <em>not</em> true that every match begins in spring. Of eight seeds, four began in spring, two in autumn, one in winter and one in summer. Which is why the fix had to be the roll itself and not an assumption about when you start</li>
+        </ul>
+      </details>
+
+      <details class="pn">
         <summary>Patch 21.34</summary>
         <div class="sec">An order given after dark was thrown away</div>
         <ul>
@@ -1218,6 +1373,27 @@
           <li>The first version threw it 26 pixels &mdash; under one tile, shorter than the dog is long &mdash; and the whole chase was over in a third of a second. A ball you throw for a dog has to go further than the dog can reach standing still</li>
           <li><strong>And with two dogs, they race for it.</strong> Both go, only one comes back with it, and the loser is left standing over nothing &mdash; which is exactly what happens. Two dogs and one ball is the point of having two dogs</li>
           <li>Whoever throws it stops for about a second with an arm up and then goes back to work. It rides on the same &ldquo;stand still for a beat&rdquo; timer as stopping for a word, so it always runs down and any order you give cuts it short &mdash; nobody can be left frozen holding a ball</li>
+        </ul>
+        <div class="sec">Sleeping out, and being got up</div>
+        <ul>
+          <li><strong>A villager told to chop wood at midnight slid to the tree still drawn flat on their back.</strong> Reported with a screenshot, which is the only way it would ever have been found: every field on that unit was correct &mdash; order, moving, walking &mdash; and the sleeping pose was simply never cleared. My own fault, and one patch old. The line that gets somebody up ran only if they were <em>indoors</em>, and a rough sleeper never is: they are asleep on the ground precisely because the roofs were full</li>
+          <li><strong>They stretch when they get up now.</strong> Both arms overhead, held, and down &mdash; the only pose in the game that uses both arms, which is why it needed a way to pose the back one at all. A night on the ground earns it; somebody who slept in a bed just walks out of the door</li>
+          <li><strong>And they dream.</strong> A little thought bubble now and then over anyone asleep outside &mdash; mostly z&rsquo;s climbing out of it, and sometimes a loaf, a fish, a tree, the dogs&rsquo; bone, or somebody they are fond of. Every one of them on their own clock, hashed off that villager&rsquo;s own id: a row of seven bubbles rising in step would read as a piece of interface rather than as seven people asleep. Deliberately not always there, either &mdash; a bubble that never goes away is wallpaper</li>
+        </ul>
+        <div class="sec">Waking somebody early, and being told what it costs</div>
+        <ul>
+          <li><strong>The cost has been in the game for months and was invisible.</strong> Getting a villager up before morning takes a twentieth of their maximum health for good, and a second night without a proper rest kills them outright. The only sign was a single line that scrolled past</li>
+          <li>Now they are visibly cross about it &mdash; a temper mark over their head while they get their boots on, gone in a couple of seconds &mdash; and the first time you do it you are told plainly: <em>a night without proper rest costs them some of their strength for good, and a second one running will kill them. Send them home to sleep before that happens.</em> After that just a short line, because somebody who does this on purpose every night does not need telling twice</li>
+        </ul>
+        <div class="sec">Two the tests caught in the fetch itself</div>
+        <ul>
+          <li><strong>A long game was eating into the next ball.</strong> The comment on the ball&rsquo;s own clock has always said it only runs while the dog is not in the middle of a game &mdash; and it only ever checked whether the dog had one in its mouth or one at its feet, which <em>was</em> the whole of it when a game was a bow and a timeout. With a real fetch there is a stretch &mdash; the flight, the chase, the carry home &mdash; where neither is true, so the wait for the next ball ran down all the way through, and a long enough game handed the dog a second one mid-chase</li>
+          <li><strong>And the dog that lost the race was rewarded for it.</strong> Whoever gets there first need not be the dog whose ball it was; the owner is then left standing over nothing, and its cooldown from <em>before</em> that ball was still running &mdash; so it got a fresh one about half a minute later instead of in a day or two. From the loser&rsquo;s point of view the ball has gone off in another dog&rsquo;s mouth, which is what &ldquo;the ball goes with the game&rdquo; has always meant</li>
+        </ul>
+        <div class="sec">Gumby and Floyd get a real game too</div>
+        <ul>
+          <li><strong>They had exactly the same hole.</strong> The ball went down, the little dog bowed, the timer ran out and the ball was written off &mdash; an invitation nobody could accept. Giving the kennel dogs a proper game of fetch and leaving these two bowing at nothing would have re-created the very thing that was called a bug and fixed a fortnight ago: <em>asking to play with the rarest dogs in the game doing less than asking to play with an ordinary one</em></li>
+          <li>Same throw, same arc, same two-to-four rounds &mdash; the numbers are shared rather than copied, so the two games cannot drift apart. Only the running differs, because those two have their own short legs</li>
         </ul>
         <div class="sec">The dogs, up close</div>
         <ul>
@@ -3427,6 +3603,33 @@ const INSPIRE_RANGE = 78;    // how far a story carries
 const INSPIRE_TIME  = 26;    // how long the lift lasts
 const INSPIRE_BOOST = 1.30;  // and how much faster the work goes
 
+/* ---------- MORE THAN ONE ELDER ----------
+   G.elder is the Lodge's own, and was the ONLY one for as long as elders
+   have existed - a singleton read directly by thirty-odd lines across eight
+   files. G.elderKin holds any others: today that is the once-a-year elder
+   who walks in off the road and is talked into staying (WAYFARERS, 05m).
+
+   Kept as "the primary, plus kin" rather than turning G.elder into an array,
+   so every existing read of G.elder still means what it always meant and
+   only the places that should see ALL of them were changed. The Lodge rule -
+   she arrives with it and leaves if it is lost - belongs to G.elder alone; a
+   wayfarer elder came for the village, not for the building, and stays. */
+/* Is this thing one of the village's elders? Used everywhere a single
+   `=== G.elder` used to stand, so a wayfarer elder is tappable, selectable
+   and talked to on exactly the same terms as the Lodge's own. */
+function isAnElder(x){
+  if(!x) return false;
+  if(x === G.elder) return true;
+  return !!(G.elderKin && G.elderKin.indexOf(x) >= 0);
+}
+
+function elders(){
+  const all = [];
+  if(G.elder) all.push(G.elder);
+  if(G.elderKin) for(const e of G.elderKin) if(e) all.push(e);
+  return all;
+}
+
 function spawnElder(){
   const lodge = G.bldgs.find(b=>b.p===P_YOU && b.type==="lodge" && b.done);
   if(!lodge) return;
@@ -3489,8 +3692,48 @@ function spawnElder(){
   hint(G.elder.name + " the elder has come to live among you.");
 }
 
-function elderPickTarget(){
-  const e = G.elder;
+/* AN ELDER WHO WALKED IN OFF THE ROAD. Built to the same shape as the
+   Lodge's own so that every line that draws, taps, selects or talks to an
+   elder works on her without knowing which kind she is - the fields below
+   are exactly the ones updateOneElder, drawElder and the panel read.
+
+   She keeps her wayfarer name and her white hair (WAYFARERS, 05m) rather
+   than rolling the elder tables, because the whole point of the named
+   visitors is that you recognise the person who joined you.
+
+   Pushed onto G.elderKin, NOT into G.elder: the Lodge's elder is spawned and
+   despawned by the Lodge, and putting her there would mean losing the Lodge
+   also lost the person you answered a question correctly to keep. */
+function makeWayfarerElder(o, w){
+  if(!G.elderKin) G.elderKin = [];
+  const ex = o ? o.x : 0, ey = o ? o.y : 0;
+  const roll = Math.random();
+  G.elderKin.push({
+    name: (w && w.name) || "an elder",
+    woman: true,
+    beard: false, beardCol: null, thickBeard: false,
+    x: ex, y: ey, tx: ex, ty: ey,
+    r: 6.4 + Math.random()*1.3,
+    face: 1, walk: 0, moving: false,
+    state: "walk",
+    aid: roll < 0.45 ? "cane" : roll < 0.60 ? "frame" : "none",
+    axe:false, bald:false, crown:false, flannel:false, tattoos:false,
+    robeCol: null,
+    hairCol: (w && w.hair) || HAIR_COLORS[(Math.random()*HAIR_COLORS.length)|0],
+    buffAll: false, buffKind: null,
+    quirkCd: 45 + Math.random()*45,
+    t: 2 + Math.random()*4,
+    inside: null,
+    say: null, sayT: 0,
+    strolls: true,
+    wayfarerElder: true,
+    skin: (Math.random()*SKINS.length)|0
+  });
+  return G.elderKin[G.elderKin.length-1];
+}
+
+function elderPickTarget(e){
+  e = e || G.elder;
   const mine = G.bldgs.filter(b=>b.p===P_YOU && b.done);
 
   // After dark she stops wandering. She keeps to one or two familiar
@@ -3529,17 +3772,27 @@ function elderPickTarget(){
 }
 
 function updateElder(dt){
+  /* THE LODGE'S OWN ELDER, and her rule alone: she arrives with the Lodge
+     and leaves if it is lost. An elder who walked in off the road and was
+     talked into staying (G.elderKin) came for the village, not the building,
+     and is not turned out with it - which is why this half is separate from
+     the walking-about half below. */
+  const lodge = G.bldgs.find(b=>b.p===P_YOU && b.type==="lodge" && b.done);
+  if(!lodge){ if(G.elder){ G.elder = null; } }
+  else if(!G.elder){ spawnElder(); return; }
+
+  /* And then everybody, the Lodge's and the road's alike. This used to be
+     one `const e = G.elder` and a hundred lines written round it. */
+  for(const e of elders()) updateOneElder(e, dt);
+}
+
+function updateOneElder(e, dt){
+  if(!e) return;
   /* Marked once, here, rather than at every spawn site - she is created in
      more than one place and a missed flag would put her back to shuffling
      against a wall. See the note in moveToward. */
-  if(G.elder && !G.elder.strolls) G.elder.strolls = true;
+  if(!e.strolls) e.strolls = true;
 
-  // she arrives with the Lodge, and leaves if it is lost
-  const lodge = G.bldgs.find(b=>b.p===P_YOU && b.type==="lodge" && b.done);
-  if(!lodge){ if(G.elder){ G.elder=null; } return; }
-  if(!G.elder){ spawnElder(); return; }
-
-  const e = G.elder;
   e.t -= dt;
   if(e.say){ e.sayT -= dt; if(e.sayT<=0) e.say=null; }
 
@@ -3549,7 +3802,7 @@ function updateElder(dt){
       e.t = 6 + Math.random()*10;
       if(e.inside){ e.x = e.inside.x; e.y = e.inside.y + e.inside.h*TILE/2 + e.r + 6; }
       e.inside = null;
-      elderPickTarget();
+      elderPickTarget(e);
     }
     return;
   }
@@ -3560,7 +3813,7 @@ function updateElder(dt){
     if(e.t <= 0){
       e.state = "walk";
       e.t = 10 + Math.random()*14;
-      elderPickTarget();
+      elderPickTarget(e);
     }
     return;
   }
@@ -3590,7 +3843,7 @@ function updateElder(dt){
     }
     if(sn.phase !== "telling"){
       // the village has moved on and so does she - back to her own business
-      e.state = "walk"; e.t = 5 + Math.random()*8; elderPickTarget();
+      e.state = "walk"; e.t = 5 + Math.random()*8; elderPickTarget(e);
       return;
     }
     // a few paces one way, then back - not a lap, just enough that she
@@ -3606,7 +3859,7 @@ function updateElder(dt){
   if(e.state === "storynight"){
     // Story Night ended while she was still walking over to it - let go
     // rather than being stuck heading for a gathering that's already over
-    e.state = "walk"; e.t = 5 + Math.random()*8; elderPickTarget();
+    e.state = "walk"; e.t = 5 + Math.random()*8; elderPickTarget(e);
   }
 
   // walking
@@ -3628,20 +3881,20 @@ function updateElder(dt){
       e.state = "inside"; e.inside = e.goal;
       e.t = night ? (10 + Math.random()*12) : (4 + Math.random()*5);
     } else if(Math.random() < 0.12){
-      tellStory();
+      tellStory(e);
     } else {
       e.t = 5 + Math.random()*8;
-      elderPickTarget();
+      elderPickTarget(e);
     }
   } else if(e.t <= 0){
     // she has been walking a while - stop and tell one anyway
-    if(Math.random() < 0.14) tellStory();
-    else { e.t = 8 + Math.random()*10; elderPickTarget(); }
+    if(Math.random() < 0.14) tellStory(e);
+    else { e.t = 8 + Math.random()*10; elderPickTarget(e); }
   }
 }
 
-function elderQuirk(){
-  const e = G.elder;
+function elderQuirk(e){
+  e = e || G.elder;
   const q = ELDER_QUIRKS[(Math.random()*ELDER_QUIRKS.length)|0];
   hint(e.name + " " + q + ".");
   e.say = ELDER_TALES[(Math.random()*ELDER_TALES.length)|0];
@@ -3712,8 +3965,8 @@ function grantStoryBuff(u, all, forceKind){
   return kind;
 }
 
-function tellStory(){
-  const e = G.elder;
+function tellStory(e){
+  e = e || G.elder;
   const pl = G.players[P_YOU];
   e.state = "telling";
   e.t = 5 + Math.random()*3;
@@ -4916,6 +5169,17 @@ const RAT_STORES = ["granary","farm","specialfarm","bakery","watermill","town","
    halve the loss, which is the whole idea of the swarm. */
 const RAT_BITE      = 0.35;
 const RAT_NIGHT_MAX = 45;    // per side, per night
+/* A THIEF CANNOT LEVEL A BUILDING. Anything with `steals` is at the door
+   for what is behind it, not for the door - so its building damage is
+   flavour, and flavour should never be the thing that ends a settlement.
+   Without this floor it quietly is: rats do only 1 a bite, but they bite
+   every 2.6s and there are a dozen, and nothing stops the total. Measured
+   on seed 11 (peaceful), a plague chewed the RIVAL's 560hp town centre
+   from full to rubble in a little under eleven minutes, and a village with
+   no town centre can never train another villager - that run sat frozen on
+   3 villagers and 2 buildings for the remaining twenty-five minutes.
+   Half health leaves the gnawing plainly visible without it being fatal. */
+const STEALER_BLDG_FLOOR = 0.5;
 function ratPickTarget(b){
   let best=null, bd=1e9, any=null, ad=1e9;
   for(const s2 of G.bldgs){
@@ -5529,6 +5793,11 @@ function updateBeasts(dt){
            a tower. Only against buildings: a sieging wolf is no worse to a
            person than any other wolf. */
         if(b.siege && (t.kind === "bldg" || t.w)) bite *= SIEGE_BLDG_MULT;
+        /* ...and a thief's gnawing stops at the floor. (STEALER_BLDG_FLOOR) */
+        if(BEASTS[b.kind] && BEASTS[b.kind].steals && (t.kind === "bldg" || t.w)){
+          const floor = (t.maxhp || 0) * STEALER_BLDG_FLOOR;
+          bite = Math.max(0, Math.min(bite, t.hp - floor));
+        }
         if(b.firstNight && DIFFICULTY === "peaceful" && t.kind === "unit" && t.p === P_YOU){
           const floor = t.maxhp/3;
           bite = Math.max(0, Math.min(bite, t.hp - floor));
@@ -5550,7 +5819,8 @@ function updateBeasts(dt){
         /* AND SOME OF THEM ARE NOT HERE TO BREAK ANYTHING. A rat gnawing
            at the granary door is not really attacking the granary - it is
            eating what is inside it. The building damage is almost nominal
-           (atk 3, the lowest in the table); the bite that matters is the
+           (atk 1, the lowest in the table, and floored at half a building's
+           health by STEALER_BLDG_FLOOR); the bite that matters is the
            one taken out of the stores, and it is taken from whoever owns
            the thing being chewed rather than always from the player. */
         const steals = BEASTS[b.kind] && BEASTS[b.kind].steals;
@@ -6450,22 +6720,113 @@ function smallDogStartPlay(g, u){
   g.ballAt = { x: u.x + (Math.random()-0.5)*8, y: u.y + 5 + Math.random()*4 };
   g.playT  = SMALL_DOG_PLAY_TIME;
   g.playWho = u;
+  g.throwT = FETCH_WAIT;      // a beat of bowing before it goes
+  g.fetches = 0; g.fetchWant = 0;
   return true;
 }
 
 /* The prance itself: round the ball, never onto it, so the ball stays
-   visible and the dog reads as inviting rather than as sitting on it. */
+   visible and the dog reads as inviting rather than as sitting on it.
+
+   AND THEN SOMEBODY THROWS IT. The little dogs had exactly the same hole the
+   kennel dogs did: the ball went down, the dog bowed, the timer ran out and
+   the ball was written off - an invitation nobody could accept. Giving the
+   kennel dogs a real game of fetch and leaving these two bowing at nothing
+   would have re-created the very thing a previous session called a bug and
+   fixed, in the comment above dogPlayArrive: asking to play with the rarest
+   dogs in the game doing LESS than asking to play with an ordinary one.
+
+   The same throw, the same arc, the same number of rounds - the constants
+   live in 05i and are shared rather than copied, so the two games can never
+   drift apart. Only the running is different, because these two have their
+   own little step function and their own speed. */
+function smallDogFetchTarget(g, u){
+  // away from the village, ground-checked, short-thrown if it has to be
+  const town = G.bldgs.find(b=>b.type==="town" && b.p===P_YOU);
+  let a = town ? Math.atan2(u.y-town.y, u.x-town.x) : Math.random()*6.283;
+  a += (Math.random()-0.5)*1.6;
+  let dist = FETCH_THROW * (0.7 + Math.random()*0.45);
+  let tx = u.x + Math.cos(a)*dist, ty = u.y + Math.sin(a)*dist;
+  for(let k=0; k<5 && blocked(tx, ty, null, false, SMALL_DOG_PAD); k++){
+    dist *= 0.7;
+    tx = u.x + Math.cos(a)*dist; ty = u.y + Math.sin(a)*dist;
+  }
+  if(blocked(tx, ty, null, false, SMALL_DOG_PAD)){ tx = u.x; ty = u.y + 10; }
+  return { x:tx, y:ty };
+}
+
 function smallDogPlaying(g, dt, respot){
   if(!g || !(g.playT > 0)) return false;
   g.playT -= dt;
   g.bounce = (g.bounce||0) + dt*7.5;
+
+  /* ---- the ball is in the air ---- */
+  if(g.ballFly){
+    const f = g.ballFly;
+    f.t += dt;
+    if(f.x1 !== g.x) g.face = (f.x1 - g.x) < 0 ? -1 : 1;
+    if(f.t >= f.dur){
+      g.fetchAt = { x:f.x1, y:f.y1 };
+      g.ballAt = { x:f.x1, y:f.y1 };
+      g.ballFly = null;
+    }
+    return true;
+  }
+
+  /* ---- after it ---- */
+  if(g.fetchAt){
+    const t = g.fetchAt;
+    smallDogStep(g, t.x, t.y, dt);
+    if(Math.hypot(t.x-g.x, t.y-g.y) < 7){
+      g.fetchAt = null; g.hasBall = true; g.ballAt = null;
+      g.bringTo = g.playWho || null;
+      if(!g.bringTo){ g.playT = 0; }
+    }
+    return true;
+  }
+
+  /* ---- and back with it ---- */
+  if(g.bringTo){
+    const u = g.bringTo;
+    if(!u || u.hp<=0 || u.indoors){ g.bringTo=null; g.hasBall=false; g.playT=0; return true; }
+    smallDogStep(g, u.x, u.y, dt);
+    if(Math.hypot(u.x-g.x, u.y-g.y) < 16){
+      g.bringTo = null; g.hasBall = false;
+      g.fetches = (g.fetches||0) + 1;
+      g.ballAt = { x: u.x + (Math.random()-0.5)*8, y: u.y + 5 + Math.random()*4 };
+      g.throwT = FETCH_WAIT;
+      if((g.fetches||0) >= (g.fetchWant || 2)) g.playT = Math.min(g.playT, 0.8);
+    }
+    return true;
+  }
+
+  /* ---- bowing at the ball, waiting for it to go ---- */
   const ball = g.ballAt;
   if(ball){
     const a = (g.bounce||0)*0.9;
     smallDogStep(g, ball.x + Math.cos(a)*11, ball.y + Math.sin(a)*7, dt);
+    g.throwT = (g.throwT === undefined) ? FETCH_WAIT : g.throwT - dt;
+    const u = g.playWho;
+    if(g.throwT <= 0 && u && u.hp>0 && !u.indoors && !u.roughing && !u.lying &&
+       u.type === "villager" && (!u.order || u.order === "gather")){
+      const to = smallDogFetchTarget(g, u);
+      g.ballFly = { x0:u.x, y0:u.y-8, x1:to.x, y1:to.y, t:0, dur:FETCH_FLY };
+      g.ballAt = null;
+      if(!g.fetchWant) g.fetchWant = FETCH_ROUNDS[0] +
+        ((Math.random()*(FETCH_ROUNDS[1]-FETCH_ROUNDS[0]+1))|0);
+      // held for the throw, and the arm goes up - the same shared pose
+      u.chatT = Math.max(u.chatT||0, FETCH_FLY + 0.5);
+      u.breakActivity = "throwball";
+      if(u.x !== to.x) u.face = (to.x - u.x) < 0 ? -1 : 1;
+      // the game must outlast the throws it has left
+      g.playT = Math.max(g.playT, FETCH_FLY + 6);
+    }
   }
+
   if(g.playT <= 0){
     g.playT = 0; g.ballAt = null; g.playWho = null; g.bounce = 0;
+    g.ballFly = null; g.fetchAt = null; g.bringTo = null;
+    g.hasBall = false; g.fetches = 0; g.fetchWant = 0; g.throwT = undefined;
     g.state = "wander";
     if(respot) respot(g);
   }
@@ -7223,6 +7584,26 @@ function trySpawnEyes(force){
      The widening the pool pick already used costs nothing to give both. */
   const attempts = force ? 120 : 64;
   for(let tries=0; tries<attempts && bx===null; tries++){
+    const a = Math.random()*6.283;
+    const reach = 140 + tries*8;
+    const d = reach + Math.random()*160;
+    const wx = town.x + Math.cos(a)*d, wy = town.y + Math.sin(a)*d;
+    if(wx<20||wy<20||wx>WORLD_W-20||wy>WORLD_H-20) continue;
+    const tx = (wx/TILE)|0, ty = (wy/TILE)|0;
+    if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) continue;
+    if(G.fog[P_YOU][ty*MAPW+tx] !== 0) continue;   // only the pure black
+    bx=wx; by=wy;
+  }
+  if(bx===null) return;
+  if(!G.eyes) G.eyes = [];
+  const n = 1 + ((Math.random()*3)|0);   // a handful - one to three pairs about
+  for(let i=0;i<n;i++){
+    const jx = bx + (Math.random()-0.5)*50, jy = by + (Math.random()-0.5)*50;
+    const jtx = (jx/TILE)|0, jty = (jy/TILE)|0;
+    if(jtx<0||jty<0||jtx>=MAPW||jty>=MAPH) continue;
+    if(G.fog[P_YOU][jty*MAPW+jtx] !== 0) continue;
+    G.eyes.push({ x:jx, y:jy, t:0, life:4+Math.random()*4, seed:Math.random()*6.283 });
+empts && bx===null; tries++){
     const a = Math.random()*6.283;
     const reach = 140 + tries*8;
     const d = reach + Math.random()*160;
@@ -8634,6 +9015,26 @@ const STORM_CHANCE = 0.05;     // rolled occasionally; can land in any season bu
 const FIRE_BLDG_DPS_FRAC = 0.018;  // fraction of max HP lost per second while burning
 const FIRE_TREE_DPS_FRAC = 0.05;   // trees are far more flammable
 const FIRE_BURN_MIN = 16, FIRE_BURN_MAX = 30;   // roughly how long the rain takes to catch up
+/* A FIRE GUTS A BUILDING; IT DOES NOT RAZE IT.
+
+   The answer this game gives you to a burning roof is to REPAIR it once the
+   fire is out (see the damage-and-repair note in 01c) - and a building that
+   burned to nothing leaves you nothing to repair, only a gap where it was.
+   That is a bad ending for a hazard you cannot fight: there is no bucket in
+   this game, so a bolt out of a clear sky was free to delete a building
+   outright with no counterplay at all.
+
+   It is worse than that for a TOWN CENTRE, and it is how I found this. Seed
+   11 on peaceful: night raids took the rival's centre to 210 of 560, then a
+   lightning fire finished it at 913s - and a village with no town centre can
+   never train another villager, so that run sat frozen on 3 villagers and 2
+   buildings for the remaining twenty-five minutes of the match.
+
+   So a fire stops at a smoking shell. The threat is entirely intact - a
+   building at a tenth of its health is nearly gone, its brazier is out
+   (01c), and it wants a long repair - but the LAST blow has to come from
+   something you could have fought. */
+const FIRE_BLDG_FLOOR = 0.1;
 
 function tryLightningStorm(force){
   if(G.storm) return false;            // only one going at a time
@@ -8779,7 +9180,12 @@ function updateFires(dt){
   for(const b of G.bldgs){
     if(!b.burning) continue;
     b.fireT = (b.fireT||0) + dt*fw.rate;
-    b.hp = Math.max(0, b.hp - b.maxhp*FIRE_BLDG_DPS_FRAC*fw.dmg*dt);
+    /* Only ever downward. A building the wolves already left below the floor
+       must not be HEALED by catching fire, which is what a plain
+       Math.max(floor, ...) does. */
+    const fireFloor = b.maxhp*FIRE_BLDG_FLOOR;
+    if(b.hp > fireFloor)
+      b.hp = Math.max(fireFloor, b.hp - b.maxhp*FIRE_BLDG_DPS_FRAC*fw.dmg*dt);
     if(b.fireT > b.fireOut){
       b.burning=false; b.fireT=0;
       if(doused && b.p===P_YOU && b.hp>0) hint("The rain puts out the fire.");
@@ -9168,6 +9574,35 @@ function goblinRewardFor(level){
 }
 
 /* ---------- resource kinds ---------- */
+/* How many people a village can hold before it has built anything to hold
+   them in. See recalcPop (02d) - a House is worth POP_BASE as well, so this
+   is "one house's worth, free, to get you started". */
+const POP_BASE = 4;
+/* AND THE RIVAL KEEPS THE OLD EIGHT.
+
+   The four above is a lesson aimed at a person: you start at 1/4, you feel
+   the fifth villager press against the roof, you put up a House. Nobody
+   needs to teach the Ashkin that, and handing them the same cut halved
+   their early workforce and with it everything downstream of it.
+
+   Measured on ai-regression the day POP_BASE went 8 -> 4, with nothing else
+   changed: easy went from fielding three soldiers by fifteen minutes on
+   17/20 seeds to 7/20, against a bar of 11. Peaceful's opening slowed by
+   roughly half. That was never the point of the change - the request was
+   about beds matching people - so the AI is held at what it was tuned
+   against. The sides already differ by difficulty in yield, cap and
+   aggression; this is one more of those, and the only one aimed squarely at
+   not making the game easier by accident.
+
+   Read through aiPopBase(p) rather than POP_BASE anywhere the number is per
+   side. (recalcPop, 02d.) */
+const POP_BASE_AI = 8;
+function popBaseFor(p){ return p === P_YOU ? POP_BASE : POP_BASE_AI; }
+/* How long a villager LOOKS frightened after a beast has reached them. The
+   memory of it (u.wary) is permanent and steers their household's leisure
+   away from the treeline; the face is not. About a third of a day - the rest
+   of that night and into the morning. */
+const WARY_FACE_TIME = 58;
 const RES = { FOOD:"food", WOOD:"wood", STONE:"stone", GOLD:"gold", MOONSTONE:"moonstone", IRON:"iron" };
 // iron comes along for free with stone - no separate gathering step, just a
 // fraction of whatever stone a vein gives up. No use for it until the
@@ -9542,7 +9977,12 @@ const BLDG = {
          build:1, vision:2, gobDef:true },
   dock:{ name:"Dock", age:0, hp:230, w:2, h:2, cost:{wood:93,food:42}, hgt:9, shrinkW:0.62, shrink:0.60, roof:"lean", build:15,
          drop:true, vision:5, shore:true, trains:["fishingboat","transport","warship"] },
-  house:{ name:"House", age:0, hp:200, w:1, h:1, cost:{wood:47,food:23}, hgt:7, roof:"gable", roofScale:0.5, build:11, pop:6, vision:3 },
+  /* pop 4, matching HOUSE_ROOM (05b) - a House sleeps four and is worth four.
+     It granted SIX while sleeping four, so the two numbers a player could see
+     disagreed and the roof was never the thing that limited the village. Four
+     and four means "every house you put up is four more people", which is a
+     rule you can hold in your head. (9 Sep, at the user's request.) */
+  house:{ name:"House", age:0, hp:200, w:1, h:1, cost:{wood:47,food:23}, hgt:7, roof:"gable", roofScale:0.5, build:11, pop:4, vision:3 },
   /* Stores the harvest so it stops going off overnight - see hasGranary
      (03b) and trySpoilage (05b-night-cycle.js), which now declines outright
      for a side that owns one rather than taking its usual ~8% bite. */
@@ -10811,6 +11251,10 @@ function defaultGameState(){
     caretakers:[],
     // the Bakery's baker, one per bakery - see updateBaker (03b)
     bakers:[],
+    /* Elders beyond the Lodge's own - today, the once-a-year wayfarer elder
+       who is talked into staying. See elders() (01b). */
+    elderKin:[],
+    elderWayfarerYear:null,
     // the Granary's farmhand, one per granary - see updateFarmhands (03b)
     farmhands:[],
     // the Gardener's Cottage and the Geologist's Cottage, one worker each -
@@ -14329,7 +14773,7 @@ function placeStartBase(p, tx, ty){
      started it. `firstVillager` is what marks THE founder - the stranger who
      wanders in when a side is wiped out also sets `founder`, and they did
      not found anything. */
-  v.nightName = pickFreshName();
+  v.nightName = pickFreshName(v);
   v.firstVillager = true;
   /* THE FOUNDER'S OWN COMPLEXION. Everybody in the game takes an even pick
      from the six tones - an even one in six each, which puts the two lightest
@@ -14437,17 +14881,47 @@ function plantDoorstep(b){
      is what makes this a floor rather than a gift. */
   const stoneNear = G.nodes.some(n => n.kind===RES.STONE && n.amt>0 && !n.water &&
                                       Math.hypot(n.x-b.x, n.y-b.y) < START_STONE_WANT*TILE);
-  if(!stoneNear) plantNear(RES.STONE, cfx, cfy, START_STONE_AMT, 4, 6);
+  if(!stoneNear) plantStartStone(cfx, cfy);
+}
+
+/* THE STARTING STONE IS A REAL VEIN NOW, AND IT STARTS IN THE DARK.
+
+   It used to be a 150-amount pebble - deliberately "a start, not a quarry" -
+   sat four to six tiles out, which is on or inside the town's own five-tile
+   sight. So on a good many seeds the first thing you saw was your stone,
+   handed to you, and it ran out almost at once.
+
+   Changed at the user's word: a full vein, the same 1750 and the same nine
+   rocks the map's own veins carry, put down beyond the light so it has to be
+   FOUND. START_STONE_RING starts one tile past the town's vision, so it is
+   never revealed at the off - you walk out and come across it, which is a
+   better first minute than being given it.
+
+   Guaranteed, still, which is the whole reason this function exists: vein()
+   makes thirty attempts and can come away empty on a crowded or watery ring,
+   so this widens the ring and tries again rather than leaving a start with no
+   stone at all. The last resort keeps the old plantNear, which has its own
+   two-pass "take a tight spot rather than come away empty" rule - a small
+   deposit is still better than none. */
+const START_STONE_RING = 7;      // tiles - one past the town centre's vision of 5
+function plantStartStone(cfx, cfy){
+  const before = G.nodes.length;
+  for(let ring = 0; ring < 4; ring++){
+    vein(RES.STONE, cfx, cfy, START_STONE_RING + ring*2, START_STONE_RING + 3 + ring*2);
+    if(G.nodes.length > before) return true;
+  }
+  return plantNear(RES.STONE, cfx, cfy, START_STONE_AMT, START_STONE_RING, START_STONE_RING + 5);
 }
 
 /* How far out counts as "already had some". Seven tiles is about twice the
    town's lamp: inside that you can see it from the hearth and walk to it
    without it being an errand, so the map has done the job on its own. */
 const START_STONE_WANT = 7;      // tiles
-/* And how much. Deliberately the same order as the three 130-wood nodes
-   that sit beside it rather than a full 1750 vein - this is a start, not a
-   quarry, and the point is that the first course of stone is work you can
-   begin rather than a journey you have to make first. */
+/* The old pebble amount. Only the last-resort fallback in plantStartStone
+   uses it now - the guaranteed start is a full vein (see there). Kept rather
+   than deleted because "no stone at all" is a far worse start than a small
+   one, and that fallback is the thing standing between a crowded map and
+   exactly that. */
 const START_STONE_AMT = 150;
 
 function makeUnit(type, p, x, y){
@@ -14619,8 +15093,20 @@ function recalcPop(p){
      let a building through on its ladder as well as on its type - it is only
      houses that have `pop` today, but a building whose rungs grant room and
      whose type does not would otherwise be dropped before it was counted. */
+  /* THE FREE BASE IS FOUR, NOT EIGHT. Eight meant a village could reach eight
+     people before a roof mattered at all, which on a start of one villager is
+     most of the early game - so the first House went up because you fancied
+     one, not because you needed it. Four is the whole of the pressure the
+     user asked for: you start at 1/4, you can train your way to 4/4, and the
+     fifth villager needs somewhere to sleep. Each House is another four, the
+     same four it sleeps. (POP_BASE, 9 Sep.)
+
+     THE RIVAL KEEPS THE OLD EIGHT - popBaseFor, 02a. The pressure is a
+     lesson for a person; giving the AI the same cut halved its workforce
+     and measurably broke the easy difficulty. */
   pl.popcap = Math.min(80, G.bldgs.filter(b=>b.p===p&&b.done&&(BLDG[b.type].pop||bldgTier(b,"pop")))
-                            .reduce((s,b)=>s+(BLDG[b.type].pop||0)+bldgTier(b,"pop"),0) + 8);
+                            .reduce((s,b)=>s+(BLDG[b.type].pop||0)+bldgTier(b,"pop"),0)
+                            + popBaseFor(p));
 }
 
 
@@ -15142,6 +15628,33 @@ function zoomAt(sx, sy, f){
 
    Never a garrison. Coming out of a tower is its own action with its own
    button, and a stray order must not empty a watchtower by accident. */
+/* WHAT SOMEBODY LOOKS LIKE WHEN YOU GET THEM UP AT MIDNIGHT.
+
+   The cost has been in the game for months and was completely invisible: a
+   villager woken for the night's work loses a twentieth of their maximum
+   health, and a SECOND night without a real rest kills them. The only sign
+   was a one-line hint that scrolled past. So: a cross face over their head
+   while they get their boots on, and the warning said plainly the first time
+   you do it, because "they will need a proper night's rest or they will drop"
+   is not something a player should have to work out from a health bar.
+
+   Once per match for the long version - after that the short line, since a
+   player who does this on purpose every night knows what they are doing and
+   does not need telling again. */
+function grumbleAtBeingWoken(u){
+  if(u.p !== P_YOU) return;
+  u.grumbleT = 2.6;                       // the cross face - see drawGrumble (04e)
+  if(!G.wokeSomebodyToldOnce){
+    G.wokeSomebodyToldOnce = true;
+    storyLine((u.nightName||"Somebody")+" has been woken well before morning, and is "+
+              "not glad about it. A night without proper rest costs them some of their "+
+              "strength for good - and a second one running will kill them. Send them "+
+              "home to sleep before that happens.");
+  } else {
+    hint((u.nightName||"Somebody")+" is up before morning, and grumbling about it.");
+  }
+}
+
 function stepOutToWork(u){
   if(!u) return;
   /* A ROUGH SLEEPER is not indoors - they are lying on the ground outside the
@@ -15149,18 +15662,25 @@ function stepOutToWork(u){
      has to get them up, or they walk to the job still drawn flat on their
      back, since u.lying is a pose field nothing else here would clear. Same
      price as anybody else woken after dark. */
-  if(u.roughing || u.lying){
-    u.roughing = false; u.lying = false; u.armA = undefined;
+  /* Only a rough sleeper, for the reason in giveOrder above: a break pose
+     also sets u.lying, and cancelling a break is not waking somebody up. */
+  if(u.roughing){
+    u.roughing = false; u.lying = false;
+    u.armA = undefined; u.armB = undefined;
     if((G.phase === "night" || G.phase === "dusk") && !u.awakeAtNight){
-      if(!u.nightName && typeof pickNightName === "function") u.nightName = pickNightName();
+      if(!u.nightName && typeof pickNightName === "function") u.nightName = pickNightName(u);
       u.awakeAtNight = true;
+      grumbleAtBeingWoken(u);
     }
+    u.stretchT = STRETCH_TIME;      // up off the ground, and not gladly
   }
   if(!u.indoors || u.garrisonedIn) return;
   const abed = (typeof G !== "undefined" && G) &&
                (G.phase === "night" || G.phase === "dusk");
   if(abed && u.home && typeof wakeVillagerForNight === "function"){
     wakeVillagerForNight(u, u.home);
+    u.stretchT = STRETCH_TIME;
+    grumbleAtBeingWoken(u);
     return;
   }
   u.indoors = false;
@@ -15177,11 +15697,28 @@ function stepOutToWork(u){
 }
 
 function giveOrder(u, fields){
-  /* Out of the house first, or the order below is given to somebody the
-     movement code will not look at. See stepOutToWork above. Only for a real
-     order - clearing one (order:null) should leave a sleeper where they are,
-     or a stray deselect would turn the whole village out of bed. */
-  if(u.indoors && fields && fields.order) stepOutToWork(u);
+  /* Up first, or the order below is given to somebody the movement code will
+     not look at - or worse, to somebody who then walks to the job still drawn
+     flat on their back.
+
+     `u.indoors || u.roughing`. This guard was `u.indoors` alone, which a rough
+     sleeper never is - they are asleep on the GROUND outside because the roofs
+     were full. So the branch inside stepOutToWork that gets them up could
+     never be reached, and a villager told to chop wood at midnight slid to the
+     tree lying down. Reported with a screenshot, which is the only way anyone
+     would ever have found it: every field on the unit was correct.
+
+     `u.roughing`, NOT `u.lying`. Trying `|| u.lying` here looked equivalent
+     and was not: u.lying is a shared POSE field, and the cloud-watching and
+     snow-angel breaks set it too. A villager lying in the grass watching the
+     sky, given an order, was made to stretch as though you had woken them
+     from a night on the ground. Caught by tests/work-breaks.js, which has
+     asserted since long before any of this that a cancelled break leaves armA
+     undefined rather than frozen at some number.
+
+     Only for a real order - clearing one (order:null) leaves a sleeper where
+     they are, or a stray deselect would turn the whole village out of bed. */
+  if(fields && fields.order && (u.indoors || u.roughing)) stepOutToWork(u);
   /* HOW DARK IT WAS WHEN THIS ORDER WAS GIVEN. Read by the straggler sweep
      (sendStragglersHome, 05b), which walks villagers home who were still at
      work after dusk - and which must not undo an order the player has just
@@ -15477,7 +16014,7 @@ function tapAt(sx, sy){
            : isGuide ? "Only a villager can follow the lanterns."
                    : "Only your military or your musicians can be sent to follow someone.");
       } else {
-        const validTarget = target && (target===G.elder || target===G.mcstar || villagerOnly ||
+        const validTarget = target && (isAnElder(target) || target===G.mcstar || villagerOnly ||
                              (target.kind==="unit" && target.p===P_YOU));
         if(validTarget){
           const goFollow = followers.filter(u=>u!==target);
@@ -15485,7 +16022,7 @@ function tapAt(sx, sy){
             u.order="follow"; u.target=target; u.site=null; u.path=null;
             u._ftx=undefined; u._fty=undefined; u.followCatching=undefined;
           });
-          const label = (target===G.elder || target===G.mcstar) ? target.name
+          const label = (isAnElder(target) || target===G.mcstar) ? target.name
                       : isPaleOwl ? "the owl" : isFox ? "the fox" : isGuide ? "the lanterns" : UNITS[target.type].name;
           hint(goFollow.length+" "+(goFollow.length>1?"are":"is")+" following "+label+".");
           fxPing(target.x, target.y);
@@ -15953,10 +16490,12 @@ function pickAt(wx, wy, prefer, tol){
 
   // the elder is selectable so you can see who she is, but she is not a unit
   // and no action mode should ever pick her as a target
-  if(!prefer && G.elder && G.elder.state!=="inside"
-     && visibleTo(P_YOU, G.elder.x, G.elder.y)
-     && Math.hypot(G.elder.x-wx, G.elder.y-wy) < G.elder.r+13+tol){
-    return G.elder;
+  if(!prefer){
+    for(const el of elders()){
+      if(el.state==="inside") continue;
+      if(!visibleTo(P_YOU, el.x, el.y)) continue;
+      if(Math.hypot(el.x-wx, el.y-wy) < el.r+13+tol) return el;
+    }
   }
   // same idea for Euan McStar, on the rare occasion he's about
   if(!prefer && G.mcstar && G.mcstar.state!=="fade"
@@ -16093,7 +16632,7 @@ function assignGroup(n){
      Centre's hold on slot 1. Ungroup leaves them alone for the same
      reason (refreshUI, 07). */
   const units = G.sel.filter(e=>e.p===P_YOU && e.kind==="unit" && e.hp>0 &&
-                                e!==G.elder && !e.firstVillager);
+                                !isAnElder(e) && !e.firstVillager);
   if(!units.length){
     const hadFounder = G.sel.some(e=>e.p===P_YOU && e.firstVillager);
     if(hadFounder){
@@ -16374,7 +16913,7 @@ function selectOne(ent){
     hint("A quick tug on the line - " + FISH_BITE_GIFT + " extra food, landed clean.");
     fxWork(ent.x, ent.y-6, "#bcd9e8");
   }
-  if(ent === G.elder || ent === G.mcstar){ G.sel = [ent]; refreshUI(); return; }
+  if(isAnElder(ent) || ent === G.mcstar){ G.sel = [ent]; refreshUI(); return; }
   /* Clicking a soldier grabs the whole squad of that type, so armies move
      together. Anything civilian stays single-select: a worker is given a job,
      not marched, and a fleet of fishing boats that all selected together sent
@@ -19208,6 +19747,27 @@ function tick(dt){
     /* The swarm keeps its appointment. Its day was picked when the summer was
        rolled and the clues have been counting down to it, so it arrives on
        that day rather than taking its chances in the pool. */
+    /* THE ROLL FOR THIS SPRING, if it has not happened yet. It is made at the
+       turn INTO a season - and a match STARTS in spring, so that turn never
+       came for the opening one and the first spring of every game a player
+       ever played had no swarm in it at all. Measured: G.beeYear was null at
+       match start, and stayed null until the following year. Since a swarm is
+       the only way to a hive, that alone put the beekeeper a year out of
+       reach before any of the odds were even consulted.
+       rollSwarmYear returns early once this year is rolled, so this is safe
+       to ask every day - and it heals an old save that missed it. */
+    /* SOMEBODY ON THE ROAD. Its own roll rather than a place in the day-event
+       pool, the same as the firefly swarm and for the same reason: the pool
+       fires one event a day and cannot deliver a per-season count. Three a
+       season spread over the week, and a season that rolls badly hands you
+       one or none - which is what makes meeting all seven take more than one
+       year. The cap inside trySpawnWayfarer is what stops a lucky week
+       giving you four. (VISITORS_PER_SEASON, 05m) */
+    if(!settlingIn() && Math.random() < VISITORS_PER_SEASON / SEASON_DAYS)
+      trySpawnWayfarer();
+
+    if(G.season === SWARM_SEASON &&
+       (!G.beeYear || G.beeYear.year !== yearNumber())) rollSwarmYear();
     if(G.season===SWARM_SEASON && G.beeYear && G.beeYear.day === dayOfSeason &&
        G.beeYear.year === yearNumber()){
       for(let tries=0; tries<40 && !G.nodes.some(n=>n.kind==="swarm"); tries++) trySpawnBeeSwarm();
@@ -19229,7 +19789,10 @@ function tick(dt){
       changeTheWatch(P_YOU); changeTheWatch(P_AI);
       sendNightBoat(P_YOU);   // and the one thing that goes OUT at dusk
       lightTheKilns();        // a full kiln lights itself as the light goes
-      clearSwarm();           // and a swarm nobody fetched lifts off and goes
+      /* The swarm no longer lifts off at dusk - it hangs on the branch for the
+         whole of spring now and goes at the turn into summer instead (see the
+         season block below). Half a day was a very short window for the one
+         thing that gets a village a beekeeper, and missing it cost a year. */
       clearWounded();         // and whoever was lying out there is gone by dark
       hint(pickLine(DUSK_LINES,"dusk")); sendHome();
       moonfolkRise();     // as the village goes to bed, the night shift gets up
@@ -19490,6 +20053,10 @@ function tick(dt){
     G.seasonT = 0;
     G.seasonNo = (G.seasonNo||0) + 1;
     const i = SEASON_ORDER.indexOf(G.season);
+    /* Whatever is still hanging in the woods goes out with the season it
+       belongs to. Checked BEFORE the season changes, or the message would be
+       about a swarm in a season that no longer has swarms in it. */
+    if(G.season === SWARM_SEASON) clearSwarm();
     G.season = SEASON_ORDER[(i+1) % SEASON_ORDER.length];
     reseason();
     spawnWildAnimals();   // top the deep-country population back up for the new season
@@ -19591,7 +20158,7 @@ function tick(dt){
   G.unstickT = (G.unstickT||0) + dt;
   if(G.unstickT > 0.25){
     G.unstickT = 0;
-    const sweep = G.elder ? G.units.concat([G.elder]) : G.units;
+    const sweep = G.units.concat(elders());
     for(const u of sweep){
       if(u.indoors) continue;
       const ud = UNITS[u.type];
@@ -19869,6 +20436,17 @@ function wandererGrit(dt){
       // all - read by the leisure system (updateLeisureVillagers) to steer
       // their own household's leisure wanderer away from the treeline
       u.wary = true;
+      /* And how long they LOOK it. u.wary itself is a lasting memory - the
+         leisure system reads it to steer that household away from the
+         treeline, and that is meant to outlast the night. The FACE is not:
+         villagerMood (04e) returned "wary" off the permanent flag, so a
+         villager a beast once reached wore a frightened face for the rest of
+         the match, and - because wary sits third in that order, above
+         laughing, pleased, talking and resting - could never be seen pleased
+         or talking again either. Verified: patted by a dog, chatting AND
+         singing, the mood still read "wary"; clearing the flag on the same
+         villager gave "laughing". */
+      u.waryT = WARY_FACE_TIME;
       /* One nudge, once, a couple of seconds in - long enough that it is
          clearly not the same line as the warning, early enough to still be
          acted on. After that they are on their own and so are you. */
@@ -19981,6 +20559,21 @@ function updateUnit(u, dt){
      on anyone under a player's order or in a fight, and counted down right
      here - so however it was set, it always runs out and can never leave
      somebody standing frozen. */
+  /* Getting up off the ground (stretchPose, 04e). Counted down here, above
+     everything, and it holds them still while it runs - a villager who
+     stretches while walking away is not stretching, they are waving. It is
+     its own field rather than chatT because chatT is cancelled by a fresh
+     order, and this must finish: it is the animation of standing up, and
+     cutting it leaves the arms overhead for a frame. It is under two
+     seconds and always runs out. */
+  if((u.grumbleT||0) > 0) u.grumbleT -= dt;   // the cross face, drawGrumble (04e)
+  if((u.waryT||0) > 0) u.waryT -= dt;        // how long they still LOOK frightened
+  if((u.stretchT||0) > 0){
+    u.stretchT -= dt;
+    u.moving = false;
+    if(u.stretchT > 0) return;
+    u.stretchT = 0;
+  }
   if(u.chatT > 0){
     u.chatT -= dt;
     u.moving = false;
@@ -20378,7 +20971,7 @@ function updateUnit(u, dt){
       if(t.hp!==undefined && t.hp<=0){ u.order=null; u.target=null; break; }
       // the elder has no hp - she just can't be killed - so the only way to
       // lose a follow order on her is if she's torn down with resetModes()
-      const targetIndoors = t.indoors || (t===G.elder && t.state==="inside");
+      const targetIndoors = t.indoors || (isAnElder(t) && t.state==="inside");
       if(targetIndoors){
         u.moving=false;     // wait right outside rather than trying to follow in
         break;
@@ -20443,7 +21036,7 @@ function updateUnit(u, dt){
         const dpb = nearestDrop(u);
         if(!dpb){ u.order = null; u.haulHome = false; u.hauling = false; break; }
         const anchorB = bestDropAnchor(u, dpb);
-        if(moveToward(u, anchorB.x, anchorB.y, spd, dt, Math.max(dpb.w,dpb.h)*TILE/2 + 6)){
+        if(moveToward(u, anchorB.x, anchorB.y, spd, dt, dropStop(dpb))){
           landSwarm(u);
           u.haulHome = false; u.hauling = false;
           u.order = null; u.target = null;
@@ -20639,7 +21232,7 @@ function updateUnit(u, dt){
         const dp = nearestDrop(u);
         if(!dp){ u.order=null; u.haulHome=false; break; }
         const anchor = bestDropAnchor(u, dp);
-        if(moveToward(u, anchor.x, anchor.y, spd, dt, Math.max(dp.w,dp.h)*TILE/2 + 6)){
+        if(moveToward(u, anchor.x, anchor.y, spd, dt, dropStop(dp))){
           /* A kiln takes wood into its stack rather than into the stores -
              that IS the stacking step of the charcoal burn (05e). Whatever it
              cannot hold falls through to the stores as usual, so a full kiln
@@ -20689,7 +21282,7 @@ function updateUnit(u, dt){
         const dp = nearestDrop(u);
         if(!dp){ u.order=null; break; }
         const anchor = bestDropAnchor(u, dp);
-        if(moveToward(u, anchor.x, anchor.y, spd, dt, Math.max(dp.w,dp.h)*TILE/2 + 6)){
+        if(moveToward(u, anchor.x, anchor.y, spd, dt, dropStop(dp))){
           /* A kiln takes wood into its stack rather than into the stores -
              that IS the stacking step of the charcoal burn (05e). Whatever it
              cannot hold falls through to the stores as usual, so a full kiln
@@ -21932,12 +22525,53 @@ function dropAnchors(b){
    around obstacles perfectly well on its own once it is actually aiming
    at open ground. This is only here to rule out a point that has a wall or
    a neighbour built flush against it, which no amount of routing fixes. */
+/* HOW CLOSE YOU HAVE TO GET TO UNLOAD.
+
+   This was `Math.max(b.w,b.h)*TILE/2 + 6`, written at all three call sites,
+   and the comment on dropAnchors says exactly why: "most drop-offs are aimed
+   at by their CENTRE with a stop radius the size of the building, which
+   already means touch it anywhere".
+
+   That is right for the centre-aimed ones and wrong for the two-sided ones -
+   the lumber camp, the mine, the TOWN CENTRE and the manor - whose anchor is
+   a door on the ring, already a step outside the wall. Those got the
+   building's half-size added a second time, on top of a point that had it
+   built in.
+
+   Measured on the town centre: goods landed in the stores from 80 to 95
+   pixels of its middle, when its own edge is at 34. Two and a half tiles
+   clear of the building, from every side. Reported as "characters walking
+   back to it can deliver wood from quite far away".
+
+   A door anchor gets a plain tolerance. A centre anchor still gets the
+   building's size, because for those it IS the reach. */
+const DROP_REACH = 10;      // px of slack once you are at the right spot
+function dropStop(b){
+  if(!b) return DROP_REACH;
+  return DROP_TWO_SIDED[b.type] ? DROP_REACH
+                                : Math.max(b.w, b.h)*TILE/2 + DROP_REACH;
+}
+
 function bestDropAnchor(u, b){
   const pts = dropAnchors(b);
   if(pts.length < 2) return pts[0];
   const reachable = pts.filter(p => !blocked(p.x,p.y,null,false));
   const pool = reachable.length ? reachable : pts;
-  pool.sort((a,c)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y));
+  /* SIDES BEFORE CORNERS. buildingDoors returns the four faces first and the
+     four corners after, and its own comment says why: "the alternatives only
+     come into play when the front is genuinely built over". Sorting the whole
+     lot by distance threw that order away, so a villager walking in on the
+     diagonal took a corner even with every side standing free - and a corner
+     of a 2x2 is 57 pixels from the middle against a face's 40, which put the
+     unload another half-tile out. Measured on the town centre: 64-67 px on
+     the two diagonal approaches against 49 on the square ones.
+     A face has one of its offsets at zero; a corner has neither. Sort each
+     group by distance, and only fall through to the corners when every face
+     is built over. */
+  const near = (a,c)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y);
+  const faces = pool.filter(p => Math.abs(p.x-b.x) < 1 || Math.abs(p.y-b.y) < 1);
+  if(faces.length){ faces.sort(near); return faces[0]; }
+  pool.sort(near);
   return pool[0];
 }
 
@@ -23945,7 +24579,7 @@ function markFisherman(u){
   if(u.fisherman) return;
   if(livingFisherman(u.p)) return;   // the post is taken, and they are alive
   u.fisherman = true;
-  if(!u.nightName) u.nightName = pickFreshName();
+  if(!u.nightName) u.nightName = pickFreshName(u);
   const look = VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length];
   u.epithet = look.female ? "the Fisherwoman" : "the Fisherman";
   if(u.p===P_YOU) tellAndNote(villagerName(u)+" has taken up fishing for good - the rod, the boots, "+
@@ -25672,8 +26306,29 @@ function aiThink(dt){
   const wanderRes = (!pl.stoneAge && vills.length >= 4) ? AGE_COST[0] : null;
   if(vills.length < villCap && town.queue.length < 2) aiTrain(town, "villager", wanderRes);
 
-  // 3. houses — stay well ahead of the cap, allow two going up at once
-  if(pl.pop >= pl.popcap - 7 && pl.popcap < 78) aiBuild("house", town, 2);
+  /* 3. houses - stay ahead of the cap, allow two going up at once.
+
+     The margin is read off the House itself rather than being a flat 7. It
+     WAS a flat 7, from when a House was worth 6 and the free base 8; both are
+     4 now (POP_BASE, BLDG.house), which makes `popcap - 7` NEGATIVE on a
+     starting cap of 4 - the condition is then true from the first frame.
+
+     BE CAREFUL WHAT YOU CONCLUDE FROM THAT. I first wrote here that the
+     Ashkin would therefore lay foundations before cutting a stick of wood,
+     and then measured it: they would not. aiBuild has its own affordability
+     and placement gates, and a House costs 47 wood, so the FIRST HOUSE GOES
+     UP AT THE SAME MINUTE either way - 6.0 easy, 4.0 medium, identical
+     across seeds. An always-true trigger here is a no-op until the timber
+     exists.
+
+     What it actually costs is a little over-building. Measured over twenty
+     minutes on four runs, the flat 7 built one more house than it needed and
+     carried more empty room: unused cap peaked at 11-15 against 7-11. So
+     this is a small efficiency fix and a guard against the number rotting
+     again if the House's worth changes, NOT a correctness fix. Worth having,
+     and worth not overselling. */
+  const houseLead = Math.max(2, (BLDG.house.pop || POP_BASE) - 1);
+  if(pl.pop >= pl.popcap - houseLead && pl.popcap < 78) aiBuild("house", town, 2);
 
   // 3b. farms — a renewable food supply once the wild food thins out.
   // Outright starvation overrides the workforce gate: on a lake-cut map the
@@ -26184,15 +26839,19 @@ function aiNeed(pl){
   order.sort((a,b)=>a[1]-b[1]);
   return order[0][0];
 }
-function nearestNodeOfKind(u,kind){
-  let best=null,bd=1e9;
-  for(const n of G.nodes){
-    if(n.amt<=0||n.kind!==kind) continue;
-    const d=Math.hypot(n.x-u.x,n.y-u.y);
-    if(d<bd){bd=d;best=n;}
-  }
-  return best;
-}
+/* nearestNodeOfKind was here, and it was a trap. Nothing called it - the AI
+   has used aiNearestReachableNode (just below) for as long as anyone can
+   remember - but it sat two functions away from the live picker, looked
+   exactly like it, and did NOT skip water nodes. The live one skips them
+   deliberately and says why at length: hand a land villager a fish and the
+   gather tick clears the order every think tick, forever, "while the AI
+   quietly starves beside a lake full of food".
+
+   Anybody grepping for how the AI chooses a node would have found the dead
+   one first and concluded the opposite of the truth - a note in this
+   project's own memory did exactly that, and named the wrong function.
+   Removed rather than left with a comment on it: a near-duplicate of a live
+   function, missing its one important rule, is worse than no function. */
 /* Nearest node a villager can actually walk to. Straight-line nearest is
    how the whole AI economy starved on The Lakes: once the near berry
    patches were eaten bare, "nearest food" was across a lake, every food
@@ -26491,6 +27150,29 @@ function glowGradient(g, peak, core, pow, rgb){
     const f = t<=core ? 1 : Math.pow(1-(t-core)/(1-core), pow);
     g.addColorStop(t, "rgba("+rgb+","+(peak*f).toFixed(4)+")");
   }
+}
+
+/* IS THIS BIT OF SCREEN GROUND YOU KNOW ABOUT?
+
+   Weather is drawn in SCREEN space - it costs the same at any zoom, which is
+   the whole reason it is done that way - and screen space takes no notice of
+   the fog of war. So snow fell over the black just as happily as over the
+   village: a winter map showed flakes drifting through the unexplored void
+   past the edge of everything you had ever walked. Reported with a picture.
+
+   Same test the stars already use (drawMilkyWay, 05): turn the screen point
+   back into a world tile and drop it if that ground has never been seen.
+   Ground you have walked but cannot currently see still counts - it is grey,
+   not black, and it snows there too.
+
+   Cheap: it is a handful of arithmetic per flake, on a few dozen flakes. */
+function weatherOnKnownGround(sx, sy){
+  const fog = G.fog && G.fog[P_YOU];
+  if(!fog) return true;
+  const wx = G.cam.x + sx / G.cam.z, wy = G.cam.y + sy / G.cam.z;
+  const tx = (wx/TILE)|0, ty = (wy/TILE)|0;
+  if(tx<0 || ty<0 || tx>=MAPW || ty>=MAPH) return false;
+  return fog[ty*MAPW+tx] !== 0;
 }
 
 function draw(){
@@ -26883,8 +27565,10 @@ function draw(){
     if(!visibleTo(P_YOU,ck.x,ck.y)) continue;
     drawList.push({ e:ck, y:ck.y, kind:22 });
   }
-  if(G.elder && G.elder.state!=="inside" && visibleTo(P_YOU,G.elder.x,G.elder.y))
-    drawList.push({ e:G.elder, y:G.elder.y, kind:5 });
+  // every elder, not only the Lodge's - see elders() (01b)
+  for(const el of elders())
+    if(el.state!=="inside" && visibleTo(P_YOU,el.x,el.y))
+      drawList.push({ e:el, y:el.y, kind:5 });
   for(const o of G.homeLife||[]){
     if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
     if(!visibleTo(P_YOU,o.x,o.y)) continue;
@@ -28112,8 +28796,7 @@ function draw(){
   // speech bubbles: tiny, wordless, deliberately unreadable marks
   ctx.save();
   ctx.scale(G.cam.z,G.cam.z); ctx.translate(-G.cam.x,-G.cam.y);
-  const speakers = G.elder && G.elder.state!=="inside"
-    ? G.units.concat([G.elder]) : G.units;
+  const speakers = G.units.concat(elders().filter(el => el.state!=="inside"));
   for(const u of speakers){
     if(!u.say) continue;
     /* Nobody speaks from inside a house. An indoors unit is not drawn, but
@@ -28906,6 +29589,7 @@ function draw(){
         const lean = -4 + (hash1(i*3.1+2)-0.5)*5 + gust*(0.6+near*0.8);
         const x = ((i*137.5 + hash1(i*5.7)*300 + t*RAIN_DRIFT*speedMul) % (VW+80)) - 40;
         const y = ((i*91.3  + hash1(i*8.3)*300 + t*RAIN_FALL*speedMul) % (VH+80)) - 40;
+        if(!weatherOnKnownGround(x, y)) continue;
         ctx.strokeStyle = "rgba(190,214,232," + (0.24 + near*0.34).toFixed(2) + ")";
         ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+lean, y+len); ctx.stroke();
       }
@@ -28936,6 +29620,7 @@ function draw(){
         const x = ((i*173.1 + hash1(i*4.4)*400 + t*640*speedMul) % (VW+80)) - 40;
         const y = ((i*67.7  + hash1(i*6.6)*400 + t*(220+hash1(i*1.7)*160)
                     + Math.sin(t*(1.4+hash1(i)*1.6)+i)*22*swayMul) % (VH+80)) - 40;
+        if(!weatherOnKnownGround(x, y)) continue;
         const r = 0.7 + hash1(i*9.2)*1.4;
         ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill();
       }
@@ -28950,6 +29635,7 @@ function draw(){
         const x = ((i*151.7 + hash1(i*5.1)*400 + t*700*speedMul) % (VW+80)) - 40;
         const y = ((i*83.9  + hash1(i*7.4)*400 + t*(160+hash1(i*2.1)*140)
                     + Math.sin(t*(2+hash1(i)*2)+i)*30*swayMul) % (VH+80)) - 40;
+        if(!weatherOnKnownGround(x, y)) continue;   // petals and leaves too
         ctx.fillStyle = PAL2[i % PAL2.length];
         ctx.globalAlpha = 0.55*amt;
         ctx.beginPath();
@@ -29115,6 +29801,7 @@ function draw(){
       const sx = ((i*163.1 + hash1(i*4.1)*400 + G.t*40*speedMul) % (VW+40)) - 20;
       const sy = ((i*59.3 + hash1(i*6.2)*400 + G.t*(50+hash1(i*1.3)*40)
                   + Math.sin(G.t*(1.0+hash1(i)*1.0)+i)*14*swayMul) % (VH+40)) - 20;
+      if(!weatherOnKnownGround(sx, sy)) continue;   // not out in the black
       const r = 0.8 + hash1(i*8.8)*1.0;
       ctx.beginPath(); ctx.arc(sx, sy, r, 0, 6.283); ctx.fill();
     }
@@ -34662,6 +35349,12 @@ function drawUnit(u){
      string or a rope doesn't mirror oddly the moment they turn around. */
   if(u.breakActivity) drawWorkBreakProp(u, pl);
 
+  /* Asleep on the ground, and a cross face if you got them up. Both in world
+     space after the restore, same reasoning as the prop above: a bubble over
+     somebody's head must not mirror when they turn round. */
+  drawSleepBubble(u);
+  drawGrumble(u);
+
   /* Breath in the cold. AFTER the restore on purpose: it is drawn in world
      space at the unit's own position, so it does not flip with the sprite -
      a puff should come off the face whichever way they are walking, and
@@ -35689,6 +36382,24 @@ function barrelShade(halfW, top, h, dimCol, baseCol, litCol){
    being in front, so the overlapping one should win. It does not, at this
    size. An arm that overlaps a back just widens the back. */
 const ARM_SIDE_X = 1.28;
+/* And how far out a BUILDER's arms sit when turned away - see the armShX
+   note in drawPerson.
+
+   1.42, arrived at by measurement rather than taste. The tool is drawn FROM
+   the hand, so wherever the hand goes the tool follows, and the tool has its
+   own long-standing requirement: it must not lie across the back (see
+   tests/tool-clears-the-back.js, which caught the first attempt at this).
+   The old code met that by shoving the tool out H*0.13 past a hand that
+   never moved. Moving the hand out by exactly that much instead - H*0.13 is
+   0.70 in torso-half-widths - puts the tool back where it always was, and
+   brings the arm along with it. 0.72 + 0.70 = 1.42.
+
+   My first go used 1.02, reasoning that a full splay would read as a shrug.
+   It looked reasonable and moved the tool 1.25 units INBOARD of where it had
+   been, straight back onto the shoulder blades: tamp cleared the body in 0
+   frames of 20. The number is not a matter of taste - it is set by where the
+   tool has to end up. */
+const ARM_BUILD_BACK_X = 1.42;
 
 function villagerJob(u){
   if(u.type!=="villager" && u.type!=="moonvillager") return null;
@@ -35806,8 +36517,12 @@ function villagerMood(u){
   if(u.lying) return "asleep";
   // fighting: told to attack, or shouting about it (u.sayHot, 05)
   if(u.order === "attack" || u.sayHot) return "fighting";
-  // wary: lived through a bad night and has not forgotten it
-  if(u.wary) return "wary";
+  /* wary: freshly frightened - a beast actually reached them. u.waryT, NOT
+     u.wary: the flag is a permanent memory the leisure system wants (see
+     leisureOptionsFor, 05), and reading it here left the face stuck for the
+     whole match. Everything below this line was unreachable for that
+     villager ever after. */
+  if((u.waryT||0) > 0) return "wary";
   // laughing: actually singing along to something
   if((u.singT||0) > 0) return "laughing";
   // pleased: making a fuss of a dog, or still glowing from having done
@@ -36107,6 +36822,30 @@ function drawFaceMouth(u, headR, headY){
    not listed here (there shouldn't be any) simply draws as if it were
    working normally - a missing entry is a silent no-op, not a crash. */
 const KITE_ARM_A = 2.0;   // shared with the kite string's own hand-position formula, drawWorkBreakProp below
+
+/* ---------- GETTING UP OFF THE GROUND ----------
+   Somebody who has spent the night outside does not simply stand up and walk
+   off. STRETCH_TIME is how long they take over it: both arms overhead, held,
+   and down again. It is the only pose in the game that uses both arms, which
+   is why armB above had to exist at all.
+
+   Driven by u.stretchT, a real countdown on the unit rather than a phase off
+   G.t - a stretch happens ONCE, at a moment, and has to end. Set when a rough
+   sleeper is woken by the dawn (wakeUp, 05b) and when the player wakes one
+   early (stepOutToWork, 03a). */
+const STRETCH_TIME = 1.7;
+function stretchPose(u){
+  const t = 1 - Math.max(0, (u.stretchT||0)) / STRETCH_TIME;   // 0 -> 1
+  /* Up fast, held, down slower - the shape of an actual stretch. A symmetric
+     sine would have them wafting their arms about. */
+  const lift = t < 0.30 ? (t/0.30)
+             : t < 0.62 ? 1
+             : Math.max(0, 1 - (t-0.62)/0.38);
+  // a shiver at the top of it, which is what makes it read as a stretch
+  const shake = (lift > 0.9) ? Math.sin(G.t*17 + (u.id||0))*0.055 : 0;
+  u.armA = 2.62*lift + shake;
+  u.armB = 2.48*lift - shake;
+}
 const WORK_BREAK_POSE = {
   brow:     u => { u.armA = 1.9 + Math.sin(G.t*3.4 + u.id)*0.14; },      // an arm swept up to the forehead, and back
   sit:      u => { u.sit = true; u.armA = 0.85; },                       // down on the ground, hands loose in the lap
@@ -36154,6 +36893,152 @@ const WORK_BREAK_POSE = {
    clouds: not asked for as a prop, just a couple of the things actually
    being watched - a lying-down break with nothing overhead reads as
    "napping", not "watching the clouds go by". */
+/* ---------- ZZZ, AND A DREAM NOW AND THEN ----------
+   Over somebody asleep on the ground outside (u.roughing, 05b). Not over
+   somebody indoors - they are not drawn at all - and not constantly: a
+   bubble that is always there is wallpaper, and the point of this one is to
+   catch your eye when you happen to look.
+
+   Every phase is hashed off the villager's own id. A village of seven all
+   dreaming on the same beat is the single most common mistake in this file -
+   see the note on the dogs' tail wag, which had exactly that bug - and it is
+   worse here, because a row of identical bubbles rising in step reads as a
+   UI element rather than as seven people asleep. */
+const SLEEP_BUBBLE_EVERY = 11;      // seconds between one and the next
+const SLEEP_BUBBLE_SHOW  = 4.2;     // and how long it hangs about
+/* What they are dreaming of. Mostly Zs; now and then something they know.
+   Drawn rather than typed, because a glyph at this size is a smudge. */
+const DREAM_KINDS = ["z", "z", "z", "z", "loaf", "fish", "tree", "bone", "heart"];
+function drawSleepBubble(u){
+  if(!u || !u.roughing || u.hp <= 0) return;
+  const id = (u.id || 0);
+  /* Each villager on their own clock, offset by a hash of their id - not by
+     id alone, which would put neighbours a fixed step apart and read as a
+     Mexican wave down the row. */
+  const off = ((id * 2654435761) >>> 0) / 4294967295 * SLEEP_BUBBLE_EVERY;
+  const ph  = ((G.t + off) % SLEEP_BUBBLE_EVERY);
+  if(ph > SLEEP_BUBBLE_SHOW) return;
+  const t = ph / SLEEP_BUBBLE_SHOW;                 // 0 -> 1 across the showing
+  const a = Math.min(1, Math.sin(t * Math.PI) * 1.9);   // fade in, hold, fade out
+  if(a <= 0.02) return;
+  const kind = DREAM_KINDS[((id * 40503) >>> 0) % DREAM_KINDS.length];
+  const rise = t * 7;
+  const bx = u.x + u.r*1.5, by = u.y - u.r*1.1 - rise;
+
+  ctx.save();
+  ctx.globalAlpha = a * (1 - (G.dark||0)*0.35);
+
+  /* ALWAYS THE BUBBLE, whatever is in it. The Zs were first drawn bare -
+     three little glyphs climbing away with nothing behind them - and against
+     grass at night they came out as three faint specks you would never
+     notice, which defeats the object of something meant to catch your eye.
+     A pale bubble gives them a ground to sit on and makes them legible at
+     the zoom anyone actually plays at. It is also what was asked for. */
+  const cx = bx + 4, cy = by - 6, r = 5.6;
+  ctx.fillStyle = "rgba(239,231,210,.92)";
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx - r*0.95, cy + r*0.88, 1.8, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx - r*1.38, cy + r*1.48, 0.95, 0, 6.283); ctx.fill();
+  ctx.strokeStyle = "rgba(40,34,26,.30)"; ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.283); ctx.stroke();
+
+  if(kind === "z"){
+    ctx.fillStyle = "#3a2f1e";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = "italic 700 7px 'Avenir Next',system-ui,sans-serif";
+    ctx.fillText("z", cx, cy + 0.4);
+    /* And two more climbing out of it, each smaller and a beat later - the
+       bit that says "asleep" rather than "thinking". */
+    for(let i=1;i<3;i++){
+      const p = (t*1.3 - i*0.18);
+      if(p < 0 || p > 1) continue;
+      ctx.save();
+      ctx.globalAlpha = a * (1 - i*0.28) * (1 - (G.dark||0)*0.35);
+      ctx.fillStyle = "#efe7d2";
+      ctx.strokeStyle = "rgba(30,26,20,.55)"; ctx.lineWidth = 0.55;
+      const sz = 5.4 - i*1.2;
+      const zx = cx + r*0.7 + i*3.0 + Math.sin(G.t*1.4 + i + id)*1.0;
+      const zy = cy - r*0.6 - i*4.0;
+      ctx.font = "italic 700 " + sz.toFixed(1) + "px 'Avenir Next',system-ui,sans-serif";
+      ctx.strokeText("z", zx, zy);
+      ctx.fillText("z", zx, zy);
+      ctx.restore();
+    }
+  } else {
+    drawDreamPicture(kind, cx, cy);
+  }
+  ctx.restore();
+}
+
+/* The dream itself - kept small and blunt, because five pixels across is not
+   the place for detail. Each is a thing that villager plausibly cares about:
+   the loaf the baker brings round, a fish out of the shoal, a tree, the dogs'
+   bone, and somebody they are fond of. */
+function drawDreamPicture(kind, cx, cy){
+  if(kind === "loaf"){
+    ctx.fillStyle = "#c79a5b";
+    ctx.beginPath(); ctx.ellipse(cx, cy+0.4, 3.4, 2.1, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "#9a713c"; ctx.lineWidth = 0.5;
+    for(let i=-1;i<2;i++){
+      ctx.beginPath(); ctx.moveTo(cx+i*1.5-0.5, cy-1.0); ctx.lineTo(cx+i*1.5+0.4, cy+0.3); ctx.stroke();
+    }
+  } else if(kind === "fish"){
+    ctx.fillStyle = "#6a9bb5";
+    ctx.beginPath(); ctx.ellipse(cx+0.4, cy, 3.0, 1.6, 0, 0, 6.283); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx-2.4, cy); ctx.lineTo(cx-4.2, cy-1.5); ctx.lineTo(cx-4.2, cy+1.5);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#22303a";
+    ctx.beginPath(); ctx.arc(cx+1.9, cy-0.4, 0.42, 0, 6.283); ctx.fill();
+  } else if(kind === "tree"){
+    ctx.fillStyle = "#5d7a41";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-3.4); ctx.lineTo(cx+2.8, cy+1.2); ctx.lineTo(cx-2.8, cy+1.2);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#6b4f31";
+    ctx.fillRect(cx-0.6, cy+1.0, 1.2, 2.2);
+  } else if(kind === "bone"){
+    ctx.strokeStyle = "#e6ddc6"; ctx.lineWidth = 1.5; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(cx-2.2, cy); ctx.lineTo(cx+2.2, cy); ctx.stroke();
+    ctx.fillStyle = "#e6ddc6";
+    for(const sx of [-2.6, 2.6]) for(const sy of [-1.0, 1.0]){
+      ctx.beginPath(); ctx.arc(cx+sx, cy+sy, 1.05, 0, 6.283); ctx.fill();
+    }
+  } else {   // heart
+    ctx.fillStyle = "#c96b7a";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy+2.6);
+    ctx.bezierCurveTo(cx-4.2, cy-0.6, cx-2.0, cy-3.4, cx, cy-1.3);
+    ctx.bezierCurveTo(cx+2.0, cy-3.4, cx+4.2, cy-0.6, cx, cy+2.6);
+    ctx.closePath(); ctx.fill();
+  }
+}
+
+/* ---------- AND A CROSS FACE IF YOU GOT THEM UP ----------
+   Set by grumbleAtBeingWoken (03a) and counted down in the tick. Not a
+   floating status marker - it is over their head for about two and a half
+   seconds while they get their boots on and then it is gone, which is the
+   distinction the "no floating UI markers" rule draws. */
+function drawGrumble(u){
+  if(!u || !((u.grumbleT||0) > 0) || u.hp <= 0) return;
+  const a = Math.min(1, u.grumbleT / 0.6);
+  const cx = u.x, cy = u.y - u.r*2.7 - Math.sin(G.t*3.2 + (u.id||0))*0.8;
+  ctx.save();
+  ctx.globalAlpha = a;
+  // the little cross-hatched puff of temper, the way a comic draws it
+  ctx.strokeStyle = "#d0604e"; ctx.lineWidth = 1.0; ctx.lineCap = "round";
+  const wob = Math.sin(G.t*9 + (u.id||0))*0.10;
+  ctx.save();
+  ctx.translate(cx, cy); ctx.rotate(wob);
+  for(const d of [[-2.6,-2.6, 2.6, 2.6], [2.6,-2.6, -2.6, 2.6]]){
+    ctx.beginPath(); ctx.moveTo(d[0], d[1]); ctx.lineTo(d[2], d[3]); ctx.stroke();
+  }
+  ctx.beginPath(); ctx.moveTo(-3.4, 0); ctx.lineTo(3.4, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, -3.4); ctx.lineTo(0, 3.4); ctx.stroke();
+  ctx.restore();
+  ctx.restore();
+}
+
 function drawWorkBreakProp(u, pl){
   const H = u.r*2.35, tw = H*0.185, armLen = H*0.24;
   if(u.breakActivity === "kite"){
@@ -36636,8 +37521,21 @@ function drawPerson(u, pl, yOff){
     WORK_BREAK_POSE[u.breakActivity](u);
     u._workBreakPosed = true;
   } else if(u._workBreakPosed){
-    u.sit = false; u.lying = false; u.snowAngel = false; u.armA = undefined;
+    u.sit = false; u.lying = false; u.snowAngel = false;
+    u.armA = undefined; u.armB = undefined;
     u._workBreakPosed = false;
+  }
+  /* Getting up off the ground. AFTER the break-pose block on purpose: a
+     stretch outranks whatever ambient pose was showing, and it clears the
+     arms itself on the frame it ends rather than leaving them overhead - the
+     same trap the break poses documented above, and the reason armB is
+     cleared here too. */
+  if((u.stretchT||0) > 0){
+    stretchPose(u);
+    u._stretching = true;
+  } else if(u._stretching){
+    u.armA = undefined; u.armB = undefined;
+    u._stretching = false;
   }
   const r = u.r;
   /* NOT EVERY FIGURE DRAWN BY THIS FUNCTION IS A REAL UNIT. The leisure
@@ -37658,7 +38556,13 @@ function drawPerson(u, pl, yOff){
      both need it and they must not disagree. */
   const buildAct = (isVill && work && u.order === "build" && !u.breakActivity)
                  ? buildActionOf(u) : null;
-  const backA  = hauling ? -1.05
+  /* `armB` poses the BACK arm, the way armA has always posed the front one.
+     Nothing needed it until the stretch: every other pose in the game is
+     something done with one hand, and a stretch is the first that is not -
+     one arm overhead and the other down at the side reads as waving, not as
+     somebody who has just got up off the ground. */
+  const backA  = (u.armB !== undefined) ? u.armB
+               : hauling ? -1.05
                /* Both hands on it: you cannot hold a board up, or swing a
                   rammer, with one arm hanging at your side. */
                : buildAct === "metalsaw" ? 0.90 + Math.sin(G.t*2.9 + uid + 0.25)*0.30
@@ -37839,7 +38743,25 @@ function drawPerson(u, pl, yOff){
   /* `armShX`, not `shX` - the captain's shield block further down declares
      a `shX` of its own for the shield's centre, and two different things
      under one name in one function is how a wrong one gets picked up. */
-  const armShX = (backView && armsFree) ? tw*ARM_SIDE_X : tw*0.72;
+  /* AND A BUILDER SEEN FROM BEHIND, which `armsFree` excludes by definition:
+     it means empty hands, and a builder is holding a mallet.
+
+     So a builder turned away from you fell through to tw*0.72 - arms tucked
+     against the body's edge - while drawBuildTool pushed the TOOL out past
+     the body to compensate. The tool moved and the arm did not, and what you
+     got was a mallet floating beside somebody with no visible arms at all.
+     Reported exactly that way: "the arms are still behind the back of the
+     villager instead of in front of them".
+
+     Not the full ARM_SIDE_X the empty-handed get, though. That is a splay,
+     right for arms hanging loose and wrong for two hands on a tool - it would
+     read as a shrug. Far enough out to clear the body and be seen as limbs,
+     no further. The tool follows for free, because the hand it is drawn from
+     is derived from this very number (hx, below) - which is also why
+     drawBuildTool's own back-view nudge comes off with it. */
+  const armShX = (backView && armsFree)  ? tw*ARM_SIDE_X
+               : (backView && buildAct)  ? tw*ARM_BUILD_BACK_X
+               : tw*0.72;
   /* AND THEY HAVE TO BE LIGHTER THAN THE BACK THEY LIE ON. Both arms were
      the coat's own colour or a shade under it, hanging at the body's edge -
      so the eye read the pale strip BETWEEN them as the shirt and the two
@@ -38308,7 +39230,16 @@ function drawPerson(u, pl, yOff){
      the apron, the accent trim, the straw hat and the headscarf, and a
      spearman in an apron is not the idea. */
   const headLook = look || soldierHead(uid);
-  const hairCol = hairGrey(uid, hairFair(uid, headLook.hair)) || "rgba(44,32,22,.85)";
+  /* AN ODD COLOUR, for the few who have one. The wayfarers who join the
+     village wear hair no villager is born with - white, blue, red, purple,
+     orange, lavender - so that the person who answered a question correctly
+     three seasons ago is still recognisable at a glance among forty others.
+     Set on the unit (u.oddHair, 05m) and taken instead of the roll, not
+     mixed into it: the grey and the fair passes below would turn lavender
+     into a slightly off grey and lose the whole point of it. */
+  const hairCol = u.oddHair
+                || hairGrey(uid, hairFair(uid, headLook.hair))
+                || "rgba(44,32,22,.85)";
   /* ---- THE BACK OF THE HEAD ----
      Laid down BEFORE the styles below rather than after them. Every style
      here is a fringe or a crop drawn in this same colour, so painting the
@@ -38653,7 +39584,26 @@ function drawPerson(u, pl, yOff){
      chain below is covered by one gate: putting it on the farm branch
      alone would have let a mining founder through the `else if`. */
   const jobHat = u.firstVillager ? null : job;
-  if(jobHat === "farm"){
+  /* A TRADE'S OWN HAT IS THEIR ONLY HAT.
+
+     The bug catcher's cap is drawn further down in a block of its own, and
+     that block is a separate `if` rather than part of this chain - so a bug
+     catcher who happened to be gathering from a farm wore the farm's straw
+     brim AND the cap on top of it. Two hats, reported with a picture. Down a
+     seam they got the miner's hard hat and the cap.
+
+     Taking the first branch here and drawing nothing is what keeps them out
+     of every other hat in the chain - the job hats above and the beekeeper,
+     chef, nightwear and fisherman branches below - and leaves their own cap
+     as the only thing on their head, which is what a trade costume is for.
+
+     `!u.indoors` matches the cap's own condition exactly. Indoors nothing is
+     drawn at all, but if that ever changes the two must agree or a bug
+     catcher indoors would end up bare-headed instead of in a straw hat. */
+  const ownTradeHat = u.bugCatcher && !u.indoors;
+  if(ownTradeHat){
+    // nothing here: the cap itself is drawn below, after the whole chain
+  } else if(jobHat === "farm"){
     /* A broad straw hat, brim first so the crown sits on top of it.
 
        IT USED TO FLOAT. The brim was a wide flat ellipse at -0.42 of the
@@ -39955,7 +40905,10 @@ function drawBuildTool(u, hx, hy, H){
      last of everything on the body, so it was never hidden BEHIND anything;
      it was in the wrong place. Out past the body's edge, under the hanging
      arm, and it reads as held. */
-  if(u && u.dir === "up") hx += H*0.13;
+  /* The back-view nudge that used to be here is gone. It pushed the tool out
+     past the body because the ARM would not - and now the arm does
+     (ARM_BUILD_BACK_X, drawPerson). Keeping both moved the tool out twice
+     and parted it from the hand again, the other way. */
   if(act === "mallet"){ drawMallet(u, hx, hy, H); return; }
 
   if(act === "saw"){
@@ -43403,7 +44356,22 @@ function drawVillageBonfire(p){
    block in drawVillageDog (05i). Drawn BEFORE the dog so it can stand over
    it without the ball vanishing. */
 function drawSmallDogBall(g){
-  if(!g || !g.ballAt) return;
+  if(!g) return;
+  /* In the air, on its way out. Same arc and the same shadow-gap read as the
+     kennel dogs' (drawVillageDog, 05i) - it is the same throw. */
+  if(g.ballFly){
+    const f = g.ballFly;
+    const t = Math.min(1, f.t / f.dur);
+    const gx = f.x0 + (f.x1-f.x0)*t, gy = f.y0 + (f.y1-f.y0)*t;
+    const lift = Math.sin(Math.PI*t) * BALL_FLIGHT_H;
+    ctx.fillStyle = "rgba(0,0,0,"+(0.20*(1-lift/(BALL_FLIGHT_H*1.6))).toFixed(3)+")";
+    ctx.beginPath(); ctx.ellipse(gx, gy+1.4, 2.2, 0.9, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = g.ball || "#c8543a";
+    ctx.beginPath(); ctx.arc(gx, gy - lift, 2.2, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.30)";
+    ctx.beginPath(); ctx.arc(gx-0.7, gy - lift - 0.8, 0.8, 0, 6.283); ctx.fill();
+  }
+  if(!g.ballAt) return;
   ctx.fillStyle = "rgba(0,0,0,.2)";
   ctx.beginPath(); ctx.ellipse(g.ballAt.x, g.ballAt.y+1.4, 2.4, 1.0, 0, 0, 6.283); ctx.fill();
   ctx.fillStyle = g.ball || "#c8543a";
@@ -51232,7 +52200,7 @@ function updateHermitRepair(){
   const gift = 60;
   G.players[P_YOU].res.know = (G.players[P_YOU].res.know||0) + gift;
   who.elderling = true;
-  if(!who.nightName) who.nightName = pickNightName();
+  if(!who.nightName) who.nightName = pickNightName(who);
   hint("The hut is whole again, and "+(who.nightName||"whoever did it")+" has the look of somebody who has "
      + "learned something out here - " + gift + " knowledge. Bring them home and they can raise a cottage of their own.");
   refreshUI();
@@ -53591,23 +54559,51 @@ const DAWNDEW_FOOD     = 40;
    on, clear of everything else. `want` is what makes each of the three feel
    like it grew where it should have - the petal on open grass, the feather
    under trees, the dew on the fields. */
+/* Somewhere near the village to put a thing worth walking to - a night crop,
+   an owl feather, a swarm of bees on a branch.
+
+   IT USED TO BET EVERYTHING ON ONE BUILDING. A single random building was
+   picked, ninety points were tried in a ring around THAT one, and if none of
+   them worked the whole call returned null - so a village whose randomly
+   chosen building happened to sit against the map edge, or with water or a
+   thicket of nodes filling its ring, could not place anything at all.
+
+   Found through the bees. The swarm is meant to arrive every spring without
+   fail; on seed 8 it was called forty times on its day and returned false
+   forty times, on a map with 2,495 trees on it. Every guard inside the swarm
+   passed - right season, right day, right year, nothing already hanging -
+   and the placement simply could not find ground. Forced on a fresh game of
+   the same seed it succeeded 200 times out of 200, which is what said the
+   map was fine and the picker was not.
+
+   It walks the buildings now, in a shuffled order, and only gives up when
+   none of them can offer a spot. Same ring, same rules, same cost in the
+   ordinary case - the first building still usually works on the first go. */
 function pickNightCropSpot(want){
   const mine = G.bldgs.filter(b=>b.p===P_YOU && b.done);
   if(!mine.length) return null;
-  const home = mine[(Math.random()*mine.length)|0];
-  for(let attempt=0; attempt<90; attempt++){
-    const a = Math.random()*6.283, r = 90 + Math.random()*300;
-    const x = home.x + Math.cos(a)*r, y = home.y + Math.sin(a)*r;
-    const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
-    if(tx<2||ty<2||tx>=MAPW-2||ty>=MAPH-2) continue;
-    if(G.terrain[ty*MAPW+tx] === 5) continue;              // not in the water
-    if(blocked(x,y,null,false)) continue;
-    // clear of every other node, the tree-overlap fix the moonflower and the
-    // moonstone veins both needed before it
-    if(G.nodes.some(n => n.amt > 0 &&
-        Math.abs(n.x-x) < TILE*1.1 && Math.abs(n.y-y) < TILE*1.1)) continue;
-    if(want && !want(x, y)) continue;
-    return { x:(tx+0.5)*TILE, y:(ty+0.5)*TILE };
+  /* Shuffled rather than in build order, or every night crop in the match
+     would cluster round whichever building happens to be first in the list. */
+  const order = mine.slice();
+  for(let i=order.length-1;i>0;i--){
+    const j = (Math.random()*(i+1))|0;
+    const t = order[i]; order[i] = order[j]; order[j] = t;
+  }
+  for(const home of order){
+    for(let attempt=0; attempt<90; attempt++){
+      const a = Math.random()*6.283, r = 90 + Math.random()*300;
+      const x = home.x + Math.cos(a)*r, y = home.y + Math.sin(a)*r;
+      const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
+      if(tx<2||ty<2||tx>=MAPW-2||ty>=MAPH-2) continue;
+      if(G.terrain[ty*MAPW+tx] === 5) continue;              // not in the water
+      if(blocked(x,y,null,false)) continue;
+      // clear of every other node, the tree-overlap fix the moonflower and the
+      // moonstone veins both needed before it
+      if(G.nodes.some(n => n.amt > 0 &&
+          Math.abs(n.x-x) < TILE*1.1 && Math.abs(n.y-y) < TILE*1.1)) continue;
+      if(want && !want(x, y)) continue;
+      return { x:(tx+0.5)*TILE, y:(ty+0.5)*TILE };
+    }
   }
   return null;
 }
@@ -56073,18 +57069,76 @@ const NIGHT_NAMES = [
   "Grimwald","Hafdis","Brand","Snaelaug","Ozur","Thurid","Halvdan","Vigdis",
   "Skuli","Bera","Herjolf","Oddny","Thorkel","Yrsa","Gizur","Hallbera"
 ];
-function pickNightName(){
+function pickNightName(u){
+  // Matched to the look where there is one - see FEMALE_NAMES below.
+  const fem = (typeof looksFemale === "function") ? looksFemale(u) : null;
+  if(fem !== null){
+    const fit = NIGHT_NAMES.filter(n => FEMALE_NAMES.has(n) === fem);
+    if(fit.length) return fit[(Math.random()*fit.length)|0];
+  }
   return NIGHT_NAMES[(Math.random()*NIGHT_NAMES.length)|0];
 }
 /* A name nobody in this village is already using, where one is to be had -
    the founder above all should never share a name with somebody who wandered
    in later. Falls back to the plain roll when the pool is exhausted, which
    takes a village of well over a hundred. */
-function pickFreshName(){
+/* WHICH OF THE 168 ARE WOMEN'S NAMES.
+
+   "Birgitta the Fisherman." The name comes from NIGHT_NAMES, a flat pool
+   with no gender in it at all, and the epithet comes from the villager's
+   LOOK (`look.female`, VILLAGER_LOOKS) - so the two had no way of agreeing
+   and about half the time they did not. It reads as a mistake because it is
+   one, and it is on every named villager in the game, not only the
+   fisherman: "Gunnhild the Woodsman", "Torvald the Fisherwoman".
+
+   A separate set rather than restructuring NIGHT_NAMES: that array is a
+   deliberate, commented block of three name traditions, and rewriting it
+   into pairs would churn it for no gain. Anything not listed here is a
+   man's name, which is the safe default - the list was checked name by
+   name rather than assumed from the alternating order the array happens to
+   mostly follow (it breaks at Gyda/Njal/Auden, and the Old English run
+   opens with seven men before its first woman). */
+const FEMALE_NAMES = new Set([
+  // Norse
+  "Astrid","Freya","Ingrid","Solveig","Runa","Ylva","Sigrun","Gunnhild",
+  "Birgitta","Signe","Asa","Thora","Hedda","Liv","Alva","Tove",
+  "Hilde","Brynja","Saga","Dagny","Ragnhild","Aslaug","Gudrun","Idunn",
+  "Bergljot","Ranveig","Turid","Gyda","Hallgerd","Groa","Jorunn","Salvor",
+  "Hafdis","Snaelaug","Thurid","Vigdis","Bera","Oddny","Yrsa","Hallbera",
+  // Old English
+  "Hilda","Eadgyth","Mildred","Wynflaed","Aelfgifu","Sunngifu","Leofgyth",
+  "Ealdgyth","Hereswith","Aethelflaed","Osgifu","Cwenburh","Eanflaed",
+  "Godgifu","Wilburh","Eadburh","Aelfrun","Beadohild","Seaxburh","Merewyn",
+  // Swedish
+  "Elsa","Maja","Kerstin","Ebba","Bodil","Ragna","Ingegerd","Malin",
+  "Gertrud","Britta","Ulrika","Karin","Estrid","Gunilla","Hillevi","Sofi",
+  "Barbro","Ottilia","Linnea","Ragnborg"
+]);
+
+/* Whether this villager reads as a woman, which is what the epithet is
+   already built from. Anything without a look - a soldier, a visitor, a
+   fresh object with no `look` - has no answer, and gets the whole pool. */
+function looksFemale(u){
+  if(!u || u.look === undefined || u.look === null) return null;
+  const look = VILLAGER_LOOKS[u.look % VILLAGER_LOOKS.length];
+  return look ? !!look.female : null;
+}
+
+/* `u` is optional. Every caller that has a villager to hand should pass one;
+   the ones that do not (and the "all 168 are taken" fallback) get the whole
+   pool, which is what happened to everybody before this existed. */
+function pickFreshName(u){
   const used = new Set();
-  for(const u of G.units) if(u.nightName) used.add(u.nightName);
-  const free = NIGHT_NAMES.filter(n=>!used.has(n));
-  return free.length ? free[(Math.random()*free.length)|0] : pickNightName();
+  for(const v of G.units) if(v.nightName) used.add(v.nightName);
+  let free = NIGHT_NAMES.filter(n=>!used.has(n));
+  const fem = looksFemale(u);
+  if(fem !== null){
+    const fit = free.filter(n => FEMALE_NAMES.has(n) === fem);
+    // Only narrow if there is anything left to narrow to - a village that has
+    // used every woman's name still gets a name, it just cannot match.
+    if(fit.length) free = fit;
+  }
+  return free.length ? free[(Math.random()*free.length)|0] : pickNightName(u);
 }
 
 /* Put one villager to bed: find them a house, give them their own spot at
@@ -56464,10 +57518,13 @@ function sendHome(){
        atrocity, and it is paid for elsewhere: they take the ordinary
        night-work tiredness and are owed night wages at dawn. (worksAtNight,
        02a) */
-    if(onNightShift(u) && u.order === "gather"){
-      u.nightShift = true;
-      continue;
-    }
+    /* No flag set here. There used to be `u.nightShift = true`, and nothing
+       anywhere read it: onNightShift asks u.workplace and worksAtNight, and
+       the wages at dawn are owed off u.workedNight, which is set elsewhere.
+       A write-only field called nightShift is exactly the kind of thing that
+       persuades the next reader it drives the night shift - the same trap as
+       the dead AI node picker deleted alongside it. */
+    if(onNightShift(u) && u.order === "gather") continue;
     // remember what they were doing so they can pick it up in the morning.
     // Everyone heading for the same doorstep jams, so sendOneHome gives each
     // their own spot along the front wall - not a scatter round the whole
@@ -56528,7 +57585,7 @@ function sendHome(){
 // is their first time, and can keep working instead of sleeping, at a cost
 function wakeVillagerForNight(u, home){
   if(!u.indoors || u.hp<=0) return;
-  if(!u.nightName) u.nightName = pickNightName();
+  if(!u.nightName) u.nightName = pickNightName(u);
   u.x = home.x + (Math.random()-0.5)*14;
   u.y = home.y + home.h*TILE/2 + u.r + 3;
   let guard=0;
@@ -56741,7 +57798,13 @@ function wakeUp(){
     /* Whoever slept on the ground gets up where they lay. No RESTED_TIME -
        that is for a bed - but no penalty either, and their day is restored
        below exactly like anybody else's. */
-    if(u.roughing){ u.roughing = false; u.lying = false; u.armA = undefined; }
+    if(u.roughing){
+      u.roughing = false; u.lying = false; u.armA = undefined; u.armB = undefined;
+      /* And they take a moment over it. A night on the ground earns a
+         stretch; somebody who slept in a bed simply walks out of the door.
+         (stretchPose / STRETCH_TIME, 04e) */
+      u.stretchT = STRETCH_TIME;
+    }
     /* Soldiers who went home off duty come out with everyone else. Filtered to
        villagers alone, anybody the evening put indoors stayed there for good -
        which is a fine way to lose an army. */
@@ -56830,6 +57893,11 @@ function carriesTorch(u){
      exists, not an exception to it: every other villager works in daylight
      and is indoors by dark. */
   if(u.firstVillager) return true;
+  /* And the one who arrived carrying his own. Bruce Flame (WAYFARERS, 05m)
+     is the only other villager in the game with a light after dark, which is
+     what his name is for and the whole of what he is worth - on a dark map
+     that is a second pair of eyes you cannot buy any other way. */
+  if(u.torchBearer) return true;
   return u.cls && u.cls !== "civ";
 }
 
@@ -57669,7 +58737,7 @@ function creditDeed(u, key){
   u.deeds.push(key);
 
   const wasKnown = !!u.epithet;
-  if(!u.nightName) u.nightName = pickFreshName();
+  if(!u.nightName) u.nightName = pickFreshName(u);
   if(!wasKnown){
     u.epithet = deed.title();
     hint("The one who " + deed.line + " has a name now — " + villagerName(u) + ".");
@@ -58114,11 +59182,25 @@ function updateOpeningDays(dt){
        worth saying later either. Marked off in silence. */
     if(step.done()){ G.openingSaid[step.key] = true; continue; }
     if(!step.ready()) continue;
+    /* A QUEUED TIP RECONSIDERS ITSELF. It does NOT wait for the last one to
+       be dismissed, and that was my first attempt at this: `if(G.tipShowing)
+       return;`. It stops tips stacking up, and it also stops the warning
+       about the first night ever arriving to a player who has left the wood
+       tip on screen - which is the failure the comment at the top of this
+       list is about, and the one thing on day one that can kill somebody.
+       tests/quiet-opening.js caught it.
+
+       So they still queue. What changes is that a queued tip carries the
+       question "is this still worth saying?" with it, and is dropped at the
+       moment it would be shown if the answer is no. Before, a queued tip was
+       a plain string with no memory of where it came from: cut the wood
+       while the advice to cut wood sat in the queue and you were still told
+       to cut wood. */
     if((G.t||0) - (G.openingSaidAt||0) < OPENING_GAP) return;   // not yet - and nothing else either
     /* A TIP, not an alert. Every one of these is an instruction about what
        to do next, and an alert is gone in a few seconds whether it was read
        or not. These wait to be dismissed. */
-    tip(typeof step.text === "function" ? step.text() : step.text);
+    tip(typeof step.text === "function" ? step.text() : step.text, step.done);
     G.openingSaid[step.key] = true;
     G.openingSaidAt = G.t||0;
     return;
@@ -58140,13 +59222,23 @@ const DAY_EVENT_WEIGHT = {
   // same reasoning, same cap (NEWCOMER_MAX_PER_MATCH) - a recruit talked
   // round by the founder, not a unit farm
   newcomer:2,
-  /* Same weight as its siblings above, and for the same reason: the
-     wounded stranger, the standing stone and the newcomer are all "a
-     person you found, not a unit you can farm", and there are only ever
-     four wayfarers in a match. Rarity lives HERE and nowhere else - an
-     extra dice roll inside the event itself multiplied against this one
-     and made it 0 appearances in 14 measured matches. */
-  wayfarer:1,
+  /* THE WAYFARER HAS LEFT THIS POOL (9 Sep) and has no weight here any more.
+
+     It was 1: "a person you found, not a unit you can farm", four in a whole
+     match. What a wayfarer IS has changed - up to three a SEASON now, from a
+     roster of seven with names and hair you are meant to recognise - and the
+     pool simply cannot deliver that. It fires ONE event a day, on 62% of
+     days, out of forty-odd entries, so three a season would mean winning
+     most of the event days in the week and crowding out everything else.
+
+     Raising the weight does not work and this project has already proved it,
+     on the firefly swarm: swept from 3 to 30 it went from one night in 21 to
+     one night in 10 AND NO FURTHER, because the pool holds recently-fired
+     entries out and gives only a few attempts. I tried 7 here first and
+     measured one wayfarer per MATCH across six seeds and four seasons each.
+
+     So it rolls on its own at the turn of the day (03c), exactly as the
+     fireflies do, which turns the frequency from a hope into a number. */
   dryingday:5, cart:5, loosebeast:4, fallingout:3, envoy:3, lostchild:2,
   // the village's own people - common, because they are the texture of having
   // built the cottage in the first place
@@ -58175,7 +59267,9 @@ const DAY_EVENTS = [
   { name:"mood",      go:()=>tryStrangeMood() },
   { name:"traveller", go:()=>trySpawnLostTraveller() },
   { name:"newcomer",  go:()=>trySpawnNewcomer() },
-  { name:"wayfarer",  go:()=>trySpawnWayfarer() },
+  /* The wayfarer is NOT in this pool any more - see the note where its
+     weight used to live, below. It rolls on its own at the turn of the day
+     (03c), the same way the firefly swarm does and for the same reason. */
   /* The swarm is NOT in this table. It has exactly one day a year to arrive,
      and an entry with one eligible day cannot be left to win a weighted roll
      against twenty others - measured over two 100-minute games, the clues
@@ -58636,7 +59730,15 @@ const SWARM_LINES = [
   "There it is: the bees have swarmed, and hung themselves in a knot in the trees.",
   "The swarm has come out and settled low, patient as anything, waiting to be asked."
 ];
-const SWARM_SEASON_CHANCE = 0.34;   // about one spring in three
+/* EVERY SPRING, at the user's call. It was 0.34 - about one spring in three -
+   on the reasoning that a swarm you can count on is a resource and one you
+   cannot is an occasion. That reasoning holds for a thing you already have;
+   it does not hold for the ONLY route to a hive in the game. Between a
+   one-in-three roll and an opening spring that never rolled at all, a village
+   waited an average of about four years for a beekeeper, and plenty never got
+   one. Every spring now, on a fixed day, hanging about all season: a player
+   who wants a beekeeper can go and get one in their first spring. */
+const SWARM_SEASON_CHANCE = 1;   // every spring
 const SWARM_CLUE_DAYS     = 3;      // how long the bees are noticed beforehand
 const SWARM_CLUES = [
   "There are a great many bees about the blossom this week - far more than the flowers can account for.",
@@ -58669,7 +59771,27 @@ function tryBeeClue(){
   const b = G.beeYear;
   if(!b || b.day < 0 || G.season !== SWARM_SEASON) return false;
   if(b.year !== yearNumber()) return false;
-  const today = Math.floor(G.seasonT/DAY_LEN);
+  /* ROUND, matching the caller - the same fault as the swarm's own, two
+     functions below, and the third time this family has bitten. The day-turn
+     block asks Math.round(G.seasonT/DAY_LEN) because the day clock and the
+     season clock are separate accumulators and the season is a fraction
+     SHORT at the instant a day rolls over. Flooring that reads the day
+     before - and on the first day of the season it reads MINUS ONE.
+
+     Measured at the exact clock positions a real day turn produces, with
+     the swarm due on day 3 and three days of clues wanted:
+
+       day 0 turn: floor -1 -> out = 4, past the clue window, NOTHING SAID
+       day 1 turn: floor  0 -> the first clue
+       day 2 turn: floor  1 -> the second
+       day 3 turn: floor  2 -> the third, ON THE DAY THE SWARM SETTLES
+
+     So the countdown ran a day late from end to end: the first morning of
+     spring was silent, and the last warning - "they will go soon" - arrived
+     the same morning the bees were already hanging on the branch. The whole
+     point of the clues is that somebody who reads them keeps a villager
+     free, and they cannot do that on the day itself. */
+  const today = Math.round(G.seasonT/DAY_LEN);
   const out = b.day - today;                    // days until the swarm
   if(out <= 0 || out > SWARM_CLUE_DAYS) return false;
   const i = SWARM_CLUE_DAYS - out;              // 0, 1, 2 as it draws nearer
@@ -58712,12 +59834,18 @@ function trySpawnBeeSwarm(){
    hung on its branch for the rest of the match, which made the description
    ("leave it and it moves on") a lie and turned a decision into a chore
    waiting to be done whenever. */
+/* Called at the turn OUT of the swarm's season now, not at dusk on the day
+   it settled. Half a day was a very short window on the one thing that gets a
+   village a beekeeper, and missing it used to cost a year; it hangs on the
+   branch for the whole of spring instead. It still goes in the end - a swarm
+   that waited in the woods indefinitely would stop being a thing you have to
+   go out for. */
 function clearSwarm(){
   const had = G.nodes.some(n=>n.kind==="swarm" && n.amt>0);
   if(!had) return false;
   G.nodes = G.nodes.filter(n=>n.kind!=="swarm");
-  tellAndNote("The swarm has lifted off the branch and gone wherever swarms go. Nobody went "+
-              "out for it in time.", "plain");
+  tellAndNote("The swarm has lifted off the branch at last and gone wherever swarms go. "+
+              "Nobody went out for it all spring.", "plain");
   return true;
 }
 /* Taking it. Called from the gather tick's arrival, same as the night crops.
@@ -62487,7 +63615,7 @@ function earnSpecialistByWork(u, kind){
   if(u.fisherman || u.bugCatcher) return false;          // already somebody
   if(specialistTaken(kind)) return false;
   u.tradeFound = kind;
-  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName();
+  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName(u);
   u.epithet = t.epithet;
   tellAndNote((u.nightName || "Somebody") + t.line, "good");
   if(typeof refreshUI === "function") refreshUI();
@@ -62536,7 +63664,7 @@ function promoteToTrade(u, b){
      sort of thing that earns a name, and the pool is shared with every
      other way of getting one (pickFreshName, 05b) so it will not be a name
      already in use. */
-  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName();
+  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName(u);
   b.tradeName = u.nightName || null;               // who it was, for the line
   // spent: out of the roll, out of your hands
   G.units = G.units.filter(x => x !== u);
@@ -62983,6 +64111,9 @@ function makeVillageDog(home, i){
     collar: DOG_COLLARS[(Math.random()*DOG_COLLARS.length)|0],
     tag: Math.random() < 0.55,          // and about half of them have a tag on it
     size: 0.88 + Math.random()*0.26,      // no two quite the same size
+    // a little way into the day before the first time, so two dogs arriving
+    // together do not immediately fall on each other
+    palCd: DAY_LEN * (0.1 + Math.random()*0.4),
     tail: 0, ear: Math.random()*0.4,
     patT: 0, target:null,
     ball: DOG_BALL_COLS[(Math.random()*DOG_BALL_COLS.length)|0],
@@ -63055,6 +64186,11 @@ function dogFindFriend(d){
    at something, greeting a visitor or being patted has somewhere to be, and
    being jumped on by the other one should not pull it off that. */
 const DOG_PAL_R    = 190;      // near enough to be worth trotting over for
+/* And how long before they are in the mood for each other again, as a share
+   of a day. 0.35-0.9 works out at one or two goes a day with the hour of it
+   moving about, which is what was asked for: a thing you happen to catch,
+   not a thing they are always doing. */
+const PAL_DAYS     = [0.35, 0.9];
 const DOG_PLAY_TIME = 3.4;     // how long the pair of them carry on
 /* SOMEBODY PICKS THE BALL UP AND THROWS IT.
 
@@ -63111,6 +64247,15 @@ function endTheGame(d){
   d.danceAt = null; d.danceT = 0;
   d.fetches = 0; d.fetchWant = 0; d.chasing = null;
   d.state = "idle"; d.stateT = 0.5+Math.random()*1.6; d.target = null; d.dest = null;
+}
+
+/* Is this dog in the middle of a game of ball? Every state between the bow
+   and the ball being written off, plus the two fields that hold a ball which
+   is neither in the mouth nor on the grass at this dog's feet. */
+function inABallGame(d){
+  return !!(d.ballFly || d.chaseAt ||
+            d.state === "prance" || d.state === "throwing" ||
+            d.state === "fetch"  || d.state === "retrieve");
 }
 
 function dogFindPlaymate(d){
@@ -63218,10 +64363,21 @@ function updateVillageDogs(dt){
     d.tail = Math.max(0, d.tail - dt);
     if(d.say){ d.sayT -= dt; if(d.sayT<=0) d.say=null; }
 
-    /* The ball's own clock. It only runs while the dog has not got one and
-       is not in the middle of a game with one, so a long game does not eat
-       into the wait for the next. */
-    if(!d.hasBall && !d.ballAt){
+    /* The ball's own clock. The comment above it has always said it "only
+       runs while the dog is not in the middle of a game with one" - and the
+       code only ever checked hasBall and ballAt, which was true of the game
+       as it was, because between the drop and the timeout the ball was always
+       one or the other.
+       It stopped being true the moment a ball could be IN THE AIR or lying
+       out where it was thrown: through the whole flight, the chase and the
+       carry home, the dog has neither got a ball nor one at its feet, so the
+       wait for the NEXT ball was ticking down all the way through the game -
+       and a long enough game would hand the dog a second ball mid-fetch.
+       Measured: a cooldown that should have read at least 1.5 days read
+       1.3. inABallGame is now the whole of the test. */
+    // how long until these two are in the mood for each other again
+    if(d.palCd > 0) d.palCd -= dt;
+    if(!d.hasBall && !d.ballAt && !inABallGame(d)){
       d.ballCd = (d.ballCd||0) - dt;
       if(d.ballCd <= 0){
         d.hasBall = true;
@@ -63516,6 +64672,17 @@ function updateVillageDogs(dt){
           o.ballAt = null; o.chaseAt = null; o.chasing = null;
           o.dest = null; o.target = null;
           o.state = "idle"; o.stateT = 0.4+Math.random()*1.2;
+          /* AND THE LOSER'S OWN BALL CLOCK STARTS AGAIN. Whoever wins the
+             race need not be the dog whose ball it was, and the owner is
+             then left standing over nothing with the cooldown it had from
+             BEFORE this ball still running - so it was handed a fresh one
+             about half a minute later instead of in a day or two. Measured:
+             a cooldown that should read 240s or more read 31 and counting.
+             From the loser's point of view the ball has gone off in another
+             dog's mouth, which is exactly what "the ball goes with the
+             game" has always meant. */
+          o.ballCd = DAY_LEN * (DOG_BALL_DAYS[0] +
+                     Math.random()*(DOG_BALL_DAYS[1]-DOG_BALL_DAYS[0]));
         }
         d.state = "retrieve"; d.stateT = 14;
       } else if(d.stateT <= 0){
@@ -63567,11 +64734,18 @@ function updateVillageDogs(dt){
       const friend = dogFindFriend(d);
       const pal = dogFindPlaymate(d);
       const roll = Math.random();
-      /* The other dog comes FIRST, and at a decent weight. Two dogs in one
-         village ought to be the most interesting thing either of them can
-         see, and the pair arriving together (George and Moose) is now the
-         common case rather than a rarity. */
-      if(pal && roll < 0.30){
+      /* THE OTHER DOG, ONCE OR TWICE A DAY - not every time they are both at
+         a loose end. This was a flat 30% of every idle turn, which sounds
+         modest and is not: an idle turn comes round every second or two, so
+         two dogs spent 2,360 frames of a three-minute stretch on each other.
+         Charming once; wallpaper by the afternoon, and it crowded out the
+         sniffing, sitting, trotting and ball that make up a dog's day.
+
+         d.palCd is the real limit and the roll is only the jitter on top, so
+         it lands at a different hour each day rather than on a clock. Set on
+         BOTH of them when they meet (see "play" below), or the one who was
+         trotted over to would be free to start it again a second later. */
+      if(pal && (d.palCd||0) <= 0 && roll < 0.30){
         d.state="topal"; d.target=pal; d.dest={x:pal.x, y:pal.y}; d.stateT=8;
       } else if(friend && roll < 0.42){
         d.state="tofriend"; d.target=friend; d.dest={x:friend.x, y:friend.y}; d.stateT=8;
@@ -63633,6 +64807,10 @@ function updateVillageDogs(dt){
            a dog bowing at another dog that is calmly sniffing the grass is
            the picture this was meant to replace. The other one is only ever
            taken out of a state the finder already called free. */
+        /* Both of them, and a good part of a day each - once or twice a day
+           between them, which is what a pair of dogs actually does. */
+        d.palCd = DAY_LEN * (PAL_DAYS[0] + Math.random()*(PAL_DAYS[1]-PAL_DAYS[0]));
+        o.palCd = DAY_LEN * (PAL_DAYS[0] + Math.random()*(PAL_DAYS[1]-PAL_DAYS[0]));
         d.state="play"; d.stateT=DOG_PLAY_TIME; d.playJump=0; d.moving=false;
         o.state="play"; o.stateT=DOG_PLAY_TIME; o.playJump=DOG_PLAY_TIME*0.5;
         o.target=d; o.moving=false; o.dest=null;
@@ -65064,7 +66242,7 @@ function markBugCatcher(u){
   if(!u || u.bugCatcher) return false;
   if(livingBugCatcher(u.p)) return false;          // the post is taken
   u.bugCatcher = true;
-  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName();
+  if(!u.nightName && typeof pickFreshName === "function") u.nightName = pickFreshName(u);
   const look = VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length];
   /* The same both ways on purpose, and no longer written as a ternary
      pretending otherwise. "the Bug Catcher" is the user's own word for
@@ -65880,52 +67058,174 @@ function drawBugGame(){
    every match and can only be known by somebody actually playing THIS
    one. It also means the question can never be looked up. */
 
-/* Four of them, which is the four things the ask named: stronger, faster,
-   hardier, or a knack of their own. One of each per match at most, so
-   meeting a second wayfarer is a different person and not a re-roll. */
+/* ---------- WHO COMES DOWN THE ROAD ----------
+   Seven of them now, not four, and every one has a NAME rather than a trade
+   label. That is the change the request turned on: "a travelling smith" is a
+   job, and once he has joined he is one more villager among forty. Hollis
+   Hammer is somebody, and three seasons later you still know which one he is
+   - helped along by hair no villager is ever born with (see `hair`, drawn via
+   u.oddHair in 04e).
+
+   The names hint at what they do, which is the other half of it: Wren Swift
+   is quick, Mabel Stout is hard to kill, Bruce Flame carries a light through
+   the night. You are meant to be able to guess before you ask.
+
+   `joinAs` is what they turn into:
+     "villager"  - the ordinary case, with a buff.
+     "soldier"   - they arrive already armed. The village gets a fighter it
+                   did not have to train or feed a barracks for.
+     "elder"     - once a year at most, and their own thing entirely.
+
+   One of each per match, so meeting a second wayfarer is always a different
+   person and never a re-roll of the same one. */
 const WAYFARERS = {
-  drover: {
-    name:"a drover", mark:"#c98a3a", buff:"spd",
-    asks:"I have walked a long way to be here. Answer me one thing and I will walk no further.",
-    joins:"The drover puts her stick against the wall. She covers ground like nobody else you have.",
+  swift: {
+    name:"Wren Swift", joinAs:"villager", mark:"#c98a3a", buff:"spd",
+    hair:"#b9a7e8",                                   // lavender
+    asks:"I have walked a long way to be here, and I walk faster than most. "+
+         "Answer me one thing and I will walk no further.",
+    joins:"Wren Swift puts her stick against the wall. She covers ground like nobody else you have.",
     about:"quicker on her feet than anyone in the village"
   },
-  smith: {
-    name:"a travelling smith", mark:"#8a6a3a", buff:"atk",
-    asks:"I mend what is broken and I break what wants breaking. Tell me where I have come to.",
-    joins:"The smith sets his bag down by the hearth and does not pick it up again.",
+  hammer: {
+    name:"Hollis Hammer", joinAs:"villager", mark:"#8a6a3a", buff:"atk",
+    hair:"#d15b52",                                   // red
+    asks:"I mend what is broken and I break what wants breaking. "+
+         "Tell me where I have come to.",
+    joins:"Hollis Hammer sets his bag down by the hearth and does not pick it up again.",
     about:"hits harder than an ordinary pair of hands"
   },
-  drifter: {
-    name:"a weathered drifter", mark:"#7a8a6a", buff:"hp",
-    asks:"I have slept in worse places than this. Do you know your own village well enough to keep me?",
-    joins:"The drifter finds a corner out of the wind and is still there in the morning.",
+  stout: {
+    name:"Mabel Stout", joinAs:"villager", mark:"#7a8a6a", buff:"hp",
+    hair:"#efe7d8",                                   // white
+    asks:"I have slept in worse places than this. "+
+         "Do you know your own village well enough to keep me?",
+    joins:"Mabel Stout finds a corner out of the wind and is still there in the morning.",
     about:"takes far more than an ordinary villager can"
   },
-  forager: {
-    name:"a forager", mark:"#6a8a5a", buff:"gather",
-    asks:"I can find things. Whether I stay depends on whether you know what you have got.",
-    joins:"The forager is out before dawn and back before anyone misses her.",
+  reap: {
+    name:"Perrin Reap", joinAs:"villager", mark:"#6a8a5a", buff:"gather",
+    hair:"#a86bc4",                                   // purple
+    asks:"I can find things, and I bring more of them back. "+
+         "Whether I stay depends on whether you know what you have got.",
+    joins:"Perrin Reap is out before dawn and back before anyone misses him.",
     about:"brings back more from every trip"
+  },
+  /* THE TORCHBEARER. The founder is the only person in the village who
+     carries a light after dark (carriesTorch, 05b); this is the second.
+     Worth more than the buffs on a dark map, and named so you can tell
+     before you ask - which is the whole point of naming them. */
+  flame: {
+    name:"Bruce Flame", joinAs:"villager", mark:"#e08a3a", buff:null, torch:true,
+    hair:"#e8873a",                                   // orange
+    asks:"I do not care for the dark, so I carry my own light. "+
+         "Tell me one true thing about this place and I will carry it here.",
+    joins:"Bruce Flame lights his brand at your fire and does not put it out. "+
+          "The dark is a little smaller than it was.",
+    about:"carries a light through the night, like the founder does"
+  },
+  /* THE TWO WHO ARRIVE ARMED. A fighter you did not train, did not feed a
+     barracks for, and cannot get any other way in Peaceful. */
+  vigil: {
+    name:"Ash Vigil", joinAs:"soldier", mark:"#5a7a9a", buff:"hp",
+    hair:"#6fa8d6",                                   // blue
+    asks:"I have stood watch over better places than this and worse. "+
+         "Say something true about it and I will stand watch here.",
+    joins:"Ash Vigil takes up a place at the edge of the village and stays there.",
+    about:"already armed, and harder to put down than most"
+  },
+  /* THE ELDER, once a year and no more. She does not join as a villager at
+     all - she becomes a second elder of the village, walking about and
+     telling the same stories the Lodge's own tells, on the same terms
+     (G.elderKin / elders(), 01b). The one thing she does not bring is the
+     Lodge: an elder who came for the village stays whether or not the
+     building does, which is the difference between her and the one who came
+     with it. */
+  wynn: {
+    name:"Elder Wynn", joinAs:"elder", mark:"#b0966a", buff:null,
+    /* Not white: Mabel Stout already has it, and two white heads in a
+       village of forty is exactly the confusion the odd colours exist to
+       prevent. A pale sea-green is nobody else's and nobody's by birth. */
+    hair:"#7fd8c0",
+    yearly:true,
+    asks:"I am old and I have walked a long way, and I would like to stop. "+
+         "Tell me one true thing about this place and I will stop here.",
+    joins:"Elder Wynn sits down by the fire as though she had always meant to, "+
+          "and begins a story before anyone has asked her for one.",
+    about:"another elder, with her own stories to tell"
+  },
+  march: {
+    name:"Greta March", joinAs:"soldier", mark:"#9a5a6a", buff:"atk",
+    hair:"#d94f8a",                                   // a hot pink
+    asks:"I came a long way on the strength of a rumour about this place. "+
+         "Tell me the rumour was true.",
+    joins:"Greta March unslings her shield and leans it against your wall, "+
+          "which is as close as she comes to saying yes.",
+    about:"already armed, and hits like somebody who has done it before"
   }
 };
+
+/* How much better each of the four kinds of gift makes somebody. */
 const WAYFARER_BUFF = { spd:1.35, atk:1.4, hp:1.9, gather:1.4 };
 
-/* Anybody else on the road who is talked round. No buff and no mark: they
-   are simply another pair of hands, which is what most people are. */
+/* Anybody else on the road who is talked round. No buff, no mark, no name of
+   their own and no odd hair: they are simply another pair of hands, which is
+   what most people are - and the contrast is what makes the named seven feel
+   like somebody. */
 const PLAIN_JOINER = {
-  name:"a traveller", mark:null, buff:null,
+  name:null, joinAs:"villager", mark:null, buff:null,
   asks:"You are asking me to stay. Then tell me something about the place first.",
   joins:"The traveller stops looking down the road and starts looking for something to do.",
   about:"another pair of hands, and glad of the roof"
 };
+
+/* HOW MANY COME, AND HOW OFTEN.
+
+   Up to three a season, and a season can hand you one, or two, or none -
+   "you might have to play a season twice in order to get all of them" was
+   the ask, and a guaranteed three would be a queue rather than an occasion.
+
+   THE CHANCE IS NOT HERE. It lives in the day-event pool's weight (05d),
+   and this is a cap and nothing else. That is not a style preference: the
+   comment on `wayfarer:` in DAY_EVENT_WEIGHT records that an extra dice
+   roll inside the event, multiplied against the pool weight, produced
+   ZERO appearances in fourteen measured matches. I put one back here
+   anyway on the first pass - a flat 0.5 per day - which is the same
+   mistake with a different number on it. The pool already gives "some days
+   nothing comes"; a second roll on top only makes it never come. */
+const VISITORS_PER_SEASON = 3;
+
+/* Which of the six villager looks leave the hair uncovered. Looks 0, 2 and 3
+   wear a hat or a headscarf, and hair under a hat is not a way to recognise
+   anybody. Indices into VILLAGER_LOOKS (02a) - if that table ever gains or
+   reorders entries this has to be checked, which is why it is named here
+   rather than written inline as a magic array. */
+const HAIR_SHOWING_LOOKS = [1, 4, 5];
+
+function wayfarerSeasonKey(){ return (yearNumber()||0) + ":" + G.season; }
+function wayfarerSeasonCount(){
+  if(!G.wayfarerSeason || G.wayfarerSeason.key !== wayfarerSeasonKey()){
+    G.wayfarerSeason = { key: wayfarerSeasonKey(), n: 0 };
+  }
+  return G.wayfarerSeason;
+}
 
 function wayfarersTaken(){
   if(!G.wayfarersTaken) G.wayfarersTaken = {};
   return G.wayfarersTaken;
 }
 function nextWayfarerKind(){
-  const left = Object.keys(WAYFARERS).filter(k => !wayfarersTaken()[k]);
+  const left = Object.keys(WAYFARERS).filter(k => {
+    if(wayfarersTaken()[k]) return false;
+    /* ONE ELDER A YEAR. Not "one ever" like the rest of them - she is worth
+       waiting for and worth having more than one of over a long village -
+       but never twice in the same year, whatever the seasons roll. */
+    if(WAYFARERS[k].yearly){
+      const last = G.elderWayfarerYear;
+      if(last !== undefined && last !== null && (yearNumber()||0) <= last) return false;
+    }
+    return true;
+  });
   return left.length ? left[(Math.random()*left.length)|0] : null;
 }
 
@@ -65960,14 +67260,16 @@ function buildWayfarerQuestion(){
     const right = villagerName(founder);
     const wrong = otherThan(NIGHT_NAMES, founder.nightName, 2)
                     .map(n => n + " the First");
-    if(wrong.length === 2) qs.push({ q:"Who founded this village?", right, wrong });
+    if(wrong.length === 2) qs.push({ q:"Who founded this village?", right, wrong,
+      claim: v => "They tell me this place was founded by " + v + ". Is that so?" });
   }
   /* No question about the clan: there are two of them, so it would be a
      coin toss dressed up as a question. */
   {
     const right = G.season;
     const wrong = otherThan(["spring","summer","autumn","winter"], right, 2);
-    if(wrong.length === 2) qs.push({ q:"What season is it, would you say?", right, wrong });
+    if(wrong.length === 2) qs.push({ q:"What season is it, would you say?", right, wrong,
+      claim: v => "I have lost track of the year on the road. It is " + v + ", is it not?" });
   }
   {
     /* Something you have built against two things you have not - which is
@@ -65979,7 +67281,8 @@ function buildWayfarerQuestion(){
     if(mine.length && notMine.length >= 2){
       const right = mine[(Math.random()*mine.length)|0];
       qs.push({ q:"Which of these have you actually got standing?",
-                right, wrong: otherThan(notMine, right, 2) });
+                right, wrong: otherThan(notMine, right, 2),
+                claim: v => "I was told you had a " + v + " standing here. True?" });
     }
   }
   {
@@ -65990,11 +67293,30 @@ function buildWayfarerQuestion(){
     // answer, it is a tell. Small villages used to be given a plain "0".
     const near = [n+1, n+2, n-1, n+4, n-2].filter(v => v >= 1 && v !== n);
     const wrong = otherThan(near.map(String), right, 2);
-    if(wrong.length === 2) qs.push({ q:"How many souls are there here?", right, wrong });
+    if(wrong.length === 2) qs.push({ q:"How many souls are there here?", right, wrong,
+      claim: v => "I make it " + v + " souls in this village. Have I counted right?" });
   }
   if(!qs.length) return null;
   const pick = qs[(Math.random()*qs.length)|0];
-  return { q: pick.q, right: pick.right, answers: shuffled([pick.right].concat(pick.wrong)) };
+
+  /* YES OR NO, at the user's request: "ask the founder a question just a yes
+     or no". The facts gathered above are unchanged and still all about YOUR
+     village - who founded it, what season it is, what you have got standing,
+     how many of you there are. They are simply ASSERTED now rather than put
+     up as a multiple choice, and the wayfarer is right half the time.
+
+     Which does mean a coin can be flipped: two answers, so a guess is a
+     one-in-two rather than a one-in-three. That is the shape that was asked
+     for and it is worth saying out loud. What keeps it from being free is
+     that these are once-only people - guess wrong on Bruce Flame and there
+     is no second Bruce Flame this match. */
+  const tellTruth = Math.random() < 0.5;
+  const claim = tellTruth ? pick.right : (pick.wrong[0] || pick.right);
+  return {
+    q: (pick.claim ? pick.claim(claim) : (pick.q + " " + claim + "?")),
+    right: tellTruth ? "Yes" : "No",
+    answers: ["Yes", "No"]
+  };
 }
 
 /* ---------- one turns up, now and then ----------
@@ -66009,16 +67331,29 @@ function buildWayfarerQuestion(){
 function visitorsOfKind(kind){
   return (G.visitors||[]).filter(v => v.kind === kind && !v.joined);
 }
-function trySpawnWayfarer(){
+function trySpawnWayfarer(force){
   if(visitorsOfKind("wayfarer").length) return false;      // one at a time
   if(!G.bldgs.some(b => b.p===P_YOU && b.done && b.type==="town")) return false;
   if(!G.players[P_YOU] || !G.players[P_YOU].stoneAge) return false;
+  /* THREE A SEASON, AND NOT GUARANTEED. The season's tally is kept per
+     year-and-season, so it resets on its own at every turn without anything
+     having to remember to clear it. The roll is what lets a season hand you
+     one, or two, or none - which is the difference between an occasion and a
+     queue, and what makes "you might have to play a season twice to meet
+     them all" true. */
+  const season = wayfarerSeasonCount();
+  if(!force && season.n >= VISITORS_PER_SEASON) return false;
   const kind = nextWayfarerKind();
-  if(!kind) return false;                                  // all four already taken
+  if(!kind) return false;                                  // all of them already taken
   const o = makeVisitor("wayfarer", { wayfarer: kind });
   if(!o) return false;
-  tellAndNote("Somebody has stopped at the edge of the village and is waiting to be spoken to. "+
-              "Only the one who founded this place will do.", "good");
+  season.n++;
+  const w = WAYFARERS[kind];
+  /* Named at the door. The old line was "somebody has stopped at the edge of
+     the village" for all four of them, which is right for a stranger and
+     wrong now they have names you are meant to recognise. */
+  tellAndNote(w.name + " has stopped at the edge of the village and is waiting to be "+
+              "spoken to. Only the one who founded this place will do.", "good");
   return true;
 }
 
@@ -66114,18 +67449,68 @@ function resolveWayfarer(u, o, right, mute){
     return;
   }
   if(kind) wayfarersTaken()[kind] = true;   // only the four are once-only
+  /* WHAT THEY ARRIVE AS. Most are another pair of hands with something extra
+     about them; two of them turn up already armed, which is a fighter the
+     village did not train, did not build a barracks for, and in Peaceful
+     cannot get any other way.
+
+     The soldier type is whatever this village can actually field - a village
+     still in the Wandering Age has no swordsmen, and asking makeUnit for one
+     would hand back a unit with no stats. Falls back to a villager rather
+     than to nothing, so a wayfarer is never lost to a missing unit type. */
+  /* AN ELDER JOINS AS AN ELDER, not as a unit at all. She is pushed onto
+     G.elderKin and from that moment walks, talks and tells stories through
+     exactly the same code the Lodge's elder does - the only difference is
+     that she is not turned out if the Lodge falls, having come for the
+     village rather than the building. */
+  if(w.joinAs === "elder" && typeof makeWayfarerElder === "function"){
+    if(kind) wayfarersTaken()[kind] = true;
+    if(w.yearly) G.elderWayfarerYear = yearNumber()||0;
+    makeWayfarerElder(o, w);
+    tellAndNote(w.joins + " (" + w.about + ")", "good");
+    return;
+  }
+  const soldierType = ["swordsman","spearman","spear","warrior"]
+                        .find(t => typeof UNITS !== "undefined" && UNITS[t]);
+  const asType = (w.joinAs === "soldier" && soldierType) ? soldierType : "villager";
   // makeUnit is (type, p, x, y) - not (p, type, ...). Getting it the wrong
   // way round throws inside makeUnit on an undefined UNITS entry.
-  const nu = makeUnit("villager", P_YOU, o.x, o.y);
+  const nu = makeUnit(asType, P_YOU, o.x, o.y);
   if(nu){
     if(kind) nu.wayfarer = kind;
     if(w.mark) nu.mark = w.mark;   // a plain joiner carries no mark at all
+    /* The hair, which is the whole of how you pick them out of a crowd three
+       seasons later. Read instead of the ordinary roll in drawPerson (04e),
+       not mixed with it. */
+    if(w.hair){
+      nu.oddHair = w.hair;
+      /* AND A LOOK THAT ACTUALLY SHOWS IT. Three of the six villager looks
+         wear a hat or a headscarf over the hair, and a wayfarer who rolled
+         one of those was drawn identically with the odd colour and without
+         it - measured, and it was two of the seven. The whole point of the
+         colour is that you can pick them out of forty villagers three
+         seasons later, so it cannot be hidden under a hat.
+         Chosen off the roster key rather than at random, so a given wayfarer
+         looks the same every match. */
+      const bare = HAIR_SHOWING_LOOKS;
+      let h = 0; for(let i=0;i<String(kind||"x").length;i++) h = (h*31 + String(kind).charCodeAt(i))|0;
+      nu.look = bare[Math.abs(h) % bare.length];
+    }
+    /* And the name they came with. It goes in nightName, which is the field
+       villagerName reads, so they are called Bruce Flame everywhere the
+       village names anybody - the panel, the group button, the diary. */
+    if(w.name) nu.nightName = w.name;
+    else if(typeof pickFreshName === "function") nu.nightName = pickFreshName(nu);
+    /* A light of their own after dark. carriesTorch (05b) is what gives the
+       founder hers; this is the only other person in the village who has
+       one, which is what the name is for. */
+    if(w.torch) nu.torchBearer = true;
+    nu.everWorked = true;          // they arrive knowing how to work
     const b = WAYFARER_BUFF[w.buff] || 1;
     if(w.buff === "spd")    nu.buffSpd = (nu.buffSpd||1) * b;
     if(w.buff === "atk")    nu.buffAtk = (nu.buffAtk||1) * b;
     if(w.buff === "hp")   { nu.maxhp = Math.round(nu.maxhp * b); nu.hp = nu.maxhp; }
     if(w.buff === "gather") nu.buffGather = (nu.buffGather||1) * b;
-    if(typeof pickFreshName === "function") nu.nightName = pickFreshName();
   }
   // The parenthetical exists to explain what the buff IS. A plain joiner has
   // no buff, so it would just be a shrug in brackets.
@@ -67896,12 +69281,18 @@ function showTipNow(text){
   G.tipShowing = text;
 }
 
-function tip(text){
+/* `stale` is optional: a predicate asked again at the moment the tip would
+   actually be shown. A tip is advice about what to do NOW, and one that has
+   been sitting in the queue while you got on with the job is not advice any
+   more, it is a thing to tap away. The opening steps pass their own `done`
+   (05d), which is the same question that stopped them being said in the
+   first place. Anything that passes nothing behaves exactly as before. */
+function tip(text, stale){
   if(!text) return;
   logMessage(text);
   if(G.tipShowing){
     const q = tipQueue();
-    q.push(text);
+    q.push(stale ? { text, stale } : text);
     /* Oldest first out. A tip is advice about what to do NOW, and the one
        that has been queued longest is the one most likely to be about
        something already done. */
@@ -67911,12 +69302,28 @@ function tip(text){
   showTipNow(text);
 }
 
+/* The next queued tip that is still worth saying. Anything that has come
+   true while it waited is dropped in silence - it was advice about a job
+   that is now done, and showing it only asks for another tap. */
+function nextLiveTip(){
+  const q = tipQueue();
+  while(q.length){
+    const e = q.shift();
+    if(typeof e === "string") return e;
+    if(!e || !e.text) continue;
+    let done = false;
+    try { done = !!(e.stale && e.stale()); } catch(err) { done = false; }
+    if(!done) return e.text;
+  }
+  return null;
+}
+
 /* The close button, and the only way one goes away. */
 function dismissTip(){
   const box = $("tip");
   G.tipShowing = null;
-  const q = tipQueue();
-  if(q.length){ showTipNow(q.shift()); return; }
+  const next = nextLiveTip();
+  if(next){ showTipNow(next); return; }
   if(box) box.classList.remove("show");
 }
 
@@ -68111,6 +69518,12 @@ function unitDoing(u){
   if(u.p !== P_YOU) return "Not one of yours";
   if(G.autoUnit === u) return "Working on its own";
   if(u.indoors) return "Indoors";
+  /* Asleep on the ground outside, because every roof was full (u.roughing,
+     05b). Worth its own line rather than falling through to "Waiting for
+     work": they have no order, so that is exactly what it said, over
+     somebody plainly fast asleep. They are also deliberately kept OUT of the
+     idle count, so this panel is the only way to find one. */
+  if(u.roughing) return "Asleep outside";
   /* Carrying home reads better than the order underneath it: the order is
      still "gather" the whole way back, and "Gathering" while walking away
      from the trees with a full load is not what is happening. */
@@ -68290,8 +69703,8 @@ function refreshUI(){
   const first=sel[0];
 
   // ---- the elder: who she is and what she is up to. She takes no orders.
-  if(sel.length===1 && G.elder && first===G.elder){
-    const e = G.elder;
+  if(sel.length===1 && isAnElder(first)){
+    const e = first;
     $("selname").textContent = e.name;
     $("selsub").textContent = "ELDER";
     const doing = e.state==="telling" ? "Telling a story"
@@ -68380,6 +69793,12 @@ function refreshUI(){
        104px column to repeat something the world was already showing. */
     let s = "HP "+Math.ceil(first.hp)+"/"+first.maxhp
           + "<br>ATK "+Math.round(d.atk*(first.buffAtk||1));
+    /* WHY they are outside, which is the thing the player needs and cannot
+       otherwise get at: not a choice, and not a bug - there was no bed. */
+    if(first.roughing){
+      s = "<span style='color:#e8d9a8'>Asleep on the ground - there was no "
+        + "bed free when the light went. A House sleeps four.</span><br>" + s;
+    }
     if(d.spd) s += "<br>SPD "+Math.round(d.spd);
     if(d.rng > 12) s += "<br>RNG "+Math.round(d.rng);
     if(first.form) s += "<br>Form: "+FORMS[first.form].name;
@@ -68510,6 +69929,34 @@ function refreshUI(){
   // villagers can post a lookout in a watchtower too - see the garrison
   // order handler (03a) and updateTowerWatch (03b)
   const garrisonables = ownUnits.filter(u=>u.cls==="inf" || u.cls==="arc" || u.type==="villager");
+
+  /* ASLEEP OUTSIDE: WAKE THEM, OR LEAVE THEM BE.
+
+     They are on the ground because every roof was full, and they are the one
+     part of the village you cannot otherwise reach - deliberately kept out of
+     the idle count (idleUnits), since seven people asleep in the dark are not
+     idle. So this is how you find one and do something about it.
+
+     The button does not do the waking itself: stepOutToWork (03a) already
+     gets them up, plays the stretch, sets the temper mark and gives the
+     first-time warning about what a broken night costs. Doing it here as
+     well would be a second copy of a rule that has to stay in step with
+     giveOrder's.
+
+     Offered ABOVE the ordinary Move/Attack/Build row rather than instead of
+     it: ordering a sleeper is perfectly legal and does the same thing (it
+     goes through giveOrder, which wakes them). This is for the case where
+     you want them up and have not decided on a job yet. */
+  const asleepOut = vills.filter(u=>u.roughing);
+  if(asleepOut.length){
+    const n = asleepOut.length;
+    addBtn(n===1 ? "\u{1F634} Wake villager" : "\u{1F634} Wake "+n+" villagers",
+           "costs them the night", true,
+           ()=>{
+             for(const u of asleepOut) stepOutToWork(u);
+             refreshUI();
+           }, null, true);
+  }
 
   /* SOMEBODY SENT TO THE WATER GETS THREE BUTTONS AND NO OTHERS.
 
@@ -70624,31 +72071,4 @@ $("mm_delsave").addEventListener("click", ()=>{
 
 /* The X, top right: leave the menu and get on with the game underneath.
    Unlike Begin, this one can be closing a menu opened over a match already
-   in progress, so it only briefs you if the match has not started yet. */
-$("btnclose").addEventListener("click", ()=>{
-  $("startscreen").classList.add("hide");
-  if(G && !G.running && !G.over && G.t < 1) showOpening(); else G.running = true;
-});
-$("btncarryon").addEventListener("click", ()=> answerCampaign(false));
-$("btnfinish").addEventListener("click", ()=> answerCampaign(true));
-$("btnagain").addEventListener("click", ()=>{
-  $("endscreen").classList.add("hide");
-  newGame(); resize(); refreshUI();
-  showOpening();
-});
-
-window.addEventListener("error", e=>{
-  reportError(e.error || new Error(e.message), "the page");
-});
-
-/* Boot still deals a fresh match, as it always has, so there is a world
-   running under the menu rather than a black screen. Picking Continue
-   replaces it outright - newGame() and loadGame() both swap G whole. */
-newGame();
-resize();
-refreshUI();
-showStartMenu();
-requestAnimationFrame(frame);
-</script>
-</body>
-</html>
+   in progress, so it only 
