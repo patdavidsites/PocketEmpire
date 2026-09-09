@@ -1198,6 +1198,33 @@
            wants the lot can have the lot. Deliberately native <details> and
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
+      <details class="pn" open>
+        <summary>Patch 21.45</summary>
+        <div class="sec">A sleeping villager gets one button</div>
+        <ul>
+          <li><strong>Tap somebody asleep on the ground and all you are offered is &ldquo;Wake up&rdquo;.</strong> The wake button was already there, but it sat above a full live row of Move, Attack, Gather, Build and the rest &mdash; and every one of those did the same first thing anyway, so the panel was offering eight ways to do one thing to somebody who is asleep</li>
+          <li>Waking them hands the ordinary panel straight back. Nothing is lost and nothing is a mode: the moment they are up, the whole set returns</li>
+          <li><strong>A mixed selection keeps its orders.</strong> If you have several selected and only one of them is having a lie-down, that is a group you are commanding &mdash; taking its buttons away would be worse than the noise this removes</li>
+        </ul>
+        <div class="sec">The bees, properly</div>
+        <ul>
+          <li><strong>The swarm hangs out in the dark now.</strong> It settles on a branch on ground you have never walked &mdash; not near the village where you could already see it &mdash; so the three days of clues beforehand are worth reading, and somebody actually has to go and look. It waits out the spring on that branch and then it is gone</li>
+          <li><strong>And it tells you what it is.</strong> A swarm is the only route to a beekeeper in the whole game, and it used to announce itself with one sentence sharing the bottom of the screen with notes about wood. It is four now, read one at a time, and the last of them is the only instruction &mdash; so somebody who skims the rest still learns to send a villager out</li>
+          <li><strong>The rounds call on the gardener and the geologist too.</strong> The gardener grows the flowers the bees are working, and the geologist is the one person in the village who never gets anything nice</li>
+          <li><strong>And the honey is actually in their hands</strong> &mdash; a jar some errands, a slab of comb others, chosen fresh each time so the round never looks the same twice. They walk back empty-handed, which is what makes the outward leg read as a delivery</li>
+          <li><strong>What the bees are worth is three small things instead of one large invisible one.</strong> The fields come on sooner where there are bees to work them, the village eats a little less for having honey in the larder, and anybody mending comes right a little quicker. The old hidden gathering bonus was capped at a third and was quietly the largest thing of its kind in the game; it is a twelfth now</li>
+        </ul>
+        <div class="sec">The gardener has been carrying nothing at all</div>
+        <ul>
+          <li><strong>The gardener&rsquo;s bucket, watering can and seed bag have never once appeared on screen.</strong> They were drawn properly, and they were asked for by name &mdash; &ldquo;not an axe&rdquo; &mdash; and a rule meant for somebody fresh out of the town centre, who should not be holding a felling axe on their first walk, was catching every specialist in the village instead. None of them has ever been able to hold anything</li>
+          <li>Found while giving the beekeeper their honey to carry, which was about to vanish down exactly the same hole</li>
+        </ul>
+        <div class="sec">The pilgrims have stepped out for a while</div>
+        <ul>
+          <li>The wandering procession is switched off for now. It is hidden rather than removed &mdash; the banner, the long walk across the country and the five-tap secret are all still there, waiting on a proper fix</li>
+        </ul>
+      </details>
+
       <details class="pn">
         <summary>Patch 21.44</summary>
         <div class="sec">Snow was falling on ground nobody has ever walked</div>
@@ -1212,6 +1239,27 @@
           <li>Fire now stops at a smoking tenth of a building&rsquo;s health. The threat is untouched: it is nearly gone, its brazier is out, and it wants a long repair. But the last blow has to come from something with legs</li>
           <li><strong>Midden rats could demolish a town centre.</strong> They are a thief at the door &mdash; they come for the stores, and their bite at the timber is meant to be nothing &mdash; but nothing stops a dozen of them biting for ever. Measured: twelve rats took a full-health 560&ndash;point town centre to rubble in five minutes. They now gnaw as far as half and no further</li>
           <li><strong>Both of these were quietly killing the rival village.</strong> On one map the Ashkin&rsquo;s centre was chewed to 210 by a night raid and then finished by a fire &mdash; and a village with no town centre can never train another villager, so that settlement sat frozen on three villagers and two buildings for the rest of the match. It reads as an enemy that simply gave up. It had been razed</li>
+        </ul>
+        <div class="sec">You start at four. The Ashkin do not</div>
+        <ul>
+          <li><strong>Starting with room for four is a lesson meant for a person</strong> &mdash; you begin at 1/4, you feel the fifth villager press against the roof, and you put up a House. Handing the rival clan the same cut was never the point of that change, and it halved their early workforce</li>
+          <li>Measured, with nothing else altered: the easy Ashkin went from fielding three soldiers by fifteen minutes on 17 maps in 20 to only 7. A peaceful clan took roughly twice as long to settle. An easy opponent had quietly become no opponent</li>
+          <li><strong>So the rival keeps the old eight.</strong> Houses still sleep four and are still worth four for everybody &mdash; it is only the free roof you begin under that differs, and the sides already differ by difficulty in yield, cap and appetite for a fight</li>
+        </ul>
+        <div class="sec">Three false alarms, and one of them was hiding a real thing</div>
+        <ul>
+          <li>Nothing here changes the game &mdash; these were the checks themselves reporting faults that were not there. Worth writing down because each one had been quietly wrong for a while</li>
+          <li><strong>&ldquo;A wandering villager does not mend.&rdquo;</strong> They do. The one seed that failed had a thunderstorm over it, and a villager out in a storm is on the soaked-through drain, which holds them at a tenth of their health and stops them healing at all. That is the weather rule working. The check was measuring the storm</li>
+          <li><strong>&ldquo;The Lodge elder no longer tells stories.&rdquo;</strong> He does &mdash; at 260 seconds, and the window closed at 120. Both elders tell on every seed measured; the window simply ended in the gap between the two of them</li>
+          <li><strong>&ldquo;The starting stone is never planted.&rdquo;</strong> It is, on 14 starts in 20. It used to be a small pebble and could be picked out by its size; since it became a proper vein there is deliberately nothing to tell it apart from a natural one, so the check found none and concluded the guarantee had stopped firing. It now asks the map directly &mdash; and doing so turned up a second fault, that it had been counting the Ashkin&rsquo;s starting stone as a second one of yours</li>
+        </ul>
+        <div class="sec">The goblins have faces now</div>
+        <ul>
+          <li>They already had good bodies &mdash; four seasonal tribes, six builds, real gear, a swing and a slam you can feel. What they did not have was any of the four things that make a villager&rsquo;s head look alive, and up close it showed</li>
+          <li><strong>No two of them are the same any more.</strong> A camp of six runts was six identical figures, while every villager in your own village carries their own build and colouring and every animal its own coat. Each goblin now has its own height, skin, ears, tusks and belly. Small on purpose: a runt still reads as a runt and a war brute as the big one from right across the field &mdash; this is the difference between two brothers, not two species</li>
+          <li><strong>They blink</strong>, on the same rhythm as every animal in the world &mdash; though never mid-swing, because nobody shuts their eyes at the moment they strike</li>
+          <li><strong>And the face answers what is happening to it.</strong> A goblin winding up a blow snarls, one badly hurt screws its eyes up, a scratched one has lost its swagger, and a warlord whose escort has fallen goes wide-eyed and hot. Most of it lives in the brow, which is what turns a scowl into a wince. Their eyes follow what they are fighting, too, rather than staring straight ahead for ever</li>
+          <li><strong>They have the backs of their heads.</strong> A goblin marching directly away from you used to keep its full face turned to the camera. Now you see the back of its skull &mdash; ears out to the sides and its tribe&rsquo;s tuft or mohawk, and deliberately nothing else. No eyes, no snout, no tusks: this game has been caught four times by small pale symmetrical marks reading as a face when they were a nape or a pair of apron ties</li>
         </ul>
       </details>
 
@@ -6001,9 +6049,22 @@ function trySpawnBard(force){
    of the map - rather than just clipping the edge and turning back. Very
    low chance, and they never stop to do anything once they're moving. */
 const PILGRIM_CHANCE = 0.008;
+/* ---------- HIDDEN FOR NOW ----------
+   Turned off on 10 Sep at the user's word: "hide the pilgrims for now, we'll
+   fix them another time." Not deleted, and deliberately not deleted - the
+   procession itself is fine, and there is a known fault to come back to (see
+   the stuck-watchdog history in 01e and [[pilgrims-stuck]]).
+
+   ONE SWITCH, and it gates only the ORDINARY spawn. `force` still works, so
+   the whole procession - its line across the map, its banner-bearer, its
+   five-tap secret and its watchdog - stays reachable from the tests and
+   cannot quietly rot while it is out of sight. Set this back to false and
+   they walk again with nothing else to change. */
+const PILGRIMS_HIDDEN = true;
 function trySpawnPilgrims(force){
   if(!G.wanderers) G.wanderers = [];
   if(G.wanderers.some(w=>w.kind==="pilgrim")) return false;
+  if(PILGRIMS_HIDDEN && !force) return false;
   if(!force && Math.random() > PILGRIM_CHANCE) return false;
   const town = G.bldgs.find(b=>b.p===P_YOU && b.type==="town") || G.bldgs[0];
   if(!town) return;
@@ -7155,7 +7216,33 @@ function tryVillagerDream(force){
    against the Manor's 300. Note there is deliberately no hint() when a vein
    appears - it is meant to be come across - which is the likelier reason a
    real player saw one all match. That is a design call, not a bug. */
-const MOONSTONE_VEINS = 6;
+/* ---------- BACK TO THREE ----------
+   Reported from play on 10 Sep: "it feels like too much". Measured over a
+   season, peaceful, five seeds, counting only what lands near the village:
+
+     moonstone nights   3.2 of 7   (46%, which is the intended cadence)
+     veins each time    6 to 7
+     ore each time      ~1,250
+     ore in a season    ~4,341
+
+   Against that, EVERY moonstone sink in the game bought once - the Manor at
+   300, the Sunstone Cairn at 250, all nine others - comes to 1,440. So one
+   season offered three times everything moonstone can ever be spent on, and
+   a single night offered four Manors' worth. The player's instinct was right
+   and the margin was not close.
+
+   THE SIX WAS A FIX FOR THE WRONG PROBLEM. It was three until 11 Aug, when
+   it was doubled because a real match had been played with only ONE vein
+   ever seen. The note written at the time says so itself - "the trouble is
+   as much being noticed as being there" - and then doubled the amount
+   anyway. Being noticed has since been solved properly and separately: the
+   veins glow and throw a light-pool after dark, and the moonstone trees do
+   the same. Doubling the ore was never what that needed.
+
+   The cadence stays (every other night is a good rhythm) and so does the
+   richness of a single vein, which is what makes coming across one feel
+   worth the walk. It is the NUMBER of them that was wrong. */
+const MOONSTONE_VEINS = 3;
 const MOONSTONE_RADIUS = 620;       // "near the village" - a wide ring, not the doorstep
 /* Left at 230. Six were expected not to fit in a 620px ring at this gap, so
    it was briefly loosened to 165 - then measured, and that was simply wrong:
@@ -7603,26 +7690,6 @@ function trySpawnEyes(force){
     if(jtx<0||jty<0||jtx>=MAPW||jty>=MAPH) continue;
     if(G.fog[P_YOU][jty*MAPW+jtx] !== 0) continue;
     G.eyes.push({ x:jx, y:jy, t:0, life:4+Math.random()*4, seed:Math.random()*6.283 });
-empts && bx===null; tries++){
-    const a = Math.random()*6.283;
-    const reach = 140 + tries*8;
-    const d = reach + Math.random()*160;
-    const wx = town.x + Math.cos(a)*d, wy = town.y + Math.sin(a)*d;
-    if(wx<20||wy<20||wx>WORLD_W-20||wy>WORLD_H-20) continue;
-    const tx = (wx/TILE)|0, ty = (wy/TILE)|0;
-    if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) continue;
-    if(G.fog[P_YOU][ty*MAPW+tx] !== 0) continue;   // only the pure black
-    bx=wx; by=wy;
-  }
-  if(bx===null) return;
-  if(!G.eyes) G.eyes = [];
-  const n = 1 + ((Math.random()*3)|0);   // a handful - one to three pairs about
-  for(let i=0;i<n;i++){
-    const jx = bx + (Math.random()-0.5)*50, jy = by + (Math.random()-0.5)*50;
-    const jtx = (jx/TILE)|0, jty = (jy/TILE)|0;
-    if(jtx<0||jty<0||jtx>=MAPW||jty>=MAPH) continue;
-    if(G.fog[P_YOU][jty*MAPW+jtx] !== 0) continue;
-    G.eyes.push({ x:jx, y:jy, t:0, life:4+Math.random()*4, seed:Math.random()*6.283 });
   }
   return true;
 }
@@ -8040,7 +8107,11 @@ function eatTheDaysFood(p){
   if(!pl.stoneAge){ pl.hunger = 0; return; }
   const mouths = mouthsToFeed(p);
   if(!mouths){ pl.hunger = 0; return; }
-  const want = mouths * FOOD_PER_VILLAGER * (DIFFICULTY==="peaceful" ? PEACEFUL_UPKEEP : 1);
+  /* HONEY IS FOOD. A jar on the shelf means the village eats a little less of
+     everything else - small, because this is a jar and not a harvest.
+     (honeyUpkeepEase, 05d) */
+  const want = mouths * FOOD_PER_VILLAGER * (DIFFICULTY==="peaceful" ? PEACEFUL_UPKEEP : 1)
+             * honeyUpkeepEase(p);
   const have = pl.res.food || 0;
   pl.res.food = Math.max(0, have - want);
   const short = want - Math.min(have, want);
@@ -14908,9 +14979,25 @@ function plantStartStone(cfx, cfy){
   const before = G.nodes.length;
   for(let ring = 0; ring < 4; ring++){
     vein(RES.STONE, cfx, cfy, START_STONE_RING + ring*2, START_STONE_RING + 3 + ring*2);
-    if(G.nodes.length > before) return true;
+    if(G.nodes.length > before){ markStartStone(before); return true; }
   }
-  return plantNear(RES.STONE, cfx, cfy, START_STONE_AMT, START_STONE_RING, START_STONE_RING + 5);
+  const got = plantNear(RES.STONE, cfx, cfy, START_STONE_AMT, START_STONE_RING, START_STONE_RING + 5);
+  markStartStone(before);
+  return got;
+}
+/* WHICH ROCKS WERE PUT THERE ON PURPOSE.
+
+   Nothing in the game reads this - it is here so the guarantee can be
+   MEASURED. It used to be inferable: the planted deposit was a 150-amount
+   pebble and every natural one carried far more, so "amt === START_STONE_AMT"
+   found it. Now that it plants a full, ordinary vein there is deliberately
+   nothing about it that differs from a natural one, and start-stone.js was
+   quietly reporting every planted start as a natural one - 0 planted across
+   20 seeds, which read as the guarantee never firing when in fact it could no
+   longer be seen. A flag is cheaper than a test that infers from amounts and
+   goes stale the next time the amounts move. */
+function markStartStone(fromIndex){
+  for(let i = fromIndex; i < G.nodes.length; i++) G.nodes[i].startStone = true;
 }
 
 /* How far out counts as "already had some". Seven tiles is about twice the
@@ -17941,15 +18028,30 @@ const BEEKEEPER_INTERVAL = 34;
 const BEEKEEPER_SPD  = 30;
 const BEEKEEPER_WORK = 2.6;
 const HONEY_CALL_BOOST = 26;     // food left at whatever they call on
+/* WHO GETS HONEY. Asked for on 10 Sep: "the bee keeper needs to go to the
+   baker, houses, farms, gardener, geologist".
+
+   The first three were already on the round. The two trades were not, and
+   they are the two that most obviously want it: the gardener grows the
+   flowers the bees are working, and the geologist is the one person in the
+   village who never gets anything nice. Adding them also spreads the round
+   out - before this, a village whose farms and houses clustered one side of
+   the hall had a beekeeper who only ever walked that way.
+
+   The granary stays, though it was not in the list: honey is kept there, and
+   a beekeeper carrying a jar into the stores is the least surprising errand
+   on the round. */
+const BEEKEEPER_CALLS = ["house", "bakery", "granary", "gardener", "geologist"];
 function beekeeperFindCall(hive){
-  /* Somewhere worth taking honey: a field, a house, the bakery. Nearest first
-     so the rounds read as a round rather than a random walk across the map. */
+  /* Somewhere worth taking honey: a field, a house, the bakery, and the two
+     trades that keep the flowers and the stones. Nearest first so the rounds
+     read as a round rather than a random walk across the map. */
   let best=null, bd=1e9;
   for(const b of G.bldgs){
     if(b.p!==hive.p || !b.done || b.hp<=0) continue;
     const d = BLDG[b.type];
     if(!d) continue;
-    if(!(d.farm || b.type==="house" || b.type==="bakery" || b.type==="granary")) continue;
+    if(!(d.farm || BEEKEEPER_CALLS.indexOf(b.type) >= 0)) continue;
     if(b === hive) continue;
     const dist = Math.hypot(b.x-hive.x, b.y-hive.y);
     if(dist > 420) continue;
@@ -17986,11 +18088,17 @@ function updateBeekeepers(dt){
       const call = beekeeperFindCall(o.home);
       if(!call) continue;
       o.call = call; o.legT = 0; o.laden = true;
+      /* Jar or comb, decided per ERRAND rather than per keeper - somebody who
+         always carried the jar would be "the one with the jar", which is a
+         duller idea than somebody going back and forth with whatever came off
+         the hive this morning. Flavour only, by the user's own answer: both
+         do exactly the same thing at the door. (drawHoneyJar/Comb, 04e) */
+      o.honeyProp = Math.random() < 0.5 ? "comb" : "jar";
       o.dest = { x: call.x, y: call.y + call.h*TILE/2 + 6 };
       o.state = "out";
     } else if(o.state === "out"){
       if(!o.call || !G.bldgs.includes(o.call) || o.call.hp<=0){
-        o.call = null; o.laden = false; o.state = "home"; o.legT = 0;
+        o.call = null; o.laden = false; o.honeyProp = null; o.state = "home"; o.legT = 0;
         o.dest = { x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 };
         continue;
       }
@@ -18006,9 +18114,13 @@ function updateBeekeepers(dt){
           G.players[p].res.food = (G.players[p].res.food||0) +
             Math.round(HONEY_CALL_BOOST * (1 + bldgTier(o.home,"honey")*6) * peacefulYield("food"));
           if(p===P_YOU && Math.random() < 0.3)
-            hint("The beekeeper leaves honey at the "+(BLDG[call.type].name||call.type).toLowerCase()+".");
+            /* Names what they actually put down, so the jar and the comb are
+               two things in the text as well as two things in the hand. */
+            hint("The beekeeper leaves "+
+                 (o.honeyProp === "comb" ? "a piece of honeycomb" : "a jar of honey")+
+                 " at the "+(BLDG[call.type].name||call.type).toLowerCase()+".");
         }
-        o.call = null; o.laden = false; o.state = "home"; o.legT = 0;
+        o.call = null; o.laden = false; o.honeyProp = null; o.state = "home"; o.legT = 0;
         o.dest = { x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 };
       }
     } else {
@@ -19629,7 +19741,12 @@ function tick(dt){
          somebody cut it or the season turned on day seven - four days in
          which nothing whatever changed. The clock keeps running; how far
          past ripe a field is comes out of cropAgeOf (05). */
-      b.cropGrowT = (b.cropGrowT||0) + dt;
+      /* POLLINATION. Bees on the blossom bring a field on sooner - applied to
+         the CLOCK rather than to the harvest, so it shows in the field
+         itself: a pollinated farm steps through seed, seedling and full ear
+         visibly ahead of an unpollinated one, which is the whole reason this
+         is the buff you can watch. (honeyGrowMult, 05d) */
+      b.cropGrowT = (b.cropGrowT||0) + dt * honeyGrowMult(b.p);
     }
     // training - a villager mid-training holds overnight rather than
     // stepping out the door into the dark; everything else keeps going
@@ -20464,7 +20581,12 @@ function wandererGrit(dt){
     } else {
       if(u.hurtT > 0) u.hurtT -= dt;
       if(!(u.hurtT > 0) && u.hp < u.maxhp){
-        u.hp = Math.min(u.maxhp, u.hp + WANDERER_HEAL*dt);
+        /* AND HONEY IS A COMFORT. Somebody mending gets it with everything,
+           so they come right a little sooner. Deliberately on the ordinary
+           regen rather than a heal of its own - the same argument the soaked
+           rule makes in 01f, that a second competing heal is a second thing
+           to keep in step. (honeyMendMult, 05d) */
+        u.hp = Math.min(u.maxhp, u.hp + WANDERER_HEAL*honeyMendMult(u.p)*dt);
       }
     }
   }
@@ -35298,7 +35420,28 @@ function drawUnit(u){
                  // which arm is taking this swing - they alternate
                  arm: u.swingArm ? 1 : -1,
                  // its escort still standing, so the ward can be drawn on it
-                 warded: !!u.bossWarded, raging: !!u.enraged });
+                 warded: !!u.bossWarded, raging: !!u.enraged,
+                 /* THE FOUR THINGS A VILLAGER'S HEAD HAS HAD ALL ALONG and a
+                    goblin's did not: something to tell it apart from the next
+                    one, a blink, a face that reacts, and a back of the head.
+                    All four are read off state the goblin already carries -
+                    nothing new is stored on the unit, which is the trap in
+                    CLAUDE.md (a field added now is `undefined` on everyone
+                    already alive, and `undefined <= 0` is false).
+
+                    `seed` is its id. It also fixes a small standing bug: the
+                    warlord's ward pulse reads `o.seed`, which was never
+                    passed, so every warlord on the map pulsed in lockstep. */
+                 seed: u.id || 0,
+                 /* Where its eye goes: the same helper the villagers' faces
+                    use, so a goblin looks at what it is fighting rather than
+                    straight ahead for ever. Already in local x - it has been
+                    through the facing flip - so drawGoblin needs no sign
+                    juggling of its own. */
+                 gaze: lookLocalX(u),
+                 hurt: (u.maxhp ? u.hp / u.maxhp : 1),
+                 dir: u.dir || "side",
+                 sleeping: !!u.lying });
   } else if(u.type==="druid" && u.form){
     drawDruidForm(u, FORMS[u.form].col, pl);
   } else if(UNITS[u.type].naval){
@@ -40562,6 +40705,72 @@ function drawCarryLoad(u, H, tw, shldY){
    so it stays the same thing every frame and every cottage need not look
    like the last one. (idea_gardener_props_variety) */
 const GARDENER_PROPS = ["bucket", "can", "seeds"];
+
+/* ---------- WHAT THE BEEKEEPER IS CARRYING ----------
+   Asked for on 10 Sep: "sometimes taking a jar of honey, sometimes honey
+   comb". Flavour, by the user's own answer - both do exactly the same thing
+   at the door, and the only job of the pair is that the round does not look
+   identical every time you glance at it.
+
+   Which one is decided per ERRAND, not per beekeeper: a keeper who always
+   carried the jar would be a keeper with a jar, which is a different and
+   duller idea than a keeper going back and forth with whatever came off the
+   hive that morning.
+
+   Both are pale, and both therefore get a dark outline. Four times now this
+   project has drawn something near-white on snow and lost it entirely.
+   (feedback_pale_prop_contrast) */
+const HONEY_INK = "rgba(38,26,14,.80)";
+function drawHoneyJar(hx, hy, H){
+  /* CHUNKY, and the reason is the bug catcher's glass a few lines up: at
+     ordinary play zoom a dainty prop is two pixels and simply reads as a
+     smudge on the smock. Measured on screen at the zoom people actually
+     play at, the first pass (0.075 x 0.105) was invisible against the
+     apron; this is about half again as big and clears the body. */
+  const w = H*0.110, h = H*0.150;
+  ctx.lineWidth = Math.max(0.75, H*0.020);
+  ctx.strokeStyle = HONEY_INK;
+  // the glass, with the honey sitting in the bottom two-thirds of it
+  ctx.fillStyle = "#e8b23c";
+  ctx.beginPath();
+  ctx.ellipse(hx, hy+h*0.10, w*0.5, h*0.46, 0, 0, 6.283);
+  ctx.fill(); ctx.stroke();
+  // the lid: a squat band across the top, darker so the jar reads as closed
+  ctx.fillStyle = "#8a6a3a";
+  ctx.beginPath();
+  ctx.rect(hx-w*0.42, hy-h*0.46, w*0.84, h*0.26);
+  ctx.fill(); ctx.stroke();
+  // one highlight down the glass, which is most of what says "jar" not "sack"
+  ctx.strokeStyle = "rgba(255,246,214,.55)";
+  ctx.lineWidth = Math.max(0.6, H*0.014);
+  ctx.beginPath();
+  ctx.moveTo(hx-w*0.20, hy-h*0.02);
+  ctx.lineTo(hx-w*0.20, hy+h*0.26);
+  ctx.stroke();
+}
+function drawHoneyComb(hx, hy, H){
+  /* A slab held flat, not a jar shape in another colour - if the two read the
+     same there is no reason to have both. Paler, squarer, and with the cells
+     suggested by two short lines rather than an actual lattice, which turns
+     to mush below about three times zoom. */
+  const w = H*0.165, h = H*0.115;
+  ctx.fillStyle = "#f0d488";
+  ctx.strokeStyle = HONEY_INK;
+  ctx.lineWidth = Math.max(0.75, H*0.020);
+  ctx.beginPath();
+  ctx.moveTo(hx-w*0.5, hy-h*0.34);
+  ctx.lineTo(hx+w*0.5, hy-h*0.46);
+  ctx.lineTo(hx+w*0.5, hy+h*0.40);
+  ctx.lineTo(hx-w*0.5, hy+h*0.52);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = "rgba(150,110,44,.75)";
+  ctx.lineWidth = Math.max(0.5, H*0.013);
+  ctx.beginPath();
+  ctx.moveTo(hx-w*0.18, hy-h*0.30); ctx.lineTo(hx-w*0.18, hy+h*0.44);
+  ctx.moveTo(hx+w*0.16, hy-h*0.36); ctx.lineTo(hx+w*0.16, hy+h*0.40);
+  ctx.stroke();
+}
 /* ---------- the bug catcher's glass, held in the hand ----------
    A magnifying glass is a CIRCLE on a thin stick. If the circle does not
    plainly read as a circle there is no point drawing it, so the rim is
@@ -41116,6 +41325,14 @@ function drawHeld(u, hx, hy, H, atk, pl){
          with a flickering prop. */
       if(u.gardenerProp !== undefined){
         drawGardenerProp(u.gardenerProp, hx, hy, H);
+        break;
+      }
+      /* The beekeeper on a round, with the honey actually in their hand.
+         Only while laden: on the way back they are empty-handed, which is
+         what makes the outward leg read as a delivery. */
+      if(u.honeyProp){
+        if(u.honeyProp === "comb") drawHoneyComb(hx, hy, H);
+        else                       drawHoneyJar(hx, hy, H);
         break;
       }
       /* THE GLASS, and it belongs here rather than up by the head where it
@@ -41860,18 +42077,71 @@ function warlordPalette(S, kit){
   };
 }
 
+/* ---------- NO TWO OF THEM THE SAME ----------
+   Every goblin of a tribe was drawn from one entry in GOBLIN_VARIANTS and
+   one seasonal palette, so a camp of six runts was six identical figures.
+   The village has never looked like that: villagers carry their own look,
+   hair colour and build, and the animals were given per-animal coats and
+   markings for exactly this reason.
+
+   Worked out from the goblin's id and NOTHING ELSE - no field is stored on
+   the unit, so this comes out the same on every frame, out of any save, and
+   for goblins that were already standing on the map before it existed. (The
+   same rule the animals' blink is written to, and the trap CLAUDE.md
+   documents: a field added now reads `undefined` on everyone already alive.)
+
+   Deliberately small. The tribe and the level have to stay readable across
+   the field - a runt must still read as a runt and a war brute as the big
+   one - so this is the difference between two brothers, not between two
+   species: a little taller or shorter, a shade darker or lighter in the
+   skin, ears a bit longer, tusks a bit prouder. */
+function goblinLook(seed){
+  const h = (n) => Math.abs(Math.sin((seed + 1) * 12.9898 + n * 78.233) * 43758.5453) % 1;
+  return {
+    build: 0.93 + h(1) * 0.14,       // 0.93 - 1.07 of its tribe's height
+    skin:  (h(2) - 0.5) * 0.20,      // a shade either way, as a shade() amount
+    head:  0.95 + h(3) * 0.10,
+    ear:   0.85 + h(4) * 0.32,
+    tusk:  0.80 + h(5) * 0.45,
+    belly: 0.94 + h(6) * 0.12
+  };
+}
+
+/* WHAT ITS FACE IS DOING, in the same shape as villagerMood - one string,
+   worked out from state the unit already has, ordered so the loudest thing
+   wins. Deliberately far fewer than the villagers' eleven: a villager is
+   somebody you watch for a season and a goblin is something you meet in a
+   fight, so the states that matter are the ones you see across a field.
+
+     raging  the warlord with its escort down - it already turns the ward
+             ring hot, and this puts it in the face as well
+     snarl   mid-swing or winding up a slam. The one you see most
+     hurt    down to a third. A creature that is losing shows it
+     wary    hurt at all, or hanging back at its camp - not yet frightened,
+             but no longer bored
+     calm    standing about being a goblin */
+function goblinMood(o){
+  if(o.raging) return "raging";
+  if((o.atk || 0) > 0.15 || (o.slam || 0) > 0) return "snarl";
+  const hp = (o.hurt === undefined) ? 1 : o.hurt;
+  if(hp <= 0.34) return "hurt";
+  if(hp < 0.92) return "wary";
+  return "calm";
+}
+
 function drawGoblin(o){
   const V = GOBLIN_VARIANTS[o.variant] || GOBLIN_VARIANTS.runt;
   const S = GOBLIN_SEASON[o.season] || GOBLIN_SEASON.summer;
+  const L = goblinLook(o.seed || 0);
   const r = UNITS.villager.r;
   /* A war brute is the brute, drawn GOBLIN_BIG larger. Not a new silhouette
      and not a new palette - the whole point of the four seasonal tribes is
      that you can see it is the same enemy, and the same argument applies
      going up the levels. It is bigger. That is the difference, and at this
      size that is plenty. */
-  const H = r*2.35*V.h * (V.warlord ? GOBLIN_BOSS_SCALE : (o.big ? GOBLIN_BIG : 1));
+  const H = r*2.35*V.h * L.build * (V.warlord ? GOBLIN_BOSS_SCALE : (o.big ? GOBLIN_BIG : 1));
 
-  const skin = S.skin, skinDim = shade(skin,-0.26), skinLit = shade(skin,0.18);
+  const skin = shade(S.skin, L.skin), skinDim = shade(skin,-0.26), skinLit = shade(skin,0.18);
   /* A real outline, not just a darker fill. This is most of the Zelda look at
      a small size: bold flat colour with a definite edge round it, rather than
      shapes that fade into the ground. */
@@ -41930,7 +42200,7 @@ function drawGoblin(o){
   const footY = 0, hipY = -H*0.30;
   const shldY = -H*(0.57 - V.stoop*0.05);
   const headY = -H*(0.80 - V.stoop*0.07);
-  const headR = H*V.headR, tw = H*V.tw;
+  const headR = H*V.headR*L.head, tw = H*V.tw;
   const lean  = H*V.stoop*0.40;
   const outline = (fn) => { ctx.strokeStyle = ink; ctx.lineWidth = lw; fn(); ctx.stroke(); };
 
@@ -41995,7 +42265,7 @@ function drawGoblin(o){
   ctx.translate(lean + lunge, -chop*H*0.012 + drop*H*0.045);
 
   // ---- body: a round pot-bellied barrel, widest below the middle ----
-  const belly = tw*V.belly;
+  const belly = tw*V.belly*L.belly;
   const bodyPath = () => {
     ctx.beginPath();
     ctx.moveTo(-tw*0.78, shldY+H*0.02);
@@ -42429,12 +42699,13 @@ function drawGoblin(o){
          pass - those measured wider than the head on each side and were the
          first thing the eye went to. These read as goblin ears while the
          face stays the thing you look at. */
+      const ear = V.ear * L.ear;      // its tribe's ear, its own length
       const earPath = () => {
         ctx.beginPath();
         ctx.moveTo(s*headR*0.72, headY-headR*0.10);
-        ctx.quadraticCurveTo(s*headR*(0.98+V.ear*0.20), headY-headR*(0.20+V.ear*0.08),
-                             s*headR*(1.10+V.ear*0.24), headY+headR*(0.14+V.ear*0.05));
-        ctx.quadraticCurveTo(s*headR*(0.94+V.ear*0.10), headY+headR*0.24,
+        ctx.quadraticCurveTo(s*headR*(0.98+ear*0.20), headY-headR*(0.20+ear*0.08),
+                             s*headR*(1.10+ear*0.24), headY+headR*(0.14+ear*0.05));
+        ctx.quadraticCurveTo(s*headR*(0.94+ear*0.10), headY+headR*0.24,
                              s*headR*0.74, headY+headR*0.26);
         ctx.closePath();
       };
@@ -42453,9 +42724,33 @@ function drawGoblin(o){
   ctx.restore();
   outline(skullPath);
 
+  /* ---------- WALKING AWAY FROM YOU ----------
+     Villagers have had a back of the head since four-way facing went in; a
+     goblin turned its full face to the camera while marching directly away,
+     which is the one thing that gives a flat figure away.
+
+     What is NOT here is as deliberate as what is. No eyes, no snout, no
+     mouth, no tusks - the back of a head has none of those, and this game
+     has already learned the hard way that anything small, pale and
+     symmetrical high on a body gets read as a face whether it is one or
+     not. So the nape is a single off-centre crease, not a pair of anything.
+     The ears still show (they stick out sideways from behind too) and the
+     tuft or the mohawk carries the tribe, which is what you actually need
+     to recognise from behind. */
+  const backView = o.dir === "up";
+  if(backView){
+    ctx.strokeStyle = "rgba(26,20,14,.34)";
+    ctx.lineWidth = Math.max(0.6, lw*0.9);
+    ctx.beginPath();
+    ctx.moveTo(-headR*0.06, headY+headR*0.30);
+    ctx.quadraticCurveTo(headR*0.16, headY+headR*0.56, headR*0.30, headY+headR*0.74);
+    ctx.stroke();
+  }
+
   /* The snout. A muzzle pushed forward with an underbite is the single most
      bokoblin thing about the whole design - without it a round green head is
      just a round green head. */
+  if(!backView){
   ctx.fillStyle = shade(skin, 0.10);
   const snoutPath = () => { ctx.beginPath();
     ctx.ellipse(headR*0.60, headY+headR*0.30, headR*0.62, headR*0.46, -0.15, 0, 6.283); };
@@ -42473,9 +42768,12 @@ function drawGoblin(o){
   ctx.stroke();
   ctx.fillStyle = "#f4eeda";
   for(const s of [0.34, 0.76]){
+    /* The tusk's TIP moves with the goblin's own figure; its base does not,
+       so a prouder tusk grows up out of the same jaw rather than sliding
+       along it. */
     const tuskPath = () => { ctx.beginPath();
       ctx.moveTo(headR*s, headY+headR*0.56);
-      ctx.lineTo(headR*(s+0.055), headY+headR*0.19);
+      ctx.lineTo(headR*(s+0.055), headY+headR*(0.56 - 0.37*L.tusk));
       ctx.lineTo(headR*(s+0.185), headY+headR*0.56);
       ctx.closePath(); };
     tuskPath(); ctx.fill(); outline(tuskPath);
@@ -42486,24 +42784,74 @@ function drawGoblin(o){
      is the Zelda register - cross, not sinister. The season's warpaint goes
      round them rather than across them, so it frames the face. */
   goblinWarpaint(S, headR, headY);
+
+  /* ---------- AND NOW THE FACE DOES SOMETHING ----------
+     A villager's face has had eleven expressions and an involuntary blink
+     for months; a goblin's had one fixed stare for its whole life, which is
+     what made a camp of them read as props rather than as creatures.
+
+     Every input here is state the goblin already carries - what it is doing
+     this frame, how hurt it is, and its own id. Nothing is stored. */
+  const mood = goblinMood(o);
+  /* Shared with the animals (blinkShut, 05-wildlife) rather than written
+     again, so the whole world blinks on one rhythm. A goblin mid-slam or
+     mid-swing does NOT blink: you do not shut your eyes at the moment you
+     swing, and a blink there reads as a glitch rather than as life. */
+  const busy = chop > 0.15 || sl > 0;
+  const shut = o.sleeping || (!busy && blinkShut(o.seed || 0));
+
+  /* How much the eye is narrowed, 0 wide open and 1 a slit. Anger narrows
+     it; being badly hurt screws it up. */
+  const narrow = mood === "raging"  ? 0.62
+               : mood === "snarl"   ? 0.46
+               : mood === "hurt"    ? 0.40
+               : mood === "wary"    ? 0.16 : 0;
+  const openY = 0.185 * (1 - narrow*0.72);
+
   for(const s of [0.16, 0.62]){
+    if(shut){
+      /* A shut eye is a lid, not a smaller eye - the same read the villagers
+         and the animals use. */
+      ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.6, headR*0.075);
+      ctx.beginPath();
+      ctx.moveTo(headR*(s-0.19), headY-headR*0.20);
+      ctx.lineTo(headR*(s+0.19), headY-headR*0.20);
+      ctx.stroke();
+      continue;
+    }
     ctx.fillStyle = "#fbf6e6";
     const eyePath = () => { ctx.beginPath();
-      ctx.ellipse(headR*s, headY-headR*0.20, headR*0.21, headR*0.185, 0, 0, 6.283); };
+      ctx.ellipse(headR*s, headY-headR*0.20, headR*0.21, headR*openY, 0, 0, 6.283); };
     eyePath(); ctx.fill(); outline(eyePath);
-    ctx.fillStyle = "#f2c53a";
+    ctx.fillStyle = mood === "raging" ? "#f07a2c" : "#f2c53a";
     ctx.beginPath();
-    ctx.ellipse(headR*(s+0.045), headY-headR*0.20, headR*0.115, headR*0.125, 0,0,6.283); ctx.fill();
+    ctx.ellipse(headR*(s+0.045), headY-headR*0.20, headR*0.115, headR*(0.125*(1-narrow*0.55)), 0,0,6.283); ctx.fill();
     ctx.fillStyle = "#1d1610";
+    /* THE PUPIL LOOKS AT WHAT IT IS FIGHTING. A pinned pupil is the single
+       cheapest thing that turns a drawn eye into a looking one, and it is
+       the reason the villagers' faces read - `look` is already how far the
+       body has turned, so the eye simply goes a little further. */
+    const gaze = Math.max(-1, Math.min(1, (o.gaze || 0)));
     ctx.beginPath();
-    ctx.ellipse(headR*(s+0.055), headY-headR*0.20, headR*0.058, headR*0.078, 0,0,6.283); ctx.fill();
+    ctx.ellipse(headR*(s+0.055+gaze*0.05), headY-headR*0.20,
+                headR*0.058, headR*(0.078*(1-narrow*0.5)), 0,0,6.283); ctx.fill();
   }
-  // a heavy brow, which is what turns "big eyes" into "cross"
+  /* A heavy brow, which is what turns "big eyes" into "cross" - and the brow
+     is where most of the expression actually lives at this size. It drops
+     towards the nose when it is angry and lifts at the outer end when it is
+     hurt, which is the whole difference between a scowl and a wince. */
+  const browDrop = (mood === "raging" ? 0.20 : mood === "snarl" ? 0.13 : 0) * headR;
+  const browLift = (mood === "hurt" ? 0.13 : mood === "wary" ? 0.06 : 0) * headR;
   ctx.strokeStyle = ink; ctx.lineWidth = lw*1.5;
   ctx.beginPath();
-  ctx.moveTo(-headR*0.10, headY-headR*0.50); ctx.lineTo(headR*0.36, headY-headR*0.38); ctx.stroke();
+  ctx.moveTo(-headR*0.10, headY-headR*0.50 - browLift);
+  ctx.lineTo(headR*0.36, headY-headR*0.38 + browDrop); ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(headR*0.44, headY-headR*0.40); ctx.lineTo(headR*0.86, headY-headR*0.50); ctx.stroke();
+  ctx.moveTo(headR*0.44, headY-headR*0.40 + browDrop);
+  ctx.lineTo(headR*0.86, headY-headR*0.50 - browLift); ctx.stroke();
+  }   // end !backView: the whole face
+
+  
 
   // hair: a tuft or a mohawk, in the season's trim
   if(!V.hood && V.hair === "tuft"){
@@ -48515,9 +48863,21 @@ function drawBaker(o){
    into the body object below, so a test can call it directly rather than
    reading it out of a drawn frame - the only other way to catch this
    silently coming unwired is a screenshot. */
-function gardenerHandFlags(kindTag, id){
+/* WHAT IS IN A TRADE WORKER'S HANDS.
+
+   `emptyHanded` does not mean "carries nothing" - it means "skip drawHeld
+   entirely" (drawPerson, 04e:3901 is an `else if(!u.emptyHanded)`). So
+   anything a worker is supposed to be holding has to clear this flag first
+   or it is never drawn at all, however good the drawing is.
+
+   That is precisely what happened to the beekeeper's honey: the jar and the
+   comb were written into drawHeld's own switch, which for a beekeeper never
+   ran. Same shape as the fisherman costume that drew for its whole life
+   inside the wrong branch. `laden` is passed in for exactly this reason. */
+function gardenerHandFlags(kindTag, id, laden){
+  const carryingHoney = kindTag === "beekeeper" && !!laden;
   return {
-    emptyHanded: kindTag !== "gardener",
+    emptyHanded: kindTag !== "gardener" && !carryingHoney,
     gardenerProp: kindTag==="gardener" ? id : undefined
   };
 }
@@ -48553,7 +48913,7 @@ function drawLeisureVillager(o){
   // a leap into a leaf pile or a puddle, and the drop back down
   const jump = (o.jumpT > 0) ? Math.sin((1 - o.jumpT/0.75) * Math.PI) : 0;
 
-  const handFlags = gardenerHandFlags(o.kindTag, o.id);
+  const handFlags = gardenerHandFlags(o.kindTag, o.id, o.honeyProp && o.laden);
   const body = {
     type:"villager", p:P_YOU, r, id:o.id,
     skin:o.skin, look:o.look||0,
@@ -48572,6 +48932,10 @@ function drawLeisureVillager(o){
        the whole of what makes them read as the beekeeper rather than as
        somebody out for a stroll. (updateBeekeepers, 03b) */
     beekeeper: o.kindTag === "beekeeper",
+    /* And what is in their hands on the way out - a jar or a slab of comb,
+       set per errand by updateBeekeepers (03b) and cleared at the door, so
+       the walk back is empty-handed. (drawHoneyJar/drawHoneyComb, 04e) */
+    honeyProp: o.honeyProp || null,
     /* Same exemption as the baker's own whites (drawPerson, 04e) - a trade's
        colour is what makes it readable as a trade, so it should not fade
        toward everyone else's ordinary clothes the first cold snap. Plain
@@ -48587,7 +48951,25 @@ function drawLeisureVillager(o){
        (GARDENER_PROPS, 04e) so a second cottage's gardener need not carry
        the same thing. */
     emptyHanded: handFlags.emptyHanded,
-    gardenerProp: handFlags.gardenerProp
+    gardenerProp: handFlags.gardenerProp,
+    /* A TRADE WORKER HAS, BY DEFINITION, WORKED.
+
+       Without this nothing they carry is ever drawn, and that is not a
+       theory - it is why the gardener's bucket, watering can and seed bag
+       have never once appeared on screen since the day they were written.
+       drawPerson has a rule that "nobody is born holding an axe": a villager
+       who has never worked carries nothing until the first time they do
+       (neverWorked, 04e). It is keyed on `everWorked`, which the game sets on
+       ordinary villagers (03c) and which this body object never set, so every
+       field worker read as somebody fresh out of the town centre for ever and
+       the whole drawHeld branch was skipped.
+
+       Measured with the camera on the gardener: drawPerson ran 6 times in a
+       frame, drawHeld 0, drawGardenerProp 0.
+
+       Found while adding the beekeeper's honey, which was about to be the
+       second thing to disappear down the same hole. */
+    everWorked: true
   };
 
   // the same ground shadow drawUnit gives everyone, darkness fade and all
@@ -54610,6 +54992,66 @@ function pickNightCropSpot(want){
 function nearAnyTree(x, y){
   return G.nodes.some(n => n.kind===RES.WOOD && n.amt>0 && Math.hypot(n.x-x,n.y-y) < 90);
 }
+/* ---------- WHERE THE SWARM HANGS ----------
+   Asked for on 10 Sep: "the bees need to be on a tree in the dark fog that
+   the player has to use."
+
+   pickNightCropSpot - the placer this used to share with the owl feather and
+   the night crops - looks 90 to 390px out from a building you own, which on
+   most maps is ground you have already walked. The bees were therefore
+   usually hanging in plain sight, and "go and find them" was a walk to
+   somewhere you could already see.
+
+   This wants the opposite: a tree on ground that has NEVER been seen
+   (fog === 0, not merely out of sight at 1), far enough out to be a trip.
+   The clue days are what point you at it; the fog is what makes them worth
+   reading.
+
+   Rings outward rather than one flat band, so it takes the NEAREST piece of
+   darkness rather than a random one - the far corner of the map would be a
+   trek rather than an errand, and the swarm only hangs for one spring. */
+const SWARM_TREE_MIN = 7;      // tiles out from the hall before it will hang
+const SWARM_TREE_MAX = 30;     // and how far the search will reach
+function pickSwarmTreeSpot(){
+  const hall = G.bldgs.find(b=>b.p===P_YOU && b.done && b.type==="town")
+            || G.bldgs.find(b=>b.p===P_YOU && b.done);
+  if(!hall) return null;
+  const fog = G.fog && G.fog[P_YOU];
+  /* THE FOG IS THE POINT, but it must not be the thing that makes the swarm
+     impossible. On a small map, late in a long game, there may be no dark
+     ground left at all - and a spring with no bees because you explored well
+     would be a punishment for playing. So the fog pass runs first and a
+     plain "near a tree, far enough out" pass runs after it. */
+  for(const needDark of [true, false]){
+    if(needDark && !fog) continue;
+    for(let ring = SWARM_TREE_MIN; ring <= SWARM_TREE_MAX; ring += 2){
+      for(let attempt = 0; attempt < 60; attempt++){
+        const a = Math.random()*6.283;
+        const r = (ring + Math.random()*2) * TILE;
+        const x = hall.x + Math.cos(a)*r, y = hall.y + Math.sin(a)*r;
+        const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
+        if(tx<2||ty<2||tx>=MAPW-2||ty>=MAPH-2) continue;
+        if(G.terrain[ty*MAPW+tx] === 5) continue;            // not in the water
+        if(blocked(x,y,null,false)) continue;
+        if(needDark && fog[ty*MAPW+tx] !== 0) continue;      // never seen, not merely unseen
+        /* TEST THE POINT THAT IS ACTUALLY RETURNED. The spot is snapped to
+           the centre of its tile, and the checks used to run against the
+           unsnapped x/y - up to half a tile away. A tree 88px from the
+           sampled point could be 96px from the tile centre handed back,
+           which is outside nearAnyTree's 90, so the swarm could be placed
+           "on a branch" with no branch within reach of where it landed.
+           Caught by the test: 9 of 10 seeds by a tree rather than 10. */
+        const cx = (tx+0.5)*TILE, cy = (ty+0.5)*TILE;
+        if(!nearAnyTree(cx, cy)) continue;                   // it hangs on a BRANCH
+        // clear of every other node - the same overlap rule the moonflower needed
+        if(G.nodes.some(n => n.amt > 0 &&
+            Math.abs(n.x-cx) < TILE*1.1 && Math.abs(n.y-cy) < TILE*1.1)) continue;
+        return { x:cx, y:cy, dark: needDark };
+      }
+    }
+  }
+  return null;
+}
 function nearAnyFarm(x, y){
   return G.bldgs.some(b => b.p===P_YOU && b.done && BLDG[b.type].farm &&
                            Math.hypot(b.x-x,b.y-y) < 170);
@@ -59725,6 +60167,20 @@ const SWARM_HIVE_FOOD = 0.35; // and a trickle ever after, per hive
 const SWARM_SEASON = "spring";
 const SWARM_DAY    = 3;      // the third day of it, every time - see rollSwarmYear
 /* And what is said on the day itself, when it actually settles. */
+/* ---------- THE SWARM'S OWN NARRATIVE ----------
+   Read one beat at a time, and the close button says Next until they are
+   done - see tellStory (07). Written so the LAST line is the instruction: a
+   player who skims the first three still learns what to do.
+
+   No line names a direction or a distance. The bees hang in ground you have
+   never walked (pickSwarmTreeSpot, 05), and the finding is the errand -
+   being told where would remove the only exploring this quest asks for. */
+const SWARM_STORY = [
+  "The bees have swarmed. The whole colony has gone up at once and settled somewhere out past the last of the ground you know - a humming brown weight the size of a lamb, hanging off a branch.",
+  "A swarm is a colony looking for a home, and for a day or two it will take one that is offered. Boxed and carried back, it would be the beginning of hives, and honey, and somebody in the village who knows what to do with both.",
+  "It will not come to you. Whoever goes will have to find the tree it has chosen, and they will be stung getting it into the skep - there is no way to box a swarm that does not cost the person doing it.",
+  "Send somebody out to look for it while it hangs. It will wait out the spring on that branch, and then it will go wherever swarms go."
+];
 const SWARM_LINES = [
   "A swarm has settled on a branch near the village - a humming brown weight the size of a lamb.",
   "There it is: the bees have swarmed, and hung themselves in a knot in the trees.",
@@ -59822,11 +60278,23 @@ function trySpawnBeeSwarm(){
      reachable at all. The identical fault was found and fixed for the long
      night, in the comment right above the call site; the swarm was missed. */
   if(Math.round(G.seasonT/DAY_LEN) !== b.day) return false;
-  const spot = pickNightCropSpot(nearAnyTree);        // the same placer the feather uses
+  /* Its own placer now, not the feather's: it has to hang on a tree in
+     ground you have never walked. See pickSwarmTreeSpot (05). */
+  const spot = pickSwarmTreeSpot();
   if(!spot) return false;
   G.nodes.push({ id:G.nextId++, isNode:true, kind:"swarm",
                  x:spot.x, y:spot.y, amt:1, max:1, r:8, seed:Math.random()*6.283 });
-  tellAndNote(pickLine(SWARM_LINES,"swarm"), "good");
+  /* THE STORY, not a line. This is the one route to a beekeeper in the whole
+     game, and it used to announce itself with a single sentence that shared
+     the bottom of the screen with notes about wood - easy to tap away
+     without reading and impossible to get back.
+
+     Four beats, clicked through one at a time (tellStory, 07): what has
+     happened, what it is worth, what it will cost, and what to do. The last
+     one is the only instruction, and it comes last on purpose - a player who
+     reads nothing else still gets "send somebody out to it". */
+  tellStory(SWARM_STORY);
+  noteInDiary(SWARM_STORY[0], "good");
   return true;
 }
 /* And it goes at dusk if nobody went for it. The one-day window IS the hook -
@@ -59909,18 +60377,65 @@ function hiveYield(){
   }
   return y;
 }
-/* And what the honey is worth to everybody. Slight on purpose and slight per
-   hive: the point is that the whole village is a little better off for having
-   bees, not that a row of skeps wins the game. Grows with the ladder. */
+/* ---------- WHAT THE BEES ARE WORTH ----------
+
+   Decided with the user on 10 Sep. They were offered one strong buff and
+   chose "1,2,3 small buffs, but more focused on animations and interactions
+   with the town" - so there are three of them, all VILLAGE-WIDE (their
+   answer: placement should not matter), all small, and none of them is meant
+   to be the reason you keep bees. The reason you keep bees is that somebody
+   in a veil walks round the village all day handing out honey.
+
+   That is also why the gather buff below came DOWN. It was capped at +35%,
+   which is not a "slight" anything - it was quietly the largest economy
+   multiplier a village could hold, and it was invisible. Three small visible
+   things beat one large invisible one.
+
+     honeyBuff       gathering, everywhere            (was +35% cap, now +12%)
+     honeyGrowMult   pollination: crops come on faster
+     honeyUpkeepEase honey in the larder: the village eats a little less
+     honeyMendMult   and mends a little faster
+
+   Each reads off the same hive ladder, so a village with the Apiary feels
+   all three lift together. */
 const HONEY_BUFF_BASE = 0.03;
-function honeyBuff(p){
-  if(p !== P_YOU) return 1;
+/* How much of the hive ladder a village has, 0 upward: the shared strength
+   behind all four effects, so they cannot drift apart. */
+function honeyStrength(p){
   let v = 0;
   for(const b of G.bldgs){
     if(b.p!==p || !b.done || b.hp<=0 || !BLDG[b.type] || !BLDG[b.type].beehive) continue;
+    if(b.empty) continue;              // a colony lost to the cold is worth nothing
     v += HONEY_BUFF_BASE + bldgTier(b, "honey");
   }
-  return 1 + Math.min(0.35, v);
+  return v;
+}
+function honeyBuff(p){
+  if(p !== P_YOU) return 1;
+  return 1 + Math.min(0.12, honeyStrength(p));
+}
+/* 1. POLLINATION. Bees on the blossom, so the fields come on sooner - the one
+      thing bees actually do, and the only one of the three you can watch
+      happen: a pollinated field steps through seed, seedling and full ear
+      visibly sooner than an unpollinated one. Applied to the crop clock in
+      03c, not to the harvest amount, so it shows in the FIELD rather than in
+      a number in the top bar. */
+function honeyGrowMult(p){
+  if(p !== P_YOU) return 1;
+  return 1 + Math.min(0.20, honeyStrength(p) * 1.6);
+}
+/* 2. HONEY IS FOOD. The village eats (updateUpkeep, 01f) and honey in the
+      larder means it eats a little less of everything else. Small: this is a
+      jar on a shelf, not a harvest. */
+function honeyUpkeepEase(p){
+  if(p !== P_YOU) return 1;
+  return 1 - Math.min(0.15, honeyStrength(p) * 1.2);
+}
+/* 3. AND IT IS A COMFORT. Somebody mending gets honey with everything, so
+      they mend a little faster. */
+function honeyMendMult(p){
+  if(p !== P_YOU) return 1;
+  return 1 + Math.min(0.18, honeyStrength(p) * 1.4);
 }
 
 /* ============================================================
@@ -69279,6 +69794,18 @@ function showTipNow(text){
   t.textContent = text;
   box.classList.add("show");
   G.tipShowing = text;
+  /* A CROSS MEANS "MAKE THIS GO AWAY", AND MID-STORY IT WILL NOT.
+
+     While beats are still waiting the button advances instead of clearing,
+     so it says so. Offering a dismiss that silently does something else is
+     the kind of small lie that teaches a player to distrust the interface. */
+  const x = $("tipx");
+  if(x){
+    const more = narrativeRunning();
+    x.innerHTML = more ? "&rsaquo;" : "&times;";
+    x.setAttribute("title", more ? "Next" : "Got it");
+    x.setAttribute("aria-label", more ? "Next" : "Dismiss");
+  }
 }
 
 /* `stale` is optional: a predicate asked again at the moment the tip would
@@ -69318,10 +69845,60 @@ function nextLiveTip(){
   return null;
 }
 
+/* ---------- A NARRATIVE: SEVERAL BEATS, IN ORDER, THAT CANNOT BE LOST ----------
+
+   Asked for on 10 Sep for the bees: "there needs to be a non skippable
+   bottom screen narrative text".
+
+   The ordinary tip queue cannot carry this and must not be made to. It holds
+   TIP_QUEUE_MAX (3) and, when it overflows, drops the OLDEST - which is
+   right for advice, where the newest note is the most useful one, and
+   exactly wrong for a story, where losing the opening line is losing the
+   point. It also drops entries whose `stale` predicate has come true, which
+   a story has no business doing.
+
+   So a narrative gets its own channel:
+
+     - it TAKES OVER. Whatever tip was showing goes back on the ordinary
+       queue and the first beat is put up at once. The bees swarming once a
+       year should not wait its turn behind a note about wood.
+     - it is never trimmed and never reordered.
+     - the close button ADVANCES it rather than clearing it, so the only way
+       past a narrative is to read it. That is the "non-skippable" half.
+
+   Ordinary tips resume the moment the last beat is dismissed. */
+function tellStory(lines){
+  if(!lines || !lines.length) return false;
+  if(!G.narrative) G.narrative = [];
+  for(const l of lines) if(l) G.narrative.push(l);
+  /* Put the showing tip back rather than throwing it away - it was advice
+     the player has not read yet, and this is a takeover, not a cancellation. */
+  if(G.tipShowing){
+    const q = tipQueue();
+    q.unshift(G.tipShowing);
+    while(q.length > TIP_QUEUE_MAX) q.pop();
+    G.tipShowing = null;
+  }
+  const first = G.narrative.shift();
+  logMessage(first);
+  showTipNow(first);
+  return true;
+}
+/* Is a story running? The close button says "Next" while one is, because a
+   cross means "make this go away" and this one will not. */
+function narrativeRunning(){ return !!(G.narrative && G.narrative.length); }
+
 /* The close button, and the only way one goes away. */
 function dismissTip(){
   const box = $("tip");
   G.tipShowing = null;
+  /* A story's remaining beats come before every ordinary tip, in order. */
+  if(G.narrative && G.narrative.length){
+    const beat = G.narrative.shift();
+    logMessage(beat);
+    showTipNow(beat);
+    return;
+  }
   const next = nextLiveTip();
   if(next){ showTipNow(next); return; }
   if(box) box.classList.remove("show");
@@ -69948,14 +70525,36 @@ function refreshUI(){
      goes through giveOrder, which wakes them). This is for the case where
      you want them up and have not decided on a job yet. */
   const asleepOut = vills.filter(u=>u.roughing);
-  if(asleepOut.length){
+  /* ASLEEP MEANS ONE BUTTON AND NO OTHERS.
+
+     Asked for on 10 Sep: "you click the sleeping villager and only one
+     button comes up - wake up - when you wake them up then you get the
+     normal options."
+
+     It used to be offered ABOVE the ordinary Move/Attack/Build row, with
+     the whole row still live underneath. The reasoning was that ordering a
+     sleeper is perfectly legal and wakes them anyway - which is true, and
+     is exactly why the row was noise: every button in it did the same first
+     thing, so the panel offered eight ways to do one thing to somebody who
+     is asleep. One button says what the situation is.
+
+     Pre-empted with a return, the same way somebody sent to the water gets
+     Gather/Play/Stop and nothing else (just below). Nothing is lost: the
+     moment they are up, this block stops matching and the ordinary panel
+     comes straight back.
+
+     Only when EVERY selected villager is asleep. A mixed selection is a
+     group you are commanding, and taking its orders away because one of
+     them is having a lie-down would be worse than the noise. */
+  if(vills.length && asleepOut.length === vills.length && own.length === vills.length){
     const n = asleepOut.length;
-    addBtn(n===1 ? "\u{1F634} Wake villager" : "\u{1F634} Wake "+n+" villagers",
+    addBtn(n===1 ? "\u{1F634} Wake up" : "\u{1F634} Wake all "+n,
            "costs them the night", true,
            ()=>{
              for(const u of asleepOut) stepOutToWork(u);
              refreshUI();
            }, null, true);
+    return;
   }
 
   /* SOMEBODY SENT TO THE WATER GETS THREE BUTTONS AND NO OTHERS.
@@ -72071,4 +72670,31 @@ $("mm_delsave").addEventListener("click", ()=>{
 
 /* The X, top right: leave the menu and get on with the game underneath.
    Unlike Begin, this one can be closing a menu opened over a match already
-   in progress, so it only 
+   in progress, so it only briefs you if the match has not started yet. */
+$("btnclose").addEventListener("click", ()=>{
+  $("startscreen").classList.add("hide");
+  if(G && !G.running && !G.over && G.t < 1) showOpening(); else G.running = true;
+});
+$("btncarryon").addEventListener("click", ()=> answerCampaign(false));
+$("btnfinish").addEventListener("click", ()=> answerCampaign(true));
+$("btnagain").addEventListener("click", ()=>{
+  $("endscreen").classList.add("hide");
+  newGame(); resize(); refreshUI();
+  showOpening();
+});
+
+window.addEventListener("error", e=>{
+  reportError(e.error || new Error(e.message), "the page");
+});
+
+/* Boot still deals a fresh match, as it always has, so there is a world
+   running under the menu rather than a black screen. Picking Continue
+   replaces it outright - newGame() and loadGame() both swap G whole. */
+newGame();
+resize();
+refreshUI();
+showStartMenu();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
