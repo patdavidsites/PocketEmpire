@@ -428,6 +428,22 @@
     -webkit-overflow-scrolling:touch;scrollbar-width:none;
     scroll-snap-type:x proximity;}
   #btns::-webkit-scrollbar{display:none;}
+  /* ---- what a resource is, in the space the buttons would use ----
+     A node has no orders to give, so #btns is empty for one. The card spans
+     BOTH grid rows (grid-row:1/-1) rather than dropping into a single cell,
+     where it would be a 112px column with a paragraph crammed into it. */
+  .rescard{grid-row:1/-1;display:flex;gap:9px;align-items:flex-start;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
+    padding:7px 9px;overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .rescard::-webkit-scrollbar{display:none;}
+  .resfig{flex:0 0 auto;line-height:0;}
+  .resicon{width:44px;height:44px;image-rendering:auto;
+    /* the same soft seat every small portrait in this interface sits on */
+    background:rgba(0,0,0,.14);border-radius:3px;}
+  .restext{flex:1 1 auto;min-width:0;}
+  .reswhat{color:var(--parch);font-size:11.5px;line-height:1.35;}
+  .resuses{color:#b9ae95;font-size:11px;line-height:1.35;margin-top:4px;}
   .btn{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     padding:5px 8px;cursor:pointer;text-align:left;transition:.12s;overflow:hidden;
     scroll-snap-align:start;min-width:0;
@@ -1213,6 +1229,88 @@
           <li><strong>The rounds call on the gardener and the geologist too.</strong> The gardener grows the flowers the bees are working, and the geologist is the one person in the village who never gets anything nice</li>
           <li><strong>And the honey is actually in their hands</strong> &mdash; a jar some errands, a slab of comb others, chosen fresh each time so the round never looks the same twice. They walk back empty-handed, which is what makes the outward leg read as a delivery</li>
           <li><strong>What the bees are worth is three small things instead of one large invisible one.</strong> The fields come on sooner where there are bees to work them, the village eats a little less for having honey in the larder, and anybody mending comes right a little quicker. The old hidden gathering bonus was capped at a third and was quietly the largest thing of its kind in the game; it is a twelfth now</li>
+        </ul>
+        <div class="sec">Nobody sleeps through a day, and nobody misses the bell</div>
+        <ul>
+          <li><strong>A villager could sleep through an entire day.</strong> The village is woken once, at the moment dawn breaks &mdash; so anybody who went to bed just after that was not let out again until the following dusk. It is rare, and when it happened there was nothing on screen to say why somebody had stopped working. Being asleep in daylight is now simply not a state the village allows</li>
+          <li><strong>And anybody still out working in the dead of night is sent to bed.</strong> The evening bell only rings once, so somebody who picked up a job after it went on until morning</li>
+          <li><strong>Whoever you woke on purpose is left alone.</strong> Waking a villager at night is a real choice that costs them health and strength for good &mdash; quietly putting them back to bed would undo an order you meant. The night shift is left alone too; that is a rota, not an oversight</li>
+          <li><strong>And somebody who cannot reach their own door is put down where they stand.</strong> Reported as &ldquo;some villagers just somehow glitch and never go to sleep&rdquo;, and that is exactly what it was: being on the way home used to excuse a villager from the whole rule, so one who never arrived was the one person the night never checked on. Being on your way now buys a few moments&rsquo; grace rather than the whole night off</li>
+          <li>Somebody walking home perfectly normally is still left to walk. Dusk is untouched too &mdash; the walk home is dusk&rsquo;s own job, and the village should not snap to bed the instant the sun drops</li>
+        </ul>
+        <div class="sec">A chandler, and the dark keeps its distance</div>
+        <ul>
+          <li><strong>One light out past the trees that is not a fire</strong> &mdash; too steady, too small, and it has been there three nights. A taper of pale beeswax, half burned down. Bring it home in autumn and you can raise a Chandlery</li>
+          <li><strong>He keeps his own hours.</strong> Every other trade in the village is sent to bed at dusk; this one gets up then, goes round putting a candle in every window, and turns in at dawn. He is the only one of the five you meet in the dark</li>
+          <li><strong>And the light is a real defence.</strong> The things that come out of the night will not go near a lit place &mdash; so while the windows are burning, every building&rsquo;s lamp reaches a third further and the dark has to keep back. Measured: the hall lights the ground to 124 paces ordinarily and 168 with candles in it</li>
+          <li>He carries a lit lantern, held low and out to the side the way a lantern actually is &mdash; the only thing anybody carries in this village that gives off light of its own</li>
+        </ul>
+        <div class="sec">A tavern, and a round for everybody</div>
+        <ul>
+          <li><strong>A smell of hops on the cold air, in winter</strong> &mdash; a banded cask half buried where somebody left it to keep cold. Bring it home and you can raise a Tavern</li>
+          <li><strong>The tavernkeeper goes round with a tray</strong> and he calls on PEOPLE, not doors, which no other trade does &mdash; soldiers standing watch first, then whoever has gone longest without. Everyone standing near gets one, and they move a little quicker for a while</li>
+          <li><strong>And you can see it on them.</strong> Somebody who has had a drink wears the pleased face the village already has &mdash; no badge, no marker floating over anybody&rsquo;s head</li>
+          <li><strong>He calls on the other trades too</strong> &mdash; the shepherd out with the flock, the gardener, the miller, all of them &mdash; and the dogs get a fuss rather than a drink, because he is not a monster</li>
+        </ul>
+        <div class="sec">A mill, and the grain goes further</div>
+        <ul>
+          <li><strong>A sound out past the fields like a millstone turning, in summer</strong> &mdash; half a quern-stone, worn smooth by somebody else&rsquo;s grain. Bring it home and you can raise a Mill</li>
+          <li><strong>The tallest thing a village builds that is not a tower</strong>, and the sails turn &mdash; faster while there is grain going through, so the building tells you the trade is working without a word</li>
+          <li>The miller walks out to a field, brings grain back on their shoulder and grinds it. A harvest that has already been cut is worth more again once there is a mill to put it through</li>
+          <li>A sack over the shoulder rather than flour-white overalls &mdash; the baker already wears the whites, and two trades in the same clothes would be the one mistake these new folk must not make</li>
+        </ul>
+        <div class="sec">A weaver, and the village starts to look like one</div>
+        <ul>
+          <li><strong>Thread caught on the brambles for twenty yards, in autumn.</strong> Somebody dropped a spindle out there, and whoever brings it home can raise a Weaver&rsquo;s Cottage</li>
+          <li><strong>This is the first thing in the village that needs another thing.</strong> The shepherd shears the flock and walks the fleece to the weaver&rsquo;s door; the weaver works it and carries cloth back out to the houses. No flock, no cloth &mdash; and a weaver with nothing to work with will tell you so if you tap them</li>
+          <li><strong>And then you can see it.</strong> Whoever is about when the weaver calls picks up a folded length and carries it off &mdash; cloth crossing the village in the season&rsquo;s own dye: new green in spring, sun-bleached gold in summer, madder red in autumn, woad blue in winter. Everyone works a little better for the village being decently kept</li>
+          <li>Nobody wears anything new, and that was a correction. The first version put a coloured shawl on every villager; it did not read as clothing, and the verdict on it was &ldquo;what is this orange thing&rdquo;. Cloth is a thing that moves about the village now, never a costume</li>
+        </ul>
+        <div class="sec">A shepherd, a flock, and the ground they leave behind</div>
+        <ul>
+          <li><strong>Something is calling out on the hill past the trees, in spring.</strong> It is a lamb, and whoever carries it home can raise a Shepherd&rsquo;s Hut. The first of the trades that belongs to a season &mdash; there will be no lost lambs in the snow</li>
+          <li><strong>They keep a flock of three to five</strong>, no two of them the same size or shade, and a shepherd is unmistakable: a flat cap, a fleece collar, and a crook they lean on while they watch, which is most of a shepherd&rsquo;s day</li>
+          <li><strong>The flock settles on one piece of open ground for half a season</strong> &mdash; grazing, wandering a few steps, grazing again &mdash; and walks home to the hut every evening to be penned for the night</li>
+          <li><strong>Then they move on, and leave the ground behind them.</strong> Cropped short, trodden, well muck-fed, and about the size of a field. Put a farm on it and it comes in a tenth heavier for a season. Nothing points at it and nothing tells you to look &mdash; the grass is simply richer there than the grass round it</li>
+          <li><strong>Shearing warms the whole village for a while.</strong> Everybody moves better in the cold and takes less out of a downpour. It fades, so it is a rhythm rather than something you did once, and the fleece grows back over a season</li>
+        </ul>
+        <div class="sec">Everything you can pick up is called what it is</div>
+        <ul>
+          <li><strong>The four finds out in the woods are drawn as themselves now</strong> &mdash; a sheaf of wild grain, a moonlit mushroom, a wild comb, and the magnifying glass that always was. Tap one and it is named, pictured and described as that thing, in the same words the village uses when somebody picks it up</li>
+          <li>This gives up a small thing deliberately: the finds used to be anonymous tied bundles so that carrying one home was the reveal. It cost more than it gave &mdash; a second bundle read as the first one coming back, and nothing on the screen could say otherwise. Where they are is still never given away, and the finding is still the errand</li>
+          <li><strong>And the same for a season&rsquo;s wild crop.</strong> Strawberries in spring, corn in summer, a pumpkin in autumn, a sweet potato in winter &mdash; each drawn as that plant rather than one flower in four colours, named in the panel, and named in the line that tells you somebody has found it</li>
+        </ul>
+        <div class="sec">A dog that could never get to its kennel</div>
+        <ul>
+          <li><strong>The spot in front of the kennel door was picked without ever checking there was ground to stand on.</strong> Measured across 25 maps, 16 spots in every 100 were inside water or a wall &mdash; and a dog sent to one simply never arrived. On two maps in twenty, one of the two dogs spent most of every night out in the open, walking at a wall</li>
+          <li>It is the same fault that once left Gumby standing in walls, still alive in the village dogs long after his was fixed. The doorstep is checked now, and widens out round the building if the door itself is blocked</li>
+        </ul>
+        <div class="sec">Tap a resource and it tells you what it is for</div>
+        <ul>
+          <li><strong>Tapping a tree used to say &ldquo;Wood &mdash; Resource &mdash; 340 remaining&rdquo;</strong>, which tells somebody new precisely nothing about why they should care</li>
+          <li>Now there is a picture of it and two lines: what the thing is, and what it is actually <em>for</em>. Timber, stone, gold, forage, a shoal of fish, a moonstone seam, a swarm of bees, a season&rsquo;s seed and whatever is lying wrapped in the woods all have their own</li>
+          <li>It goes where the buttons go, because a tree has no orders to give and that space was sitting empty</li>
+          <li><strong>The writing says what it is FOR, not what it is.</strong> &ldquo;70 of it repairs the town centre&rdquo; is worth knowing; &ldquo;wood comes from trees&rdquo; is not. A moonstone seam says the thing that actually matters about it &mdash; whatever is left in it at dawn is simply lost</li>
+        </ul>
+        <div class="sec">The bug catcher and the fisherman have a slot of their own</div>
+        <ul>
+          <li><strong>Take up the glass and you are group 3 from then on; take up the rod and you are group 4.</strong> Neither is something you assign &mdash; it happens the moment somebody takes the trade up, the same way group 1 has always been the Town Centre and group 2 the founder</li>
+          <li>Both of them are one to a village and both are always somewhere else when you want them &mdash; the catcher off in the long grass, the fisherman down at the water. A permanent slot on the bar is how you get back to them</li>
+          <li>Those two slots will not take anybody else, and the trade cannot be walked out of its own slot by joining another group either. Select them alongside somebody ordinary and the ordinary one still moves &mdash; only they stay put</li>
+          <li>The bar already knew what to draw for them: a ladybird for the catcher, a rod for the fisherman</li>
+        </ul>
+        <div class="sec">Every parcel in the woods is its own parcel</div>
+        <ul>
+          <li><strong>Reported as a bug: the loaf of bread came back after the village already had a bakery.</strong> It did not &mdash; once a trade is learned the woods never offer it again, and that holds through a save and a load. Both were measured before anything was changed</li>
+          <li><strong>What came back was a different find wearing the same clothes.</strong> Every one of them but the magnifying glass was drawn as the same tan wrapped bundle, which at map zoom is a small loaf. So the herbalist&rsquo;s cuttings and the beekeeper&rsquo;s wild comb both read as the bread returning</li>
+          <li>They are still wrapped &mdash; not knowing what you have got until somebody carries it home is the whole point of them. But each has its own cloth, its own shape and its own tie now: the baker&rsquo;s squat and cross-tied, the herbalist&rsquo;s gathered at the neck like a bag of cuttings, the beekeeper&rsquo;s long and bound twice along its length</li>
+        </ul>
+        <div class="sec">Half as much moonstone comes up at night</div>
+        <ul>
+          <li><strong>Reported from play: there was too much of it.</strong> There was. Measured over a season, counting only what appears near your own village: six or seven veins on a moonstone night, about 1,250 ore a night, and some 4,300 across the season</li>
+          <li>For scale &mdash; every single thing moonstone can ever be spent on, bought once each, comes to 1,440. The Manor is 300 of that. <strong>One night was putting four Manors&rsquo; worth on the ground</strong></li>
+          <li><strong>Three veins a night now, not six.</strong> It was three until a month ago, when it was doubled because somebody played a whole match and saw only one vein. That was a problem of not being able to FIND them, and it has since been properly solved another way &mdash; the veins glow and throw light after dark. This is that doubling being unwound</li>
+          <li><strong>What has not changed:</strong> the rhythm, still about every other night, and how much is in a single vein. Coming across one out in the dark should still be worth the walk</li>
         </ul>
         <div class="sec">The gardener has been carrying nothing at all</div>
         <ul>
@@ -4911,7 +5009,13 @@ function isLitAt(x, y, p){
     const bd = BLDG[b.type];
     const shrinkW = bd.shrinkW || bd.shrink || 0.70;
     if(bd.brazier && b.hp < b.maxhp*0.5) continue;   // blown out - no light till repaired
-    const rad = bd.brazier ? brazierRadius(b) : (78 + b.w*TILE*shrinkW*0.95) * LAMP_SCALE;
+    /* AND THE CANDLES, if there is a chandler keeping them lit. This is the
+       one place in the game that decides whether the dark will come at
+       somebody, so a candlelit village is genuinely safer rather than
+       prettier. (candleGlowMult, 05r) */
+    const candle = (typeof candleGlowMult === "function") ? candleGlowMult(p) : 1;
+    const rad = (bd.brazier ? brazierRadius(b)
+                            : (78 + b.w*TILE*shrinkW*0.95) * LAMP_SCALE) * candle;
     if(Math.hypot(b.x-x, b.y-y) < rad) return true;
   }
   for(const u of G.units){
@@ -9048,7 +9152,10 @@ function updateStormToil(dt){
       if(headingIn) continue;
       u.soaked = true;
       if(u.hp > floor){
-        u.hp = Math.max(floor, u.hp - u.maxhp * TOIL_DRAIN * bite * dt);
+        /* Wool keeps some of it off. Being wet is still being wet - the
+           soaked pose, the tired face and the held-open hurtT are all
+           unchanged - it simply costs less. (woolRainMult, 05n) */
+        u.hp = Math.max(floor, u.hp - u.maxhp * TOIL_DRAIN * bite * woolRainMult() * dt);
         /* And no quiet healing while it is still coming down. */
         u.hurtT = Math.max(u.hurtT || 0, TOIL_HURT_HOLD);
         if(u.p === P_YOU && !u.toldSoaked && u.hp <= u.maxhp*TOIL_TELL_AT){
@@ -10260,6 +10367,38 @@ const BLDG = {
               shrinkW:0.5, shrink:0.5, roof:"dome", build:12, vision:2, reliquary:true },
   beehive:{ name:"Beehive", age:0, hp:150, w:1, h:1, cost:{wood:55,food:30}, hgt:7,
             roof:"gable", roofScale:0.55, build:11, vision:3, beehive:true },
+  /* THE SHEPHERD'S HUT. Small and low, the way a hut on a hill is - it is not
+     a cottage and should not read as one. `shepherd:true` is what makes it
+     post a shepherd, the same flag-per-trade the beehive and the gardener's
+     cottage use (promoteToTrade, 05g). */
+  /* THE WEAVER'S COTTAGE. Taller than the shepherd's hut and with a proper
+     roof - a loom needs headroom and a dry floor, and it should read as a
+     workshop rather than a shelter. */
+  /* THE MILL. The tallest thing a village builds that is not a tower - a mill
+     is meant to be seen from the far side of the fields, which is half the
+     reason to have one. 2x2 and expensive in stone, because the stone IS the
+     mill: the quern is what was found. */
+  /* THE TAVERN. Wide and low with a long roof - the shape of somewhere you
+     go INTO, which is the whole idea, and the shape the strung winter lights
+     will hang along when that gets built (idea_tavern_bar_game). */
+  /* THE CHANDLERY. Narrow and tall with a steep roof - a workshop where
+     things hang to cool. Its own light is generous for its size, which is
+     the whole idea of the trade standing in it. */
+  chandlery:{ name:"Chandlery", age:0, hp:180, w:1, h:1, cost:{wood:70,food:30,stone:20}, hgt:11,
+              roof:"gable", roofScale:0.68, build:13, vision:4, chandler:true },
+  tavern:{ name:"Tavern", age:0, hp:210, w:1, h:1, cost:{wood:95,stone:30,food:50}, hgt:10,
+           roof:"gable", roofScale:0.56, shrink:0.86, build:15, vision:4, tavern:true },
+  /* ONE TILE, like every other specialist. It was 2x2 and hgt 22, which made
+     it half again the size of the gardener's cottage standing next to it -
+     and the ask is that these five sit alongside the trades already here
+     rather than looming over them. The sails keep it recognisable from a
+     distance without the footprint doing it. */
+  mill:{ name:"Mill", age:0, hp:230, w:1, h:1, cost:{wood:100,stone:55,food:35}, hgt:13,
+         roof:"cone", roofScale:0.52, shrink:0.80, build:16, vision:4, mill:true },
+  weaver:{ name:"Weaver's Cottage", age:0, hp:185, w:1, h:1, cost:{wood:80,food:35,stone:10}, hgt:9,
+           roof:"gable", roofScale:0.6, build:13, vision:3, weaver:true },
+  shepherdhut:{ name:"Shepherd's Hut", age:0, hp:170, w:1, h:1, cost:{wood:70,food:40}, hgt:7,
+                roof:"gable", roofScale:0.58, build:12, vision:4, shepherd:true },
   gardener:{ name:"Gardener's Cottage", age:0, hp:190, w:1, h:1, cost:{wood:75,food:35}, hgt:8,
              roof:"gable", roofScale:0.6, build:13, vision:3, gardener:true },
   /* The Gardener's own mirror, for gold and stone veins (iron rides along
@@ -11395,6 +11534,16 @@ function defaultGameState(){
     newcomersJoined: 0,        // strangers the founder has talked into staying, this match (NEWCOMER_MAX_PER_MATCH)
     swarmsHome: 0,             // swarms actually carried back - one Beehive each
     beekeepers: [],            // the hives' own walkers, on their honey rounds
+    shepherds: [],             // and the hut's own, out with the flock (03b)
+    sheep: [],                 // the flock itself - see updateFlock (05n)
+    grazedPatches: [],         // ground the flock has left behind it (05n)
+    weavers: [],               // the loom's own walker (05o)
+    millers: [],               // the mill's own walker (05p)
+    tavernkeepers: [],         // and the tavern's, out with a tray (05q)
+    chandlers: [],             // the chandlery's, out after dark (05r)
+    candleUntil: 0,            // how long the windows stay lit
+    clothUntil: 0,             // how long the village stays well dressed
+    woolUntil: 0,              // how long the village stays warm for, after a shearing
     beeYear: null,             // whether THIS year's spring has a swarm in it, and when
     heatT: 0, heatToldFixed:false,   // the hot summer, and whether the well fixed it
     springSite: null,          // a free well site, this season only
@@ -16692,6 +16841,54 @@ function pickAt(wx, wy, prefer, tol){
   return null;
 }
 
+/* ---------- THE GROUPS THAT ARE NOT YOURS TO HAND OUT ----------
+
+   Group 1 has always been the Town Centre and group 2 the founder: "not a
+   thing you choose, just always true". Asked for on 10 Sep: the same for the
+   two villagers who take up a trade for good.
+
+     1  the Town Centre
+     2  the founder
+     3  the bug catcher     (markBugCatcher, 05k)
+     4  the fisherman       (markFisherman, 03e)
+
+   Both are one-to-a-village and both are somebody you go looking for - the
+   catcher is off in the long grass and the fisherman is down at the water,
+   which is precisely when a permanent slot on the bar is worth having.
+
+   The tie is permanent in BOTH directions, which is the lesson group 2
+   already had to learn: refusing to hand the slot to somebody else guards
+   only one way, and the founder could still be walked out of it by joining
+   another group - which emptied the slot for good, because nothing ever put
+   them back. So a tied villager is left out of assignGroup's own selection
+   as well. */
+const TIED_GROUPS = [
+  { slot:2, has:(u)=>u.firstVillager, name:"the founder" },
+  { slot:3, has:(u)=>u.bugCatcher,    name:"the bug catcher" },
+  { slot:4, has:(u)=>u.fisherman,     name:"the fisherman" }
+];
+function tiedGroupFor(u){
+  if(!u) return null;
+  for(const t of TIED_GROUPS) if(t.has(u)) return t;
+  return null;
+}
+/* Put them in it, now and permanently. Called the moment somebody takes the
+   trade up, the same way the founder is tied the moment the village exists.
+   P_YOU only: the AI has no group bar to speak of. */
+function tieToGroup(u, slot){
+  if(!u || u.p !== P_YOU || !G.groups) return false;
+  /* Out of wherever they were first, or they would sit in two groups at once
+     and the old one would keep recalling them. */
+  for(const k in G.groups){
+    if(!Array.isArray(G.groups[k])) continue;
+    const i = G.groups[k].indexOf(u);
+    if(i >= 0) G.groups[k].splice(i, 1);
+  }
+  G.groups[slot] = [u];
+  u.group = slot;
+  return true;
+}
+
 function assignGroup(n){
   // slot 1 is never a player group - see groupTap/recallTownCentre below
   if(n===1){ hint("Group 1 is always the Town Centre."); return; }
@@ -16711,6 +16908,21 @@ function assignGroup(n){
     hint("Group 2 is always " + bare + "'s.");
     return;
   }
+  /* AND THE SAME FOR THE TWO TRADES. Named after whoever holds the post if
+     there is one, so the refusal says WHY rather than just no - and phrased
+     for an empty post too, since a village with no bug catcher yet still may
+     not use the slot for something else. */
+  const tied = TIED_GROUPS.find(t => t.slot === n);
+  if(tied){
+    const holder = G.units.find(u => u.p===P_YOU && u.hp>0 && tied.has(u));
+    if(holder){
+      const bare = holder.nightName || villagerName(holder) || tied.name;
+      hint("Group " + n + " is always " + bare + "'s.");
+    } else {
+      hint("Group " + n + " is kept for " + tied.name + ".");
+    }
+    return;
+  }
   /* AND THE FOUNDER NEVER LEAVES SLOT 2 BY THIS DOOR EITHER. Refusing to
      hand group 2 to somebody else (above) only guards one direction: the
      founder could still be walked out of it by joining any other group,
@@ -16719,12 +16931,16 @@ function assignGroup(n){
      Centre's hold on slot 1. Ungroup leaves them alone for the same
      reason (refreshUI, 07). */
   const units = G.sel.filter(e=>e.p===P_YOU && e.kind==="unit" && e.hp>0 &&
-                                !isAnElder(e) && !e.firstVillager);
+                                !isAnElder(e) && !tiedGroupFor(e));
   if(!units.length){
-    const hadFounder = G.sel.some(e=>e.p===P_YOU && e.firstVillager);
-    if(hadFounder){
-      const f = G.sel.find(e=>e.firstVillager);
-      hint((f.nightName || "The founder") + " stays in group 2 - that one is theirs.");
+    /* Whoever was selected and could not be moved, so the message names the
+       real reason. Was founder-only; the bug catcher and the fisherman are
+       tied the same way now and would otherwise have got "Select some units
+       first" while plainly selected. */
+    const stuck = G.sel.find(e=>e.p===P_YOU && tiedGroupFor(e));
+    if(stuck){
+      const t = tiedGroupFor(stuck);
+      hint((stuck.nightName || "They") + " stays in group " + t.slot + " - that one is theirs.");
     } else hint("Select some units first.");
     return;
   }
@@ -17804,6 +18020,29 @@ function makeFieldWorker(cottage, kindTag){
               who spent days in your fields turned into a stranger the day
               their cottage went up. */
            : kindTag==="caretaker" ? ["#7a6642", "#57492e"]
+           /* THE SHEPHERD, in undyed wool and a worn brown - the colours of
+              somebody who works outdoors in what their own flock grew. Kept
+              well away from the gardener's green and the caretaker's tan so
+              three trades walking the same field are three different people
+              at a glance. */
+           : kindTag==="shepherd"  ? ["#b9ae95", "#6b5a42"]
+           /* THE WEAVER wears their own work: a dyed overdress over an
+              undyed underlayer, which is the one outfit in the village that
+              is meant to look MADE rather than worn. */
+           : kindTag==="weaver"    ? ["#7a4a6a", "#d8cdb8"]
+           /* THE MILLER in a dark workday waistcoat over a dusty shirt.
+              Deliberately NOT flour-white: the baker already wears whites,
+              and two trades in the same colour would be the one mistake
+              these five must not make. The grain sack does the talking. */
+           : kindTag==="miller"    ? ["#4f4636", "#cdbfa2"]
+           /* THE TAVERNKEEPER in a deep red over a rolled white shirt -
+              the warmest colour in the village, which is the point of him,
+              and one nobody else is wearing. */
+           : kindTag==="tavernkeeper" ? ["#8c3a34", "#e8e0d2"]
+           /* THE CHANDLER in deep blue - the only one of the five you meet
+              after dark, so the colour is the one that reads against a lit
+              lantern rather than against daylight. */
+           : kindTag==="chandler"  ? ["#2f4257", "#c9bfa6"]
            : LEISURE_CLOTHES[(Math.random()*LEISURE_CLOTHES.length)|0],
     look: (Math.random()*VILLAGER_LOOKS.length)|0,
     tall: 0.92 + Math.random()*0.16
@@ -19669,6 +19908,13 @@ function tick(dt){
   tellAuroraWorth();        // the lights are already drawn; this is what they are worth
   updateKilns(dt);          // and whether anybody is sitting up with the burn
   updateBeacons(dt);        // the chain burning, and what it costs to keep it
+  /* Nobody is asleep in broad daylight. A condition rather than a
+     transition, because a transition can be missed - see the note by
+     nobodyOversleeps (05b). */
+  nobodyOversleeps(dt);
+  /* ...and nobody is still up. The other half of the same idea, and safe
+     only BECAUSE of the line above - see sendStragglersToBed (05b). */
+  sendStragglersToBed(dt);
   updateVigil(dt);          // and the light kept for whoever the village lost
   updatePlayers(dt);        // the troupe, the crowd, and what they take with them
   updatePlayersBoost(dt);
@@ -20228,7 +20474,12 @@ function tick(dt){
   updateVeinRegrowth(dt);
   updateCaretaker(dt);
   updateGardener(dt);
-  updateBeekeepers(dt);   // the honey rounds, out of every hive that stands
+  updateBeekeepers(dt);
+  updateShepherd(dt);       // the hut's own, the flock, and the wool (05n)
+  updateWeaver(dt);         // and the loom at the other end of it (05o)
+  updateMiller(dt);         // grain off the fields, ground into food (05p)
+  updateTavern(dt);         // and a round, to whoever is out in it (05q)
+  updateChandler(dt);       // a candle in every window after dusk (05r)   // the honey rounds, out of every hive that stands
   updateGeologist(dt);
   updateHerbalist(dt);
   updateSaplings(dt);
@@ -20721,6 +20972,16 @@ function updateUnit(u, dt){
             * (d.naval ? 1 : FOOT_SPEED_TRIM)           // people walk; ships are unchanged
             * (1 - (1-WINTER_SPEED)*G.snow)
             * weatherSpdMult()                         // wind and snow slow you more than rain does
+            /* AND WOOL, while the village has any. Only in the cold, which is
+               the whole idea - a fleece in high summer is not a help, and a
+               buff that applies always is just a bigger number. It undoes
+               some of the two lines above rather than being a flat bonus
+               (woolWarmthMult, 05n). */
+            * woolWarmthMult()
+            /* and a drink, for whoever the tavernkeeper found. Per UNIT, not
+               village-wide - the point is that he walked over and gave it to
+               that person. (beerSpdMult, 05q) */
+            * beerSpdMult(u)
             * starBoon("speed")                        // the Hare, if the dome has charted it
             * playersBoostOf(u)                        // and a good afternoon at the play
             * dogHappyMult(u)                          // and having made a fuss of a dog (05i)
@@ -21191,7 +21452,15 @@ function updateUnit(u, dt){
           if(G.seasonalCropNode===n) G.seasonalCropNode=null;
           if(!G.seasonalFound) G.seasonalFound={};
           G.seasonalFound[n.season] = true;
-          if(u.p===P_YOU) hint("A villager has found a seasonal crop - bring them back to town to plant it.");
+          /* NAMED, not "a seasonal crop". It is a different plant every
+             season and the player can see which one is on the ground, so a
+             line that will not say reads as the game being coy about
+             something obvious. (SEASONAL_CROP_INFO, 07.) */
+          if(u.p===P_YOU){
+            const info = (typeof SEASONAL_CROP_INFO !== "undefined") && SEASONAL_CROP_INFO[n.season];
+            const what = info ? info.name.toLowerCase() : "a seasonal crop";
+            hint("A villager has found " + what + " - bring them back to town to plant them.");
+          }
           u.order = null; u.target = null;
         }
         break;
@@ -21491,6 +21760,9 @@ function updateUnit(u, dt){
           const awaitingChoice = fishSpot && u.p===P_YOU && !u.fishConfirmed;
           if(!playingFishGame && !awaitingChoice){
             u.gatherT += dt * tiredMult(u) * thirstMult(u.p) * honeyBuff(u.p)
+                       /* and the village being decently dressed, which is
+                          slight and applies to everything (clothWorkMult, 05o) */
+                       * clothWorkMult()
                         * (starK ? starBoon(starK) : 1)
                         * (n.kind===RES.FOOD ? dryingMult(u.p) : 1)   // a good drying day
                         * (n.kind===RES.FOOD ? watermillMult(u.p) : 1) // and what the mill grinds
@@ -21563,6 +21835,10 @@ function updateUnit(u, dt){
             const take = Math.min(2 * GATHER_SCALE * peacefulYield(n.kind)
                                     * (1 + lvl*0.40) * dg * seasonal * insp
                                     * farmYieldUp * ancientFarmUp * ancientMineUp * nightCatch
+                                    /* and a field put in on ground the flock
+                                       manured comes in heavier for a season
+                                       (grazedFarmMult, 05n) */
+                                    * grazedFarmMult(n.farmOf)
                                     * dropPlateRate(u, n) * dropWorkMult(u, n) * deedUp * hoardUp
                                     * hungerMult(u), n.amt);   // moonstone plating, the drop-off's own ladder, and an empty larder (01f)
             n.amt -= take; u.carry += take; u.carryKind = n.kind;
@@ -21719,6 +21995,11 @@ function updateUnit(u, dt){
         if(b.prog>=1){
           b.prog=1; b.done=true; b.hp=b.maxhp;
           attachFarm(b);
+          /* A field finished on ground the flock manured keeps the good of
+             it, stamped once here rather than asked every tick - the patch
+             itself fades, and the field should not lose the ground it was
+             built on halfway through a season. (claimGrazedGround, 05n) */
+          claimGrazedGround(b);
           recalcPop(b.p);
           /* The end of the Wandering Age. There is a bed tonight, the build
              menu opens, and villagers can be trained - all of which follow
@@ -24704,6 +24985,10 @@ function markFisherman(u){
   if(!u.nightName) u.nightName = pickFreshName(u);
   const look = VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length];
   u.epithet = look.female ? "the Fisherwoman" : "the Fisherman";
+  /* And group 4 is theirs, permanently - see the note by the bug catcher's
+     group 3 (markBugCatcher, 05k) and TIED_GROUPS (03a). Same argument: one
+     to a village, and always away down at the water when you want them. */
+  if(typeof tieToGroup === "function") tieToGroup(u, 4);
   if(u.p===P_YOU) tellAndNote(villagerName(u)+" has taken up fishing for good - the rod, the boots, "+
                                "all of it, whatever else they're asked to do afterward.", "good");
 }
@@ -27744,6 +28029,55 @@ function draw(){
     if(!visibleTo(P_YOU,o.x,o.y)) continue;
     drawList.push({ e:o, y:o.y, kind:18 });
   }
+  /* The shepherd, on the same kind as every other trade walker, and the
+     flock on one of its own. 29 - checked against every case in the switch
+     below first, because two `case N:` in one switch is not an error in
+     JavaScript, the first simply wins, and the tumbleweed/dog collision
+     recorded a few lines down cost this project a crashing frame and a
+     whole dead drawing. (smoke.js checks for it now.) */
+  /* The ground the flock left, under everything - it is terrain, not an
+     object, and anything standing on it should stand ON it. (05n) */
+  for(const gp of G.grazedPatches||[]){
+    if(gp.x<c0x-60||gp.y<c0y-60||gp.x>c1x+60||gp.y>c1y+60) continue;
+    if(!visibleTo(P_YOU,gp.x,gp.y)) continue;
+    drawGrazedPatch(gp);
+  }
+  for(const o of G.chandlers||[]){
+    if(o.indoors) continue;
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:18 });
+  }
+  for(const o of G.tavernkeepers||[]){
+    if(o.indoors) continue;
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:18 });
+  }
+  for(const o of G.millers||[]){
+    if(o.indoors) continue;
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:18 });
+  }
+  for(const o of G.weavers||[]){
+    if(o.indoors) continue;
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:18 });
+  }
+  for(const o of G.shepherds||[]){
+    if(o.indoors) continue;                 // abed for the night (workerNight, 05j)
+    if(o.x<c0x||o.y<c0y||o.x>c1x||o.y>c1y) continue;
+    if(!visibleTo(P_YOU,o.x,o.y)) continue;
+    drawList.push({ e:o, y:o.y, kind:18 });
+  }
+  for(const sh of G.sheep||[]){
+    if(sh.indoors) continue;                // penned for the night (updateFlock, 05n)
+    if(sh.x<c0x||sh.y<c0y||sh.x>c1x||sh.y>c1y) continue;
+    if(!visibleTo(P_YOU,sh.x,sh.y)) continue;
+    drawList.push({ e:sh, y:sh.y, kind:29 });
+  }
   // the Kennels' own dogs, trotting about the village (05i)
   for(const d of G.villageDogs||[]){
     if(d.indoors) continue;            // denned for the night, see updateVillageDogs
@@ -27894,6 +28228,7 @@ function draw(){
       case 16: drawSquirrel(it.e); break;
       case 17: drawDuck(it.e); break;
       case 18: drawLeisureVillager(it.e); break;
+      case 29: drawSheep(it.e); break;
       case 27: drawVillageDog(it.e); break;
       case 23: drawBaker(it.e); break;
       case 26: drawDayVisitor(it.e); break;
@@ -36120,6 +36455,176 @@ function drawTradeDetail(b, x, y, w, dep, H){
      the roof and the geologist's spoil heap above his own chimney. */
   const cx = x + w/2, base = y + dep;
 
+  if(d.mill){
+    /* ---------- THE SAILS ----------
+       The whole reason to build a mill where you can see it. Four of them on
+       a cross, set on the front face high up, turning slowly - and FASTER
+       while there is grain going through (b.milling, set by updateMiller,
+       05p), so the building tells you the trade is working without a word.
+
+       Turned on the game clock plus the building's own id, so two mills in
+       one village are not in lockstep - the same rule the braziers and the
+       moonstone veins already follow. */
+    const hubX = cx, hubY = y + dep - H*0.72;
+    const rad  = H*0.34;
+    const spin = (b.milling ? 1.9 : 0.55);
+    const a0   = (G.t * spin) + (b.id || 0) * 0.7;
+
+    // the post the sails turn on
+    ctx.fillStyle = "rgba(58,46,32,.9)";
+    ctx.beginPath(); ctx.arc(hubX, hubY, Math.max(1.6, H*0.035), 0, 6.283); ctx.fill();
+
+    for(let i=0;i<4;i++){
+      const a = a0 + i*Math.PI/2;
+      const ex = hubX + Math.cos(a)*rad, ey = hubY + Math.sin(a)*rad*0.86;
+      /* Each sail is a long thin quad rather than a line, or it reads as a
+         spider at any distance. The lattice is suggested by one cross-bar,
+         which is all that survives at map zoom. */
+      const px = -Math.sin(a)*H*0.055, py = Math.cos(a)*H*0.055*0.86;
+      ctx.fillStyle = "rgba(226,214,186,.92)";
+      ctx.beginPath();
+      ctx.moveTo(hubX + px, hubY + py);
+      ctx.lineTo(ex + px*0.7, ey + py*0.7);
+      ctx.lineTo(ex - px*0.7, ey - py*0.7);
+      ctx.lineTo(hubX - px, hubY - py);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(58,46,32,.75)";
+      ctx.lineWidth = Math.max(0.6, H*0.016);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(hubX + Math.cos(a)*rad*0.55 + px, hubY + Math.sin(a)*rad*0.86*0.55 + py);
+      ctx.lineTo(hubX + Math.cos(a)*rad*0.55 - px, hubY + Math.sin(a)*rad*0.86*0.55 - py);
+      ctx.stroke();
+    }
+    /* And a sack or two leaning by the door, so the mill looks used even
+       when the miller is out. */
+    ctx.fillStyle = "#c2ac84";
+    for(const [dx, sc] of [[-w*0.30, 1], [-w*0.17, 0.82]]){
+      ctx.beginPath();
+      ctx.ellipse(cx + dx, base - H*0.035*sc, H*0.055*sc, H*0.075*sc, 0.12, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(52,40,24,.7)"; ctx.lineWidth = 0.7; ctx.stroke();
+    }
+  }
+
+  /* ---------- THE SHEPHERD'S HUT ----------
+     A hurdle pen at the side with a fleece thrown over it, and the spare
+     crook leaning by the door. A hut is a hut; the PEN is what says
+     shepherd, and it is the thing a player will read from across the
+     field. */
+  if(d.shepherd){
+    const px = x - 8, py = base - 2;
+    ctx.strokeStyle = "#6b5a42"; ctx.lineWidth = 1.2;
+    for(let i=0;i<4;i++){                       // the hurdle's uprights
+      const ux = px - i*4.4;
+      ctx.beginPath(); ctx.moveTo(ux, py); ctx.lineTo(ux, py - 7); ctx.stroke();
+    }
+    ctx.lineWidth = 1;                          // and two rails across them
+    for(const ry of [-2.4, -5.2]){
+      ctx.beginPath(); ctx.moveTo(px + 1.2, py + ry); ctx.lineTo(px - 14.4, py + ry); ctx.stroke();
+    }
+    // a fleece over the top rail, which is the one thing nobody else has
+    ctx.fillStyle = "#e6e2d6";
+    ctx.beginPath();
+    ctx.ellipse(px - 7, py - 6.4, 5.2, 2.8, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(120,114,98,.6)"; ctx.lineWidth = 0.6; ctx.stroke();
+    // the spare crook by the door
+    ctx.strokeStyle = "#7a5a34"; ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.moveTo(x + w - 3, base - 1); ctx.lineTo(x + w - 4.5, base - 13); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x + w - 3.2, base - 13.6, 2.2, Math.PI*0.95, Math.PI*2.2); ctx.stroke();
+  }
+
+  /* ---------- THE WEAVER'S COTTAGE ----------
+     Dyed cloth out on a line, in the season's own colour - so the building
+     changes with the year exactly as the cloth the weaver carries does, and
+     you can tell at a glance which season's dye is in the vat. */
+  if(d.weaver){
+    const dye = (typeof clothDye === "function") ? clothDye() : "#a8562f";
+    const lx = x - 10, rx = x + w + 6, ly = base - 15;
+    ctx.strokeStyle = "rgba(60,48,32,.8)"; ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(rx, ly); ctx.stroke();
+    // three lengths pegged out, each sagging a little differently
+    const span = rx - lx;
+    for(let i=0;i<3;i++){
+      const cx2 = lx + span*(0.20 + i*0.28);
+      const cw = span*0.17, ch = 7 + (i%2)*3;
+      ctx.fillStyle = i===1 ? shade(dye, 0.16) : dye;
+      ctx.beginPath();
+      ctx.moveTo(cx2 - cw*0.5, ly);
+      ctx.lineTo(cx2 + cw*0.5, ly);
+      ctx.lineTo(cx2 + cw*0.5, ly + ch);
+      ctx.quadraticCurveTo(cx2, ly + ch + 2.2, cx2 - cw*0.5, ly + ch);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "rgba(38,26,14,.45)"; ctx.lineWidth = 0.5; ctx.stroke();
+    }
+  }
+
+  /* ---------- THE TAVERN ----------
+     A hanging sign with a tankard on it, a barrel by the wall and a bench.
+     The SIGN is the whole read - an inn is the one building in any village
+     that advertises itself. */
+  if(d.tavern){
+    // the bracket and the board
+    const sx = x + w + 3, sy = base - 16;
+    ctx.strokeStyle = "rgba(52,40,24,.85)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x + w - 1, sy - 3); ctx.lineTo(sx + 1, sy - 3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(sx, sy - 3); ctx.lineTo(sx, sy); ctx.stroke();
+    ctx.fillStyle = "#6b4a2e";
+    ctx.beginPath(); ctx.rect(sx - 5, sy, 10, 8); ctx.fill();
+    ctx.strokeStyle = "rgba(30,22,14,.8)"; ctx.lineWidth = 0.7; ctx.stroke();
+    // a tankard painted on it
+    ctx.fillStyle = "#e0aa3a";
+    ctx.beginPath(); ctx.rect(sx - 2.2, sy + 2.4, 3.6, 4); ctx.fill();
+    ctx.fillStyle = "#f6f1e2";
+    ctx.beginPath(); ctx.ellipse(sx - 0.4, sy + 2.4, 1.9, 0.8, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(30,22,14,.7)"; ctx.lineWidth = 0.55;
+    ctx.beginPath(); ctx.arc(sx + 2.2, sy + 4.2, 1.2, -1.1, 1.4); ctx.stroke();
+    // a barrel standing by the wall
+    const bx = x - 7;
+    ctx.fillStyle = "#8a6a3a";
+    ctx.beginPath(); ctx.ellipse(bx, base - 4, 4.2, 5.4, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(40,28,16,.75)"; ctx.lineWidth = 0.7; ctx.stroke();
+    ctx.strokeStyle = "rgba(40,28,16,.55)"; ctx.lineWidth = 0.6;
+    for(const hy of [-6, -2.4, 1.2]){
+      ctx.beginPath(); ctx.ellipse(bx, base - 4 + hy, 4.2, 1.1, 0, 0, 6.283); ctx.stroke();
+    }
+  }
+
+  /* ---------- THE CHANDLERY ----------
+     Tapers hanging in pairs off a rod under the eaves, the way dipped
+     candles are hung to cool - and after dark one window burning, since
+     this is the one trade whose work you only see at night. */
+  if(d.chandler){
+    const rx = x - 9, ry = base - 17;
+    ctx.strokeStyle = "rgba(60,48,32,.8)"; ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.moveTo(rx - 2, ry); ctx.lineTo(rx + 12, ry); ctx.stroke();
+    ctx.strokeStyle = "#efe6cc"; ctx.lineWidth = 1.1;
+    for(let i=0;i<4;i++){
+      const cx2 = rx + 1 + i*3.2;
+      ctx.beginPath();
+      ctx.moveTo(cx2, ry + 0.5); ctx.lineTo(cx2 - 0.4, ry + 7 + (i%2)*1.6);
+      ctx.stroke();
+    }
+    /* And the window. Warm when the village is candlelit, plain when it is
+       not - the building itself says whether the trade is doing its job. */
+    const lit = (typeof villageCandlelit === "function") && villageCandlelit();
+    const dk = (G.dark || 0);
+    if(dk > 0.12){
+      const a = (lit ? 0.85 : 0.35) * dk;
+      ctx.fillStyle = "rgba(255,228,150," + a.toFixed(3) + ")";
+      ctx.beginPath(); ctx.rect(x + w*0.36, base - 12, w*0.28, 5); ctx.fill();
+      if(lit){
+        const g2 = ctx.createRadialGradient(x + w*0.5, base - 9.5, 0, x + w*0.5, base - 9.5, 18);
+        g2.addColorStop(0, "rgba(255,226,150," + (0.30*dk).toFixed(3) + ")");
+        g2.addColorStop(1, "rgba(255,226,150,0)");
+        ctx.fillStyle = g2;
+        ctx.beginPath(); ctx.arc(x + w*0.5, base - 9.5, 18, 0, 6.283); ctx.fill();
+      }
+    }
+  }
+
   if(d.bakery){
     /* The outdoor oven. A brick beehive dome with a black mouth, standing off
        to one side of the bakery - and it is the thing the baker walks out to,
@@ -38879,7 +39384,10 @@ function drawPerson(u, pl, yOff){
      Same three conditions drawHeld itself uses, so the rule is simply: if
      something is going to be drawn in the hand, the hand stays where the
      hand goes. */
-  const handsEmpty = !!u.emptyHanded
+  /* Cloth in the hands beats an empty-handed pose: the arms have to be up
+     holding it. (carryingCloth, 05o) */
+  const handsEmpty = (typeof carryingCloth === "function" && carryingCloth(u)) ? false
+                   : !!u.emptyHanded
     || (u.firstVillager && !work && atk <= 0)
     || (isVill && !u.firstVillager && !u.everWorked && !work && atk <= 0);
   const armsFree = handsEmpty && !hauling && !reach && !chopping;
@@ -39769,6 +40277,43 @@ function drawPerson(u, pl, yOff){
     ctx.strokeStyle = "rgba(90,70,36,.45)"; ctx.lineWidth = 0.6;
     ctx.beginPath();
     ctx.ellipse(0, headY-headR*0.24, headR*1.48, headR*0.38, 0, 0, 6.283); ctx.stroke();
+  } else if(u.shepherd){
+    /* THE SHEPHERD. A flat cap pulled down and a fleece collar standing up
+       round the neck - which is the whole read at this size, and the one
+       thing no other trade in the village has. Deliberately NOT another
+       wide brim: the beekeeper and the farmhand both already wear one, and
+       a third would make three trades that look alike from behind.
+
+       The collar is drawn in the fleece's own off-white rather than the
+       villager's cloth, so a shepherd reads as somebody wearing part of
+       their flock - which is exactly what a shepherd is. */
+    const fleece = "#e6e2d6", fleeceDim = "#c9c4b4";
+    /* A COLLAR, ROUND THE NECK - measured on screen, not guessed. The first
+       pass was headR*1.16 wide and sat at headR*0.92 below the head, which
+       at the zoom people play at read as a white barrel strapped across the
+       whole chest rather than anything anybody is wearing. Two thirds the
+       width, half the depth, and tucked up under the chin. */
+    ctx.fillStyle = fleece;
+    ctx.beginPath();
+    ctx.ellipse(0, headY+headR*0.74, headR*0.76, headR*0.26, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(120,114,98,.45)"; ctx.lineWidth = 0.55;
+    ctx.stroke();
+    /* A few curls picked out of it, the same trick the sheep's own fleece
+       uses - a flat oval reads as a scarf, a bumpy one as wool. */
+    ctx.fillStyle = fleeceDim;
+    for(const dx of [-0.46, -0.15, 0.16, 0.48]){
+      ctx.beginPath();
+      ctx.arc(headR*dx, headY+headR*0.68, headR*0.125, 0, 6.283); ctx.fill();
+    }
+    // the cap: a low crown and a short peak over the brow
+    const cap = "#6b5a42", capDim = "#54462f";
+    ctx.fillStyle = cap;
+    ctx.beginPath();
+    ctx.ellipse(0, headY-headR*0.52, headR*0.98, headR*0.56, 0, Math.PI, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = capDim;
+    ctx.beginPath();
+    ctx.ellipse(headR*0.42, headY-headR*0.30, headR*0.86, headR*0.22, 0, 0, 6.283); ctx.fill();
   } else if(u.beekeeper){
     /* The veil and the wide hat that go with it. Its own flag rather than a
        `job`, for the same reason the baker's is: whoever went out for that
@@ -40370,15 +40915,25 @@ function drawPerson(u, pl, yOff){
      this used to read. u.atk is a damage stat and is never set on a
      villager, so the "unless they are fighting" half of this condition was
      dead: the founder went at a night bear bare-handed. */
-  const founderResting = u.firstVillager && !work && atk <= 0;
+  const founderResting = u.firstVillager && !work && atk <= 0 &&
+                        !((typeof carryingCloth === "function") && carryingCloth(u));
   /* AND NOBODY IS BORN HOLDING AN AXE. A villager just out of the town
      centre has never worked, so they carry nothing until the first time
      they do - see everWorked (03c). After that they keep their tool like
      anyone else; this is about the walk out of the door, not a standing
      rule. Soldiers are untouched: a soldier IS their weapon. */
-  const neverWorked = isVill && !u.firstVillager && !u.everWorked && !work && atk <= 0;
+  /* ...unless somebody put something in their hands. Being handed a length
+     of cloth is not working, so a villager who has never lifted a tool still
+     fails this test - and then drawHeld never runs and the cloth is never
+     drawn. Exactly the gate that swallowed the gardener's props for two
+     years (bug_drawheld_gates). Checked on screen: a fresh villager holding
+     cloth drew nothing at all until this line knew about it. */
+  const holdingCloth = (typeof carryingCloth === "function") && carryingCloth(u);
+  const neverWorked = isVill && !u.firstVillager && !u.everWorked && !work &&
+                      atk <= 0 && !holdingCloth;
   if(hauling) drawCarryLoad(u, H, tw, shldY);
-  else if(!u.emptyHanded && !founderResting && !neverWorked) drawHeld(u, hx, hy, H, atk, pl);
+  else if((!u.emptyHanded || holdingCloth) && !founderResting && !neverWorked)
+    drawHeld(u, hx, hy, H, atk, pl);
 
   if(chopping && !reach && chopGrip){
     ctx.fillStyle = skinDim;
@@ -40720,6 +41275,38 @@ const GARDENER_PROPS = ["bucket", "can", "seeds"];
    Both are pale, and both therefore get a dark outline. Four times now this
    project has drawn something near-white on snow and lost it entirely.
    (feedback_pale_prop_contrast) */
+/* ---------- THE SHEPHERD'S CROOK ----------
+   Asked for by name: "shepard will have the stick hook thing".
+
+   It is the tallest thing any villager carries and the hook is the whole of
+   what says shepherd rather than somebody holding a stick, so the hook is
+   drawn generously - at map zoom a subtle curl is a blur, the same lesson
+   the bug catcher's glass records a few lines down.
+
+   Held UPRIGHT and planted, not carried across the body: a crook is a thing
+   you lean on while you watch, which is most of what a shepherd does. */
+function drawCrook(hx, hy, H){
+  const top = hy - H*0.58, foot = hy + H*0.30;
+  ctx.strokeStyle = "#7a5a34";
+  ctx.lineWidth = Math.max(1.4, H*0.042);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(hx, foot);
+  ctx.lineTo(hx + H*0.02, top);
+  ctx.stroke();
+  // the hook: a good open curl off the top, opening away from the body
+  ctx.beginPath();
+  ctx.arc(hx + H*0.075, top, H*0.072, Math.PI*0.95, Math.PI*2.25);
+  ctx.stroke();
+  // a paler grain line down the shaft, so it reads as wood not iron
+  ctx.strokeStyle = "rgba(214,184,138,.5)";
+  ctx.lineWidth = Math.max(0.5, H*0.014);
+  ctx.beginPath();
+  ctx.moveTo(hx - H*0.004, foot - H*0.06);
+  ctx.lineTo(hx + H*0.014, top + H*0.10);
+  ctx.stroke();
+}
+
 const HONEY_INK = "rgba(38,26,14,.80)";
 function drawHoneyJar(hx, hy, H){
   /* CHUNKY, and the reason is the bug catcher's glass a few lines up: at
@@ -41286,6 +41873,36 @@ function drawHeld(u, hx, hy, H, atk, pl){
         drawBuildTool(u, hx, hy, H);
         break;
       }
+      /* THE SHEPHERD'S CROOK, and it has to be tested HERE - above the
+         "nothing at all when they are not doing anything" rule below.
+
+         That rule is right for an axe: a tool is what you have out because
+         you are using it. A crook is the opposite - it is what you lean on
+         while you WATCH, and standing still is most of a shepherd's day. Put
+         below that gate it would vanish every time they stopped, which is
+         exactly when you are looking at them.
+
+         Below the work-break though: nobody leans on a crook while wiping
+         their brow. */
+      if(u.shepherd){ drawCrook(hx, hy, H); break; }
+      /* And the weaver with a bolt of cloth on the way out. Only while laden:
+         they walk back empty-handed, which is what makes the outward leg
+         read as a delivery - the same rule the honey follows. */
+      if(u.clothBolt){ drawClothBolt(hx, hy, H); break; }
+      /* And the miller with a sack of grain on the way back from a field. */
+      if(u.grainSack){ drawGrainSack(hx, hy, H); break; }
+      /* And the tavernkeeper with a tray, out on his round. */
+      if(u.beerTray){ drawBeerSteins(hx, hy, H); break; }
+      /* And the chandler with a lit lantern, which is the only carried
+         thing in the village that gives off light of its own. */
+      if(u.lantern){ drawLantern(hx, hy, H); break; }
+      /* AN ORDINARY VILLAGER CARRYING CLOTH HOME from the weaver's round.
+         Tested here rather than up with the trades because this is the one
+         thing in the list that ANYBODY may be holding - it is not a costume
+         and not a job, just something somebody was handed. (05o) */
+      if(typeof carryingCloth === "function" && carryingCloth(u)){
+        drawFoldedCloth(hx, hy, H, u.clothCarryDye); break;
+      }
       /* AND NOTHING AT ALL WHEN THEY ARE NOT DOING ANYTHING. The axe was
          drawn for every villager who was not doing something else, so a
          person stood about with no orders was stood about holding a
@@ -41293,6 +41910,13 @@ function drawHeld(u, hx, hy, H, atk, pl){
          it; put it away when there is no job. `lastJob` is deliberately
          not consulted - having chopped once this match is not a reason to
          be holding an axe now. */
+      /* Somebody holding a length of cloth is holding it whether or not
+         they have anywhere to be - unlike an axe, which is a tool and is put
+         away. Tested before the "nothing at all when idle" rule for the same
+         reason the shepherd's crook is. (carryingCloth, 05o) */
+      if(typeof carryingCloth === "function" && carryingCloth(u)){
+        drawFoldedCloth(hx, hy, H, u.clothCarryDye); break;
+      }
       if(!u.order && !u.working && !u.moving && !u.carry && !u.hauling){
         break;
       }
@@ -41335,6 +41959,7 @@ function drawHeld(u, hx, hy, H, atk, pl){
         else                       drawHoneyJar(hx, hy, H);
         break;
       }
+
       /* THE GLASS, and it belongs here rather than up by the head where it
          was. The bug catcher had no entry in this switch at all, so they
          fell through to the axe every other villager defaults to - and the
@@ -48876,8 +49501,16 @@ function drawBaker(o){
    inside the wrong branch. `laden` is passed in for exactly this reason. */
 function gardenerHandFlags(kindTag, id, laden){
   const carryingHoney = kindTag === "beekeeper" && !!laden;
+  /* A shepherd always has the crook - see drawCrook (04e). Same reason the
+     gardener is exempt: `emptyHanded` means "skip drawHeld entirely", so
+     anything a trade is supposed to be holding must clear it first. */
+  const hasCrook = kindTag === "shepherd";
+  const carryingCloth = kindTag === "weaver" && !!laden;
+  const carryingSack  = kindTag === "miller" && !!laden;
+  const carryingTray  = kindTag === "tavernkeeper" && !!laden;
+  const carryingLamp  = kindTag === "chandler" && !!laden;
   return {
-    emptyHanded: kindTag !== "gardener" && !carryingHoney,
+    emptyHanded: kindTag !== "gardener" && !carryingHoney && !hasCrook && !carryingCloth && !carryingSack && !carryingTray && !carryingLamp,
     gardenerProp: kindTag==="gardener" ? id : undefined
   };
 }
@@ -48913,7 +49546,11 @@ function drawLeisureVillager(o){
   // a leap into a leaf pile or a puddle, and the drop back down
   const jump = (o.jumpT > 0) ? Math.sin((1 - o.jumpT/0.75) * Math.PI) : 0;
 
-  const handFlags = gardenerHandFlags(o.kindTag, o.id, o.honeyProp && o.laden);
+  const handFlags = gardenerHandFlags(o.kindTag, o.id,
+                       (o.honeyProp && o.laden) ||
+                       ((o.kindTag === "weaver" || o.kindTag === "miller" ||
+                          o.kindTag === "tavernkeeper" ||
+                          o.kindTag === "chandler") && o.laden));
   const body = {
     type:"villager", p:P_YOU, r, id:o.id,
     skin:o.skin, look:o.look||0,
@@ -48932,6 +49569,20 @@ function drawLeisureVillager(o){
        the whole of what makes them read as the beekeeper rather than as
        somebody out for a stroll. (updateBeekeepers, 03b) */
     beekeeper: o.kindTag === "beekeeper",
+    /* The cap, the fleece collar and the crook (drawPerson / drawCrook, 04e). */
+    shepherd: o.kindTag === "shepherd",
+    /* And the weaver, with a bolt over the arm on the way out (05o). */
+    weaver: o.kindTag === "weaver",
+    /* And the miller, with a sack on the shoulder coming back (05p). */
+    miller: o.kindTag === "miller",
+    /* And the tavernkeeper, with a tray out on his round (05q). */
+    tavernkeeper: o.kindTag === "tavernkeeper",
+    /* And the chandler, with a lit lantern after dark (05r). */
+    chandler: o.kindTag === "chandler",
+    lantern: !!o.lantern,
+    beerTray: !!o.tray,
+    grainSack: !!o.sack,
+    clothBolt: !!o.cloth,
     /* And what is in their hands on the way out - a jar or a slab of comb,
        set per errand by updateBeekeepers (03b) and cleared at the door, so
        the walk back is empty-handed. (drawHoneyJar/drawHoneyComb, 04e) */
@@ -55267,15 +55918,73 @@ function drawSeasonalCropNode(n){
   // "house sized" was meant loosely, so this reads as a small garden bed
   ctx.fillStyle = "#5f4a34";
   ctx.beginPath(); ctx.ellipse(n.x, n.y+2, 13, 7, 0, 0, 6.283); ctx.fill();
-  ctx.fillStyle = crop.leaf;
-  for(let i=0;i<5;i++){
-    const a = i/5*6.283, r = 6+((i%2)*2);
+  /* ---- DRAWN AS THE CROP IT ACTUALLY IS ----
+
+     Asked for on 10 Sep alongside the trade finds: "make sure they are named
+     for what they are and the picture and description match... do this for
+     special crops as well."
+
+     This drew one shape for all four - five leaf ellipses in a ring and a
+     coloured dot in the middle - so a pumpkin, a handful of strawberries,
+     a stand of corn and a sweet potato were the same flower in four
+     colours. The panel now names each one (SEASONAL_CROP_INFO, 07) and the
+     thing on the ground has to agree with the words, or the naming has just
+     moved the mismatch somewhere else.
+
+     Each is built from the same colours as before, so nothing about how a
+     season reads has changed - only the shape. */
+  const S = sway*0.3;
+  if(n.season === "spring"){
+    // a low spread of leaves with berries sitting in it
+    ctx.fillStyle = crop.leaf;
+    for(const [dx,dy] of [[-6,0],[6,0],[0,-3],[-3,3],[3,3]]){
+      ctx.beginPath(); ctx.ellipse(n.x+dx+S, n.y+dy, 4.2, 2.8, dx*0.08, 0, 6.283); ctx.fill();
+    }
+    ctx.fillStyle = crop.col;
+    for(const [dx,dy] of [[-3,1],[3,2],[0,-1]]){
+      ctx.beginPath();
+      ctx.moveTo(n.x+dx+S, n.y+dy+2.6);
+      ctx.quadraticCurveTo(n.x+dx-2.4+S, n.y+dy-1.4, n.x+dx+S, n.y+dy-2);
+      ctx.quadraticCurveTo(n.x+dx+2.4+S, n.y+dy-1.4, n.x+dx+S, n.y+dy+2.6);
+      ctx.closePath(); ctx.fill();
+    }
+  } else if(n.season === "summer"){
+    // a stalk with a cob on it, standing above the bed
+    ctx.strokeStyle = crop.leaf; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(n.x, n.y+3); ctx.lineTo(n.x+S, n.y-11); ctx.stroke();
+    ctx.fillStyle = crop.leaf;
     ctx.beginPath();
-    ctx.ellipse(n.x+Math.cos(a)*r+sway*0.3, n.y+Math.sin(a)*r*0.5, 3.4, 2.2, a, 0, 6.283);
-    ctx.fill();
+    ctx.moveTo(n.x+S*0.6, n.y-4);
+    ctx.quadraticCurveTo(n.x-9+S, n.y-6, n.x-8+S, n.y+1);
+    ctx.quadraticCurveTo(n.x-3+S, n.y-2, n.x+S*0.6, n.y-2);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = crop.col;
+    ctx.beginPath(); ctx.ellipse(n.x+S, n.y-7, 2.8, 5.4, 0.05, 0, 6.283); ctx.fill();
+  } else if(n.season === "autumn"){
+    // one round pumpkin, ribbed, sitting on the earth
+    ctx.fillStyle = crop.leaf;
+    for(const dx of [-8, 8]){
+      ctx.beginPath(); ctx.ellipse(n.x+dx+S, n.y+1, 4, 2.6, dx*0.06, 0, 6.283); ctx.fill();
+    }
+    ctx.fillStyle = crop.col;
+    ctx.beginPath(); ctx.ellipse(n.x+S, n.y-2, 7, 5.6, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(120,64,20,.55)"; ctx.lineWidth = 0.8;
+    for(const dx of [-3, 0, 3]){
+      ctx.beginPath(); ctx.ellipse(n.x+dx+S, n.y-2, 1.9, 5.4, 0, 0, 6.283); ctx.stroke();
+    }
+    ctx.strokeStyle = crop.leaf; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(n.x+S, n.y-7); ctx.lineTo(n.x+1+S, n.y-10); ctx.stroke();
+  } else {
+    // winter: leaves in the cold ground, and the tuber half out of it
+    ctx.fillStyle = crop.leaf;
+    for(const [dx,dy] of [[-5,-4],[4,-5],[0,-1]]){
+      ctx.beginPath(); ctx.ellipse(n.x+dx+S, n.y+dy, 4, 3, dx*0.07, 0, 6.283); ctx.fill();
+    }
+    ctx.fillStyle = crop.col;
+    ctx.beginPath(); ctx.ellipse(n.x+S, n.y+3, 7, 3.6, -0.12, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(70,40,18,.5)"; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(n.x-4+S, n.y+2.4); ctx.lineTo(n.x+4+S, n.y+3.4); ctx.stroke();
   }
-  ctx.fillStyle = crop.col;
-  ctx.beginPath(); ctx.arc(n.x, n.y-1, 3.6, 0, 6.283); ctx.fill();
   // a soft glow, so it reads as something worth walking toward even
   // half-seen at the edge of the fog
   ctx.globalAlpha = 0.22 + 0.08*Math.sin(G.t*1.6+n.seed);
@@ -59279,6 +59988,175 @@ function villagerDeedLines(u){
 }
 
 
+/* ---------- AND NOBODY IS STILL UP ----------
+
+   "as soon as it gets to night all villagers need to go to sleep, no more
+   waiting around or talking" - 10 Sep. THE LONG NOTE FURTHER DOWN IS THE
+   HISTORY OF THIS AND SHOULD BE READ BEFORE CHANGING ANY OF IT. Three
+   previous attempts failed, one of them catastrophically.
+
+   What is different this time is not this sweep - which is much the same
+   sweep as before - but nobodyOversleeps above it. Every previous attempt
+   died of the same thing: wakeUp runs once, on the dawn transition, so
+   anybody this put to bed near dawn slept through the following DAY. That
+   read as an economy collapse (4 villagers and 1 building against 32 and 20)
+   when the village was not starving, it was asleep. With a waking rule that
+   is a condition rather than an event, that failure cannot happen: worst
+   case somebody goes to bed a few seconds early and is let straight back out
+   when the day comes.
+
+   The note below concludes "there IS no safe moment... this is a balance
+   question rather than a patch - and it wants deciding rather than fixing
+   quietly." It has now been decided, by the person whose game it is, and
+   this is that decision: the night hours stop feeding the village.
+
+   PROPER NIGHT, by phase. Not dusk - the walk home IS dusk's job and it
+   already has a grace period so the village does not snap to bed the instant
+   the sun drops. Not dawn, for the reason in nobodyOversleeps.
+
+   Every exception sendHome honours is honoured here, with one deliberate
+   difference: a villager the player dragged out of bed (awakeAtNight) is
+   skipped WITHOUT re-applying the penalty. That cost is a once-a-night
+   charge and belongs to the dusk pass; billing them again every four seconds
+   would kill them in a minute. */
+const BEDTIME_SWEEP = 4;            // seconds between looks
+/* How long somebody may be "on their way home" before the night gives up on
+   them walking there and simply puts them down. Generous - a village is big
+   and a walk across it is slow - but finite, which is the point. */
+const BEDTIME_GRACE = 25;
+function sendStragglersToBed(dt){
+  G.bedSweepCd = (G.bedSweepCd === undefined ? BEDTIME_SWEEP : G.bedSweepCd) - dt;
+  if(G.bedSweepCd > 0) return 0;
+  G.bedSweepCd = BEDTIME_SWEEP;
+  if(G.phase !== "night") return 0;
+  let sent = 0;
+  for(const u of G.units){
+    if(u.type !== "villager" || u.hp <= 0) continue;
+    /* Settled, so the stamp goes. Cleared HERE, where being settled is
+       actually observed, rather than trusting whichever of several routes
+       into a bed happened to be taken - a stale stamp would have somebody
+       put down on the floor seconds into the following night.
+       `!u.headingHomeAt` reads undefined correctly, so nothing needs adding
+       to a villager who already exists - the trap CLAUDE.md documents. */
+    if(u.indoors || u.roughing){ u.headingHomeAt = 0; continue; }
+    if(G.bell && G.bell[u.p]) continue;              // a rung bell outranks bedtime
+    if(u.awakeAtNight) continue;                     // out on purpose; billed at dusk, not here
+    if(onNightShift(u)) continue;                    // a rota, not an oversight
+    if(u.carryTrade) continue;                       // carrying a find home; let them finish
+    /* ---- NIGHT WORK THAT ONLY EXISTS AT NIGHT ----
+
+       Moonstone is the whole of this. A vein is there after dark and gone by
+       morning, and a moonlit tree gives its moonstone only while it is dark
+       (moonlitCatchActive, 01f). Sending somebody to bed off one of those
+       does not delay the work, it CANCELS it - the thing they were gathering
+       will not exist in the morning.
+
+       Caught by tree-variants.js, which gathers a moonlit tree at midnight
+       and read "0 wood, 0 moonstone" the moment this sweep went in. Left
+       unnoticed it would have quietly made the player's moonstone economy
+       unreachable: the veins come up at night, and anybody sent at one who
+       was not woken out of bed would have been walked straight home again. */
+    if(u.order === "gather" && u.target &&
+       (u.target.kind === RES.MOONSTONE || u.target.moonTonight)) continue;
+    /* ---- ON THEIR WAY IS NOT THE SAME AS GETTING THERE ----
+
+       This used to skip anyone whose order was already "home" or "nightcap",
+       on the reasoning that they were sorting themselves out. That is true
+       right up until it is not, and "not" is the whole of the complaint that
+       started this: "some villagers just somehow glitch and never go to
+       sleep." A villager who cannot reach their own door keeps that order
+       for the entire night, and the one rule that would have helped them was
+       the one deliberately looking the other way.
+
+       So being on the way home buys a GRACE, not an exemption. Long enough
+       to cross a village at a walk; after that they are simply put to bed
+       where they stand.
+
+       WINDOWED, NOT PER-FRAME. The stamp is the clock reading when they were
+       first seen heading home, and it is compared against the clock now -
+       not a counter ticked each frame, which is the shape that has broken
+       the stuck-watchdogs in this project three separate times (the
+       pilgrims, Gumby, the chickens). Cleared the moment they are settled,
+       by the same code that settles them. */
+    if(u.order === "home" || u.order === "nightcap"){
+      if(!u.headingHomeAt) { u.headingHomeAt = G.t; continue; }
+      if(G.t - u.headingHomeAt < BEDTIME_GRACE) continue;
+      /* Out of patience. Put them down where they are rather than asking
+         them to walk anywhere else - the walking is what is not working. */
+      if(sendRoughHome(u)){ u.headingHomeAt = 0; sent++; }
+      continue;
+    }
+    const order = u.order, target = u.target, site = u.site;
+    if(!sendOneHome(u)) continue;                    // nowhere to go: they keep working
+    u.dayOrder = order; u.dayTarget = target; u.daySite = site;
+    /* NO duskGrace. That few seconds of "just finishing up" is right at the
+       moment the sun goes down and wrong here - these are people who should
+       already be in bed, and the player has asked for them to go. */
+    sent++;
+  }
+  return sent;
+}
+
+/* ---------- NOBODY OVERSLEEPS ----------
+
+   The safety net that every previous attempt at the night sweep was missing,
+   and the reason they collapsed the village. Read the long note below before
+   touching any of this.
+
+   wakeUp() runs ONCE, on the dawn transition. Anybody put to bed after that
+   instant is not let out until the NEXT dusk - so they sleep through a whole
+   day. Traced to one villager last time: the founder went to bed at dawn on
+   day one and stayed there, the population never left 1, and it read as an
+   economy collapse when the village was simply asleep.
+
+   That is a bug in its own right and it is fixed here rather than tiptoed
+   around: being asleep in broad daylight is never correct, whatever put them
+   there, so anybody in that state is let out. It runs every few seconds
+   rather than on a transition, which is the whole point - a one-shot event
+   can be missed, a condition cannot.
+
+   NOT during dawn. `dark` is still 0.7 in the middle of the dawn phase and
+   the light comes back across the whole of it, so "how dark is it" cannot
+   tell morning from evening. G.phase can, and that is what this asks.
+
+   The exceptions are the ones who are asleep ON PURPOSE: the night shift
+   (onNightShift), anybody the player deliberately woke and sent out
+   (awakeAtNight), the wounded mending in quarters, soldiers off duty, and
+   the elders, who keep their own hours. */
+const OVERSLEEP_CHECK = 3;          // seconds between looks
+function nobodyOversleeps(dt){
+  G.oversleepCd = (G.oversleepCd === undefined ? OVERSLEEP_CHECK : G.oversleepCd) - dt;
+  if(G.oversleepCd > 0) return 0;
+  G.oversleepCd = OVERSLEEP_CHECK;
+  /* Day only, and by PHASE. Dawn is excluded outright: wakeUp is already
+     doing its work there and a villager caught mid-transition would be
+     hauled out of bed twice. */
+  if(G.phase !== "day") return 0;
+  let up = 0;
+  for(const u of G.units){
+    if(u.type !== "villager" || u.hp <= 0) continue;
+    if(!u.indoors && !u.roughing) continue;
+    if(u.mending) continue;                       // healing in their own bed
+    if(u.offDutyNight) continue;
+    if(typeof onNightShift === "function" && onNightShift(u)) continue;
+    if(u.dayIndoors) continue;                    // stepped in on purpose, will come out
+    /* AND NOT OUT INTO A STORM. Being indoors in a downpour or a blizzard is
+       not oversleeping, it is SHELTER - the one sane thing to do - and
+       throwing somebody out of it puts them straight onto the soaked-through
+       drain (TOIL_DRAIN, 01f), which pulls them toward a tenth of their
+       health.
+
+       Caught by storm-toil.js, which asserts that somebody indoors is
+       untouched by the weather and read 6 of 32 when this rule first went
+       in: it was ejecting them into the rain and the test noticed before a
+       player had to. */
+    if(weatherKeepsYouIn() || G.storm) continue;
+    stepOutToWork(u);
+    up++;
+  }
+  return up;
+}
+
 /* ---------- THE ONES WHO MISSED THE BELL: A REAL BUG, AND A FIX THAT WAS
    WORSE THAN IT ----------
  *
@@ -60169,7 +61047,7 @@ const SWARM_DAY    = 3;      // the third day of it, every time - see rollSwarmY
 /* And what is said on the day itself, when it actually settles. */
 /* ---------- THE SWARM'S OWN NARRATIVE ----------
    Read one beat at a time, and the close button says Next until they are
-   done - see tellStory (07). Written so the LAST line is the instruction: a
+   done - see tellNarrative (07). Written so the LAST line is the instruction: a
    player who skims the first three still learns what to do.
 
    No line names a direction or a distance. The bees hang in ground you have
@@ -60289,11 +61167,11 @@ function trySpawnBeeSwarm(){
      the bottom of the screen with notes about wood - easy to tap away
      without reading and impossible to get back.
 
-     Four beats, clicked through one at a time (tellStory, 07): what has
+     Four beats, clicked through one at a time (tellNarrative, 07): what has
      happened, what it is worth, what it will cost, and what to do. The last
      one is the only instruction, and it comes last on purpose - a player who
      reads nothing else still gets "send somebody out to it". */
-  tellStory(SWARM_STORY);
+  tellNarrative(SWARM_STORY);
   noteInDiary(SWARM_STORY[0], "good");
   return true;
 }
@@ -63640,6 +64518,131 @@ function drawGlassOnGround(n){
   ctx.stroke();
 }
 
+/* ---------- AND THEN: EVERY FIND DRAWN AS WHAT IT IS ----------
+
+   Asked for on 10 Sep, after the parcels: "with the special items that
+   people can pick up, bread, magnifying glass etc, make sure they are named
+   for what they are and the picture and description match."
+
+   THIS GIVES UP THE MYSTERY, and that is a real cost worth naming. The
+   bundle existed so that "you do not know what you have got until somebody
+   carries it home" - carrying it back was the reveal. What it cost in
+   practice was worse: a player who had already done the bread quest saw
+   another anonymous parcel and read it as the bread coming back (reported as
+   a bug, twice over), and the words in the panel could not say what the
+   thing was either, because the picture did not know.
+
+   So each is now drawn as itself. The glass already was - it was made the
+   exception a month ago for exactly this reason, "I still can't find the
+   magnifying glass" being a fair complaint about a parcel. The rest follow
+   it. What is NOT given away is where: the clue still never names a
+   direction, and the finding is still the errand.
+
+   drawTradeBundle stays below as the fallback for anything without its own
+   drawing, so a trade added later shows a parcel rather than nothing. */
+function drawGrainSheaf(n){
+  // a bound sheaf: stalks splayed at the top, tied in the middle
+  ctx.strokeStyle = "#c9a23f"; ctx.lineWidth = 1.6;
+  for(const dx of [-4, -1.5, 1.5, 4]){
+    ctx.beginPath();
+    ctx.moveTo(n.x + dx*0.45, n.y + 6);
+    ctx.lineTo(n.x + dx, n.y - 7);
+    ctx.stroke();
+  }
+  // the ears, fat at the top
+  ctx.fillStyle = "#e0bb55";
+  for(const dx of [-4, -1.5, 1.5, 4]){
+    ctx.beginPath(); ctx.ellipse(n.x + dx, n.y - 7.5, 1.7, 3, dx*0.05, 0, 6.283); ctx.fill();
+  }
+  ctx.strokeStyle = "rgba(58,46,30,.75)"; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(n.x - 4.5, n.y + 1); ctx.lineTo(n.x + 4.5, n.y + 1); ctx.stroke();
+}
+function drawMoonMushroom(n){
+  /* Pale and faintly lit - "pale as a knuckle and faintly lit" is the
+     find's own line, so the drawing should not disagree with it. */
+  const glow = ctx.createRadialGradient(n.x, n.y-2, 0, n.x, n.y-2, 13);
+  glow.addColorStop(0, "rgba(198,226,240,.34)");
+  glow.addColorStop(1, "rgba(198,226,240,0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(n.x, n.y-2, 13, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#e8e4d6";
+  ctx.beginPath(); ctx.rect(n.x-1.8, n.y-2, 3.6, 7); ctx.fill();
+  ctx.strokeStyle = "rgba(58,46,30,.7)"; ctx.lineWidth = 1.1; ctx.stroke();
+  ctx.fillStyle = "#dfe9ee";
+  ctx.beginPath();
+  ctx.ellipse(n.x, n.y-3, 7, 5, 0, Math.PI, 0);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(58,46,30,.75)"; ctx.lineWidth = 1.2; ctx.stroke();
+}
+function drawWildComb(n){
+  // a slab of comb in a split trunk: amber, with the cells suggested
+  ctx.fillStyle = "#8a6a3a";
+  ctx.beginPath(); ctx.ellipse(n.x, n.y+3, 9, 4, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#e8c25a";
+  ctx.beginPath();
+  ctx.moveTo(n.x-7, n.y+2); ctx.lineTo(n.x-5.5, n.y-6);
+  ctx.lineTo(n.x+5.5, n.y-7); ctx.lineTo(n.x+7, n.y+2);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(58,46,30,.75)"; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.strokeStyle = "rgba(150,110,44,.8)"; ctx.lineWidth = 0.8;
+  for(const dx of [-3, 0.5, 4]){
+    ctx.beginPath(); ctx.moveTo(n.x+dx, n.y-6); ctx.lineTo(n.x+dx, n.y+1.6); ctx.stroke();
+  }
+}
+
+/* ---------- EVERY PARCEL ITS OWN PARCEL ----------
+
+   Reported on 10 Sep as a bug: "once you have built a baker and found the
+   loaf of bread and taken it back, the bread does not need to spawn again."
+
+   It does not. Measured: once the bakery is learned it is never offered
+   again (0 re-offers in 238), and the flag survives a save and load intact.
+   What comes back is a DIFFERENT trade's find - the herbalist's mushroom or
+   the beehive's wild comb - and every one of them was drawn as the same tan
+   wrapped bundle, which at map zoom is a small loaf of bread. So the second
+   find read as the first one returning.
+
+   The wrapping itself is right and stays: "you do not know what you have got
+   until somebody carries it home" is the whole idea, and the reason only the
+   glass is drawn as itself. What was wrong is that three different parcels
+   were the SAME parcel. Now each has its own cloth, its own shape and its
+   own tie - still wrapped, still telling you nothing about what is inside,
+   but plainly not the one you carried home last season.
+
+   Keyed off the trade rather than a hash, so a given trade's parcel is
+   always the same parcel, and nothing is stored on the node. */
+const TRADE_BUNDLE = {
+  bakery:    { cloth:"#8a7550", under:"#6b5a3e", w:6.5, h:4.6, tie:"cross" },
+  herbalist: { cloth:"#7d8a62", under:"#5c6647", w:5.4, h:5.4, tie:"neck"  },
+  beehive:   { cloth:"#9a8250", under:"#75603a", w:7.2, h:4.0, tie:"long"  }
+};
+const TRADE_BUNDLE_FALLBACK = { cloth:"#8a7550", under:"#6b5a3e", w:6.5, h:4.6, tie:"cross" };
+function drawTradeBundle(n){
+  const b = TRADE_BUNDLE[n.trade] || TRADE_BUNDLE_FALLBACK;
+  ctx.fillStyle = b.under;
+  ctx.beginPath(); ctx.ellipse(n.x, n.y+1, b.w, b.h, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle = b.cloth;
+  ctx.beginPath(); ctx.ellipse(n.x-0.8, n.y-0.8, b.w*0.80, b.h*0.78, 0, 0, 6.283); ctx.fill();
+  ctx.strokeStyle = "rgba(58,46,30,.75)"; ctx.lineWidth = 1;
+  if(b.tie === "cross"){
+    // the baker's: tied both ways, a squat parcel
+    ctx.beginPath(); ctx.moveTo(n.x-5, n.y-0.4); ctx.lineTo(n.x+5, n.y-0.4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(n.x, n.y-4); ctx.lineTo(n.x, n.y+3.4); ctx.stroke();
+  } else if(b.tie === "neck"){
+    // the herbalist's: gathered at the top like a bag of cuttings, with the
+    // gather showing above the knot
+    ctx.beginPath(); ctx.moveTo(n.x-3.4, n.y-2.6); ctx.lineTo(n.x+3.4, n.y-2.6); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(n.x-1.6, n.y-2.8);
+    ctx.quadraticCurveTo(n.x, n.y-6.2, n.x+1.8, n.y-3.0);
+    ctx.stroke();
+  } else {
+    // the beekeeper's: a long flat slab, bound twice along its length
+    ctx.beginPath(); ctx.moveTo(n.x-2.4, n.y-3.2); ctx.lineTo(n.x-2.4, n.y+3.0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(n.x+2.4, n.y-3.2); ctx.lineTo(n.x+2.4, n.y+3.0); ctx.stroke();
+  }
+}
+
 function drawTradeFindNode(n){
   const t = (G.t||0) + (n.seed||0);
   const pulse = 0.72 + 0.28*Math.sin(t*1.6);
@@ -63659,16 +64662,13 @@ function drawTradeFindNode(n){
      find the magnifying glass" is a fair complaint about a parcel. Drawn
      as what it is: a glass lying in the grass, the same brass rim, pale
      lens and glint the catcher carries in her hand. */
-  if(n.trade === "bugcatcher") drawGlassOnGround(n);
-  else {
-    ctx.fillStyle = "#6b5a3e";
-    ctx.beginPath(); ctx.ellipse(n.x, n.y+1, 6.5, 4.6, 0, 0, 6.283); ctx.fill();
-    ctx.fillStyle = "#8a7550";
-    ctx.beginPath(); ctx.ellipse(n.x-0.8, n.y-0.8, 5.2, 3.6, 0, 0, 6.283); ctx.fill();
-    ctx.strokeStyle = "rgba(58,46,30,.75)"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(n.x-5, n.y-0.4); ctx.lineTo(n.x+5, n.y-0.4); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(n.x, n.y-4); ctx.lineTo(n.x, n.y+3.4); ctx.stroke();
-  }
+  /* Each drawn as itself. Anything without its own drawing falls back to the
+     tied bundle, so a trade added later still shows something. */
+  if(n.trade === "bugcatcher")      drawGlassOnGround(n);
+  else if(n.trade === "bakery")     drawGrainSheaf(n);
+  else if(n.trade === "herbalist")  drawMoonMushroom(n);
+  else if(n.trade === "beehive")    drawWildComb(n);
+  else                              drawTradeBundle(n);
   // one spark above it, so the eye catches it among trees
   ctx.fillStyle = "rgba(248,236,196,"+(0.55*pulse).toFixed(3)+")";
   ctx.beginPath(); ctx.arc(n.x+1.5, n.y-9 - Math.sin(t*1.1)*1.5, 1.5, 0, 6.283); ctx.fill();
@@ -63800,7 +64800,53 @@ const TRADE_FINDS = [
     clue:"The woods are humming after dark, low and steady, and much too loud for the season.",
     item:"a wild comb",
     found:"A comb the size of a shield, up in a split trunk, and the bees oddly untroubled about it.",
-    home:"They can raise a Beehive now, and it will be theirs to keep." }
+    home:"They can raise a Beehive now, and it will be theirs to keep." },
+  /* ---------- THE SPRING LAMB ----------
+     The shepherd's own find, and the first of the five trades tied to a
+     season (tradeInSeason, above). Spring because that is when there are
+     lambs, and because a lamb alone in the snow would be a different and
+     much sadder story than this one. */
+  /* ---------- THE TAPER ----------
+     Autumn, the season the nights start drawing in - and the one season that
+     carries two of these five, since there are five trades and four seasons.
+     Paired with the weaver on purpose: the spindle and the taper are both
+     things somebody sits down with when it gets dark early. */
+  { key:"chandler",  flag:"tradeChandler",  bldg:"chandlery", season:"autumn",
+    clue:"There is one light out past the trees that is not a fire - too steady, too small, and it has been there three nights.",
+    item:"a beeswax taper",
+    found:"A taper of pale beeswax, half burned down and still smelling of the hive it came from.",
+    home:"They can raise a Chandlery now, and it will be theirs to keep." },
+  /* ---------- THE CASK ----------
+     Winter, because a tavern is a winter idea: the one building whose whole
+     purpose is that it is warm indoors while it is not outdoors. */
+  { key:"tavern",    flag:"tradeTavern",    bldg:"tavern", season:"winter",
+    clue:"There is a smell of hops on the cold air tonight, coming from somewhere out past the last of the houses.",
+    item:"a banded cask",
+    found:"A cask, iron-banded and still full, half buried where somebody left it to keep cold.",
+    home:"They can raise a Tavern now, and it will be theirs to keep." },
+  /* ---------- THE QUERN-STONE ----------
+     Summer, between the shepherd's spring lamb and the weaver's autumn
+     spindle - so the three land in the order a village would want them. */
+  { key:"miller",    flag:"tradeMiller",    bldg:"mill", season:"summer",
+    clue:"There is a sound out past the fields like a millstone turning, and this village has no mill.",
+    item:"a quern-stone",
+    found:"Half a quern-stone, worn smooth on one face by somebody else's grain.",
+    home:"They can raise a Mill now, and it will be theirs to keep." },
+  /* ---------- THE SPINDLE ----------
+     Autumn, which is when wool is worked: the fleece came off in spring and
+     the cold is coming. The Weaver needs a flock to be worth anything, so
+     this is deliberately the LATER season of the two - a village that found
+     the lamb in spring has a shepherd by the time the spindle turns up. */
+  { key:"weaver",    flag:"tradeWeaver",    bldg:"weaver", season:"autumn",
+    clue:"Somebody has been at work out in the woods and left off in a hurry - there is thread caught on the brambles for twenty yards.",
+    item:"a drop spindle",
+    found:"A spindle of dark wood, still wound, lying where it was dropped.",
+    home:"They can raise a Weaver's Cottage now, and it will be theirs to keep." },
+  { key:"shepherd",  flag:"tradeShepherd",  bldg:"shepherdhut", season:"spring",
+    clue:"Something is calling out on the hill past the trees, over and over, and it is too small a sound to be a sheep.",
+    item:"a lost lamb",
+    found:"A lamb, days old and entirely alone, shouting at the world about it.",
+    home:"They will not put it down. They can raise a Shepherd's Hut now, and it will be theirs to keep." }
 ];
 const TRADE_FINDS_PER_SEASON = 2;
 
@@ -63810,6 +64856,23 @@ function tradeFindByKey(key){
 }
 /* Which trades are still to be learned. Also the answer to "are we done" -
    once this is empty the season stops offering anything. */
+/* ---------- A FIND MAY BELONG TO A SEASON ----------
+
+   The five trades added from 10 Sep onward each have a season of their own:
+   the shepherd's lost lamb is a spring thing, and offering it in the snow
+   would be nonsense. `season` on a TRADE_FINDS entry means "only ever
+   offered then".
+
+   THE FOUR ORIGINAL FINDS DELIBERATELY HAVE NO SEASON, and that is the
+   user's own call: "except for where I have told you, start with bug catcher
+   and bread in first season etc, otherwise spread the new ones across the
+   seasons." The bread is the first offer the woods ever make and the glass
+   is already lying on the doorstep when the match begins - both are the
+   opening, and a season gate would break the one thing the first season is
+   supposed to promise. */
+function tradeInSeason(t){
+  return !t.season || t.season === G.season;
+}
 function tradesUnlearned(){
   return TRADE_FINDS.filter(t => {
     /* The glass is not "learned" the way a trade is - it is HELD. Lose the
@@ -63897,7 +64960,12 @@ function trySpecialistFind(){
      which the starting glass made possible for the first time: without
      this the woods could put a second glass down beside the first. */
   const out = new Set(G.nodes.filter(n=>n.kind==="tradefind").map(n=>n.trade));
-  const left = tradesUnlearned().filter(t => !out.has(t.key));
+  /* Out of season is not the same as learned: a shepherd's lamb simply waits
+     for spring rather than being struck off the list. Filtered HERE rather
+     than inside tradesUnlearned, which is also the answer to "are we done" -
+     a village would otherwise be told it had learned everything every time
+     the only trade left was out of season. */
+  const left = tradesUnlearned().filter(t => !out.has(t.key) && tradeInSeason(t));
   if(!left.length) return false;                            // every trade learned
   const days = tradeDaysThisSeason();
   if((G.tradeTaken||0) >= TRADE_FINDS_PER_SEASON) return false;
@@ -64171,7 +65239,9 @@ function promoteToTrade(u, b){
   if(!d) return false;
   const kind = d.bakery ? "baker" : d.gardener ? "gardener" : d.geologist ? "geologist"
              : d.herbalist ? "herbalist" : d.caretaker ? "caretaker"
-             : d.beehive ? "beekeeper" : null;
+             : d.beehive ? "beekeeper" : d.shepherd ? "shepherd"
+             : d.weaver ? "weaver" : d.mill ? "miller"
+             : d.tavern ? "tavernkeeper" : d.chandler ? "chandler" : null;
   if(!kind) return false;
   if(b.tradeStaffed) return false;                 // one to a building, ever
   b.tradeStaffed = true;
@@ -64823,9 +65893,46 @@ function dogVisitingSmallDog(d){
 }
 
 // just outside the kennel door - the same spot a dog is first placed at
+/* WHERE A DOG BEDS DOWN AT ITS KENNEL, and it has to be ground the dog can
+   actually stand on.
+
+   This rolled one offset in front of the door and used it regardless. That is
+   the same shape as the bug that left Gumby standing in walls - see the long
+   note by pickSmallDogSpawn (01d), "11 of 40 seeds, measured, and every one
+   of them never moved again" - and it was still live here.
+
+   Measured before the fix: 160 of 1000 doorstep spots across 25 seeds landed
+   on ground a dog cannot stand on (16%), and on two of those seeds one of the
+   two dogs spent MOST OF THE NIGHT stranded, never reaching its kennel.
+
+   A kennel can sit with its door against water or a wall of trees, so the
+   fix is to try a few spots and widen out rather than trust the first: the
+   ring in front of the door first, because that is where a dog should sleep,
+   then further round the building. If every one of them is blocked - a
+   kennel walled in on all sides - it falls back to the doorstep as before,
+   which is no worse than what it did every time until now. */
 function dogKennelSpot(d){
-  return { x: d.home.x + (Math.random()-0.5)*20,
-           y: d.home.y + d.home.h*TILE/2 + 8 + (Math.random()-0.5)*10 };
+  const home = d.home;
+  const front = home.y + home.h*TILE/2 + 8;
+  for(let i=0;i<20;i++){
+    /* The first few tries stay at the door. After that it opens out into a
+       ring round the whole building, which is where a dog with a blocked
+       doorstep has to go. */
+    let x, y;
+    if(i < 8){
+      x = home.x + (Math.random()-0.5)*20;
+      y = front + (Math.random()-0.5)*10;
+    } else {
+      const a = Math.random()*6.283, r = home.h*TILE/2 + 10 + Math.random()*26;
+      x = home.x + Math.cos(a)*r;
+      y = home.y + Math.sin(a)*r;
+    }
+    if(isWater(x,y) || blocked(x, y, null, false)) continue;
+    return { x, y };
+  }
+  // walled in on every side: the old behaviour, which is the best left
+  return { x: home.x + (Math.random()-0.5)*20,
+           y: front + (Math.random()-0.5)*10 };
 }
 
 function updateVillageDogs(dt){
@@ -66764,6 +67871,12 @@ function markBugCatcher(u){
      them - the code said Collector everywhere and the village said
      Catcher, which is the sort of split that ends up in a screenshot. */
   u.epithet = "the Bug Catcher";
+  /* GROUP 3 IS THEIRS FROM NOW ON, the same way group 1 is the Town Centre
+     and group 2 the founder - not something to select and assign. The
+     catcher is one to a village and spends the whole match off in the long
+     grass, which is exactly when a permanent slot on the bar earns its
+     place. (TIED_GROUPS, 03a) */
+  if(typeof tieToGroup === "function") tieToGroup(u, 3);
   if(u.p===P_YOU && typeof tellAndNote === "function")
     tellAndNote(villagerName(u)+" has taken up the glass for good - the coat, the jars, "+
                 "and an eye for whatever the rest of the village walks straight past.", "good");
@@ -68030,6 +69143,1520 @@ function resolveWayfarer(u, o, right, mute){
   // The parenthetical exists to explain what the buff IS. A plain joiner has
   // no buff, so it would just be a shrug in brackets.
   tellAndNote(w.buff ? (w.joins + " (" + w.about + ")") : w.joins, "good");
+}
+
+/* ============================================================
+   THE SHEPHERD, THE FLOCK, AND THE WOOL
+   ============================================================
+   Asked for on 12 Sep, with the shape given: "shepard will have the stick
+   hook thing, shearing to buff speed in the cold and less damage in the
+   rain etc, they will also walk their flock each day to a different empty
+   part of the village, we will also need interactions with the sheep and
+   dogs and also a cute sheep design, and two looks, before and after
+   shaving etc."
+
+   The trade is reached the same way every other one is: a find in the woods
+   (a lost lamb, spring only - TRADE_FINDS, 05g), carried home, and then a
+   Shepherd's Hut that whoever carried it may raise. From there the hut posts
+   a shepherd, the shepherd has a flock, and the flock is the point.
+
+   WHAT THE WOOL IS WORTH was settled in conversation: no counter, no eighth
+   column in the top bar. The fleece is carried, visibly, from the flock to
+   wherever it is going, and what it buys is a stretch of time in which the
+   village is WARMER - everybody moves better in the cold and takes less from
+   the soaked-through drain. It fades, so shearing is a rhythm rather than a
+   thing you did once. The same shape honey already has.
+   ============================================================ */
+
+/* ---------- the flock ---------- */
+const FLOCK_MIN = 3, FLOCK_MAX = 5;   // "a handful", the same as the nightcap's
+const SHEEP_SPD = 16;                 // slow. A sheep in a hurry is not a sheep.
+const SHEEP_GRAZE_R = 46;             // how far round the day's spot they spread
+/* How long after a shearing the fleece grows back. A season, so a flock is
+   worth shearing once a season and the shepherd's year has a shape. */
+const WOOL_REGROW = 1;                // in seasons
+
+/* ---------- what a shearing is worth ----------
+   Village-wide, small, and it FADES - the three things asked for. A day and
+   a half is long enough that you feel it and short enough that the next
+   shearing matters. */
+const WOOL_WARM_DAYS  = 1.5;
+const WOOL_COLD_SPD   = 0.12;   // +12% speed in winter and the cold
+const WOOL_RAIN_SHELTER = 0.35; // and a third off the soaked-through drain
+
+/* Is the village currently in wool? Worked out from a clock rather than a
+   flag, so it cannot be left switched on by a shepherd who died. */
+function villageInWool(){
+  return !!(G.woolUntil && G.t < G.woolUntil);
+}
+/* How much faster the village moves for it, and only when it is actually
+   cold - wool in high summer is not a help, and a buff that applies always
+   is just a bigger number. */
+function woolWarmthMult(){
+  if(!villageInWool()) return 1;
+  const cold = (G.season === "winter") ? 1
+             : (G.snow || 0) > 0.1 ? 0.7
+             : (G.weather && G.weather.key === "blizzard") ? 1 : 0;
+  return 1 + WOOL_COLD_SPD * cold;
+}
+/* And how much of the rain it keeps off. Applied to the drain in 01f, not to
+   the weather itself: being wet is still being wet, it just costs less. */
+function woolRainMult(){
+  return villageInWool() ? (1 - WOOL_RAIN_SHELTER) : 1;
+}
+
+/* ---------- a sheep ----------
+   Per-sheep variation, the same way the animals and the goblins have it: no
+   two of a flock are the same size, the same shade, or facing the same way.
+   Worked out from the sheep's own id so nothing is stored and a sheep out of
+   a months-old save looks like itself. */
+function makeSheep(home, i){
+  const id = G.nextId++;
+  const h = (n) => Math.abs(Math.sin((id+1)*12.9898 + n*78.233)*43758.5453) % 1;
+  return {
+    id, kindTag:"sheep", p:home.p, home,
+    x: home.x + (Math.random()-0.5)*30,
+    y: home.y + home.h*TILE/2 + 10 + (Math.random()-0.5)*20,
+    tx: 0, ty: 0, dest: null,
+    face: Math.random()<0.5 ? -1 : 1, walk: Math.random()*6, seed: Math.random()*6.283,
+    moving: false, grazing: false, grazeT: 0,
+    shorn: false, woolAt: 0,
+    /* build, fleece shade and how dark the face is - small, so the flock
+       still reads as one flock */
+    big:   0.90 + h(1)*0.22,
+    wool:  h(2),                 // 0..1, picked up by the drawing
+    faceDark: 0.82 + h(3)*0.3,
+    lamb: i === 0 && Math.random() < 0.34   // sometimes one of them is small
+  };
+}
+
+/* ---------- THE GROUND THEY LEAVE BEHIND ----------
+   Revised on 12 Sep, and it is a better idea than the one it replaces:
+   "maybe the sheep graze the same spot for half a season, the next day when
+   they move the ground looks a little different, same size as a farm, if you
+   put a farm there you get a 10% boost."
+
+   So a flock is not a daily wander any more. They settle on one piece of
+   ground for HALF A SEASON, and when they finally move on they leave it
+   behind them - cropped short, trodden, and manured. It is farm-sized on
+   purpose, because the whole point is that you can see a field there.
+
+   Build a farm on it and it comes in better for a season. That is a reward
+   for noticing something the village did on its own, rather than for
+   following an instruction, which is the sort of thing this game is for. */
+const GRAZE_DAYS = SEASON_DAYS / 2;      // half a season on one patch
+const PATCH_LIFE_SEASONS = 3;            // and the good ground fades eventually
+const PATCH_BOOST = 0.10;                // a tenth more off a farm built on it
+const PATCH_BOOST_SEASONS = 1;           // for a season after it is built
+
+/* Farm-sized, because a farm is what it is for. Read off the building so it
+   cannot drift if a farm ever changes shape. */
+function patchRadius(){
+  const f = BLDG.farm;
+  return Math.max(f.w, f.h) * TILE * 0.62;
+}
+function leaveGrazedPatch(hut, spot){
+  if(!spot) return;
+  if(!G.grazedPatches) G.grazedPatches = [];
+  /* One patch to a piece of ground: a flock that came back to the same field
+     should deepen it rather than stack two of them. */
+  for(const p of G.grazedPatches){
+    if(Math.hypot(p.x-spot.x, p.y-spot.y) < patchRadius()){
+      p.seasonNo = (G.seasonNo || 0);
+      p.rich = Math.min(1, (p.rich||0.6) + 0.2);
+      return;
+    }
+  }
+  G.grazedPatches.push({
+    x: spot.x, y: spot.y, p: hut.p,
+    seasonNo: (G.seasonNo || 0),
+    rich: 0.6,
+    seed: Math.random()*6.283,
+    used: false
+  });
+  if(hut.p === P_YOU)
+    tellAndNote("The flock has moved on. They have left the ground behind them "+
+                "cropped short and well muck-fed - it would take a field.", "good");
+}
+/* Which patch a building is standing on, if any. */
+function grazedPatchAt(x, y){
+  for(const p of (G.grazedPatches||[])){
+    if(Math.hypot(p.x-x, p.y-y) < patchRadius()) return p;
+  }
+  return null;
+}
+/* And what a farm gets for standing on one. Read at harvest, per farm, so a
+   field built on good ground simply comes in better for a while. */
+function grazedFarmMult(b){
+  if(!b || !BLDG[b.type] || !BLDG[b.type].farm) return 1;
+  if(!b.grazedUntil) return 1;
+  return (G.seasonNo || 0) < b.grazedUntil ? (1 + PATCH_BOOST) : 1;
+}
+/* Stamped when the farm goes up rather than checked every tick: the patch
+   can fade, and a field should keep the good of the ground it was built on.
+   Called from the building's own placement (03b). */
+function claimGrazedGround(b){
+  if(!b || !BLDG[b.type] || !BLDG[b.type].farm) return false;
+  /* GENEROUSLY. The patch is farm-sized, so asking for the field's exact
+     centre to fall inside it means a player placing by eye misses by fifty
+     pixels and is told nothing - which would feel like the game reneging on
+     something it showed them. What is being asked is "is this field on that
+     ground", so the field's own footprint counts: half its span is added to
+     the reach. Measured, a farm dropped on the patch by eye lands 45-55px
+     off centre and a 2x2 farm is 68px across. */
+  const d = BLDG[b.type];
+  const reach = patchRadius() + Math.max(d.w, d.h) * TILE * 0.5;
+  let patch = null;
+  for(const p2 of (G.grazedPatches||[])){
+    if(p2.used) continue;
+    if(Math.hypot(p2.x-b.x, p2.y-b.y) < reach){ patch = p2; break; }
+  }
+  if(!patch) return false;
+  patch.used = true;
+  b.grazedUntil = (G.seasonNo || 0) + PATCH_BOOST_SEASONS;
+  if(b.p === P_YOU)
+    tellAndNote("That field is going in on the ground the flock manured. It will "+
+                "come in heavier than it has any right to, for a season.", "good");
+  return true;
+}
+/* Old ground goes back to being ordinary ground. */
+function updateGrazedPatches(){
+  if(!G.grazedPatches || !G.grazedPatches.length) return;
+  const now = (G.seasonNo || 0);
+  G.grazedPatches = G.grazedPatches.filter(p => now - p.seasonNo < PATCH_LIFE_SEASONS);
+}
+
+/* ---------- where the flock goes ----------
+   EMPTY is the operative word: a flock wants open ground, not the middle of
+   the houses, so this looks for somewhere clear of buildings and clear of
+   where they grazed last.
+
+   Ground-checked, which is the rule this project keeps having to relearn -
+   a spot picker that does not ask whether anything can stand there sends
+   the flock to walk at a wall for the rest of the day. */
+const GRAZE_MIN = 5, GRAZE_MAX = 16;      // tiles out from the hut
+function pickGrazeSpot(hut, lastSpot){
+  for(let tries=0; tries<80; tries++){
+    const a = Math.random()*6.283;
+    const r = (GRAZE_MIN + Math.random()*(GRAZE_MAX-GRAZE_MIN))*TILE;
+    const x = hut.x + Math.cos(a)*r, y = hut.y + Math.sin(a)*r;
+    const tx = (x/TILE)|0, ty = (y/TILE)|0;
+    if(tx<2 || ty<2 || tx>=MAPW-2 || ty>=MAPH-2) continue;
+    if(isWater(x,y) || blocked(x,y,null,false)) continue;
+    /* Somewhere OPEN. A flock in a gap between two houses is not out at
+       pasture, it is lost - so this wants room round it as well as under
+       it. */
+    let clear = true;
+    for(const b of G.bldgs){
+      if(Math.hypot(b.x-x, b.y-y) < TILE*3.2){ clear = false; break; }
+    }
+    if(!clear) continue;
+    // and somewhere NEW: not yesterday's field again
+    if(lastSpot && Math.hypot(lastSpot.x-x, lastSpot.y-y) < TILE*5) continue;
+    return { x, y };
+  }
+  return null;
+}
+
+/* ---------- the round ---------- */
+function updateShepherd(dt){
+  if(!G.shepherds) G.shepherds = [];
+  if(!G.sheep) G.sheep = [];
+
+  for(const b of G.bldgs){
+    if(!b.done || !BLDG[b.type] || !BLDG[b.type].shepherd) continue;
+    if(!b.tradeStaffed) continue;                  // see promoteToTrade (05g)
+    if(G.shepherds.some(o => o.home === b)) continue;
+    const o = makeFieldWorker(b, "shepherd");
+    G.shepherds.push(o);
+    // and the flock comes with them
+    const n = FLOCK_MIN + ((Math.random()*(FLOCK_MAX-FLOCK_MIN+1))|0);
+    for(let i=0;i<n;i++) G.sheep.push(makeSheep(b, i));
+  }
+  /* A hut that is gone takes its shepherd and its flock with it. */
+  G.shepherds = G.shepherds.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
+  G.sheep = G.sheep.filter(s => s.home && G.bldgs.indexOf(s.home) >= 0);
+
+  for(const o of G.shepherds){
+    /* Abed at night with every other trade, before anything else in the
+       round - a shepherd on their way to the door is not also grazing.
+       (workerNight, 05j) */
+    if(workerNight(o, dt, SHEPHERD_SPD)) continue;
+
+    const flock = G.sheep.filter(s => s.home === o.home);
+
+    /* ---- HALF A SEASON ON ONE PIECE OF GROUND ----
+       Kept on the DAY NUMBER rather than a countdown, so it cannot drift and
+       does not care how long a day is (DAY_LEN has changed twice). The first
+       field is taken as soon as there is a shepherd; after that they stay
+       put until the half-season is up. */
+    const today = G.dayNo || 0;
+    const due = (o.grazeSince === undefined) || (today - o.grazeSince >= GRAZE_DAYS);
+    if(due){
+      const spot = pickGrazeSpot(o.home, o.grazeSpot);
+      if(spot){
+        /* What they are walking away FROM is the thing worth having. Only
+           after a real stay - a flock that never settled has manured
+           nothing. */
+        if(o.grazeSpot && o.grazeSince !== undefined && today - o.grazeSince >= GRAZE_DAYS)
+          leaveGrazedPatch(o.home, o.grazeSpot);
+        o.grazeSince = today;
+        o.grazeSpot = spot;
+        o.dest = { x: spot.x, y: spot.y };
+        o.state = "toField";
+        o.legT = 0;
+        if(o.p === P_YOU && flock.length && Math.random() < 0.6)
+          hint("The shepherd takes the flock on to new grass.");
+      } else {
+        o.grazeSince = today;             // nowhere to go; try again in a few days
+      }
+    }
+
+    if(o.state === "toField"){
+      if(fieldWorkerWalk(o, dt, SHEPHERD_SPD)) o.state = "watching";
+    } else if(o.state === "watching"){
+      o.moving = false;
+      /* Standing with the flock, leaning on the crook. This is most of a
+         shepherd's day and it is deliberately not busy. */
+      if(shepherdShouldShear(o, flock)) startShearing(o, flock);
+      else liveALittle(o, dt, SHEPHERD_SPD);
+    } else if(o.state === "shearing"){
+      o.moving = false;
+      o.workT -= dt;
+      if(Math.random() < 0.12) fxWork(o.x, o.y-4, "#e6e2d6");
+      if(o.workT <= 0) finishShearing(o, flock);
+    } else if(o.state === "carrying"){
+      /* The fleece going somewhere - the visible half of what wool is worth,
+         since there is no counter for it anywhere. */
+      if(fieldWorkerWalk(o, dt, SHEPHERD_SPD)){
+        /* Handed over. A weaver with wool at the door has something to do;
+           a village without one has simply had a fleece brought in. */
+        if(o.fleeceTo && G.bldgs.indexOf(o.fleeceTo) >= 0){
+          o.fleeceTo.wool = (o.fleeceTo.wool || 0) + 1;
+        }
+        o.fleeceTo = null;
+        o.laden = false; o.fleece = false;
+        o.state = "toField";
+        o.dest = o.grazeSpot ? { x:o.grazeSpot.x, y:o.grazeSpot.y } : workerDoor(o);
+        o.legT = 0;
+      }
+    } else {
+      if(fieldWorkerWalk(o, dt, SHEPHERD_SPD)){ o.state = "watching"; o.moving = false; }
+    }
+  }
+
+  updateFlock(dt);
+  updateGrazedPatches();
+}
+const SHEPHERD_SPD = 22;
+const SHEEP_SHEAR_WORK = 4.5;
+
+/* Shearing is due when the fleece has grown back - once a season, per
+   WOOL_REGROW - and only while they are actually out with the flock. */
+function shepherdShouldShear(o, flock){
+  if(!flock.length) return false;
+  const woolly = flock.filter(s => !s.shorn);
+  if(woolly.length < Math.max(1, Math.ceil(flock.length*0.6))) return false;
+  return (G.seasonNo || 0) !== o.lastShearSeason;
+}
+function startShearing(o, flock){
+  o.state = "shearing";
+  o.workT = SHEEP_SHEAR_WORK;
+  o.lastShearSeason = (G.seasonNo || 0);
+  stopLiving(o);
+}
+function finishShearing(o, flock){
+  let n = 0;
+  for(const s of flock){
+    if(s.shorn) continue;
+    s.shorn = true;
+    s.woolAt = (G.seasonNo || 0);
+    n++;
+  }
+  /* THE WHOLE VILLAGE IS WARMER FOR A WHILE. Set as a deadline rather than a
+     flag so nothing has to remember to clear it. */
+  if(o.p === P_YOU && n){
+    G.woolUntil = G.t + WOOL_WARM_DAYS * DAY_LEN;
+    tellAndNote("The flock is shorn. There is wool in the village again - everybody "+
+                "is that bit warmer for it, and it will not last for ever.", "good");
+  }
+  /* THE FLEECE GOES TO THE WEAVER, if the village has one - which is the
+     whole of the chain, and the only place in this game where one trade
+     supplies another. Without a weaver it goes to the hall, as everything
+     else in this village does.
+
+     Carried, visibly, because there is no counter for wool anywhere: the
+     walk IS the wool. (Decided with the user: "no counter - it moves trade
+     to trade".) */
+  o.fleece = true; o.laden = true;
+  const weaver = G.bldgs.find(b => b.p===o.p && b.done && b.hp>0 &&
+                                   BLDG[b.type] && BLDG[b.type].weaver);
+  const hall = G.bldgs.find(b => b.p===o.p && b.type==="town" && b.done && b.hp>0);
+  /* ONE DECISION, not two. `to` (where they walk) and `fleeceTo` (who gets
+     credited with the wool) were two separate expressions that happened to
+     agree - and two expressions that must agree are a bug waiting for
+     somebody to edit one of them. Caught by a probe: breaking the walk left
+     the hand-over pointing at the weaver, so a shepherd would have carried a
+     fleece to the hall and the loom would have been credited anyway.
+     Derived from the same value now, so they cannot drift. */
+  const to = weaver || hall || o.home;
+  o.fleeceTo = (to === weaver) ? weaver : null;
+  o.state = "carrying";
+  o.dest = { x: to.x, y: to.y + to.h*TILE/2 + 6 };
+  o.legT = 0;
+}
+
+/* ---------- and the flock itself ----------
+   Sheep do three things: follow, graze, and get in the way. The last one is
+   not a bug.
+
+   They keep to the day's spot rather than to the shepherd, which is what
+   makes a flock read as a flock - a line of animals trailing a person is a
+   duckling problem, not a sheep one. The shepherd goes where the grass is
+   and the sheep spread out over it. */
+function updateFlock(dt){
+  if(!G.sheep) G.sheep = [];
+  for(const s of G.sheep){
+    const shep = (G.shepherds||[]).find(o => o.home === s.home);
+    /* ---- IN AT NIGHT, AND ACTUALLY IN ----
+       "maybe the sheep go into bed at night", 12 Sep. They walk back to the
+       hut as the light goes and then they are INDOORS - off the map, like
+       every villager and every trade worker - rather than standing in the
+       yard being the one thing out there when the wolves come.
+
+       Penned on arrival rather than on the stroke of dusk, so you can watch
+       them come home; out again at first light. `dayIndoors` is not used
+       here, and deliberately: that is the baker's "stepped in on purpose"
+       flag and the night rule in 05j reads it. */
+    const night = (G.phase === "night" || G.phase === "dusk");
+    const pen = { x: s.home.x, y: s.home.y + s.home.h*TILE/2 + 12 };
+    if(!night && s.indoors){
+      s.indoors = false;                       // morning: out they come
+      s.x = pen.x + (Math.random()-0.5)*16;
+      s.y = pen.y + (Math.random()-0.5)*10;
+    }
+    if(s.indoors) continue;                    // abed, and not drawn (04c)
+    if(night && Math.hypot(pen.x-s.x, pen.y-s.y) < 16){
+      s.indoors = true; s.moving = false; s.grazing = false;
+      continue;
+    }
+    const anchor = night ? pen
+                 : (shep && shep.grazeSpot) ? shep.grazeSpot
+                 : pen;
+
+    const d = Math.hypot(anchor.x - s.x, anchor.y - s.y);
+    const spread = night ? 18 : SHEEP_GRAZE_R;
+    if(d > spread){
+      /* Back toward the flock. Sheep move at a sheep's pace even when they
+         are behind. */
+      s.grazing = false;
+      moveToward(s, anchor.x + (Math.random()-0.5)*spread*0.6,
+                    anchor.y + (Math.random()-0.5)*spread*0.6,
+                    SHEEP_SPD, dt, spread*0.5);
+      s.moving = true;
+    } else {
+      /* At the field: graze, wander a step, graze again. The head-down pose
+         is the whole of what makes them read as sheep rather than clouds. */
+      s.grazeT -= dt;
+      if(s.grazeT <= 0){
+        s.grazing = !s.grazing;
+        s.grazeT = s.grazing ? 2.5 + Math.random()*4 : 1 + Math.random()*2.5;
+        if(!s.grazing){
+          s.tx = anchor.x + (Math.random()-0.5)*spread*1.4;
+          s.ty = anchor.y + (Math.random()-0.5)*spread*1.4;
+        }
+      }
+      if(s.grazing){ s.moving = false; }
+      else { s.moving = !moveToward(s, s.tx, s.ty, SHEEP_SPD*0.7, dt, 6); }
+    }
+    if(s.moving) s.walk += dt*5.5;
+
+    /* THE FLEECE GROWS BACK, a season after it came off. */
+    if(s.shorn && (G.seasonNo||0) - s.woolAt >= WOOL_REGROW) s.shorn = false;
+  }
+}
+
+/* ---------- drawing one ----------
+   "a cute sheep design, and two looks, before and after shaving".
+
+   THE WOOL IS THE WHOLE SILHOUETTE. A sheep is a cloud with a face on it,
+   and the fastest way to lose that is a smooth oval - so the fleece is drawn
+   as a ring of overlapping bumps, which reads as wool at any zoom where it
+   reads as anything. Shorn, that ring goes entirely: the body underneath is
+   slim, a different colour, and slightly hunched, and the difference between
+   the two is meant to be funny rather than subtle.
+
+   Everything is scaled off ONE size so a lamb is the same drawing smaller.
+   Pale on snow needs an outline, which this project has been caught by four
+   times (feedback_pale_prop_contrast). */
+const SHEEP_WOOLS = ["#efece2", "#e4e0d2", "#d9d4c4"];
+function drawSheep(s){
+  const H = 13 * s.big * (s.lamb ? 0.62 : 1);
+  const ink = "rgba(40,34,26,.72)";
+  const woolCol = SHEEP_WOOLS[(s.wool * SHEEP_WOOLS.length)|0] || SHEEP_WOOLS[0];
+  const skin = "#cbb6a6";                 // what is under the fleece
+  const faceCol = shade("#4a4038", (s.faceDark - 1) * 0.5);
+
+  ctx.save();
+  ctx.translate(s.x, s.y);
+
+  // the shadow, the same soft ellipse everything else in the village sits on
+  ctx.fillStyle = "rgba(0,0,0,"+(0.26*(1-(G.dark||0)*0.75)).toFixed(3)+")";
+  ctx.beginPath(); ctx.ellipse(0, H*0.44, H*0.60, H*0.20, 0, 0, 6.283); ctx.fill();
+
+  ctx.scale(s.face < 0 ? -1 : 1, 1);
+  /* Head down while grazing. The single clearest tell that an animal is
+     eating rather than standing, and it costs one number. */
+  const graze = s.grazing ? 1 : 0;
+  const bob = s.moving ? Math.abs(Math.sin(s.walk)) * H*0.05 : 0;
+  ctx.translate(0, -bob);
+
+  // legs, four, thin and dark - drawn first so the body sits over them
+  ctx.strokeStyle = faceCol;
+  ctx.lineWidth = Math.max(1, H*0.085);
+  ctx.lineCap = "round";
+  for(const [dx, ph] of [[-0.30, 0], [-0.12, 1.6], [0.20, 3.1], [0.36, 4.6]]){
+    const sw = s.moving ? Math.sin(s.walk + ph) * H*0.10 : 0;
+    ctx.beginPath();
+    ctx.moveTo(H*dx, H*0.12);
+    ctx.lineTo(H*dx + sw, H*0.42);
+    ctx.stroke();
+  }
+
+  if(s.shorn){
+    /* SHORN: a slim body, and it should look faintly embarrassed about it. */
+    ctx.fillStyle = skin;
+    ctx.beginPath();
+    ctx.ellipse(0, -H*0.02, H*0.46, H*0.27, 0, 0, 6.283);
+    ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.8, H*0.055);
+    ctx.stroke();
+    /* A last tuft left on the top, which is what a real shearing leaves and
+       which stops a shorn sheep reading as a different animal entirely. */
+    ctx.fillStyle = woolCol;
+    ctx.beginPath(); ctx.arc(-H*0.10, -H*0.26, H*0.11, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.6, H*0.04); ctx.stroke();
+  } else {
+    /* WOOLLY: a ring of bumps, which is the whole design. */
+    ctx.fillStyle = woolCol;
+    ctx.beginPath();
+    ctx.ellipse(0, -H*0.06, H*0.52, H*0.34, 0, 0, 6.283);
+    ctx.fill();
+    for(let i=0;i<7;i++){
+      const a = i/7*6.283 + s.seed*0.3;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a)*H*0.44, -H*0.06 + Math.sin(a)*H*0.27, H*0.155, 0, 6.283);
+      ctx.fill();
+    }
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.8, H*0.05);
+    for(let i=0;i<7;i++){
+      const a = i/7*6.283 + s.seed*0.3;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a)*H*0.44, -H*0.06 + Math.sin(a)*H*0.27, H*0.155, a-1.5, a+1.5);
+      ctx.stroke();
+    }
+  }
+
+  /* The head: down at the grass, or up and looking at you. Small and dark
+     against the fleece, which is where all the cuteness lives. */
+  const hx = H*0.46, hy = -H*0.14 + graze*H*0.42;
+
+  /* ---- EARS FIRST, AND WELL CLEAR OF THE SKULL ----
+
+     They were drawn at hx - H*0.06 with a vertical offset of a tenth, which
+     put both of them almost entirely INSIDE the head - so instead of ears
+     the sheep had a lumpy dark blob with a notch in it, and at any zoom
+     where you could see it at all it read as damage rather than an animal.
+     Checked on screen at sixteen times zoom, which is the only way to tell.
+
+     A sheep's ears come off the SIDES of the skull and hang. So: drawn
+     before the head, so they tuck behind it the way they attach, and long
+     enough to stand outside its outline - the head is H*0.20 across, these
+     reach to about H*0.34, so a third of each ear is visibly proud of it.
+
+     Near one lower, longer and in the full colour; far one higher, shorter
+     and dimmer. Both offsets are larger than the head's own vertical radius
+     (H*0.17), which is the number that matters: any less and the ear is
+     inside the skull, which is how the first pass failed. That is the same three-quarter view the body is drawn in,
+     and it is what stops a pair of ears reading as one flat shape. */
+  const earA = graze*0.45;                     // they swing forward as the head goes down
+  ctx.fillStyle = shade(faceCol, -0.18);       // the far ear, behind the skull
+  ctx.beginPath();
+  ctx.ellipse(hx - H*0.16, hy - H*0.19, H*0.145, H*0.058, -0.95 + earA, 0, 6.283);
+  ctx.fill();
+  ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.5, H*0.032); ctx.stroke();
+  ctx.fillStyle = faceCol;                     // and the near one, hanging lower
+  ctx.beginPath();
+  ctx.ellipse(hx - H*0.13, hy + H*0.17, H*0.175, H*0.070, 0.80 + earA, 0, 6.283);
+  ctx.fill();
+  ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.6, H*0.036); ctx.stroke();
+
+  // and the head over the top of them
+  ctx.fillStyle = faceCol;
+  ctx.beginPath();
+  ctx.ellipse(hx, hy, H*0.20, H*0.17, graze*0.5, 0, 6.283);
+  ctx.fill();
+  ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.6, H*0.04); ctx.stroke();
+  /* One eye, and only one: this is a three-quarter view and a second eye on
+     a head this size turns into a smudge. Blinks on the shared rhythm every
+     other animal uses. */
+  if(!blinkShut(s.id)){
+    ctx.fillStyle = "#1d1610";
+    ctx.beginPath(); ctx.arc(hx + H*0.09, hy - H*0.02, H*0.042, 0, 6.283); ctx.fill();
+  } else {
+    ctx.strokeStyle = "#1d1610"; ctx.lineWidth = Math.max(0.5, H*0.03);
+    ctx.beginPath();
+    ctx.moveTo(hx + H*0.04, hy - H*0.02); ctx.lineTo(hx + H*0.14, hy - H*0.02);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ---------- the ground they left ----------
+   "the next day when they move the ground looks a little different, same
+   size as a farm."
+
+   Deliberately QUIET. This is a thing the player should come across rather
+   than be pointed at: no glow, no ring, no marker floating over it - the
+   grass is simply shorter, darker and richer than the grass round it, the
+   way real grazed ground is. Anybody who has looked at a field will read it
+   without being told; anybody who has not will build somewhere else, and
+   that is a fair trade.
+
+   Drawn on the ground layer, under everything, so units and buildings sit on
+   top of it as they would on any other terrain. */
+function drawGrazedPatch(p){
+  const r = patchRadius();
+  /* Fades as it ages, so old ground stops shouting before it stops working -
+     and stops entirely when it stops working. */
+  const age = (G.seasonNo||0) - p.seasonNo;
+  const life = Math.max(0, 1 - age / PATCH_LIFE_SEASONS);
+  if(life <= 0) return;
+  const a = (0.20 + 0.16*(p.rich||0.6)) * life;
+
+  ctx.save();
+  /* The cropped ground: a darker, richer green, soft-edged so it does not
+     read as a placed object. */
+  const g = ctx.createRadialGradient(p.x, p.y, r*0.25, p.x, p.y, r);
+  g.addColorStop(0, "rgba(74,92,48," + a.toFixed(3) + ")");
+  g.addColorStop(1, "rgba(74,92,48,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.ellipse(p.x, p.y, r, r*0.82, 0, 0, 6.283); ctx.fill();
+
+  /* Trodden bare spots where they stood most. Hashed off the patch's own
+     seed so a patch looks the same every frame and every session. */
+  ctx.fillStyle = "rgba(92,74,52," + (a*0.85).toFixed(3) + ")";
+  for(let i=0;i<7;i++){
+    const h = Math.abs(Math.sin((p.seed+1)*12.9898 + i*78.233)*43758.5453) % 1;
+    const h2 = Math.abs(Math.sin((p.seed+1)*39.3468 + i*11.135)*24634.6345) % 1;
+    const ang = h*6.283, rad = r*0.18 + h2*r*0.62;
+    ctx.beginPath();
+    ctx.ellipse(p.x + Math.cos(ang)*rad, p.y + Math.sin(ang)*rad*0.82,
+                r*0.13, r*0.08, ang, 0, 6.283);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* ============================================================
+   THE WEAVER, AND WHAT THE VILLAGE WEARS
+   ============================================================
+   The second of the five new trades, and the other end of the first real
+   CHAIN in this game: the shepherd shears a flock, walks the fleece to the
+   weaver's door, and the weaver turns it into what people wear.
+
+   Decided with the user on 12 Sep:
+
+     - the cloth is for WHAT THE VILLAGE WEARS. Warmth belongs to the
+       shepherd already (woolWarmthMult, 05n) and giving the weaver warmth
+       too would make them the same trade with extra steps. This one is
+       about how the village LOOKS, with a small lift to how well everybody
+       works, because people in decent clothes get on with it.
+     - and it needs a shepherd. No wool, no weaving. A weaver with no flock
+       stands at their door with nothing to do, and says so if you tap them.
+   ============================================================ */
+
+const WEAVER_SPD = 21;
+const WEAVE_WORK = 5.5;            // how long a fleece takes at the loom
+/* How long the village stays well dressed for one bolt of cloth. Longer than
+   the wool's own warmth, because clothes last and a fleece does not. */
+const CLOTH_DAYS = 4;
+const CLOTH_WORK_LIFT = 0.06;      // +6% at everything, which is slight on purpose
+
+/* Is the village in decent clothes? A deadline rather than a flag, the same
+   as the wool - nothing has to remember to clear it. */
+function villageClothed(){
+  return !!(G.clothUntil && G.t < G.clothUntil);
+}
+/* What that is worth. Deliberately small and deliberately EVERYWHERE: this
+   is meant to be felt as the village being a bit better off rather than as a
+   button that makes numbers go up. */
+function clothWorkMult(){
+  return villageClothed() ? (1 + CLOTH_WORK_LIFT) : 1;
+}
+/* And what it looks like. The village's own dye for the season - this is the
+   half the user actually asked for, since the point of a weaver is that you
+   can SEE there is a weaver. */
+const CLOTH_DYES = {
+  spring: "#7f9b6a",   // new green
+  summer: "#c9a23f",   // sun-bleached gold
+  autumn: "#a8562f",   // madder red
+  winter: "#5d6b86"    // woad blue
+};
+function clothDye(){
+  return CLOTH_DYES[G.season] || CLOTH_DYES.summer;
+}
+
+/* ---------- the round ----------
+   Fleece comes in at the door (the shepherd puts it there - finishShearing,
+   05n), the weaver works it into cloth, and then carries the cloth out to a
+   house. The walk out is the visible half, the same way the beekeeper's
+   honey round is. */
+function updateWeaver(dt){
+  if(!G.weavers) G.weavers = [];
+
+  for(const b of G.bldgs){
+    if(!b.done || !BLDG[b.type] || !BLDG[b.type].weaver) continue;
+    if(!b.tradeStaffed) continue;
+    if(G.weavers.some(o => o.home === b)) continue;
+    G.weavers.push(makeFieldWorker(b, "weaver"));
+  }
+  G.weavers = G.weavers.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
+
+  for(const o of G.weavers){
+    if(workerNight(o, dt, WEAVER_SPD)) continue;
+
+    if(o.state === "idle"){
+      /* NOTHING TO WORK WITH. The chain is hard by the user's choice: no
+         wool, no weaving. They potter at the door rather than standing dead
+         still, and unitDoing (07) says what they are waiting for if you tap
+         them - which is the truth rather than a hint, and costs nothing. */
+      if(!(o.home.wool > 0)){ liveALittle(o, dt, WEAVER_SPD); continue; }
+      o.home.wool--;
+      o.state = "weaving";
+      o.workT = WEAVE_WORK;
+      stopLiving(o);
+    } else if(o.state === "weaving"){
+      o.moving = false;
+      o.workT -= dt;
+      /* The loom: a thread of the season's own dye, so even the sparks are
+         the colour the village is about to be wearing. */
+      if(Math.random() < 0.14) fxWork(o.x, o.y-4, clothDye());
+      if(o.workT <= 0){
+        o.state = "delivering";
+        o.laden = true;
+        o.cloth = true;
+        const call = weaverFindCall(o.home);
+        o.call = call || null;
+        const to = call || o.home;
+        o.dest = { x: to.x, y: to.y + to.h*TILE/2 + 6 };
+        o.legT = 0;
+      }
+    } else if(o.state === "delivering"){
+      if(!o.call || G.bldgs.indexOf(o.call) < 0){
+        o.call = null; o.laden = false; o.cloth = false;
+        o.state = "home"; o.legT = 0; o.dest = workerDoor(o);
+        continue;
+      }
+      if(fieldWorkerWalk(o, dt, WEAVER_SPD)){
+        /* AND THE VILLAGE IS DRESSED. Set here rather than at the loom: the
+           cloth counts when it reaches somebody, not when it is finished. */
+        o.home.lastCall = o.call.id;
+        if(o.p === P_YOU){
+          G.clothUntil = G.t + CLOTH_DAYS * DAY_LEN;
+          if(Math.random() < 0.4)
+            hint("The weaver takes new cloth round to the " +
+                 (BLDG[o.call.type].name || o.call.type).toLowerCase() + ".");
+        }
+        /* And it goes into somebody's hands. This is the whole visible half
+           of the trade now - cloth crossing the village rather than anybody
+           wearing anything. (handOutCloth, below.) */
+        handOutCloth(o.call, o.p);
+        o.call = null; o.laden = false; o.cloth = false;
+        o.state = "home"; o.legT = 0; o.dest = workerDoor(o);
+      }
+    } else {
+      if(fieldWorkerWalk(o, dt, WEAVER_SPD)){ o.state = "idle"; o.moving = false; }
+    }
+  }
+}
+
+/* Somewhere that wears clothes: a house first, since that is where people
+   are, then anywhere else with a door. Never the same door twice running,
+   so the round moves about the village. */
+function weaverFindCall(home){
+  let best = null, bd = 1e9;
+  for(const b of G.bldgs){
+    if(b.p !== home.p || !b.done || b.hp <= 0) continue;
+    if(b === home) continue;
+    const d = BLDG[b.type];
+    if(!d) continue;
+    if(!(b.type === "house" || b.type === "town" || d.farm)) continue;
+    if(home.lastCall === b.id) continue;
+    const dist = Math.hypot(b.x-home.x, b.y-home.y);
+    if(dist > 420) continue;
+    if(dist < bd){ bd = dist; best = b; }
+  }
+  return best;
+}
+
+/* ---------- what a bolt of cloth looks like, carried ----------
+   A folded length over the arm, in the season's dye. Same rules as the
+   beekeeper's jar: chunky enough to read at the zoom people play at, and
+   outlined, because a pale bolt on snow would vanish otherwise. */
+function drawClothBolt(hx, hy, H){
+  const w = H*0.150, h = H*0.115;
+  ctx.fillStyle = clothDye();
+  ctx.beginPath();
+  ctx.moveTo(hx - w*0.5, hy - h*0.5);
+  ctx.lineTo(hx + w*0.5, hy - h*0.7);
+  ctx.lineTo(hx + w*0.5, hy + h*0.5);
+  ctx.lineTo(hx - w*0.5, hy + h*0.7);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "rgba(38,26,14,.78)";
+  ctx.lineWidth = Math.max(0.75, H*0.020);
+  ctx.stroke();
+  /* Two folds along it, which is what says "a length of cloth" rather than
+     "a coloured slab". */
+  ctx.strokeStyle = "rgba(255,255,255,.30)";
+  ctx.lineWidth = Math.max(0.5, H*0.013);
+  for(const t of [-0.15, 0.2]){
+    ctx.beginPath();
+    ctx.moveTo(hx - w*0.42, hy + h*t);
+    ctx.lineTo(hx + w*0.42, hy + h*(t-0.08));
+    ctx.stroke();
+  }
+}
+
+/* ---------- CLOTH IS A THING, NOT A COSTUME ----------
+
+   The first version of this put a shawl on every ordinary villager in the
+   season's dye. The user's reaction to it was "what is this orange thing",
+   which is the only review that matters: it did not read as clothing, and a
+   second attempt at the same idea would have been me arguing with somebody
+   about what they could see. Their call, and it is the better one - cloth is
+   a THING that moves round the village, never a costume.
+
+   So: when the weaver delivers, whoever is about picks up a folded length
+   and carries it for a while. You see cloth crossing the village, in the
+   season's dye, on its way to wherever cloth goes.
+
+   Held in a CLOCK, not a flag - `undefined < G.t` is false, so a villager
+   who existed before this feature simply never carries one rather than
+   carrying one for ever. That is the trap CLAUDE.md documents. */
+const CLOTH_CARRY_TIME = 26;      // seconds a villager walks about with it
+const CLOTH_CARRY_MAX  = 3;       // and how many of them at once
+
+function carryingCloth(u){
+  return !!(u && u.clothCarryUntil && G.t < u.clothCarryUntil);
+}
+/* Handed out at the door the weaver called at. Nearest first, so the cloth
+   goes to whoever is actually there rather than teleporting across the
+   village into somebody's hands. */
+function handOutCloth(b, p){
+  if(!b) return 0;
+  const near = G.units
+    .filter(u => u.p === p && u.type === "villager" && u.hp > 0 &&
+                 !u.indoors && !carryingCloth(u) &&
+                 Math.hypot(u.x-b.x, u.y-b.y) < 220)
+    .sort((a,c) => Math.hypot(a.x-b.x,a.y-b.y) - Math.hypot(c.x-b.x,c.y-b.y));
+  let n = 0;
+  for(const u of near){
+    if(n >= CLOTH_CARRY_MAX) break;
+    u.clothCarryUntil = G.t + CLOTH_CARRY_TIME;
+    u.clothCarryDye = clothDye();      // the dye it was when they took it
+    n++;
+  }
+  return n;
+}
+
+/* A FOLDED LENGTH, carried. Asked for by name: "make it like a folded cloth
+   looking thing". So it is drawn as a stack of folds seen end-on rather than
+   a flat panel - three bands with the light catching each turn, which is
+   what a folded cloth looks like and what the single flat shape the shawl
+   used was missing. */
+function drawFoldedCloth(hx, hy, H, col){
+  /* Sized up after looking at it: the first pass was H*0.165 wide and read
+     as a smudge by the hand at anything like play zoom - the same lesson the
+     honey jar and the bug catcher's glass both record a few files away. */
+  const w = H*0.215, h = H*0.150;
+  const dye = col || clothDye();
+  /* Bottom fold first and each one a little narrower going up, so the stack
+     reads as a stack rather than a striped brick. */
+  const bands = [
+    { y: hy + h*0.32, w: w*1.00, c: shade(dye, -0.18) },
+    { y: hy + h*0.02, w: w*0.94, c: dye },
+    { y: hy - h*0.28, w: w*0.86, c: shade(dye,  0.14) }
+  ];
+  for(const b of bands){
+    ctx.fillStyle = b.c;
+    ctx.beginPath();
+    ctx.moveTo(hx - b.w*0.5, b.y);
+    ctx.lineTo(hx + b.w*0.5, b.y - h*0.07);
+    ctx.lineTo(hx + b.w*0.5, b.y + h*0.24);
+    ctx.lineTo(hx - b.w*0.5, b.y + h*0.31);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(38,26,14,.70)";
+    ctx.lineWidth = Math.max(0.55, H*0.015);
+    ctx.stroke();
+  }
+  /* And the hands under it, so it is plainly being HELD rather than floating
+     in front of somebody. */
+  ctx.strokeStyle = "rgba(38,26,14,.55)";
+  ctx.lineWidth = Math.max(0.5, H*0.013);
+  ctx.beginPath();
+  ctx.moveTo(hx - w*0.42, hy + h*0.40);
+  ctx.lineTo(hx + w*0.42, hy + h*0.33);
+  ctx.stroke();
+}
+
+/* ============================================================
+   THE MILLER, AND WHAT A MILL IS FOR
+   ============================================================
+   Third of the five new trades.
+
+   Decided with the user on 12 Sep: "to begin with maybe just takes crops
+   from the farm and turns into more food, eventually works with bakery and
+   tavern to give them slight buffs, takes grained flour to those."
+
+   So this is the first half of that, and it is deliberately the WHOLE of
+   what the mill does for now: the miller walks out to a field, brings grain
+   back on their shoulder, and grinds it. What comes out is more food than
+   went in, which is what a mill has always been for.
+
+   THE SECOND HALF IS NOT BUILT and should not be faked. Flour to the bakery
+   and the tavern is a later job, and the tavern does not exist yet - see
+   millerFindDelivery at the bottom, which is the hook it will hang on.
+   ============================================================ */
+
+const MILLER_SPD = 21;
+const MILL_WORK = 5.0;             // how long a sack takes at the stone
+/* What a sack is worth. This is the trade's whole output, so it is the
+   number to look at if the mill ever feels pointless or overpowered - and it
+   is deliberately read once, here, rather than scattered. */
+const MILL_SACK_FOOD = 26;
+/* The mill only takes from a field that has something on it. A miller
+   carrying grain off a bare farm would be taking food the village never
+   grew. */
+const MILL_REACH = 460;
+
+/* ---------- the round ---------- */
+function updateMiller(dt){
+  if(!G.millers) G.millers = [];
+
+  for(const b of G.bldgs){
+    if(!b.done || !BLDG[b.type] || !BLDG[b.type].mill) continue;
+    if(!b.tradeStaffed) continue;
+    if(G.millers.some(o => o.home === b)) continue;
+    G.millers.push(makeFieldWorker(b, "miller"));
+  }
+  G.millers = G.millers.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
+
+  for(const o of G.millers){
+    if(workerNight(o, dt, MILLER_SPD)) continue;
+    const pl = G.players[o.p];
+
+    if(o.state === "idle"){
+      const every = workerInterval(MILL_INTERVAL, o.home, o.p, "mill", "grind");
+      pl.millerCd = (pl.millerCd === undefined ? every : pl.millerCd) - dt;
+      if(pl.millerCd > 0){ liveALittle(o, dt, MILLER_SPD); continue; }
+      const farm = millerFindField(o.home);
+      /* NO FIELD, NO FLOUR. A mill in a village with no farms has nothing to
+         grind, and says so if you tap it - the same honesty the weaver's
+         empty loom gets. */
+      if(!farm){ liveALittle(o, dt, MILLER_SPD); continue; }
+      stopLiving(o);
+      pl.millerCd = every;
+      o.call = farm; o.state = "toField"; o.legT = 0;
+      o.dest = { x: farm.x, y: farm.y + farm.h*TILE/2 + 6 };
+    } else if(o.state === "toField"){
+      if(!o.call || G.bldgs.indexOf(o.call) < 0){
+        o.call = null; o.state = "home"; o.legT = 0; o.dest = workerDoor(o);
+        continue;
+      }
+      if(fieldWorkerWalk(o, dt, MILLER_SPD)){
+        /* Loaded. The sack on the shoulder is the visible half of this
+           trade, the same way the beekeeper's jar is - and it is only
+           carried on the way BACK, so the direction of the errand reads at a
+           glance. */
+        o.sack = true; o.laden = true;
+        o.state = "toMill"; o.legT = 0;
+        o.dest = workerDoor(o);
+      }
+    } else if(o.state === "toMill"){
+      if(fieldWorkerWalk(o, dt, MILLER_SPD)){
+        o.state = "grinding"; o.workT = MILL_WORK;
+        o.sack = false; o.laden = false;
+      }
+    } else if(o.state === "grinding"){
+      o.moving = false;
+      o.workT -= dt;
+      /* The stone turning. Pale dust rather than a spark - this is the one
+         trade whose work makes a mess. */
+      if(Math.random() < 0.16) fxWork(o.x, o.y-4, "#e8e0cc");
+      /* AND THE SAILS GO ROUND while there is grain in it, which is what
+         makes a mill worth looking at (drawMillSails, 04d). */
+      o.home.milling = 1;
+      if(o.workT <= 0){
+        const got = Math.round(MILL_SACK_FOOD * (1 + bldgTier(o.home, "grind")*4) *
+                               peacefulYield("food"));
+        pl.res.food = (pl.res.food || 0) + got;
+        o.home.milling = 0;
+        o.home.groundToday = (o.home.groundToday || 0) + 1;
+        if(o.p === P_YOU && Math.random() < 0.35)
+          hint("The mill has ground a sack - " + got + " food out of a field that had already been cut.");
+        o.state = "home"; o.legT = 0; o.dest = workerDoor(o);
+      }
+    } else {
+      if(fieldWorkerWalk(o, dt, MILLER_SPD)){ o.state = "idle"; o.moving = false; }
+    }
+  }
+}
+const MILL_INTERVAL = 34;          // seconds between sacks, before the ladder
+
+/* A field worth walking to: one of this side's own farms, near enough to be
+   the mill's business, and not the one ground last time so the miller works
+   round the village rather than wearing a track to one gate. */
+function millerFindField(mill){
+  let best = null, bd = 1e9;
+  for(const b of G.bldgs){
+    if(b.p !== mill.p || !b.done || b.hp <= 0) continue;
+    if(!BLDG[b.type] || !BLDG[b.type].farm) continue;
+    if(mill.lastField === b.id) continue;
+    const d = Math.hypot(b.x-mill.x, b.y-mill.y);
+    if(d > MILL_REACH) continue;
+    if(d < bd){ bd = d; best = b; }
+  }
+  if(best) mill.lastField = best.id;
+  return best;
+}
+
+/* ---------- THE HOOK THE REST HANGS ON ----------
+   "eventually works with bakery and tavern to give them slight buffs, takes
+   grained flour to those."
+
+   NOT BUILT, and deliberately not faked into something that half works. When
+   it is, this is where it goes: after grinding, the miller walks flour to a
+   bakery or a tavern instead of straight home, and that building carries the
+   buff. The tavern does not exist yet, which is the other reason to wait.
+
+   Left here as a named function rather than a comment so the next person -
+   probably me - finds it where they would look for it. */
+function millerFindDelivery(mill){
+  return null;   // see the note above
+}
+
+/* ---------- a sack of grain, carried ----------
+   The miller's whole silhouette, and chosen because nothing else in the
+   village has it. The BAKER already wears flour-white, so a dusted miller
+   would have read as the baker seen from the wrong side - which is the one
+   thing these five trades must not do. */
+function drawGrainSack(hx, hy, H){
+  const w = H*0.150, h = H*0.185;
+  /* Slung, so it sits high and to one side rather than held out in front
+     like a parcel - that is the difference between carrying a sack and
+     presenting one. */
+  const sx = hx - w*0.10, sy = hy - h*0.22;
+  ctx.fillStyle = "#c2ac84";
+  ctx.beginPath();
+  ctx.moveTo(sx - w*0.5, sy + h*0.5);
+  ctx.quadraticCurveTo(sx - w*0.56, sy - h*0.30, sx - w*0.16, sy - h*0.46);
+  ctx.lineTo(sx + w*0.20, sy - h*0.46);
+  ctx.quadraticCurveTo(sx + w*0.56, sy - h*0.26, sx + w*0.5, sy + h*0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "rgba(52,40,24,.78)";
+  ctx.lineWidth = Math.max(0.75, H*0.020);
+  ctx.stroke();
+  // the neck, tied
+  ctx.strokeStyle = "rgba(52,40,24,.7)";
+  ctx.lineWidth = Math.max(0.6, H*0.016);
+  ctx.beginPath();
+  ctx.moveTo(sx - w*0.20, sy - h*0.40);
+  ctx.lineTo(sx + w*0.24, sy - h*0.40);
+  ctx.stroke();
+  // and a seam down it, so it reads as cloth rather than a stone
+  ctx.strokeStyle = "rgba(255,248,226,.35)";
+  ctx.lineWidth = Math.max(0.5, H*0.012);
+  ctx.beginPath();
+  ctx.moveTo(sx - w*0.06, sy - h*0.30);
+  ctx.lineTo(sx - w*0.02, sy + h*0.38);
+  ctx.stroke();
+}
+
+/* ============================================================
+   THE TAVERNKEEPER
+   ============================================================
+   Fourth of the five. Asked for on 12 Sep:
+
+     "maybe he brings beer to the troops and villagers, makes them use happy
+      emojis or smiles and makes their speed slightly increased for a while,
+      make sure he interacts and goes to the other special villagers and the
+      farms, dogs, everyone, brings beer to houses etc."
+
+   THE SMILES ARE REAL FACES, NOT EMOJI. The village already has eleven
+   villager expressions (villagerMood, 04e) and a standing rule against
+   floating markers over anybody's head - "a head-marker breaks diegetic
+   feel" - so somebody who has had a drink wears the game's own PLEASED face.
+   It reads better and it costs nothing new.
+
+   AND HE GOES EVERYWHERE. That is the half that makes this trade different
+   from the beekeeper's honey round, which calls at buildings: the
+   tavernkeeper calls on PEOPLE. Soldiers on watch, villagers at work, the
+   other trades at their own doors, and the dogs - who get a bowl of water
+   and a fuss rather than beer, because he is not a monster.
+
+   The winter lights and the night game are NOT here. See
+   idea_tavern_bar_game - "we will code this later".
+   ============================================================ */
+
+const TAVERN_SPD = 22;
+const TAVERN_INTERVAL = 26;        // seconds between rounds, before the ladder
+const TAVERN_POUR = 3.0;           // how long he stands with them
+/* How long a drink lasts, and what it is worth. Slight, per the usual steer -
+   this is a village being in good spirits, not a potion. */
+const BEER_TIME  = 42;
+const BEER_SPD   = 0.10;           // +10% while it lasts
+const BEER_REACH = 150;            // everybody this near gets one
+/* THE DOGS GET A WIDER ONE, and it is not a fudge. People stand where they
+   are working; a dog roams the whole village, so a radius tuned for somebody
+   at a tree is the wrong radius for an animal that is anywhere. Measured
+   over two days: the closest any dog came to a pour was 154px against a
+   reach of 150, so the fussing NEVER happened once - and a dog that notices
+   a man with a tray would plainly come over. */
+const DOG_FUSS_REACH = 280;
+
+/* Has somebody had a drink lately? A CLOCK, not a flag: `undefined < G.t` is
+   false, so anybody who existed before this feature simply never had one
+   rather than being permanently merry. The trap CLAUDE.md documents. */
+function hasHadADrink(u){
+  return !!(u && u.beerUntil && G.t < u.beerUntil);
+}
+/* What it is worth to them. Read per unit rather than village-wide, because
+   the whole point is that he walked over and gave it to THAT person. */
+function beerSpdMult(u){
+  return hasHadADrink(u) ? (1 + BEER_SPD) : 1;
+}
+
+/* ---------- who he calls on ----------
+   PEOPLE, not doors - which is what makes this round different from every
+   other trade's. Soldiers first, because somebody standing a watch in the
+   cold is the person most obviously owed one, then whoever has gone longest
+   without. */
+function tavernFindCall(home){
+  const p = home.p;
+  let best = null, bestScore = -1;
+  for(const u of G.units){
+    if(u.p !== p || u.hp <= 0 || u.indoors) continue;
+    if(u.type !== "villager" && u.cls !== "inf" && u.cls !== "arc" && u.cls !== "cav") continue;
+    if(hasHadADrink(u)) continue;
+    const d = Math.hypot(u.x-home.x, u.y-home.y);
+    if(d > 520) continue;
+    /* A soldier on his feet outranks a villager, and anybody close outranks
+       anybody far - he is carrying a tray, not running a delivery service. */
+    const soldier = (u.type !== "villager") ? 1 : 0;
+    const score = soldier*400 + (520 - d);
+    if(score > bestScore){ bestScore = score; best = u; }
+  }
+  return best;
+}
+
+/* ---------- the round ---------- */
+function updateTavern(dt){
+  if(!G.tavernkeepers) G.tavernkeepers = [];
+
+  for(const b of G.bldgs){
+    if(!b.done || !BLDG[b.type] || !BLDG[b.type].tavern) continue;
+    if(!b.tradeStaffed) continue;
+    if(G.tavernkeepers.some(o => o.home === b)) continue;
+    G.tavernkeepers.push(makeFieldWorker(b, "tavernkeeper"));
+  }
+  G.tavernkeepers = G.tavernkeepers.filter(o =>
+    o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
+
+  for(const o of G.tavernkeepers){
+    if(workerNight(o, dt, TAVERN_SPD)) continue;
+    const pl = G.players[o.p];
+
+    if(o.state === "idle"){
+      const every = workerInterval(TAVERN_INTERVAL, o.home, o.p, "tavern", "pour");
+      pl.tavernCd = (pl.tavernCd === undefined ? every : pl.tavernCd) - dt;
+      if(pl.tavernCd > 0){ liveALittle(o, dt, TAVERN_SPD); continue; }
+      const who = tavernFindCall(o.home);
+      if(!who){ liveALittle(o, dt, TAVERN_SPD); continue; }
+      stopLiving(o);
+      pl.tavernCd = every;
+      o.call = who; o.state = "out"; o.legT = 0;
+      o.laden = true; o.tray = true;
+      o.dest = { x: who.x, y: who.y };
+    } else if(o.state === "out"){
+      /* HE IS FOLLOWING A PERSON, and people move. The destination is
+         refreshed every tick rather than fixed at the start - the beekeeper
+         can aim at a building and forget about it, this one cannot. */
+      const who = o.call;
+      if(!who || who.hp <= 0 || who.indoors){
+        o.call = null; o.laden = false; o.tray = false;
+        o.state = "home"; o.legT = 0; o.dest = workerDoor(o);
+        continue;
+      }
+      o.dest = { x: who.x, y: who.y };
+      if(fieldWorkerWalk(o, dt, TAVERN_SPD)){ o.state = "pouring"; o.workT = TAVERN_POUR; }
+    } else if(o.state === "pouring"){
+      o.moving = false;
+      o.workT -= dt;
+      if(Math.random() < 0.10) fxWork(o.x, o.y-4, "#d9a441");
+      if(o.workT <= 0){
+        pourARound(o);
+        o.call = null; o.laden = false; o.tray = false;
+        o.state = "home"; o.legT = 0; o.dest = workerDoor(o);
+      }
+    } else {
+      if(fieldWorkerWalk(o, dt, TAVERN_SPD)){ o.state = "idle"; o.moving = false; }
+    }
+  }
+}
+
+/* A ROUND, not a drink - everybody standing about gets one, which is what
+   makes him worth watching rather than a courier with one customer. */
+function pourARound(o){
+  let n = 0, dogsFussed = 0;
+  for(const u of G.units){
+    if(u.p !== o.p || u.hp <= 0 || u.indoors) continue;
+    if(u.type !== "villager" && u.cls !== "inf" && u.cls !== "arc" && u.cls !== "cav") continue;
+    if(Math.hypot(u.x-o.x, u.y-o.y) > BEER_REACH) continue;
+    u.beerUntil = G.t + BEER_TIME;
+    /* THE SMILE. The game's own pleased face, through the field it already
+       reads - not a marker over their head. villagerMood picks `pleased` off
+       dogHappy, so a drink borrows the same road rather than adding a
+       twelfth expression nobody asked for. */
+    u.dogHappy = Math.max(u.dogHappy || 0, BEER_TIME*0.5);
+    n++;
+  }
+  /* AND THE DOGS. Asked for by name. They get water and a fuss rather than
+     beer, and what it does for them is what being made a fuss of always
+     does (dogHappy, 05i). */
+  for(const d of (G.villageDogs || [])){
+    if(d.indoors) continue;
+    if(Math.hypot(d.x-o.x, d.y-o.y) > DOG_FUSS_REACH) continue;
+    /* THE DOG'S OWN FIELDS, not ones I invented. The first version of this
+       set `d.happyT` and `d.wag`, neither of which exists anywhere in the
+       game - so it did nothing at all, silently, and the measurement said
+       "0 dogs fussed" rather than throwing. A dog being made a fuss of is
+       state "beingpat" with patT running (05i), and pointing it at whoever
+       is doing the fussing is what makes it turn to them. */
+    if(d.state !== "beingpat"){
+      d.state = "beingpat";
+      d.patT = (typeof DOG_PAT_TIME === "number") ? DOG_PAT_TIME : 2.4;
+      d.patWho = o;
+      d.moving = false;
+      d.face = (o.x < d.x) ? -1 : 1;
+      dogsFussed++;
+    }
+  }
+  /* And the other trades, who are not in G.units at all - the beekeeper, the
+     gardener, the shepherd and the rest live in their own arrays, and a
+     tavernkeeper who walked past all of them would be the one person in the
+     village who did not call on the others. */
+  for(const key of ["beekeepers","gardeners","geologists","caretakers","bakers",
+                    "farmhands","shepherds","weavers","millers","herbalists"]){
+    for(const w of (G[key] || [])){
+      if(!w || w.indoors) continue;
+      if(Math.hypot(w.x-o.x, w.y-o.y) > BEER_REACH) continue;
+      w.beerUntil = G.t + BEER_TIME;
+      w.cheered = G.t + BEER_TIME;
+      n++;
+    }
+  }
+  if(o.p === P_YOU && n && Math.random() < 0.45)
+    hint("The tavernkeeper gets a round in - " + n +
+         (n === 1 ? " of them is" : " of them are") + " in better spirits for it.");
+  return n;
+}
+
+/* ---------- A STEIN IN EACH HAND ----------
+   Asked for by name on 12 Sep: "make sure the beer looks like a 1 litre
+   stein one in each hand".
+
+   So not a tray. A tray is a waiter; a man with a litre in each fist is a
+   tavernkeeper, and the silhouette is completely his own - nobody else in
+   this village carries anything with two of it.
+
+   TWO HANDS OUT OF A ONE-HAND FUNCTION. drawHeld is handed a single hand
+   position (hx, hy) because almost everything in this game is carried in
+   one - so the far hand is worked out from it rather than passed in: the
+   arms hang about tw*0.72 either side of centre and tw is roughly H*0.19,
+   which puts the two hands a bit under a third of a body-height apart -
+   widened to 0.38 after looking at it, because at the arithmetic figure both
+   steins sat over the chest and read as one thing held in front rather than
+   one in each hand. The far stein is drawn first, smaller and dimmer, so the
+   pair reads as depth rather than as two stickers side by side.
+
+   A LITRE IS BIG. That is the whole point of the note, so these are drawn
+   properly large - taller than the villager's own head - with a handle, a
+   lid-thumb and a head on the beer. At the zoom people actually play at a
+   dainty mug is a smudge, which the honey jar and the folded cloth both had
+   to learn the hard way. */
+function drawStein(hx, hy, H, scale, dim){
+  const s  = scale;
+  const w  = H*0.150*s, h = H*0.215*s;
+  const bx = hx, by = hy - h*0.18;
+  const body = dim ? "#b9b2a4" : "#d8d2c4";      // salt-glaze stoneware
+  const beer = dim ? "#c08f2c" : "#e0aa3a";
+  const ink  = "rgba(38,26,14,.80)";
+
+  // the handle, behind the body so it reads as going round the back
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(0.8, H*0.026*s);
+  ctx.beginPath();
+  ctx.arc(bx - w*0.52, by + h*0.08, h*0.24, -1.1, 1.5);
+  ctx.stroke();
+
+  // the body: a straight-sided tankard, slightly tapered
+  ctx.fillStyle = body;
+  ctx.beginPath();
+  ctx.moveTo(bx - w*0.46, by - h*0.5);
+  ctx.lineTo(bx + w*0.46, by - h*0.5);
+  ctx.lineTo(bx + w*0.40, by + h*0.5);
+  ctx.lineTo(bx - w*0.40, by + h*0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(0.75, H*0.020*s);
+  ctx.stroke();
+
+  // the beer showing through the top two thirds
+  ctx.fillStyle = beer;
+  ctx.beginPath();
+  ctx.rect(bx - w*0.33, by - h*0.30, w*0.66, h*0.56);
+  ctx.fill();
+
+  // the head, which is the thing that says beer rather than tea
+  ctx.fillStyle = dim ? "#e8e2d2" : "#f6f1e2";
+  ctx.beginPath();
+  ctx.ellipse(bx, by - h*0.34, w*0.40, h*0.13, 0, 0, 6.283);
+  ctx.fill();
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(0.6, H*0.016*s);
+  ctx.stroke();
+
+  // and the hinged lid thrown back off the rim - the one detail that makes
+  // a tankard a STEIN rather than a mug
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(0.7, H*0.018*s);
+  ctx.beginPath();
+  ctx.moveTo(bx - w*0.46, by - h*0.50);
+  ctx.lineTo(bx - w*0.66, by - h*0.72);
+  ctx.stroke();
+}
+function drawBeerSteins(hx, hy, H){
+  /* Far hand first. The offset is derived in the note above rather than
+     guessed: a bit under a third of a body-height across, and lifted a
+     little, because the far arm is further from the camera. */
+  drawStein(hx - H*0.38, hy - H*0.050, H, 0.86, true);
+  drawStein(hx + H*0.02, hy + H*0.010, H, 1.00, false);
+}
+
+/* ============================================================
+   THE CHANDLER, AND HOW FAR THE LIGHT REACHES
+   ============================================================
+   Last of the five.
+
+   The village had nobody who made LIGHT, in a game whose night is the best
+   thing in it - braziers, lanterns, torch-bearers, light pools, the moon,
+   and a whole catalogue of things that come out of the dark. So this trade
+   picked itself.
+
+   WHAT IT DOES, and it is a real thing rather than a number: light is
+   already a DEFENCE. isLitAt (01c) is what the night creatures ask before
+   they come at anybody - "won't go near any light" - so a village whose
+   windows are all lit is a village the dark keeps further away from. The
+   chandler walks round after dusk putting a candle in every window, and
+   while those candles are burning every building's lamp reaches further.
+
+   Which makes this the only one of the five whose work you can only see at
+   night, and that is on purpose: five trades that all did their thing at
+   noon would be five versions of one idea.
+   ============================================================ */
+
+const CHANDLER_SPD = 20;
+const CANDLE_WORK  = 3.2;          // how long a window takes
+/* How long a lit window stays lit, and how much further the light reaches
+   while it does. A night and a bit, so a chandler who did the rounds at dusk
+   has the village covered until morning - and it FADES, so it is a nightly
+   job rather than a thing done once. */
+const CANDLE_HOURS = 1.3;          // in days
+const CANDLE_REACH = 0.35;         // +35% on every building's lamp
+
+/* Is the village candlelit? A clock, not a flag - `undefined < G.t` is
+   false, so a village from before this trade existed is simply dark rather
+   than permanently lit. The trap CLAUDE.md documents, and the fourth time it
+   has come up across these five. */
+function villageCandlelit(){
+  return !!(G.candleUntil && G.t < G.candleUntil);
+}
+/* What every building's lamp is multiplied by. Read by isLitAt (01c), which
+   is the one place in the game that decides whether the dark will come at
+   somebody - so this is a defence, not decoration. */
+function candleGlowMult(p){
+  if(p !== P_YOU) return 1;
+  return villageCandlelit() ? (1 + CANDLE_REACH) : 1;
+}
+
+/* ---------- the round ----------
+   AT DUSK AND AFTER, and only then. A chandler going round lighting candles
+   at noon would be a man wasting wax, and the whole point of the trade is
+   that you meet him in the dark. */
+function updateChandler(dt){
+  if(!G.chandlers) G.chandlers = [];
+
+  for(const b of G.bldgs){
+    if(!b.done || !BLDG[b.type] || !BLDG[b.type].chandler) continue;
+    if(!b.tradeStaffed) continue;
+    if(G.chandlers.some(o => o.home === b)) continue;
+    G.chandlers.push(makeFieldWorker(b, "chandler"));
+  }
+  G.chandlers = G.chandlers.filter(o => o.home && o.home.done && G.bldgs.indexOf(o.home) >= 0);
+
+  for(const o of G.chandlers){
+    /* HE KEEPS HIS OWN HOURS, which is why this is not workerNight. Every
+       other trade in the village is sent to bed at dusk; this one starts
+       then. He turns in at dawn instead, when there is nothing left to
+       light. */
+    const dark = (G.phase === "dusk" || G.phase === "night");
+    if(!dark){
+      if(!o.indoors){
+        const d = workerDoor(o);
+        o.indoors = true; o.x = d.x; o.y = d.y;
+        o.state = "idle"; o.task = null; o.legT = 0; o.moving = false;
+        o.lantern = false; o.laden = false;
+      }
+      continue;
+    }
+    if(o.indoors){
+      const d = workerDoor(o);
+      o.indoors = false; o.x = d.x; o.y = d.y;
+      o.dest = { x:d.x, y:d.y }; o.state = "idle"; o.legT = 0;
+    }
+    /* The lantern is lit the whole time he is out - it is how you find him,
+       and it is a real light: he carries one and so casts one. */
+    o.lantern = true; o.laden = true;
+
+    const pl = G.players[o.p];
+    if(o.state === "idle"){
+      const win = chandlerFindWindow(o.home);
+      if(!win){ liveALittle(o, dt, CHANDLER_SPD); continue; }
+      stopLiving(o);
+      o.call = win; o.state = "out"; o.legT = 0;
+      o.dest = { x: win.x, y: win.y + win.h*TILE/2 + 6 };
+    } else if(o.state === "out"){
+      if(!o.call || G.bldgs.indexOf(o.call) < 0){
+        o.call = null; o.state = "idle"; o.legT = 0;
+        continue;
+      }
+      if(fieldWorkerWalk(o, dt, CHANDLER_SPD)){ o.state = "lighting"; o.workT = CANDLE_WORK; }
+    } else if(o.state === "lighting"){
+      o.moving = false;
+      o.workT -= dt;
+      if(Math.random() < 0.12) fxWork(o.x, o.y-4, "#ffe9a8");
+      if(o.workT <= 0){
+        const b = o.call;
+        if(b && G.bldgs.indexOf(b) >= 0){
+          b.candleUntil = G.t + CANDLE_HOURS * DAY_LEN;
+          if(o.p === P_YOU){
+            G.candleUntil = G.t + CANDLE_HOURS * DAY_LEN;
+            if(Math.random() < 0.3)
+              hint("There is a candle in the " +
+                   (BLDG[b.type].name || b.type).toLowerCase() +
+                   " window now. The dark keeps its distance.");
+          }
+        }
+        o.call = null; o.state = "idle"; o.legT = 0;
+      }
+    } else {
+      if(fieldWorkerWalk(o, dt, CHANDLER_SPD)){ o.state = "idle"; o.moving = false; }
+    }
+  }
+}
+
+/* A window worth lighting: one of this side's own buildings whose candle has
+   burned down, nearest first. Farms and walls have no windows. */
+function chandlerFindWindow(home){
+  let best = null, bd = 1e9;
+  for(const b of G.bldgs){
+    if(b.p !== home.p || !b.done || b.hp <= 0) continue;
+    const d = BLDG[b.type];
+    if(!d || d.farm || b.type === "wall" || d.brazier) continue;
+    if(b.candleUntil && G.t < b.candleUntil) continue;      // already lit
+    const dist = Math.hypot(b.x-home.x, b.y-home.y);
+    if(dist > 500) continue;
+    if(dist < bd){ bd = dist; best = b; }
+  }
+  return best;
+}
+
+/* ---------- the lantern ----------
+   His whole silhouette, and the only carried thing in the village that gives
+   off light. Held low and out to the side the way a lantern is actually
+   carried - held up in front you cannot see past it, which is the first
+   thing anybody who has carried one at night finds out.
+
+   The glow is drawn BEFORE the lantern so the lantern sits inside its own
+   light rather than under it. */
+function drawLantern(hx, hy, H, dark){
+  const lx = hx + H*0.04, ly = hy + H*0.06;
+  const w = H*0.105, h = H*0.135;
+
+  /* The light it throws. Only after dark - a lit lantern at noon reads as a
+     mistake, and by day this is just a man carrying a lamp. */
+  const night = (typeof G !== "undefined" && G) ? (G.dark || 0) : 0;
+  if(night > 0.15){
+    const flick = 0.86 + 0.14*Math.sin((G.t||0)*7.3 + (hx|0));
+    const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, H*0.62);
+    g.addColorStop(0, "rgba(255,226,150," + (0.46*night*flick).toFixed(3) + ")");
+    g.addColorStop(1, "rgba(255,226,150,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(lx, ly, H*0.62, 0, 6.283); ctx.fill();
+  }
+
+  // the bail, a wire loop up to the hand
+  ctx.strokeStyle = "rgba(40,32,20,.85)";
+  ctx.lineWidth = Math.max(0.6, H*0.016);
+  ctx.beginPath();
+  ctx.arc(lx, ly - h*0.52, w*0.42, Math.PI*1.08, Math.PI*1.92);
+  ctx.stroke();
+
+  // the case: a tapered lantern body with a cap
+  ctx.fillStyle = "#6b5a42";
+  ctx.beginPath();
+  ctx.moveTo(lx - w*0.5, ly - h*0.34);
+  ctx.lineTo(lx + w*0.5, ly - h*0.34);
+  ctx.lineTo(lx + w*0.40, ly + h*0.5);
+  ctx.lineTo(lx - w*0.40, ly + h*0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "rgba(38,26,14,.82)";
+  ctx.lineWidth = Math.max(0.7, H*0.018);
+  ctx.stroke();
+  // the cap
+  ctx.fillStyle = "#54462f";
+  ctx.beginPath();
+  ctx.ellipse(lx, ly - h*0.36, w*0.58, h*0.12, 0, 0, 6.283);
+  ctx.fill();
+  ctx.stroke();
+  // and the pane, with the flame behind it
+  ctx.fillStyle = "#ffe9a8";
+  ctx.beginPath();
+  ctx.rect(lx - w*0.26, ly - h*0.22, w*0.52, h*0.52);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(38,26,14,.6)";
+  ctx.lineWidth = Math.max(0.5, H*0.012);
+  ctx.stroke();
+  ctx.fillStyle = "#fff6d8";
+  ctx.beginPath();
+  ctx.ellipse(lx, ly + h*0.02, w*0.13, h*0.16, 0, 0, 6.283);
+  ctx.fill();
 }
 
 /* ============================================================
@@ -69867,7 +72494,7 @@ function nextLiveTip(){
        past a narrative is to read it. That is the "non-skippable" half.
 
    Ordinary tips resume the moment the last beat is dismissed. */
-function tellStory(lines){
+function tellNarrative(lines){
   if(!lines || !lines.length) return false;
   if(!G.narrative) G.narrative = [];
   for(const l of lines) if(l) G.narrative.push(l);
@@ -70350,9 +72977,31 @@ function refreshUI(){
       counts[n]=(counts[n]||0)+1; });
     $("selstats").innerHTML = Object.entries(counts).map(([k,v])=>v+"× "+k).join("<br>");
   } else if(first.isNode){
-    $("selname").textContent = cap(first.kind);
-    $("selsub").textContent="Resource";
-    $("selstats").innerHTML = cap(first.kind)+"<br>"+Math.ceil(first.amt)+" remaining";
+    /* WHAT IT IS AND WHAT IT IS FOR, in the space the buttons would use.
+       A node has no orders to give, so the strip is empty and was going to
+       waste - and "Wood / Resource / 340 remaining" told a new player
+       nothing about why they should care. (RESOURCE_INFO, below.) */
+    const info = resourceInfoFor(first);
+    $("selname").textContent = info ? info.name : cap(first.kind);
+    $("selsub").textContent = "Resource";
+    let stats = Math.ceil(first.amt) + " remaining";
+    if(first.max) stats += " of " + Math.ceil(first.max);
+    /* The one number that is an instruction rather than a fact: a moonstone
+       vein is gone at dawn whatever is left in it. */
+    if(first.kind === "moonstone")
+      stats += "<br><span style='color:#bfe6f5'>Gone by morning</span>";
+    $("selstats").innerHTML = stats;
+    if(info){
+      const card = document.createElement("div");
+      card.className = "rescard";
+      card.innerHTML =
+        '<div class="resfig">' + resourcePortrait(first) + '</div>' +
+        '<div class="restext">' +
+          '<div class="reswhat">' + info.what + '</div>' +
+          '<div class="resuses">' + info.uses + '</div>' +
+        '</div>';
+      btns.appendChild(card);
+    }
     return;
   } else if(first.kind==="unit"){
     const d=UNITS[first.type];
@@ -70400,6 +73049,40 @@ function refreshUI(){
     $("selname").textContent = first.name;
     $("selsub").textContent = "Out there in the dark";
     $("selstats").innerHTML = "HP "+Math.ceil(first.hp)+"/"+first.maxhp+"<br>ATK "+first.atk;
+    return;
+  } else if(first.kindTag==="weaver" || first.kindTag==="shepherd"){
+    /* THE TWO NEW TRADES GET A PANEL THAT TELLS THE TRUTH.
+
+       The weaver's especially: the chain is hard by the user's choice - no
+       wool, no weaving - and a weaver standing at their door with nothing to
+       do is exactly the case a player would otherwise read as a broken
+       building. This is not a hint and does not interrupt anything; it is
+       what the panel says when you go and ask. */
+    const isWeaver = first.kindTag === "weaver";
+    $("selname").textContent = first.name || (isWeaver ? "The weaver" : "The shepherd");
+    $("selsub").textContent = isWeaver ? "Weaver" : "Shepherd";
+    let line;
+    if(isWeaver){
+      const wool = (first.home && first.home.wool) || 0;
+      const anyFlock = (G.sheep||[]).some(sh => sh.p === first.p);
+      line = first.state === "weaving"   ? "At the loom"
+           : first.state === "delivering"? "Taking cloth round the village"
+           : wool > 0                    ? "About to start on a fleece"
+           : anyFlock                    ? "Waiting on the next fleece"
+           : "Nothing to work with - there are no sheep in this village yet";
+      if(villageClothed())
+        line += "<br><span style='color:#e8d9a8'>The village is in good cloth</span>";
+    } else {
+      const flock = (G.sheep||[]).filter(sh => sh.home === first.home).length;
+      line = first.state === "shearing"  ? "Shearing"
+           : first.state === "carrying"  ? "Carrying a fleece to the loom"
+           : first.state === "toField"   ? "Taking the flock on to new grass"
+           : "Out with the flock";
+      line += "<br>" + flock + (flock === 1 ? " sheep" : " sheep");
+      if(villageInWool())
+        line += "<br><span style='color:#e8d9a8'>There is wool in the village</span>";
+    }
+    $("selstats").innerHTML = line;
     return;
   } else if(first.kindTag==="leisure"){
     const doing = { home:"Having a day off", farm:"Watching the farm",
@@ -70489,7 +73172,17 @@ function refreshUI(){
          everything a fuller screen would need later), just the tally so
          selecting the house genuinely shows something real right now. */
       (first.type==="fisherhouse" && first.done ? "<br><br>"+fisherCatchSummary(first.p) : "") +
-      (first.type==="bughouse" && first.done ? "<br><br>"+bugCatchSummary(first.p) : "");
+      (first.type==="bughouse" && first.done ? "<br><br>"+bugCatchSummary(first.p) : "") +
+      /* WHAT THE TRADE INSIDE ACTUALLY DOES, and whether it is waiting on
+         somebody else. Asked for on 12 Sep: "when you click the specialist
+         house add in a description of what they do and if they need another
+         specialist so the player knows."
+
+         The second half is the important one. The weaver genuinely cannot
+         work without a shepherd and the mill has nothing to grind without a
+         field - and a building that stands there doing nothing, with no way
+         to find out why, is indistinguishable from a broken one. */
+      tradeHouseNote(first);
   }
 
   const own = sel.filter(e=>e.p===P_YOU);
@@ -71704,6 +74397,426 @@ function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
    simply written for them and named after them. The fisherman, the bug
    catcher and anybody else with a bed of their own want the same thing, so
    it is named for what it draws. Cached per id: a face does not change. */
+/* ============================================================
+   WHAT A RESOURCE IS, AND WHAT IT IS FOR
+   ============================================================
+   Asked for on 10 Sep: "when you click a resource like fish, stone, gold,
+   wood, moonstone etc, where the panel buttons normally go, put a picture of
+   the resource, describe it and talk about its uses."
+
+   Tapping a node used to say "Wood / Resource / 340 remaining" and nothing
+   else, which tells a new player precisely nothing about why they should
+   care. The button strip is empty for a node - nodes return early out of
+   refreshUI, and there is no order to give a tree - so the space is there
+   and was going to waste.
+
+   Two things are deliberate about the writing. It says what the resource is
+   FOR rather than what it is: "nearly every building starts with timber" is
+   useful, "wood comes from trees" is not. And it names real numbers where a
+   real number is the whole answer - 70 wood repairs the town centre, and
+   that is the first thing anybody needs to know.
+
+   `iron` and `know` have no node of their own and so never appear here;
+   iron is explained inside stone's entry, which is where it actually comes
+   from (IRON_RATIO, 02a). */
+const RESOURCE_INFO = {
+  wood: {
+    name: "Timber",
+    what: "Standing wood. Every tree on the map is one of these, and a felled one grows back in time.",
+    uses: "The first thing a village needs and the last thing it stops needing - 70 of it repairs the town centre and opens the game, and nearly every building after that starts with timber."
+  },
+  stone: {
+    name: "Stone",
+    what: "A seam worth quarrying. Slower to work than timber and worth more for it.",
+    uses: "Walls, towers and everything meant to still be standing next winter. Iron comes up with it at no extra work - you cannot mine iron on its own, and it banks quietly until an Armoury gives it somewhere to go."
+  },
+  gold: {
+    name: "Gold",
+    what: "A vein of it, and there is never very much on a map.",
+    uses: "The later buildings and the upgrades that finish them. Gold is rarely what holds a village back early and almost always what holds it back late, so it is worth knowing where yours is before you need it."
+  },
+  food: {
+    name: "Forage",
+    what: "Berries, roots, whatever the country round the village gives up.",
+    uses: "The village eats every day whether or not anybody is watching, and hungry people work slowly. It also buys villagers, which is the only thing that makes everything else go faster."
+  },
+  fish: {
+    name: "A shoal",
+    what: "Fish, holding in the shallows. They move to new water with the seasons.",
+    uses: "Food, and a good deal of it for one pair of hands. The Fisherman's House makes somebody a fisherman for good, and the book they keep fills up with what they land."
+  },
+  moonstone: {
+    name: "Moonstone",
+    what: "A seam that is only there after dark. It comes up somewhere new of an evening and is gone by morning - what is left in it at dawn is simply lost.",
+    uses: "The night side of the village: the Manor, the moonlit rungs on several buildings, and the villagers who work while everyone else sleeps. Nothing else in the game is on a clock like this, so a vein found late is a vein half wasted."
+  },
+  swarm: {
+    name: "A swarm",
+    what: "A colony of bees hanging off a branch, looking for a home.",
+    uses: "Box it and carry it back and the village has a beekeeper for good. Whoever goes will be stung doing it. It waits out the spring on that branch and then it is gone."
+  },
+  /* The four finds each say what they are. Their NAME and their `what` come
+     from TRADE_FINDS itself (05g) rather than being written again here, so
+     the panel and the line the game says when you pick one up can never
+     drift apart - which is exactly how "a sheaf of wild grain" ended up
+     being called bread. See resourceInfoFor. */
+  tradefind: {
+    name: "Something left in the woods",
+    what: "Somebody could make use of this.",
+    uses: "A trade the village does not know yet. Send anybody but the founder - they have enough to do - and it is learned the moment it reaches the hall."
+  },
+  seasonalcrop: {
+    name: "A season's seed",
+    what: "Something growing wild that nobody sowed - one to a season, and never twice the same one in a year.",
+    uses: "Only a villager can carry it, and carrying it home teaches the fields to grow that season's crop. Miss it and the season goes without."
+  },
+  standingstone: {
+    name: "A standing stone",
+    what: "Older than the village, and nobody put it there.",
+    uses: "Worth a look. Some of them have something to say."
+  }
+};
+/* Which entry a node gets. Fish are food with `water` set rather than a kind
+   of their own, and they want their own words - "the village eats every day"
+   is true of a berry bush and useless standing on a shore. */
+function resourceInfoFor(n){
+  if(!n) return null;
+  if(n.kind === "food" && n.water) return RESOURCE_INFO.fish;
+  /* A TRADE FIND IS NAMED FOR WHAT IT IS. Asked for on 10 Sep. Built from
+     TRADE_FINDS' own `item` and `found` rather than copied, so the panel
+     cannot disagree with the line the game says when somebody picks it up.
+
+     `item` reads "a sheaf of wild grain" - a phrase written to sit inside a
+     sentence - so it is capitalised for use as a heading. */
+  if(n.kind === "tradefind" && typeof tradeFindByKey === "function"){
+    const t = tradeFindByKey(n.trade);
+    if(t) return {
+      name: t.item ? t.item.charAt(0).toUpperCase() + t.item.slice(1) : RESOURCE_INFO.tradefind.name,
+      what: t.found || RESOURCE_INFO.tradefind.what,
+      uses: RESOURCE_INFO.tradefind.uses
+    };
+  }
+  /* AND A SEASONAL CROP IS NAMED FOR THE CROP. It is a different plant every
+     season - strawberries in spring, corn in summer, pumpkins in autumn, a
+     sweet potato in winter - and calling all four "a season's seed" was the
+     same fault as the parcels. */
+  if(n.kind === "seasonalcrop"){
+    const e = SEASONAL_CROP_INFO[n.season];
+    if(e) return e;
+  }
+  return RESOURCE_INFO[n.kind] || null;
+}
+
+/* What is actually growing there, per season. The kinds come from
+   SEASONAL_CROP_KIND (05) and the words are written to match the drawing:
+   if one of those ever changes, this has to change with it. */
+const SEASONAL_CROP_INFO = {
+  spring: {
+    name: "Wild strawberries",
+    what: "Strawberries growing wild in the grass, ripe and nobody's.",
+    uses: "Carry them home and the fields know how to grow them. Only a villager can take them, and only in spring - miss them and the season goes without."
+  },
+  summer: {
+    name: "Wild corn",
+    what: "Corn standing higher than the grass round it, gone over to seed.",
+    uses: "Carry it home and the fields know how to grow it. Only a villager can take it, and only in summer - miss it and the season goes without."
+  },
+  autumn: {
+    name: "A wild pumpkin",
+    what: "A pumpkin sitting out in the open where nobody sowed one.",
+    uses: "Carry it home and the fields know how to grow them. Only a villager can take it, and only in autumn - miss it and the season goes without."
+  },
+  winter: {
+    name: "A wild sweet potato",
+    what: "Leaves in the cold ground, and something worth having under them.",
+    uses: "Carry it home and the fields know how to grow them. Only a villager can take it, and only in winter - miss it and the season goes without."
+  }
+};
+
+/* A small picture of it, drawn rather than described - the same approach the
+   founder's group icon takes (villagerPortraitIcon, below): its own simple
+   drawing at icon size rather than the world one shrunk, which turns to mush
+   under about thirty pixels. Cached by kind, since these never change. */
+function resourcePortrait(n){
+  /* KEYED FINELY ENOUGH THAT THE PICTURE MATCHES THE NAME. A trade find is
+     four different things and a seasonal crop is four more, so keying on
+     `kind` alone drew one parcel for all of them and one sprig for all of
+     those - which is the mismatch this was asked to fix. */
+  const key = (n.kind === "food" && n.water) ? "fish"
+            : (n.kind === "tradefind" && n.trade) ? "find:" + n.trade
+            : (n.kind === "seasonalcrop" && n.season) ? "crop:" + n.season
+            : n.kind;
+  if(!G._resIcons) G._resIcons = {};
+  if(G._resIcons[key]) return G._resIcons[key];
+
+  const S = 44;
+  const cv = document.createElement("canvas");
+  cv.width = S; cv.height = S;
+  const c = cv.getContext("2d");
+  const cx = S/2, cy = S/2;
+  c.lineCap = "round"; c.lineJoin = "round";
+  const ink = "rgba(28,22,16,.70)";
+  const line = (w) => { c.strokeStyle = ink; c.lineWidth = w; };
+
+  if(key === "wood"){
+    c.fillStyle = "#5a4029";
+    c.fillRect(cx-2.5, cy+2, 5, 12);
+    line(1.4); c.strokeRect(cx-2.5, cy+2, 5, 12);
+    c.fillStyle = "#4a7a38";
+    c.beginPath(); c.ellipse(cx, cy-3, 13, 12, 0, 0, 6.283); c.fill();
+    c.fillStyle = "#5d9146";
+    c.beginPath(); c.ellipse(cx-3, cy-6, 8, 7, 0, 0, 6.283); c.fill();
+    line(1.4); c.beginPath(); c.ellipse(cx, cy-3, 13, 12, 0, 0, 6.283); c.stroke();
+  } else if(key === "stone"){
+    c.fillStyle = "#8d8a86";
+    c.beginPath();
+    c.moveTo(cx-14, cy+9); c.lineTo(cx-9, cy-7); c.lineTo(cx+3, cy-11);
+    c.lineTo(cx+13, cy-1); c.lineTo(cx+11, cy+9); c.closePath(); c.fill();
+    c.fillStyle = "rgba(120,118,112,.8)";
+    c.beginPath();
+    c.moveTo(cx+1, cy+9); c.lineTo(cx+3, cy-11); c.lineTo(cx+13, cy-1);
+    c.lineTo(cx+11, cy+9); c.closePath(); c.fill();
+    line(1.5); c.beginPath();
+    c.moveTo(cx-14, cy+9); c.lineTo(cx-9, cy-7); c.lineTo(cx+3, cy-11);
+    c.lineTo(cx+13, cy-1); c.lineTo(cx+11, cy+9); c.closePath(); c.stroke();
+  } else if(key === "gold"){
+    c.fillStyle = "#6e6a63";
+    c.beginPath(); c.ellipse(cx, cy+3, 14, 9, 0, 0, 6.283); c.fill();
+    line(1.4); c.stroke();
+    c.fillStyle = "#e8c04a";
+    for(const [dx,dy,r] of [[-4,0,4],[3,-2,4.6],[0,5,3.4]]){
+      c.beginPath(); c.ellipse(cx+dx, cy+dy, r, r*0.78, 0, 0, 6.283); c.fill();
+      line(1.2); c.stroke();
+    }
+    c.fillStyle = "rgba(255,246,206,.8)";
+    c.beginPath(); c.ellipse(cx+2, cy-3.4, 1.6, 1.2, 0, 0, 6.283); c.fill();
+  } else if(key === "food"){
+    c.strokeStyle = "#4a6b32"; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(cx, cy+12); c.lineTo(cx, cy-2); c.stroke();
+    c.fillStyle = "#4a7a38";
+    c.beginPath(); c.ellipse(cx, cy+1, 13, 9, 0, 0, 6.283); c.fill();
+    line(1.4); c.stroke();
+    c.fillStyle = "#b8324a";
+    for(const [dx,dy] of [[-5,0],[3,-3],[1,4],[7,1]]){
+      c.beginPath(); c.arc(cx+dx, cy+dy, 2.6, 0, 6.283); c.fill();
+      line(1); c.stroke();
+    }
+  } else if(key === "fish"){
+    c.fillStyle = "rgba(92,140,168,.55)";
+    c.beginPath(); c.ellipse(cx, cy+8, 16, 5, 0, 0, 6.283); c.fill();
+    c.fillStyle = "#7fb0c8";
+    c.beginPath();
+    c.ellipse(cx-1, cy-1, 11, 6.5, -0.12, 0, 6.283); c.fill();
+    line(1.4); c.stroke();
+    c.fillStyle = "#7fb0c8";
+    c.beginPath();
+    c.moveTo(cx+9, cy-1); c.lineTo(cx+15, cy-6); c.lineTo(cx+15, cy+4); c.closePath();
+    c.fill(); line(1.4); c.stroke();
+    c.fillStyle = "#1d1610";
+    c.beginPath(); c.arc(cx-7, cy-2.4, 1.5, 0, 6.283); c.fill();
+  } else if(key === "moonstone"){
+    c.fillStyle = "rgba(150,200,230,.30)";
+    c.beginPath(); c.arc(cx, cy, 19, 0, 6.283); c.fill();
+    c.fillStyle = "#6e6a63";
+    c.beginPath(); c.ellipse(cx, cy+7, 13, 6, 0, 0, 6.283); c.fill();
+    line(1.4); c.stroke();
+    c.fillStyle = "#bfe6f5";
+    for(const [dx,h,w] of [[-5,13,3.4],[1,17,4],[7,11,3]]){
+      c.beginPath();
+      c.moveTo(cx+dx-w, cy+7); c.lineTo(cx+dx, cy+7-h); c.lineTo(cx+dx+w, cy+7);
+      c.closePath(); c.fill(); line(1.2); c.stroke();
+    }
+  } else if(key === "swarm"){
+    c.strokeStyle = "#5a4029"; c.lineWidth = 2.2;
+    c.beginPath(); c.moveTo(cx-16, cy-13); c.lineTo(cx+14, cy-15); c.stroke();
+    c.fillStyle = "#8a6a3a";
+    c.beginPath(); c.ellipse(cx, cy+2, 9, 12, 0, 0, 6.283); c.fill();
+    line(1.4); c.stroke();
+    c.fillStyle = "#e8c25a";
+    for(const [dx,dy] of [[-12,-4],[12,3],[-8,10]]){
+      c.beginPath(); c.ellipse(cx+dx, cy+dy, 2.4, 1.8, 0, 0, 6.283); c.fill();
+    }
+  } else if(key === "find:bakery"){
+    c.strokeStyle = "#c9a23f"; c.lineWidth = 2.2;
+    for(const dx of [-7,-2.5,2.5,7]){
+      c.beginPath(); c.moveTo(cx+dx*0.45, cy+13); c.lineTo(cx+dx, cy-10); c.stroke();
+    }
+    c.fillStyle = "#e0bb55";
+    for(const dx of [-7,-2.5,2.5,7]){
+      c.beginPath(); c.ellipse(cx+dx, cy-11, 2.6, 4.6, dx*0.05, 0, 6.283); c.fill();
+      line(1.1); c.stroke();
+    }
+    line(1.6); c.beginPath(); c.moveTo(cx-8, cy+2); c.lineTo(cx+8, cy+2); c.stroke();
+  } else if(key === "find:herbalist"){
+    const g2 = c.createRadialGradient(cx, cy-2, 0, cx, cy-2, 19);
+    g2.addColorStop(0, "rgba(198,226,240,.40)"); g2.addColorStop(1, "rgba(198,226,240,0)");
+    c.fillStyle = g2; c.beginPath(); c.arc(cx, cy-2, 19, 0, 6.283); c.fill();
+    c.fillStyle = "#e8e4d6";
+    c.beginPath(); c.rect(cx-2.8, cy-3, 5.6, 12); c.fill(); line(1.4); c.stroke();
+    c.fillStyle = "#dfe9ee";
+    c.beginPath(); c.ellipse(cx, cy-4, 11, 8, 0, Math.PI, 0); c.closePath(); c.fill();
+    line(1.5); c.stroke();
+  } else if(key === "find:beehive"){
+    c.fillStyle = "#8a6a3a";
+    c.beginPath(); c.ellipse(cx, cy+6, 14, 6, 0, 0, 6.283); c.fill(); line(1.3); c.stroke();
+    c.fillStyle = "#e8c25a";
+    c.beginPath();
+    c.moveTo(cx-11, cy+4); c.lineTo(cx-9, cy-9); c.lineTo(cx+9, cy-10); c.lineTo(cx+11, cy+4);
+    c.closePath(); c.fill(); line(1.5); c.stroke();
+    c.strokeStyle = "rgba(150,110,44,.85)"; c.lineWidth = 1.1;
+    for(const dx of [-5, 0.5, 6]){
+      c.beginPath(); c.moveTo(cx+dx, cy-9); c.lineTo(cx+dx, cy+3); c.stroke();
+    }
+  } else if(key === "find:bugcatcher"){
+    c.strokeStyle = "#7a5a34"; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(cx-2, cy+3); c.lineTo(cx-11, cy+14); c.stroke();
+    c.fillStyle = "rgba(226,238,244,.85)";
+    c.beginPath(); c.arc(cx+3, cy-3, 10, 0, 6.283); c.fill();
+    c.strokeStyle = "#c9a23f"; c.lineWidth = 3;
+    c.beginPath(); c.arc(cx+3, cy-3, 10, 0, 6.283); c.stroke();
+    line(1.2); c.beginPath(); c.arc(cx+3, cy-3, 11.6, 0, 6.283); c.stroke();
+    c.strokeStyle = "rgba(255,255,255,.8)"; c.lineWidth = 1.6;
+    c.beginPath(); c.arc(cx+3, cy-3, 6, Math.PI*1.05, Math.PI*1.5); c.stroke();
+  } else if(key === "crop:spring"){
+    c.fillStyle = "#4a7a3a";
+    c.beginPath(); c.ellipse(cx, cy-7, 11, 6, 0, 0, 6.283); c.fill(); line(1.3); c.stroke();
+    c.fillStyle = "#c9536a";
+    for(const [dx,dy] of [[-5,4],[4,5],[0,9]]){
+      c.beginPath();
+      c.moveTo(cx+dx, cy+dy+5); c.quadraticCurveTo(cx+dx-4.5, cy+dy-3, cx+dx, cy+dy-3.5);
+      c.quadraticCurveTo(cx+dx+4.5, cy+dy-3, cx+dx, cy+dy+5);
+      c.closePath(); c.fill(); line(1.1); c.stroke();
+    }
+  } else if(key === "crop:summer"){
+    c.strokeStyle = "#5a8a45"; c.lineWidth = 2.4;
+    c.beginPath(); c.moveTo(cx, cy+14); c.lineTo(cx, cy-12); c.stroke();
+    c.fillStyle = "#c9a23f";
+    c.beginPath(); c.ellipse(cx+1, cy-3, 5.5, 11, 0.06, 0, 6.283); c.fill(); line(1.4); c.stroke();
+    c.strokeStyle = "rgba(138,106,46,.85)"; c.lineWidth = 0.9;
+    for(const dy of [-8,-4,0,4,8]){
+      c.beginPath(); c.moveTo(cx-3.4, cy+dy); c.lineTo(cx+5.4, cy+dy); c.stroke();
+    }
+    c.fillStyle = "#5a8a45";
+    c.beginPath(); c.moveTo(cx-1, cy-1); c.quadraticCurveTo(cx-13, cy-4, cx-11, cy+7);
+    c.quadraticCurveTo(cx-5, cy+3, cx-1, cy+3); c.closePath(); c.fill(); line(1.2); c.stroke();
+  } else if(key === "crop:autumn"){
+    c.fillStyle = "#d97a2f";
+    c.beginPath(); c.ellipse(cx, cy+3, 14, 11, 0, 0, 6.283); c.fill(); line(1.6); c.stroke();
+    c.strokeStyle = "rgba(150,80,26,.9)"; c.lineWidth = 1.2;
+    for(const dx of [-6,0,6]){
+      c.beginPath(); c.ellipse(cx+dx, cy+3, 3.6, 11, 0, 0, 6.283); c.stroke();
+    }
+    c.strokeStyle = "#4a6a2a"; c.lineWidth = 2.6;
+    c.beginPath(); c.moveTo(cx, cy-8); c.lineTo(cx+1, cy-14); c.stroke();
+  } else if(key === "crop:winter"){
+    c.fillStyle = "#86996a";
+    for(const [dx,dy,r] of [[-7,-6,6],[5,-8,5.5],[0,-2,5]]){
+      c.beginPath(); c.ellipse(cx+dx, cy+dy, r, r*0.72, dx*0.06, 0, 6.283); c.fill();
+      line(1.1); c.stroke();
+    }
+    c.fillStyle = "#b5793f";
+    c.beginPath(); c.ellipse(cx+1, cy+8, 12, 6.5, -0.1, 0, 6.283); c.fill(); line(1.5); c.stroke();
+    c.strokeStyle = "rgba(90,54,24,.75)"; c.lineWidth = 0.9;
+    c.beginPath(); c.moveTo(cx-7, cy+7); c.lineTo(cx+8, cy+9); c.stroke();
+  } else if(key === "tradefind"){
+    c.fillStyle = "#6b5a3e";
+    c.beginPath(); c.ellipse(cx, cy+2, 14, 10, 0, 0, 6.283); c.fill();
+    c.fillStyle = "#8a7550";
+    c.beginPath(); c.ellipse(cx-1.6, cy-0.6, 11, 7.6, 0, 0, 6.283); c.fill();
+    line(1.4); c.stroke();
+    line(1.4);
+    c.beginPath(); c.moveTo(cx-11, cy-1); c.lineTo(cx+11, cy-1); c.stroke();
+    c.beginPath(); c.moveTo(cx, cy-9); c.lineTo(cx, cy+8); c.stroke();
+  } else if(key === "seasonalcrop"){
+    c.strokeStyle = "#4a6b32"; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(cx, cy+13); c.lineTo(cx, cy-4); c.stroke();
+    c.strokeStyle = "#5d8a3c"; c.lineWidth = 1.6;
+    c.beginPath(); c.moveTo(cx, cy+3); c.quadraticCurveTo(cx-8, cy+1, cx-9, cy-5); c.stroke();
+    c.beginPath(); c.moveTo(cx, cy-1); c.quadraticCurveTo(cx+8, cy-3, cx+9, cy-9); c.stroke();
+    c.fillStyle = "#e8c04a";
+    c.beginPath(); c.ellipse(cx, cy-8, 5, 6.5, 0, 0, 6.283); c.fill();
+    line(1.3); c.stroke();
+  } else {
+    c.fillStyle = "#8d8a86";
+    c.beginPath();
+    c.moveTo(cx-6, cy+12); c.lineTo(cx-5, cy-12); c.lineTo(cx+5, cy-14);
+    c.lineTo(cx+6, cy+12); c.closePath(); c.fill();
+    line(1.5); c.stroke();
+  }
+  const html = '<img class="resicon" src="'+cv.toDataURL()+'">';
+  G._resIcons[key] = html;
+  return html;
+}
+
+/* ============================================================
+   WHAT THE TRADE IN THIS BUILDING DOES
+   ============================================================
+   One place, so the panel and the building cannot drift apart. Each entry
+   says what the trade is FOR in a sentence, and `needs` names what it cannot
+   work without - checked against the village as it actually stands rather
+   than described in the abstract, so the line changes the moment you build
+   the missing thing. */
+const TRADE_HOUSE_NOTES = {
+  shepherdhut: {
+    does: "Keeps a flock. Shearing them warms the whole village for a while - "+
+          "everybody moves better in the cold and takes less out of a downpour. "+
+          "The flock grazes one piece of open ground for half a season, and the "+
+          "ground they leave is worth putting a field on."
+  },
+  weaver: {
+    does: "Works fleece into cloth, and the cloth goes round the village. "+
+          "Everybody works a little better for the place being decently kept.",
+    needs: (p) => (G.sheep||[]).some(s => s.p === p) ? null
+                : "Nothing to work with until there are sheep - this needs a Shepherd's Hut."
+  },
+  mill: {
+    does: "Grinds grain off the fields into more food than went in. A harvest "+
+          "that has already been cut is worth more again once there is a mill.",
+    needs: (p) => G.bldgs.some(b => b.p===p && b.done && BLDG[b.type] && BLDG[b.type].farm)
+                ? null : "Nothing to grind until there are fields - this needs a Farm."
+  },
+  tavern: {
+    does: "Takes a drink round the village - soldiers on watch first, then "+
+          "whoever has gone longest without. They move a little quicker for a "+
+          "while, and you can see it on them. The dogs get a fuss."
+  },
+  chandlery: {
+    does: "Goes round after dusk putting a candle in every window. While they "+
+          "are burning, every building's light reaches a third further - and "+
+          "the things that come out of the dark will not go near a lit place."
+  },
+  /* The trades that were already here get one too. A player tapping a
+     Gardener's Cottage has exactly the same question, and answering it only
+     for the new five would be an odd thing to have done. */
+  gardener:  { does: "Plants and tends what grows near the village." },
+  geologist: { does: "Works the seams, and turns up what is under the ground." },
+  herbalist: { does: "Looks after whoever is hurt." },
+  caretaker: { does: "Keeps the fields sown so they do not run out." },
+  beehive:   { does: "Keeps bees. The honey goes round the village - the fields "+
+                     "come on sooner for the bees working them, the village eats "+
+                     "a little less, and anybody mending comes right quicker." },
+  bakery:    { does: "Bakes, and takes bread out to the soldiers. An army that "+
+                     "has had its bread fights the better for it." }
+};
+function tradeHouseNote(b){
+  if(!b || !b.done || b.p !== P_YOU) return "";
+  const e = TRADE_HOUSE_NOTES[b.type];
+  if(!e) return "";
+  let out = "<br><br><span style='color:#b9ae95'>" + e.does + "</span>";
+  /* AND WHAT IT IS WAITING ON, if anything. Asked as it stands right now,
+     not as a general fact - build the missing thing and the line goes. */
+  if(e.needs){
+    let missing = null;
+    try { missing = e.needs(b.p); } catch(err) { missing = null; }
+    if(missing)
+      out += "<br><span style='color:#e8a87c'>" + missing + "</span>";
+  }
+  /* And who keeps it, for the ones that have somebody. */
+  if(b.tradeName)
+    out += "<br><span style='color:#e8d9a8'>Kept by " + b.tradeName + "</span>";
+  return out;
+}
+
 function villagerPortraitIcon(u){
   if(!G._founderIcons) G._founderIcons = {};
   if(G._founderIcons[u.id]) return G._founderIcons[u.id];
