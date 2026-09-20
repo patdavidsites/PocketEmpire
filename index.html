@@ -1256,6 +1256,16 @@
            the splash is opened before the game script has run. -->
       <details class="pn" open>
         <summary>Patch 21.46</summary>
+        <div class="sec">A night raid could kill a villager outright, on Peaceful</div>
+        <ul>
+          <li><strong>Three creatures can come at once once your village has grown</strong>, and each one aims at whoever is nearest and out in the dark. A villager caught alone with no warning could be brought down by all three together in a matter of seconds &mdash; and nothing protected them from it. Peaceful already promises this can never happen for the one scripted visitor on the first night; that same promise now covers every ordinary raid afterwards too. They can still be badly hurt, never killed. The harder difficulties are untouched &mdash; they are races, and are meant to have real teeth</li>
+        </ul>
+        <div class="sec">The village door, and the table beside it</div>
+        <ul>
+          <li><strong>Villagers were getting stuck delivering goods while the Long Table festival was out.</strong> The hall&rsquo;s own front door and the table&rsquo;s edge stood almost on top of each other, so the door every southbound gatherer was sent to had its own approach mostly swallowed by the very thing next to it. The table stands further out now, with real room to spare</li>
+          <li><strong>A newcomer at the door is asked something too, now</strong> &mdash; the same question every other traveller answers before they join. Get it right and they stay, in whichever role they had already turned up ready for; get it wrong and they walk on</li>
+          <li><strong>Berries come in a little quicker, and each bush holds a little more</strong> &mdash; the wild food nobody had to build anything for, so the very first mornings move a bit faster</li>
+        </ul>
         <div class="sec">Things now take their weight</div>
         <ul>
           <li><strong>A building that finishes gives a little push up and settles.</strong> Dozens of things come true in this village every minute &mdash; a frame becomes a house, a load goes into the stores &mdash; and until now not one of them was marked in any way. They simply were not, and then they were, between one frame and the next</li>
@@ -1380,6 +1390,13 @@
           <li><strong>So a swing turns them side-on, exactly as carrying a load already did.</strong> The whole action is legible again, and it costs the back view only on the jobs where the back view had nothing to show</li>
           <li><strong>The builder goes the same way</strong> &mdash; reported in the same breath: &ldquo;the hair is backwards and he&rsquo;s holding the hammer behind his back&rdquo;. The hammer was the one tool carved out of that rule, with its own back-view arm and its own test that the haft must not lie across the shoulder blades. Every one of those was a fix to <em>where</em> the tool is, and the thing that keeps coming back is not where it is. A tool worked in front of somebody facing away cannot be put anywhere that reads right</li>
           <li>It takes the back of the head with it, which was the other half of that report: a headscarf over the crown with the hair falling dark beneath it reads as a face in shadow rather than as the back of somebody&rsquo;s head</li>
+        </ul>
+        <div class="sec">The shepherd stays with his flock</div>
+        <ul>
+          <li><strong>He was leaving them out on their own.</strong> The idle wandering every tradesperson does is drawn around their own cottage &mdash; right for the ones whose work is their doorstep, wrong for the one whose work is a field across the valley. He was quietly walked home and stayed there: measured at an average of eleven tiles from his own sheep, for almost the whole day. He keeps to the flock now</li>
+          <li><strong>And the sheep no longer set off without him.</strong> They used to head for the new grass the moment he decided on it, so four sheep crossed the valley alone and he came along behind. They walk over with him and spread out once he is there</li>
+          <li><strong>Walking away from you, villagers carrying something had their arms tucked inside their body</strong> &mdash; which reads as hands clasped behind the back. Arms hang at the sides now</li>
+          <li>The shepherd's white beard is a little softer against his face</li>
         </ul>
         <div class="sec">The shepherd, his beard and his ground</div>
         <ul>
@@ -6557,7 +6574,33 @@ function updateBeasts(dt){
           const floor = (t.maxhp || 0) * STEALER_BLDG_FLOOR;
           bite = Math.max(0, Math.min(bite, t.hp - floor));
         }
-        if(b.firstNight && DIFFICULTY === "peaceful" && t.kind === "unit" && t.p === P_YOU){
+        /* ---- PEACEFUL NEVER TAKES A PERSON BY SURPRISE ----
+           Reported 20 Sep: "there was a night event, some sort of creature
+           it was hunting my villagers at night and maybe 1-2 hit killing
+           them, they killed the founder almost instantly - find that event
+           and greatly soften their attack."
+
+           It was not one event - it was the ordinary raid, working exactly
+           as built. beastPickTarget aims each beast at whoever is nearest
+           and unlit, and a raid at Age 2 sends THREE of them at once
+           (raidSizeForAge) from different directions - so three separate
+           attackers, each well within its own species' numbers, converged
+           on one villager standing alone in the dark with no warning and no
+           way to fight back. Measured on a fresh lone villager, Peaceful:
+           dead in 13 seconds, four hits, HP untouched by any floor at all -
+           the only protection this game had ever built for a villager
+           against a beast was the one SCRIPTED first-night visitor, one
+           night of the whole match. Every ordinary raid after it had
+           nothing.
+
+           That is exactly the "nothing uncounterable may raze" rule this
+           project already keeps for buildings (fire floors, rat floors)
+           applied to nobody at all for people. So the first-night floor is
+           GENERALISED rather than left as its own special case: any beast,
+           against the player's own units, on Peaceful. Timed difficulties
+           are races and are kept exactly as sharp as they were - this is
+           Peaceful's own promise, not a combat rebalance. */
+        if(DIFFICULTY === "peaceful" && t.kind === "unit" && t.p === P_YOU){
           const floor = t.maxhp/3;
           bite = Math.max(0, Math.min(bite, t.hp - floor));
         }
@@ -8785,6 +8828,23 @@ const FOOD_RATE = 0.50;             // of what a trip used to bring back
 const FARM_RATE = 0.85;
 function farmPace(n){
   return (n && n.farmOf) ? FARM_RATE : 1;
+}
+
+/* ---- AND A BERRY BUSH IS QUICKER STILL ----
+   Asked for 20 Sep: "make the berries quicker to gather and give slightly
+   more food, that way the start is faster."
+
+   Wild food only, not a field and not a shoal (fishing runs its own cast
+   game and never touches this formula at all) - the thing you can walk up
+   to on the very first morning, before there has been time to build
+   anything. A fifth quicker, the same size step FARM_RATE took off in the
+   other direction, so it reads as the honest mirror of that change rather
+   than a new idea: a hedgerow is worked easily: BECAUSE it is a windfall
+   and does not have to last, where a field is deliberately slower because
+   it never runs out at all. */
+const WILD_FOOD_RATE = 1.20;
+function wildFoodPace(n){
+  return (n && n.kind === RES.FOOD && !n.farmOf && !n.water) ? WILD_FOOD_RATE : 1;
 }
 /* ---- AND TIMBER COMES IN AT THE SAME PACE AS FOOD ----
    Played two seasons on 15 Sep and finished with FIFTY-SIX food and ONE
@@ -13755,7 +13815,14 @@ function genMap(type){
      Judge it in whole matches - tests/play.js --diff hard --seeds 13,17,23,29
      at this density has the AI pushing at 10m00, 10m11, 12m25 and 13m54 and
      winning two of four. */
-  for(let i=0;i<many(12);i++) scatter(RES.FOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 3, 2, 110);
+  /* AMOUNT ONLY, raised 20 Sep ("give slightly more food"). Levelled with
+     the wood scatter just above it (130) rather than picked fresh - food
+     bushes held noticeably less than a tree for no stated reason. Count
+     and spread are UNTOUCHED: the comment above this whole block ties the
+     density itself to a measured match-length/AI-win-rate result, and this
+     is not that - a bush holding more is not the same change as there
+     being more bushes. */
+  for(let i=0;i<many(12);i++) scatter(RES.FOOD, rnd(6,MAPW-6), rnd(6,MAPH-6), 3, 2, 130);
   /* Fish shoals - only reachable by boat.
 
      Half as many as there were, each holding twice as much. There used to be
@@ -16571,9 +16638,11 @@ function placeStartBase(p, tx, ty){
    many the map dropped on top, which is how a start ended up ringed with
    twenty of them.
 
-   Three of 110 is 330 food: a second and third pair of hands and a farm to
-   put them on, with something left over. It is deliberately not a living -
-   the point of the opening is that berries run out and fields do not. */
+   Three of 130 is 390 food, raised from 110 on 20 Sep ("give slightly more
+   food, that way the start is faster") - enough for a second and third
+   pair of hands and a farm to put them on, with a bit more left over than
+   before. Still deliberately not a living: the point of the opening is
+   that berries run out and fields do not. */
 function plantDoorstep(b){
   const keep = BERRY_CLEAR_TILES*TILE;
   const wildBerry = n => !n.farmOf && !n.water && n.kind===RES.FOOD &&
@@ -16587,12 +16656,12 @@ function plantDoorstep(b){
      could be three quarters of a tile from the actual hall, which is inside
      it, and newGame deletes anything inside a starting building. */
   const cfx = b.x/TILE - 0.5, cfy = b.y/TILE - 0.5;
-  for(let k=0;k<BERRY_START_BUSHES;k++) plantNear(RES.FOOD, cfx, cfy, 110, 2, 4);
+  for(let k=0;k<BERRY_START_BUSHES;k++) plantNear(RES.FOOD, cfx, cfy, 130, 2, 4);
   /* plantNear gives up if every ring it walks is water or already taken, so
      count what actually landed and go further out for the rest. */
   for(let guard=0; guard<6; guard++){
     if(G.nodes.filter(wildBerry).length >= BERRY_START_BUSHES) break;
-    plantNear(RES.FOOD, cfx, cfy, 110, 2, 5+guard*2);
+    plantNear(RES.FOOD, cfx, cfy, 130, 2, 5+guard*2);
   }
 
   /* And the wood for the repair, close enough to start on immediately. Three
@@ -17715,16 +17784,18 @@ function tapAt(sx, sy){
           beginHenFuss(friend, bird);
           fxPing(bird.x, bird.y);
         } else {
-          /* A newcomer, if the founder is the one who tapped them - the
-             same gather-tap-on-a-non-node shape again (newcomerAt/
-             beginGreetNewcomer, 05d). Only the founder (u.firstVillager),
-             not anyone else in the selection: it is their village to
-             welcome someone into, not any passing villager's. */
           /* ANY traveller passing through, not only the rare wayfarer -
              the founder can talk to all of them, and talking them round is
              how somebody joins the clan. Taken first because these people
              leave at dusk and a tap that finds one should never be read as
-             anything else. (talkableVisitorAt, 05m.) */
+             anything else. (talkableVisitorAt, 05m.)
+
+             A NEWCOMER GOES THROUGH HERE TOO, since 20 Sep - they used to
+             have their own simpler walk-over-and-greet path with no
+             question (newcomerAt/beginGreetNewcomer), retired in favour of
+             the one everybody else on the road gets. Only the founder
+             (u.firstVillager), not anyone else in the selection: it is
+             their village to welcome someone into. */
           const way = (typeof talkableVisitorAt === "function")
                     ? talkableVisitorAt(w.x, w.y, Math.max(tol, 14)) : null;
           const wayFounder = way ? own.find(u => u.firstVillager && u.hp>0) : null;
@@ -17735,15 +17806,6 @@ function tapAt(sx, sy){
           } else if(way){
             hint("They will only speak to the one who founded this village.");
             return;
-          }
-          const stranger = (typeof newcomerAt === "function")
-                          ? newcomerAt(w.x, w.y, Math.max(tol, 14)) : null;
-          const founder = stranger ? own.find(u => u.firstVillager && u.hp>0) : null;
-          if(stranger && founder){
-            beginGreetNewcomer(founder, stranger);
-            fxPing(stranger.x, stranger.y);
-          } else if(stranger && !founder){
-            hint("Only the one who founded this village can go and talk a stranger round.");
           } else {
             /* And a BUG, if the one who tapped is the bug catcher. Last in
                the chain on purpose: bugs are tiny and there are dozens of
@@ -23005,17 +23067,18 @@ function updateUnit(u, dt){
     }
   }
 
-  /* The founder, walking over to talk a newcomer into staying (beginGreet-
-     Newcomer, 05d). Two beats, not one: arrive and say something first
-     (u.chatT holds them there, idle-swaying rather than frozen, same
-     primitive every other ambient pause in this game already uses), THEN
-     - on the tick chatT finally lets through - the actual join resolves.
-     u.recruitGreeted is what tells those two visits to this same block
-     apart, since nothing else marks "we already said the first line". */
-  /* Off to speak to a wayfarer. Same shape as the newcomer greeting, but
-     the arrival puts a QUESTION up rather than simply resolving - see
-     askWayfarer (05m). The order stays live while the question is on
-     screen so the founder does not wander off mid-conversation. */
+  /* Off to speak to whoever is on the road - a wayfarer, an ordinary
+     traveller, or (since 20 Sep) a newcomer. All three go through the same
+     door now: walk over, and the arrival puts a QUESTION up rather than
+     simply resolving - see askWayfarer (05m). The order stays live while
+     the question is on screen so the founder does not wander off
+     mid-conversation.
+
+     The newcomer used to have its own simpler walk-then-greet-then-join
+     order ("recruit") with no question in it at all - retired here in
+     favour of this one, which resolveWayfarer (05m) now branches on
+     o.kind==="newcomer" to keep their own rolled role and lines rather
+     than flattening them to a plain villager. */
   if(u.order === "wayfarer"){
     const o = u.target;
     if(!o || !G.visitors || G.visitors.indexOf(o)===-1 || o.state!=="here" || o.joined){
@@ -23030,27 +23093,6 @@ function updateUnit(u, dt){
     u.wayfarerAsked = true;
     u.face = (o.x < u.x) ? -1 : 1;
     askWayfarer(u, o);
-    return;
-  }
-
-  if(u.order === "recruit"){
-    const o = u.target;
-    if(!o || !G.visitors || G.visitors.indexOf(o)===-1 || o.state!=="here" || o.joined){
-      u.order = null; u.target = null; u.recruitGreeted = false; u.moving = false;
-      return;
-    }
-    if(u.recruitGreeted){
-      resolveNewcomerJoin(u, o);
-      u.order = null; u.target = null; u.recruitGreeted = false; u.moving = false;
-      return;
-    }
-    const near = moveToward(u, o.x, o.y, spd, dt, 14);
-    u.moving = !near;
-    if(!near) return;
-    u.recruitGreeted = true;
-    u.face = (o.x < u.x) ? -1 : 1;
-    if(u.p===P_YOU) tellAndNote(pickLine(NEWCOMER_GREET_LINES, "newcomergreet"), "plain");
-    u.chatT = 2.6 + Math.random()*0.6;
     return;
   }
 
@@ -23806,11 +23848,12 @@ function updateUnit(u, dt){
                matters and leaving it out cost the Ashkin their economy;
                foodPace returns 1 for anybody who is not the player.
                (foodPace / FOOD_RATE, 01f) */
-            /* A field comes in slower than a hedgerow - farmPace, 01f. Kept
-               beside foodPace rather than folded into it: one is about WHAT
-               is being gathered and the other about WHERE from. */
+            /* A field comes in slower than a hedgerow, and a hedgerow quicker
+               still than either - farmPace/wildFoodPace, 01f. Kept beside
+               foodPace rather than folded into it: one is about WHAT is
+               being gathered and the other two are about WHERE from. */
             const take = Math.min(2 * GATHER_SCALE * foodPace(n.kind, u.p)
-                                    * farmPace(n) * peacefulYield(n.kind)
+                                    * farmPace(n) * wildFoodPace(n) * peacefulYield(n.kind)
                                     * (1 + lvl*0.40) * dg * seasonal * insp
                                     * farmYieldUp * ancientFarmUp * ancientMineUp * nightCatch
                                     /* and a field put in on ground the flock
@@ -40623,11 +40666,34 @@ function drawFestivalDress(b, x, y, w, dep, H, vis){
    `hw`/`hh` cover the trestle AND the benches either side of it: the thing
    you cannot walk through is the whole arrangement, not just the top. */
 const LONG_TABLE_L = 46, LONG_TABLE_W = 11;
+/* ---- HOW FAR BELOW THE HALL IT STANDS ----
+   Reported 20 Sep: villagers getting stuck gathering while the table was
+   out, with "make the blueprint of the town centre bigger so people have
+   to walk around the table" offered as the fix.
+
+   The table itself was never the trap - it was the HALL'S OWN FRONT DOOR.
+   The town centre is a two-sided drop-off (DROP_TWO_SIDED, 03d), so a
+   gatherer walking goods home aims for a point on a ring round it
+   (buildingDoors) rather than its centre, and the first point on that ring
+   - the one closest to almost every resource, since it faces the open
+   village - sits at hall.y + hall.h*TILE/2 + 6. At the old offset of 26,
+   the table's own north edge landed just 4px past that point, and the 10px
+   of slack a carrier is allowed once they are "close enough"
+   (DROP_REACH) reached six pixels INTO the table. The one door every
+   gatherer from the south of the village was steered at had most of its
+   own approach chopped off by the very table blocking it.
+
+   Standing it further out clears the door by a real margin rather than a
+   few pixels, which is what actually stops anyone getting stuck on it -
+   and it happens to read exactly as asked: with the hall's own door clear
+   and the table beyond it, walking to the door from the south goes round
+   the table rather than squeezing past it. */
+const LONG_TABLE_GAP = 46;
 function longTableAt(){
   if(festivalDressToday() !== "The Long Table") return null;
   const hall = G.bldgs.find(b => b.p===P_YOU && b.type==="town" && b.done && b.hp>0);
   if(!hall) return null;
-  return { x: hall.x, y: hall.y + hall.h*TILE/2 + 26,
+  return { x: hall.x, y: hall.y + hall.h*TILE/2 + LONG_TABLE_GAP,
            hw: LONG_TABLE_L/2 + 2, hh: LONG_TABLE_W + 5 };
 }
 /* Once a tick, into G.longTable, so the pathfinder reads a plain object. */
@@ -67150,6 +67216,11 @@ const NEWCOMER_LINES = [
   "Someone none of the villagers recognise is stood watching the work, arms folded.",
   "There's a stranger by the town centre, watching the comings and goings with plain interest."
 ];
+/* WHAT THEY SAY AS THE FOUNDER WALKS UP - the newcomer's own voice going
+   into the question askWayfarer puts up (05m), in place of the generic
+   PLAIN_JOINER line every ordinary traveller gets. Used to be the whole
+   of the exchange, with the join following automatically a beat later;
+   now it is the opening line of a conversation that can go either way. */
 const NEWCOMER_GREET_LINES = [
   "\"Didn't expect anyone to come over,\" they say, straightening up.",
   "They look round, a little surprised anyone stopped to talk.",
@@ -67178,15 +67249,6 @@ const NEWCOMER_JOIN_LINES = {
     "\"Better with this than with a plough,\" they say, \"but I'll take either.\""
   ]
 };
-function newcomerAt(wx, wy, tol){
-  let best=null, bd=tol;
-  for(const o of (G.visitors||[])){
-    if(o.kind!=="newcomer" || o.state!=="here" || o.joined) continue;
-    const d = Math.hypot(o.x-wx, o.y-wy);
-    if(d<bd){ bd=d; best=o; }
-  }
-  return best;
-}
 function trySpawnNewcomer(){
   if(visitorsOf("newcomer").length) return false;
   if((G.newcomersJoined||0) >= NEWCOMER_MAX_PER_MATCH) return false;
@@ -67202,17 +67264,10 @@ function trySpawnNewcomer(){
   tellAndNote(pickLine(NEWCOMER_LINES,"newcomer"), "plain");
   return true;
 }
-/* Called from the gather branch of tapAt (03a) once a founder is among
-   the selection and the tap landed on a newcomer rather than a node. */
-function beginGreetNewcomer(u, o){
-  if(!u || !o || u.hp<=0 || o.joined) return false;
-  u.order = "recruit"; u.target = o; u.site = null; u.workplace = null; u.path = null;
-  u.recruitGreeted = false;
-  u.tx = o.x; u.ty = o.y;
-  return true;
-}
-/* The join itself, once the founder has arrived and the greeting's had
-   its beat to be read - see the u.order==="recruit" branch, 03c. A real
+/* The join itself, once the founder has answered the question that comes
+   up on arrival (askWayfarer/resolveWayfarer, 05m) - a newcomer used to
+   walk over, get a greeting and its own beat to be read, then join with
+   no question at all (beginGreetNewcomer, retired 20 Sep). A real
    makeUnit, on the founder's own side, free - same as a wounded-stranger
    recruit (takeWounded, this file) is free. */
 function resolveNewcomerJoin(u, o){
@@ -76924,13 +76979,22 @@ function wayfarerAt(wx, wy, tol){
      thief   - has their own business with you
      envoy   - already belongs to the other clan; that is the whole point
      player  - not yours to recruit
-     newcomer - already has its own simpler greeting (beginGreetNewcomer)
 
-   Everybody else gets the same question, and joins as an ORDINARY
-   villager. The four wayfarers stay the only ones who arrive better than
-   the people you already have - otherwise the buff stops meaning
-   anything. */
-const TALKABLE_KINDS = { wayfarer:true, traveller:true };
+   Everybody else gets the same question, and an ordinary traveller joins
+   as an ORDINARY villager. The four wayfarers stay the only ones who
+   arrive better than the people you already have - otherwise the buff
+   stops meaning anything.
+
+   THE NEWCOMER JOINED THIS LIST 20 Sep. Reported back after the quiz went
+   in for everybody else: "make sure they all ask you a question and then
+   join" - a newcomer was the one visitor that was greeted and simply
+   joined, no question, no way to say no. It had its own simpler walk-
+   over-and-greet path (beginGreetNewcomer/newcomerAt) from before the
+   quiz existed; that path is retired below in favour of this one; a
+   newcomer keeps their OWN rolled role and lines (resolveWayfarer,
+   further down) rather than being flattened to a plain villager the way
+   an ordinary traveller is. */
+const TALKABLE_KINDS = { wayfarer:true, traveller:true, newcomer:true };
 function talkableVisitorAt(wx, wy, tol){
   let best=null, bestD=Infinity;
   for(const o of (G.visitors||[])){
@@ -76964,8 +77028,15 @@ function askWayfarer(u, o){
   const q = buildWayfarerQuestion();
   if(!q){ resolveWayfarer(u, o, false, true); return; }
   G.wayfarerQ = { unit:u, visitor:o, q:q.q, answers:q.answers, right:q.right };
-  const w = WAYFARERS[o.wayfarer] || PLAIN_JOINER;
-  tellAndNote(w.asks, "plain");
+  /* A NEWCOMER SPEAKS IN THEIR OWN VOICE going into the question, not
+     PLAIN_JOINER's - they are not passing through, they are weighing
+     whether to stay, and NEWCOMER_GREET_LINES already says exactly that
+     ("Didn't expect anyone to come over"). Picked the same way the old
+     greeting was, so which line shows is unaffected by the switch. */
+  const asks = (o.kind === "newcomer")
+             ? pickLine(NEWCOMER_GREET_LINES, "newcomergreet")
+             : (WAYFARERS[o.wayfarer] || PLAIN_JOINER).asks;
+  tellAndNote(asks, "plain");
   if(typeof refreshUI === "function") refreshUI();
 }
 
@@ -76998,6 +77069,15 @@ function resolveWayfarer(u, o, right, mute){
                           "Whoever they were, they were not staying.", "plain");
     return;
   }
+  /* A NEWCOMER ALREADY HAS THEIR OWN ROLE, rolled at spawn
+     (o.willJoinAs - villager most often, sometimes warrior/scout/archer)
+     and their own join lines (NEWCOMER_JOIN_LINES). Handing them to the
+     lookup below would run them through `w = PLAIN_JOINER`, whose
+     joinAs is hard-coded "villager" - exactly the flattening this branch
+     exists to avoid. resolveNewcomerJoin (05d) does its own bookkeeping
+     (G.newcomersJoined, autoGroup), so this hands off and returns rather
+     than falling through. */
+  if(o.kind === "newcomer"){ resolveNewcomerJoin(u, o); return; }
   if(kind) wayfarersTaken()[kind] = true;   // only the four are once-only
   /* WHAT THEY ARRIVE AS. Most are another pair of hands with something extra
      about them; two of them turn up already armed, which is a fighter the
@@ -82393,9 +82473,11 @@ function refreshUI(){
     cmdrow.classList.remove("almanac-mode");
     // Only the four rare ones are wayfarers. Any other traveller talked to
     // asks the same question, and calling them a wayfarer would make the
-    // word mean nothing.
-    $("selname").textContent = (st.visitor && st.visitor.wayfarer)
-                             ? "A wayfarer asks" : "A traveller asks";
+    // word mean nothing - and a newcomer is not "a traveller" either, they
+    // have already stopped, so they get their own label (20 Sep).
+    $("selname").textContent = (st.visitor && st.visitor.wayfarer) ? "A wayfarer asks"
+                              : (st.visitor && st.visitor.kind === "newcomer") ? "The newcomer asks"
+                              : "A traveller asks";
     $("selsub").textContent = st.q;
     $("selstats").innerHTML = "";
     for(const a of st.answers){
