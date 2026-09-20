@@ -773,6 +773,13 @@
     text-align:center;background:none;border:1px solid var(--line);border-radius:3px;
     color:var(--parch-dim);font-size:17px;cursor:pointer;padding:0;}
   .cardx:hover{background:#3d332a;color:var(--parch);}
+  /* THERE IS NO BLANKET .hide RULE IN THIS STYLESHEET - every element that
+     can be hidden carries its own `#id.hide{display:none}`. The X had none,
+     so adding the class to it did exactly nothing and the button stayed on
+     screen through the whole briefing. Caught in a screenshot, after a
+     check that asked whether the CLASS was set and so could never have
+     failed. Ask the rendered state, not the class. */
+  .cardx.hide{display:none;}
   .patch{border-top:1px solid var(--line);margin-top:18px;padding-top:14px;}
   .patch ul{font-size:12px;line-height:1.7;color:#bdb29a;padding-left:16px;margin:6px 0 12px;}
   /* each patch is its own button that folds open where it stands */
@@ -837,6 +844,19 @@
   .mpage .mback{margin:18px 0 0;display:inline-block;}
   .mpage .mstart{margin:18px 0 0;display:inline-block;}
   .mpage .mstart.hide,.mpage .mback.hide{display:none;}
+  /* ---- the read-this-first bar ----
+     A track and a fill, and the fill is driven by a width transition rather
+     than an animation so that it cannot start again halfway through if the
+     page is re-opened. Begin sits under it, greyed until it is full. */
+  .loadwrap{margin:18px 0 0;}
+  .loadwrap.hide{display:none;}
+  .loadbar{height:4px;border-radius:2px;background:#2b241c;
+    border:1px solid var(--line);overflow:hidden;}
+  .loadbar>i{display:block;height:100%;width:0;background:var(--gold);
+    border-radius:2px;transition:width .2s linear;}
+  .loadcap{font-size:11px;color:#6f6753;letter-spacing:.4px;margin:7px 0 0;}
+  .go[disabled]{background:#4a4034;color:#8b8170;cursor:default;}
+  .go[disabled]:hover{background:#4a4034;}
   /* the patch notes are a page of their own now, so its own top rule and the
      heading it used to need would just be doubled up */
   .mpage .patch{border-top:none;margin-top:0;padding-top:0;}
@@ -1199,6 +1219,17 @@
       <!-- This page is both the reference you can open from the menu and the
            last thing before a new match starts, so it carries both endings:
            Begin when a game has just been dealt, Back when it has not. -->
+      <!-- ---- THE PAUSE BEFORE A MATCH ----
+           Asked for 16 Sep: "remove the x, and a 5 second loading bar, so
+           people have to read it." This page is the only thing standing
+           between picking a difficulty and playing, and it is where the
+           game explains itself - so Begin is held until the bar has run.
+           Shown only while a match is waiting behind this page; opened as
+           reference from the menu it is not here at all. -->
+      <div class="loadwrap hide" id="mm_loadwrap">
+        <div class="loadbar"><i id="mm_loadfill"></i></div>
+        <div class="loadcap" id="mm_loadcap">The village is waking up&hellip;</div>
+      </div>
       <button class="go mstart hide" id="mm_begin">Begin</button>
       <button class="ghost mback" id="mm_howback">Back</button>
     </div>
@@ -1316,11 +1347,32 @@
           <li><strong>A tree gives when you chop it, and a seam gives when you cut it.</strong> Every node on the map now takes the blow &mdash; it dips and springs back, once per swing that actually lands, and not at all for somebody stood at a patch that is already bare</li>
           <li><strong>Smaller than the town centre&rsquo;s, as asked.</strong> The hall&rsquo;s top travels about six tenths of a pixel when a load goes into the stores; this is four tenths, and it is a dip rather than the hall&rsquo;s squash. That difference matters more than it sounds: the squash scales a thing about its own foot, which on measurement moved an oak&rsquo;s canopy enough to repaint five thousand pixels and a stone seam enough to repaint three hundred. &ldquo;All resources&rdquo; would have meant &ldquo;the tall ones&rdquo;. A dip in world pixels moves a boulder exactly as far as a tree, and now the three read within a sixth of each other</li>
         </ul>
+        <div class="sec">Five seconds to read the briefing</div>
+        <ul>
+          <li><strong>The page that explains the game now holds you for five seconds.</strong> A bar fills, and Begin is greyed until it is done &mdash; long enough that the instructions get read rather than tapped past</li>
+          <li><strong>And the close button is gone from that page.</strong> It was the way to skip the whole thing in one tap. Begin is the only way out now, and it waits for the bar</li>
+          <li><strong>Only on that page.</strong> The X still sits on every other screen of the menu, because it is not decoration: leaving a match through the pause screen drops you on the menu with your village still paused underneath, and the X is what picks it back up. Taking it out everywhere would strand you in a menu with no way back to the game you were playing</li>
+          <li>Begin is greyed rather than hidden while you wait &mdash; a button that appears out of nowhere is harder to find than one that was sitting there all along</li>
+        </ul>
+        <div class="sec">The painter and the seamstress could never actually be hired</div>
+        <ul>
+          <li><strong>You could find the brush, carry it home, learn the trade, pay for the Artist&rsquo;s Retreat and raise it &mdash; and nobody ever moved in.</strong> The same for the Seamstress&rsquo;s Cottage. Both trades were built in full, the painter with twenty-four pictures over two years and the seamstress with seven tiers of clan colour, and neither could be staffed by playing the game</li>
+          <li><strong>And worse: when you built the house yourself, SEVEN trades were dead.</strong> The painter, the shepherd, the chandler, the tavernkeeper, the miller, the weaver and the seamstress. The moment a building finishes is where the builder takes up the trade, and that moment was checking its own hand-written list of six &mdash; so for the other seven it never even asked the question. The house went up, and nobody moved in</li>
+          <li><strong>Two lists that had to agree, and did not.</strong> There were two ways to reach the promotion and each kept its own idea of what a trade building is. The beehive happened to be on both, which is why it worked and made the others look like bad luck. There is one list now, asked by both, so a new trade is added in a single place</li>
+          <li><strong>How it hid:</strong> every specialist test in the suite switches that flag on by hand, because it is the <em>output</em> of the step that was broken. So all of them were testing the machinery from just past the fault. There is a test now that hands nothing over &mdash; it walks all eleven trades from the find on the ground to the specialist at the door, and it fails loudly if a new trade is ever added without one</li>
+        </ul>
         <div class="sec">The first repair is cheaper, and the advice says so</div>
         <ul>
           <li><strong>Repairing the ruined town centre wants forty wood now, not seventy.</strong> It is the first thing anybody does in a match and it was the longest wait in the game before anything happened</li>
           <li><strong>And the opening line was quoting the wrong bill.</strong> There are two payments at the start, not one &mdash; forty to repair the ruin and light the hearth, and the Stone Age on top of that &mdash; and the line reading &ldquo;you need seventy wood to repair the town centre&rdquo; was generated from the <em>second</em> of them. Both happened to be seventy, so the sentence was accidentally true and nobody could have spotted it. Now that they differ, a line about repairing quotes what repairing costs</li>
           <li><strong>The advice carries on through both.</strong> Before the hearth is lit it asks for the forty; once the camp is settled the same line asks for what raising it into the Stone Age wants on top. That middle stretch used to be covered only by the accident above</li>
+        </ul>
+        <div class="sec">They face the tree, and you see the back of them</div>
+        <ul>
+          <li><strong>A villager chopping now faces the work, with their back to you</strong> &mdash; and the axe is up in front of them, between them and the trunk, in both hands. Same for a pick at the rock face and a mallet at a building</li>
+          <li><strong>This went the wrong way first.</strong> Chopping from behind drew no axe at all, so the swing was turned side-on to make it legible &mdash; which fixed the picture by refusing to draw it. Asked for plainly: they should face what they are working on</li>
+          <li><strong>What unlocked it was telling two things apart.</strong> The rule was that nothing held is ever drawn from behind, and for a tool being <em>carried</em> that is right &mdash; an axe over the shoulder on the walk home has the body in front of it, and three goes at repositioning one all failed for that reason. A tool being <em>worked</em> is the opposite: the hands come round the front to use it, so drawing it there is not a trick, it is where it is</li>
+          <li><strong>And the swing has its own shape from behind.</strong> The hands go up to head height rather than sitting on the chest, the haft stands toward the work instead of crossing the body, and the butt of it &mdash; the one part that reached back down over the torso &mdash; is trimmed to a stub. Nothing crosses the body at any point of the stroke</li>
         </ul>
         <div class="sec">You can see what somebody is doing again</div>
         <ul>
@@ -1328,6 +1380,84 @@
           <li><strong>So a swing turns them side-on, exactly as carrying a load already did.</strong> The whole action is legible again, and it costs the back view only on the jobs where the back view had nothing to show</li>
           <li><strong>The builder goes the same way</strong> &mdash; reported in the same breath: &ldquo;the hair is backwards and he&rsquo;s holding the hammer behind his back&rdquo;. The hammer was the one tool carved out of that rule, with its own back-view arm and its own test that the haft must not lie across the shoulder blades. Every one of those was a fix to <em>where</em> the tool is, and the thing that keeps coming back is not where it is. A tool worked in front of somebody facing away cannot be put anywhere that reads right</li>
           <li>It takes the back of the head with it, which was the other half of that report: a headscarf over the crown with the hair falling dark beneath it reads as a face in shadow rather than as the back of somebody&rsquo;s head</li>
+        </ul>
+        <div class="sec">The shepherd, his beard and his ground</div>
+        <ul>
+          <li><strong>The shepherd has a white beard</strong> &mdash; the only one in the village, so you know him across a field. What was on his face before was the fleece collar, which sat low enough to read as a mouth</li>
+          <li><strong>The hurdle pen beside his hut is gone.</strong> It was drawn as scenery and nothing in the pathing knew about it, so villagers walked straight through the rails &mdash; and a fence people walk through makes every other wall look negotiable. His crook still leans by the door</li>
+          <li><strong>The ground the flock leaves behind is now a square exactly the size of a farm</strong>, so a field can be lined up with it by eye. It was a soft circle, which has no edge to line anything up against</li>
+          <li><strong>A field built on it comes in a fifth heavier for two days</strong>, then wears off &mdash; it was a tenth for a whole season, which is long enough that nobody noticed it start or stop</li>
+        </ul>
+        <div class="sec">Timber comes in a little faster, a field a little slower</div>
+        <ul>
+          <li><strong>Wood gathers slightly quicker and food slightly slower</strong>, and a <strong>farm is slower than a hedgerow</strong>. Wild food is a windfall you have to walk to and which runs out; a field never moves and never empties, so the field is the one that costs something to lean on</li>
+        </ul>
+        <div class="sec">All the trades in one year, for now</div>
+        <ul>
+          <li><strong>Every trade you find an object for is pinned to a season</strong>, and they all arrive inside a single year &mdash; one or two a season. Four of them had no season at all before and could appear on any night. The two-year version is kept and can be switched back on when there are more specialists to fill it</li>
+          <li>Spring brings the <strong>Herbalist</strong> and the <strong>Shepherd</strong>; summer the <strong>Miller</strong>, the <strong>Beekeeper</strong> and the <strong>Seamstress</strong>; autumn the <strong>Chandler</strong> and the <strong>Weaver</strong>; winter the <strong>Tavernkeeper</strong> and the <strong>Painter</strong></li>
+          <li>The <strong>Baker</strong> is still the first offer the woods ever make, in whichever season you begin, and the bug catcher's glass is still on the doorstep from the first morning. The gardener, fisherman, geologist and caretaker are earned by work rather than found, and are untouched</li>
+        </ul>
+        <div class="sec">The shepherd's fleece collar sat on his face</div>
+        <ul>
+          <li><strong>Turned away from you, the shepherd's collar was drawn across the bottom of his skull</strong> rather than below it &mdash; and a pale oval with four evenly spaced bumps, on a head with no face on it, reads as a mouth. It sits on his shoulders from behind now, where a collar seen from the back belongs, and the curls lost their even spacing</li>
+        </ul>
+        <div class="sec">More out of the hive than a jar</div>
+        <ul>
+          <li><strong>The beekeeper carries five different things now</strong> instead of a jar and a slab of comb turning up by turns: a jar of honey, honeycomb, a block of beeswax, and a dipper still running. The jar stays the commonest, so the other three are the ones worth looking up for, and the message at the door names whichever it was</li>
+          <li><strong>And sometimes the round is not a delivery at all</strong> &mdash; they take the smoker out to the hive, work it, and bring it back with nothing left at anybody's door. The smoke drifts off the top of it while they do</li>
+        </ul>
+        <div class="sec">A picture now takes days, and you can see who is painting it</div>
+        <ul>
+          <li><strong>The painter sets the easel up out in the village and keeps that spot for the whole picture</strong>, working at it through the day, taking the board in at dusk and setting it up again the next morning. Two paintings a season instead of one an afternoon</li>
+          <li><strong>You can see their face now.</strong> They used to stand squarely behind the easel looking away from you, which is the back view &mdash; so the one villager whose whole job is worth watching was the one you never saw. They stand beside it and turn in to the board</li>
+          <li>Three paintings a season, so the whole catalogue of 24 pictures is still seen in two years and none of them had to be dropped to make the numbers meet</li>
+        </ul>
+        <div class="sec">A trade leaves the old clothes behind</div>
+        <ul>
+          <li><strong>The painter was wearing two hats.</strong> Every trade figure is drawn as the villager they were with the trade's clothes over the top &mdash; which is what keeps their face, hair and walk &mdash; but the villager underneath still had their own hat, scarf or apron on underneath the beret</li>
+          <li>Every specialist now leaves those behind when they take up the trade. What they keep is what makes them themselves: the hair, the face and the way they walk</li>
+        </ul>
+        <div class="sec">The flock spreads out, and turns to face where it is going</div>
+        <ul>
+          <li><strong>Sheep walked in a single file on top of one another.</strong> Each one was aiming at the same point in the field, so five animals crossing a paddock arrived nose to tail. They each have their own patch of grass and their own pace now, and fan out on the way</li>
+          <li><strong>And they face where they are walking</strong> &mdash; going away from you it is the rump and a tail, coming toward you the head comes round with both ears and both eyes</li>
+        </ul>
+        <div class="sec">The Iron Legionary is armed at last</div>
+        <ul>
+          <li><strong>An Age-2 unit costing 110 food, 40 iron and 30 gold has been walking into battle with its hands visibly empty</strong> &mdash; in every direction, for as long as it has existed. It simply had no weapon drawn for it</li>
+          <li>It carries a <strong>tall rectangular shield and a short, broad blade</strong>, where the Swordsman has a round shield and a long tapered one. They stand in the same line of battle, so the two are told apart by silhouette rather than by colour</li>
+          <li>A test now walks the list of fighting units rather than naming them, so a new one cannot be added empty-handed without failing</li>
+        </ul>
+        <div class="sec">Every soldier has arms again</div>
+        <ul>
+          <li><strong>Turned away from you, a soldier's arms were sitting inside their own body where nothing could be seen of them</strong> &mdash; the same fault the woodcutter had, found by going through every kind rather than waiting for it to be reported. Sword, club, bow and blade all hung off a shoulder tucked almost to the middle of the chest</li>
+          <li>Their shoulders go back out to the body's edge and the hand is brought in the same distance, so the weapon stays exactly where it was and the arm becomes a limb again. The shield comes round with its arm</li>
+          <li>A weapon swung <em>across</em> the body no longer overshoots: the hand stops at the centre line rather than being carried out the far side, which had a warrior's club swinging wider from behind than it ever did side-on</li>
+          <li>Checked across all of it &mdash; axe, pick, berries, fishing, the four farm jobs, five building tools, nine kinds of soldier, hauling and standing idle</li>
+        </ul>
+        <div class="sec">And the arms come with it</div>
+        <ul>
+          <li><strong>The arms now cross up and in to meet the axe</strong> instead of disappearing. The first pass at this brought the shoulder in along with the hand, which left an arm short enough to sit entirely inside the body &mdash; and an arm with nothing to read against cannot be seen at all, so the woodcutter came out holding a tool with no visible limbs</li>
+          <li>The shoulder stays out at the body's own edge and only the <em>hands</em> come in, carried past straight up so they meet above the middle of the chest. Half of each arm is against the grass and the rest is rimmed against the back, which is what makes it read as an arm in front rather than a shape in the silhouette</li>
+          <li>The axe rises from those joined hands up over the crown of the head, in the gap between the villager and the tree</li>
+        </ul>
+        <div class="sec">What they are holding comes round in front</div>
+        <ul>
+          <li><strong>Turned away from you, a villager's axe or pick now rises over their own body</strong> instead of hanging out past the shoulder. The working hands come in toward the centre line and the haft stands nearer upright, so the blade travels in the gap between them and the tree</li>
+          <li><strong>The soldiers had never been told which way they were facing at all.</strong> A warrior's club, a swordsman's sword and shield, the captain's blade and the archer's bow all drew in exactly the same place whether you were looking at their front or their back &mdash; so a turned-away soldier wore their weapon out at the shoulder. All of them come round in front now, the shield with them</li>
+          <li>The mage's staff, the druid's stave and the scout's knife were already close to the centre line and barely move</li>
+        </ul>
+        <div class="sec">They face the fruit they are picking</div>
+        <ul>
+          <li><strong>A villager gathering food from a bush or a fruit tree to the north now turns their back to you</strong>, the same as one chopping a tree does. They were standing square to the camera with the fruit above their head, picking at it over their shoulder</li>
+          <li>The cause was a rule written a fortnight ago that no farm worker may ever be turned round. That was aimed at the <em>props</em> - the watering can, the hoe and the barrow are each placed out to one side of the hand, which is forward in the side-on view and sideways from behind - but it was written as a ban on the job, and picking fruit has nothing in the hands at all. Tending a field is bare-handed too, and turns round now as well</li>
+          <li>The three jobs that really do carry a prop are untouched and still drawn side-on</li>
+        </ul>
+        <div class="sec">The torch leads the way</div>
+        <ul>
+          <li><strong>Walking north at night, the founder now carries her torch out in front of her</strong> rather than off to one side. The hand comes in over the chest and up, so the flame is ahead of her and the light falls on the ground she is walking onto</li>
+          <li>The first pass at this got it clear of her back, which fixed the fist-on-the-spine problem and left the torch beside her like a lamp on a shelf. Same lesson as the axe, one step further: a thing being used is out in front, not stuck to the side of the body</li>
         </ul>
         <div class="sec">The torch is carried, not worn</div>
         <ul>
@@ -8636,7 +8766,26 @@ const GATHER_SCALE      = 0.825;  // villagers bring back less per trip - the wh
    spent playing; nobody is having an afternoon on the Ashkin's side.
 
    Read through foodPace(kind, p) and pass the side. */
-const FOOD_RATE = 0.55;             // of what a trip used to bring back
+const FOOD_RATE = 0.50;             // of what a trip used to bring back
+
+/* ---- AND A FIELD IS SLOWER THAN A HEDGEROW ----
+   Asked for 20 Sep: "slightly raise the wood gathering speed and then
+   slightly lower the food gathering speed, especially from farms."
+
+   Wild food - a berry patch, a shoal - is a windfall: it is where it is,
+   it runs out, and somebody has to walk to it. A FARM is the opposite: you
+   put it where you like, it never moves and it never empties. So the farm
+   is the one that should cost something to lean on, and it is the one this
+   takes off. Applied on top of FOOD_RATE rather than instead of it, so
+   every field is slower than the hedgerow beside it by a fixed amount
+   rather than by an accident of two separate numbers drifting.
+
+   Read through farmPace(node) below - keyed on n.farmOf, which is what
+   makes a crop a FIELD rather than a bush. */
+const FARM_RATE = 0.85;
+function farmPace(n){
+  return (n && n.farmOf) ? FARM_RATE : 1;
+}
 /* ---- AND TIMBER COMES IN AT THE SAME PACE AS FOOD ----
    Played two seasons on 15 Sep and finished with FIFTY-SIX food and ONE
    THOUSAND SIX HUNDRED AND TWENTY-FIVE WOOD. Twenty-nine times as much
@@ -8657,7 +8806,18 @@ const FOOD_RATE = 0.55;             // of what a trip used to bring back
    The OTHER half is not a rate at all - it is that there is nothing to
    spend timber on once the houses are up. That is a sink, not a multiplier,
    and no number here can fix it. */
-const WOOD_RATE = 0.55;
+/* ---- RAISED AGAIN 20 Sep, DELIBERATELY OFF LEVEL ----
+   Everything above is still true and is the reason this is a nudge rather
+   than a return to where timber was. But the opening asks far more of wood
+   than of anything else - 40 to settle, 70 to age up, 47 a house, all of it
+   before a village can grow past four - while food only buys villagers at
+   45 each. Measured at 0.55: one seed in four was STILL A CAMP after five
+   days, which is the "too slow for the first few days" this came from.
+
+   0.60 against food's 0.50. Watch the old fault rather than assume it is
+   gone: if timber starts piling up unspent again the answer is a sink for
+   it, not a smaller number here. */
+const WOOD_RATE = 0.60;
 const GATHER_PACE = { food: FOOD_RATE, wood: WOOD_RATE };
 function foodPace(kind, p){
   const r = GATHER_PACE[kind];
@@ -19850,6 +20010,28 @@ function beekeeperFindCall(hive){
   }
   return best;
 }
+/* What comes off a hive and gets carried round the village. Weighted by
+   repetition rather than by a table of odds: the jar twice, so it stays the
+   ordinary one and the other three are the ones worth looking up for. */
+const HONEY_GIFTS = ["jar", "jar", "comb", "wax", "dipper"];
+const HONEY_GIFT_NAME = {
+  jar:    "a jar of honey",
+  comb:   "a piece of honeycomb",
+  wax:    "a block of beeswax",
+  dipper: "a dipper still running with honey"
+};
+/* AND THE ONE THING THAT IS NOT A GIFT. Every so often the round is not a
+   delivery at all: they take the smoker out to the hive, work it, and bring
+   it back. Nothing is left at anybody's door and nothing is earned - it is
+   the job you actually see a beekeeper doing, and the smoke is the bit the
+   user asked for by name. */
+/* Rolled BEFORE a delivery target is looked for, so it fires whether or not
+   there is anywhere to take honey - which is why it is lower than it looks.
+   Measured at 0.28 the smoker was in hand for seventy per cent of all the
+   frames anything was, because a gift round needs a building that wants one
+   and a smoker round never does. */
+const SMOKER_ROUND_CHANCE = 0.14;
+
 function updateBeekeepers(dt){
   if(!G.beekeepers) G.beekeepers = [];
   for(const b of G.bldgs){
@@ -19874,6 +20056,32 @@ function updateBeekeepers(dt){
       /* Nothing to carry out of an empty skep - a colony lost to the cold
          stops the rounds until another swarm is brought home. */
       if(o.home.empty) continue;
+      /* ---- SOMETIMES THE ROUND IS THE SMOKER ----
+         Not a delivery: out to the hive, work it, and back. Nothing left at
+         anybody's door, nothing earned. It is the job you actually picture a
+         beekeeper doing, and it is the only time the smoke is out in the
+         village rather than propped by the door.
+
+         The spot is CHECKED FOR GROUND before it is used. A ring of angles
+         round a building is how three separate features in this project have
+         put somebody in the sea. */
+      if(Math.random() < SMOKER_ROUND_CHANCE){
+        let spot = null;
+        for(let i=0;i<10 && !spot;i++){
+          const a = Math.random()*6.283, d = TILE*(1.3 + Math.random()*0.8);
+          const x = o.home.x + Math.cos(a)*d;
+          const y = o.home.y + o.home.h*TILE/2 + 6 + Math.sin(a)*d*0.6;
+          if(!isWater(x,y) && !blocked(x,y,null,false)) spot = { x, y };
+        }
+        if(spot){
+          o.call = null; o.legT = 0; o.laden = true;
+          o.honeyProp = "smoker";
+          o.dest = spot;
+          o.state = "smoking";
+          o.workT = BEEKEEPER_WORK;
+          continue;
+        }
+      }
       const call = beekeeperFindCall(o.home);
       if(!call) continue;
       o.call = call; o.legT = 0; o.laden = true;
@@ -19882,7 +20090,15 @@ function updateBeekeepers(dt){
          duller idea than somebody going back and forth with whatever came off
          the hive this morning. Flavour only, by the user's own answer: both
          do exactly the same thing at the door. (drawHoneyJar/Comb, 04e) */
-      o.honeyProp = Math.random() < 0.5 ? "comb" : "jar";
+      /* FOUR THINGS NOW, NOT TWO. "Give the beekeeper different things like
+         honey comb to give others, jars to give others, the bee smoke etc."
+         Two props alternating fifty-fifty stop reading as variety within a
+         few rounds. The jar stays the commonest because it is the one that
+         says honey fastest; wax and the dipper are the ones you notice when
+         they turn up. Flavour only - all four do exactly the same thing at
+         the door, which was the user's own answer when the jar and comb
+         went in. (drawHoneyJar/Comb/Beeswax/Dipper, 04e) */
+      o.honeyProp = HONEY_GIFTS[(Math.random()*HONEY_GIFTS.length)|0];
       o.dest = { x: call.x, y: call.y + call.h*TILE/2 + 6 };
       o.state = "out";
     } else if(o.state === "out"){
@@ -19892,6 +20108,23 @@ function updateBeekeepers(dt){
         continue;
       }
       if(fieldWorkerWalk(o, dt, BEEKEEPER_SPD)){ o.state = "working"; o.workT = BEEKEEPER_WORK; }
+    } else if(o.state === "smoking"){
+      /* Walk out, then stand and work the bellows. The smoke itself lives on
+         the prop (drawSmoker, 04e) and drifts on its own clock, so nothing
+         here has to animate it - this only has to hold them still long
+         enough to be seen doing it. */
+      if(fieldWorkerWalk(o, dt, BEEKEEPER_SPD)){
+        o.moving = false;
+        o.workT -= dt;
+        if(Math.random() < 0.08) fxPuff(o.x, o.y - 10, "rgba(232,228,220,.55)");
+        if(o.workT <= 0){
+          if(p===P_YOU && Math.random() < 0.22)
+            hint("The beekeeper is working the smoker over the hive. The bees have gone quiet.");
+          o.honeyProp = null; o.laden = false;
+          o.state = "home"; o.legT = 0;
+          o.dest = { x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 };
+        }
+      }
     } else if(o.state === "working"){
       o.moving = false;
       o.workT -= dt;
@@ -19905,8 +20138,7 @@ function updateBeekeepers(dt){
           if(p===P_YOU && Math.random() < 0.3)
             /* Names what they actually put down, so the jar and the comb are
                two things in the text as well as two things in the hand. */
-            hint("The beekeeper leaves "+
-                 (o.honeyProp === "comb" ? "a piece of honeycomb" : "a jar of honey")+
+            hint("The beekeeper leaves "+ (HONEY_GIFT_NAME[o.honeyProp] || "a jar of honey") +
                  " at the "+(BLDG[call.type].name||call.type).toLowerCase()+".");
         }
         o.call = null; o.laden = false; o.honeyProp = null; o.state = "home"; o.legT = 0;
@@ -23574,7 +23806,11 @@ function updateUnit(u, dt){
                matters and leaving it out cost the Ashkin their economy;
                foodPace returns 1 for anybody who is not the player.
                (foodPace / FOOD_RATE, 01f) */
-            const take = Math.min(2 * GATHER_SCALE * foodPace(n.kind, u.p) * peacefulYield(n.kind)
+            /* A field comes in slower than a hedgerow - farmPace, 01f. Kept
+               beside foodPace rather than folded into it: one is about WHAT
+               is being gathered and the other about WHERE from. */
+            const take = Math.min(2 * GATHER_SCALE * foodPace(n.kind, u.p)
+                                    * farmPace(n) * peacefulYield(n.kind)
                                     * (1 + lvl*0.40) * dg * seasonal * insp
                                     * farmYieldUp * ancientFarmUp * ancientMineUp * nightCatch
                                     /* and a field put in on ground the flock
@@ -23841,9 +24077,16 @@ function updateUnit(u, dt){
              then and there, and is spent doing it. The founder is the one
              exception - they may build it but never hold it, so theirs
              waits for somebody to be garrisoned in. (promoteToTrade, 05g) */
-          if(typeof promoteToTrade === "function" && BLDG[b.type] &&
-             (BLDG[b.type].bakery || BLDG[b.type].gardener || BLDG[b.type].geologist ||
-              BLDG[b.type].herbalist || BLDG[b.type].caretaker || BLDG[b.type].beehive)){
+          /* ASKS THE ONE LIST, rather than keeping a second of its own.
+             This used to name six trades by hand - bakery, gardener,
+             geologist, herbalist, caretaker, beehive - so finishing a
+             Shepherd's Hut or an Artist's Retreat never even called
+             promoteToTrade, and the house went up with nobody in it.
+             Reported from play on 16 Sep, the shepherd and the painter.
+             (tradeBuildingKind, 05g.) */
+          if(typeof promoteToTrade === "function" &&
+             typeof tradeBuildingKind === "function" &&
+             tradeBuildingKind(BLDG[b.type])){
             /* THE ONE WHO EARNED IT, not whoever happened to lay the last
                plank. The gardener and the geologist are earned by working
                (earnSpecialistByWork, 05g), and a build crew means the
@@ -39470,26 +39713,21 @@ function drawTradeDetail(b, x, y, w, dep, H){
   }
 
   /* ---------- THE SHEPHERD'S HUT ----------
-     A hurdle pen at the side with a fleece thrown over it, and the spare
-     crook leaning by the door. A hut is a hut; the PEN is what says
-     shepherd, and it is the thing a player will read from across the
-     field. */
+     The spare crook leaning by the door, and nothing else.
+
+     THE HURDLE PEN THAT USED TO STAND BESIDE IT IS GONE. Four uprights,
+     two rails and a fleece thrown over the top - reported 20 Sep with a
+     picture: "remove this gate part of the shepherd's house, the gate, as
+     characters walk through it." It was drawn as scenery and nothing in
+     the pathing knew about it, so villagers walked through the rails, and
+     a fence people walk through is worse than no fence: it makes every
+     other solid thing in the village look negotiable.
+
+     It went in as "the PEN is what says shepherd" and that job has since
+     been taken over twice - by the white beard (facialHairOf, 04e) and by
+     the flock itself standing out in the field, both of which say it
+     without putting a wall where there is no wall. */
   if(d.shepherd){
-    const px = x - 8, py = base - 2;
-    ctx.strokeStyle = "#6b5a42"; ctx.lineWidth = 1.2;
-    for(let i=0;i<4;i++){                       // the hurdle's uprights
-      const ux = px - i*4.4;
-      ctx.beginPath(); ctx.moveTo(ux, py); ctx.lineTo(ux, py - 7); ctx.stroke();
-    }
-    ctx.lineWidth = 1;                          // and two rails across them
-    for(const ry of [-2.4, -5.2]){
-      ctx.beginPath(); ctx.moveTo(px + 1.2, py + ry); ctx.lineTo(px - 14.4, py + ry); ctx.stroke();
-    }
-    // a fleece over the top rail, which is the one thing nobody else has
-    ctx.fillStyle = "#e6e2d6";
-    ctx.beginPath();
-    ctx.ellipse(px - 7, py - 6.4, 5.2, 2.8, 0, 0, 6.283); ctx.fill();
-    ctx.strokeStyle = "rgba(120,114,98,.6)"; ctx.lineWidth = 0.6; ctx.stroke();
     // the spare crook by the door
     ctx.strokeStyle = "#7a5a34"; ctx.lineWidth = 1.3;
     ctx.beginPath();
@@ -40819,6 +41057,12 @@ function barrelShade(halfW, top, h, dimCol, baseCol, litCol){
    rather than a slab held away from it. The earlier finding still stands
    and is why this did not go below about 1.0: an arm drawn fully INSIDE
    the back does not read as in front of it, it just widens the back. */
+/* VILLAGER_LOOKS with the worn things taken off - see `u.tradeDress` in
+   drawPerson. Hair, back hair and the accent are kept; the hat, the scarf
+   and the apron are the trade's to provide. */
+const TRADE_LOOKS = VILLAGER_LOOKS.map(l =>
+  Object.assign({}, l, { hat:false, scarf:false, apron:false }));
+
 const ARM_SIDE_X = 1.06;
 /* And how far out a BUILDER's arms sit when turned away - see the armShX
    note in drawPerson.
@@ -40838,6 +41082,100 @@ const ARM_SIDE_X = 1.06;
    frames of 20. The number is not a matter of taste - it is set by where the
    tool has to end up. */
 const ARM_BUILD_BACK_X = 1.42;
+
+/* AND HOW FAR IN A SWUNG TOOL COMES when the villager is turned away.
+
+   The opposite pull to ARM_BUILD_BACK_X above, and for a different shape of
+   problem. A builder's mallet is small and close, and the fault there was an
+   arm tucked invisibly against the body - so it goes OUT, to read as a limb.
+   A felling axe is long. At the ordinary shoulder (tw*0.72) the hand sits at
+   0.23H and the haft carries the head out to 0.47H, which is two and a half
+   torso half-widths clear of the body - and on a figure whose back is turned
+   there is no reading of "out at the side" other than "behind him". Reported
+   exactly that way: "it's behind the villager's back, it needs to be in
+   front of the body."
+
+   So the HANDS come in toward the centre line and the haft stands nearer
+   vertical (haftAng/chopAng below), and the axe rises in the gap between
+   the villager and the tree.
+
+   BUT THE SHOULDER STAYS OUT, and that is the correction to the first pass
+   at this. Bringing the shoulder in with the hand tucked the whole arm
+   inside the torso, where an arm three-fifths of its old length has nothing
+   to read against and the figure comes out with no visible limbs at all -
+   reported in the same words the builder's arms once were: "the arms are
+   still behind the back". They are not behind anything (armEdge rims them,
+   and they are drawn after the body); a stub inside the silhouette simply
+   cannot be seen.
+
+   At the body's own edge the arm runs from outside the torso up and inward
+   to the raised hands, so half its length is against the grass and the rest
+   is rimmed against the back. That diagonal IS the read: two arms going up
+   and in, a tool above the centre line. */
+const ARM_BACK_SWING_X = 1.00;
+
+/* AND THE SAME QUESTION FOR A WEAPON, answered the other way round.
+
+   A swung tool gets its hands to the centre line by carrying the arm PAST
+   straight up (frontA beyond pi, below) - the grip is two-handed and ends
+   above the head, so a wide shoulder and a crossing arm both work. A
+   weapon has none of that: the club, the sword, the bow and the captain's
+   blade are each drawn straight out from the hand at their own angle, with
+   no second grip to pull them back. Widening the shoulder just carries the
+   weapon further out, which is how raising ARM_BACK_SWING_X to 1.00 for
+   the axe pushed all six of them back out past where they started.
+
+   So a weapon brings the SHOULDER in instead, and keeps it. Measured back
+   against side: club 0.286 vs 0.375, sword and shield 0.225 vs 0.314,
+   captain 0.321 vs 0.410, bow 0.182 vs 0.271. */
+const ARM_BACK_WEAPON_X = 1.00;
+
+/* ---- AND SOMEBODY SIMPLY WALKING AWAY FROM YOU ----
+   Reported 20 Sep of the shepherd: "he has arms behind his back when
+   walking north, put them on his sides."
+
+   He does, and so did everybody else who was carrying anything. `armsFree`
+   means EMPTY hands, and it is what earns the full ARM_SIDE_X splay; a
+   villager with a crook, a basket or a tool in their fist fell through the
+   whole chain to the ordinary shoulder at tw*0.72, which is 0.136H against
+   a torso half-width of 0.185H. Facing you that is fine - the swing carries
+   the arm past the body's edge. From behind there is no swing to carry it
+   anywhere, so both arms sit inside the silhouette and the figure reads as
+   having its hands clasped behind its back.
+
+   The body's own edge, which is where an arm hangs on somebody standing
+   still. Not the empty-handed splay: that is a walk with nothing to carry
+   and it would read as a shrug on somebody holding something. */
+const ARM_BACK_WALK_X = 1.00;
+
+/* ---- THE SHOULDER MAY GO OUT; THE HAND COMES BACK IN ----
+
+   The rule that reconciles the two halves of this, arrived at the hard way
+   over three passes. A turned-away figure needs BOTH: an arm far enough out
+   to be seen as a limb, and whatever it holds near enough the centre line to
+   read as held in front. Those pull opposite ways through one number, because
+   the hand is derived from the shoulder (hx, below) - which is why every pass
+   that moved the shoulder alone fixed one and broke the other. Moving the
+   shoulder out and then taking the same distance off at the hand gets both:
+   the arm slants in across the body instead of hanging parallel to it.
+
+   A swung tool does not need these - it solves the same problem through the
+   arm's ANGLE instead, carried past pi so the two-handed grip ends up above
+   the middle of the chest (frontA, below). These are for the things drawn
+   straight out from one hand, which have no second grip to pull them back.
+
+   Each is the distance its shoulder moved, so the hand lands exactly where it
+   did before the shoulder was widened, and only the arm changes.
+
+   A BUILDER IS THE EXCEPTION AND STAYS ONE. Their tool is meant to sit OUT,
+   clear of the body: a mallet or a saw is short and held close, and brought
+   in over the torso it reads as laid across the back, which is the exact
+   fault ARM_BUILD_BACK_X was raised to cure. tool-clears-the-back and
+   facing-four-ways both pin it, and pulling the build hand in failed them
+   5-and-2 - "clear of the body in 0 of 20 frames". A long axe rising above
+   the head and a short mallet held at the hip do not want the same answer,
+   and the tests are where that was already written down. */
+const HAND_BACK_IN_WEAPON = 0.76;   // ARM_BACK_WEAPON_X - 0.24, its old shoulder
 
 function villagerJob(u){
   if(u.type!=="villager" && u.type!=="moonvillager") return null;
@@ -40902,85 +41240,80 @@ const CARETAKER_CLOTH = "#7a6642";
    mop and the trees both learned - and on the back of a head the lit side
    is the only thing saying the hair has volume rather than being a hole
    cut out of the background. */
-/* ---------- a fall of long hair down the back ----------
-   Shared by the loose style, the long style and the headscarf's own fall,
-   which were three near-copies of the same flat slab.
+/* ---------- the pony, seen from behind ----------
+   A pony drawn as the front one mirrored DISAPPEARS. Same colour as the
+   head, touching it, and only a fifth of a head-radius clear of its
+   silhouette: the two merge into one wide blob and there is no pony on
+   screen at all. From the front it works only because it has a FACE to
+   sit against.
 
-   Four things separate hair from a board, and the first pass had none of
-   them: it TAPERS (thick where it is gathered, narrow at the tip), it
-   CURVES rather than hanging straight, it is SPLIT at the tip instead of
-   ending in one smooth round edge, and above all it MOVES. A fall that
-   never shifts is the one thing on a walking figure that is nailed down,
-   and that is most of why it read as a slab.
+   So from behind it is drawn as what it actually is - hair gathered at
+   the side of the skull and hanging past the shoulder. It is the drop
+   BELOW the head, against the tunic, that does all the reading; a band at
+   the gather says tied; and it is a touch darker than the head so the two
+   masses separate instead of pooling. Still the same side-of-the-head
+   ponytail as the front view, and still on the opposite side. */
+function drawBackPony(R, headY, col, sw){
+  /* IT HANGS BELOW THE SKULL, IT DOES NOT GROW OUT OF THE SIDE OF IT.
+     Two versions failed the same way. The first left the head at head
+     height and swung out to R*1.40 - a narrow curved horn, "a thumb" on
+     one villager and an elephant's trunk on the other. The second was fat
+     enough but still joined the skull at its widest point, so head and
+     pony fused into one teardrop and the pair of them read as a BIRD'S
+     HEAD WITH A BEAK.
 
-   The sway comes off u.walk while they are walking and off the clock when
-   they are standing, so it is never dead - the same trick the fox's brush
-   and the dog's tail already use. Lagging behind the stride (the -0.9
-   phase) is what makes it read as hair being dragged along rather than a
-   shape wagging on its own. */
-function drawHairFall(u, headR, headY, col, opts){
-  opts = opts || {};
-  const len  = opts.len  === undefined ? 1.78 : opts.len;   // how far down, in headR
-  const top  = opts.top  === undefined ? -0.10 : opts.top;  // where it leaves the skull
-  const wide = opts.wide === undefined ? 0.98 : opts.wide;  // half-width at the top
-  const tipW = opts.tipW === undefined ? 0.40 : opts.tipW;  // half-width at the tip
-
-  const moving = u && u.moving;
-  const beat = moving ? Math.sin((u.walk||0) - 0.9)
-                      : Math.sin((G.t||0)*0.7 + ((u && u.id) || 0));
-  const sway = beat * headR * (moving ? 0.17 : 0.06);
-  const tipY = headY + headR*len;
-  const midY = headY + headR*(len*0.55);
-
-  // the mass: wider at the shoulders, drawn in toward a swung tip
-  ctx.fillStyle = col;
+     The head has to stay a circle. So the gather is low - below the
+     head's own centre, which is where a pony is actually tied - and the
+     mass hangs DOWN from there onto the back, clearing the skull's
+     silhouette by a little on the outer side and nothing at all on top.
+     A round head with something hanging off the back of it, which is what
+     was asked for. */
+  ctx.fillStyle = shade(col, -0.10);
   ctx.beginPath();
-  ctx.moveTo(-headR*wide, headY + headR*top);
-  ctx.quadraticCurveTo(-headR*(wide*1.24), midY,
-                        sway - headR*tipW,  tipY);
-  /* THE TIP IS NOT A SMOOTH EDGE. Two shallow notches, so it ends in three
-     soft points - at this size that is the whole difference between "hair"
-     and "a rounded rectangle". */
-  ctx.quadraticCurveTo(sway - headR*tipW*0.34, tipY + headR*0.16,
-                       sway,                    tipY + headR*0.02);
-  ctx.quadraticCurveTo(sway + headR*tipW*0.34, tipY + headR*0.18,
-                       sway + headR*tipW,      tipY);
-  ctx.quadraticCurveTo(headR*(wide*1.24), midY,
-                       headR*wide,        headY + headR*top);
+  ctx.moveTo(R*0.16, headY + R*0.50);
+  ctx.quadraticCurveTo(R*0.50, headY + R*0.30, R*0.92, headY + R*0.62);
+  ctx.quadraticCurveTo(R*1.08 + sw*0.3, headY + R*1.10, R*0.98 + sw, headY + R*1.60);
+  /* A BLUNT, NOTCHED END. Every version so far tapered to a point, and a
+     tapering point hanging off a round head is a BEAK - both villagers
+     read as birds. Hair ends in a bunch, not a spike: two shallow notches
+     across a tip more than half the width of the mass. */
+  ctx.quadraticCurveTo(R*0.90 + sw,     headY + R*1.80, R*0.76 + sw*0.9, headY + R*1.62);
+  ctx.quadraticCurveTo(R*0.66 + sw*0.8, headY + R*1.82, R*0.50 + sw*0.7, headY + R*1.56);
+  ctx.quadraticCurveTo(R*0.32, headY + R*1.04, R*0.16, headY + R*0.50);
   ctx.closePath(); ctx.fill();
-
-  /* Form along the LENGTH, not one blob in the middle. A lit band down the
-     near side and a darker one in the fold beside it - a solid shape in one
-     colour has no volume at all, which is the lesson the mop and the trees
-     both had to learn. */
-  /* NARROW BANDS. The first pass drew these a third of the fall wide each,
-     so between them they covered most of it and the hair's own colour was
-     barely on screen - it came out looking like a pale hood with a stripe
-     down it rather than hair. A highlight is a glance of light along one
-     edge, not half the surface. */
-  ctx.fillStyle = shade(col, 0.11);
+  /* A GLANCE of light down the outer edge. The first one was shade +0.10
+     across a third of the width and on the grey headscarf it read as a
+     white streak painted down the hair. Narrow, and barely off the colour
+     underneath - the same correction the deleted falls needed. */
+  ctx.fillStyle = shade(col, 0.07);
   ctx.beginPath();
-  ctx.moveTo(-headR*(wide*0.50), headY + headR*(top + 0.26));
-  ctx.quadraticCurveTo(-headR*(wide*0.62), midY, sway - headR*tipW*0.46, tipY - headR*0.20);
-  ctx.quadraticCurveTo(-headR*(wide*0.34), midY, -headR*(wide*0.30), headY + headR*(top + 0.26));
+  ctx.moveTo(R*0.88, headY + R*0.78);
+  ctx.quadraticCurveTo(R*0.99 + sw*0.3, headY + R*1.16, R*0.88 + sw, headY + R*1.44);
+  ctx.quadraticCurveTo(R*0.90 + sw*0.2, headY + R*1.14, R*0.96, headY + R*0.80);
   ctx.closePath(); ctx.fill();
-
-  ctx.fillStyle = shade(col, -0.13);
+  // and the band it is gathered into, where it leaves the head
+  ctx.fillStyle = shade(col, -0.30);
   ctx.beginPath();
-  ctx.moveTo(headR*(wide*0.40), headY + headR*(top + 0.32));
-  ctx.quadraticCurveTo(headR*(wide*0.54), midY, sway + headR*tipW*0.42, tipY - headR*0.26);
-  ctx.quadraticCurveTo(headR*(wide*0.64), midY, headR*(wide*0.60), headY + headR*(top + 0.32));
-  ctx.closePath(); ctx.fill();
-
-  if(opts.tie){
-    // the band a ponytail is gathered into, just clear of the skull
-    ctx.fillStyle = shade(col, -0.34);
-    ctx.beginPath();
-    ctx.ellipse(0, headY + headR*(top + 0.26), headR*(wide*0.58), headR*0.11, 0, 0, 6.283);
-    ctx.fill();
-  }
+  ctx.ellipse(R*0.56, headY + R*0.52, R*0.22, R*0.085, 0.42, 0, 6.283);
+  ctx.fill();
 }
 
+/* ---------- what a hairstyle looks like from behind ----------
+   THE BIG CENTRED DRAPE IS GONE. Two of these styles used to hang a
+   tapering fall down the middle of the back, shared with the headscarf's
+   own, and however much it was worked on - a taper, a curve, a split tip,
+   a sway lagging the stride - it kept reading as a drape hung on somebody
+   rather than as their hair. The reason is in the shape of the problem,
+   not the quality of the fall: hair gathered at the nape hangs to ONE
+   side, and a symmetrical mass straight down the centre line of a figure
+   is a cloak.
+
+   So the falls are deleted, and what says "long hair" from behind is the
+   villager's own pony - the very ellipse the front view already draws,
+   mirrored to the other side (see the mop branch in drawPerson). Same
+   shape, same colour, opposite side: the same person turned round.
+
+   What is left here is only the two styles that are not a pony at all. */
 function drawBackHair(style, headR, headY, hairCol, knotCol, u){
   const lit = shade(hairCol, 0.16), dim = shade(hairCol, -0.16);
   knotCol = knotCol || hairCol;
@@ -41005,18 +41338,11 @@ function drawBackHair(style, headR, headY, hairCol, knotCol, u){
     return;
   }
 
-  if(style === "loose"){
-    // worn down: wide at the shoulders, no tie, the fullest of the three
-    /* THE FALL STARTS HIGH ON THE SKULL, NOT AT THE JAW. With top at -0.14
-       it began below the head's own centre, so the hair cap laid down
-       earlier stayed visible as a separate dome above it - two overlapping
-       shapes with a seam and two different shadings between them, reported
-       as "there's two different hair styles going on". Starting at -0.66
-       buries the cap's whole crescent under the fall, and the two read as
-       one mass of hair. */
-    drawHairFall(u, headR, headY, hairCol, { len:1.80, top:-0.66, wide:0.99, tipW:0.52 });
-    return;
-  }
+  /* "loose" and "long" draw NOTHING here. Both are ponies now, and a pony
+     is drawn where the front view draws it - mirrored - so that the two
+     views are the same hair. See the mop branch and the scarf's tail in
+     drawPerson. */
+  if(style === "loose" || style === "long") return;
 
   if(style === "bun"){
     /* A gathered knot at the base of the skull. Sits BELOW the head's own
@@ -41058,22 +41384,6 @@ function drawBackHair(style, headR, headY, hairCol, knotCol, u){
     return;
   }
 
-  if(style === "long"){
-    /* Gathered and tied - a ponytail rather than hair worn down. Narrower
-       at the top than "loose" because it is caught in at the band, and it
-       tapers harder to the tip for the same reason.
-
-       IN knotCol, NOT hairCol. On a scarf-wearer the crown is entirely
-       cloth, so the FRONT of that villager shows no hair whatever - and a
-       brown fall down the back of a head that has no brown hair on it
-       anywhere reads as belonging to somebody else. Reported as "the hair
-       doesn't match the front hair colour", which is the same fault the
-       bun had. knotCol is the scarf's colour on a scarf-wearer and plain
-       hairCol on anyone else, so this is hair when there is hair to see
-       and cloth when there is not. */
-    drawHairFall(u, headR, headY, knotCol,
-                 { len:1.72, top:0.00, wide:0.80, tipW:0.34, tie:true });
-  }
 }
 
 /* ---------- a face ----------
@@ -42091,7 +42401,22 @@ const FACIAL_HAIR = [
   { key:"short",     w:11 },
   { key:"full",      w: 6 }
 ];
+/* THE SHEPHERD IS THE ONE MAN IN THE VILLAGE WITH A WHITE BEARD.
+   Asked for 20 Sep: "get rid of whatever that is on the shepherd's face
+   and just make it a white beard, this character will be the only one with
+   a white beard in the game."
+
+   What was on his face was the fleece collar, which sat high enough to
+   land where a mouth goes and read as one (see the headwear branch below,
+   where it used to be). A beard is the better answer by a distance: it is
+   the thing the collar was reaching for - somebody weathered, out in it all
+   day - and it says it without putting a pale shape across the face.
+
+   Always full, never rolled, and never female: it is an identity rather
+   than a roll of the dice, and the whole point is that seeing a white
+   beard tells you who it is. */
 function facialHairOf(u, look){
+  if(u && u.shepherd) return "full";
   if(!u || !look || look.female) return "none";
   const r = villagerRoll(u.id || 0, 11.37);
   if(look.beard) return r < 0.5 ? "full" : "short";
@@ -42293,7 +42618,28 @@ function drawPerson(u, pl, yOff){
   // not plate, and drawWildlingGarb (below) adds the fur and bare feet
   // on top of it. (idea_discovery_events)
   const isVill = u.type==="villager" || u.type==="moonvillager" || u.type==="wildling";
-  const look = isVill ? VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length] : null;
+  /* ---- A TRADE LEAVES THE OLD OUTFIT BEHIND ----
+     Reported 20 Sep: "the painter is wearing two hats... once they become
+     that special villager they leave their previous outfits behind."
+
+     Every trade figure is drawn as an ordinary villager with the trade's
+     clothes laid over the top - that is deliberate, and it is what keeps
+     the face, the hair and the walk of the person they were. But the
+     villager underneath carries a LOOK, and VILLAGER_LOOKS[0] has
+     `hat:true` while three of the six have a scarf or an apron. So a
+     painter who happened to roll that look wore the villager's hat with
+     the beret on top of it, and an apron under the smock.
+
+     The trade supplies the outfit, so the look's does not draw. Everything
+     else about the look stays - hair colour, back hair, the accent, which
+     is the whole point of drawing them as themselves.
+
+     Pre-built rather than copied per figure: drawPerson runs dozens of
+     times a frame and this would otherwise allocate on every one. */
+  const lookIdx = (u.look||0) % VILLAGER_LOOKS.length;
+  const look = !isVill ? null
+             : u.tradeDress ? TRADE_LOOKS[lookIdx]
+             : VILLAGER_LOOKS[lookIdx];
   // villagers all wear the same cloth so a crowd reads as one people -
   // only faces, hair and small trims vary between them
   const wint = G.cold || 0;
@@ -42336,10 +42682,9 @@ function drawPerson(u, pl, yOff){
      now every unit in the game was drawn from the front whichever way it
      was walking, so a village heading north was a crowd of people
      moonwalking. */
-  /* ---- EXCEPT ON A FARM ----
-     A farm job is the one kind of work that is drawn ROUND a prop rather
-     than with one: a watering can tipped ahead of them, a hoe reaching
-     out, a barrow being pushed. Every one of those is placed at a fixed
+  /* ---- EXCEPT WITH A FARM PROP IN THEIR HANDS ----
+     Some farm work is drawn ROUND a prop rather than with one: a watering
+     can tipped ahead of them, a hoe reaching out, a barrow being pushed. Every one of those is placed at a fixed
      offset out along +x from the hand, which is "forward" in the
      three-quarter view they were all drawn for - and from behind, forward
      is up the screen, so the whole lot came out beside the worker instead.
@@ -42353,7 +42698,20 @@ function drawPerson(u, pl, yOff){
 
      Note this turns off the WHOLE back view for them, not just the prop -
      which is what makes it safe. Half a figure turned round with a
-     side-on barrow in its hands would be worse than either. */
+     side-on barrow in its hands would be worse than either.
+
+     NARROWED 20 Sep. This was written as "a farm worker is never turned
+     round" (c196131) and the job was the wrong test. Reported with a
+     picture of a villager stood face-on to the fruit tree he was picking:
+     "when gathering food the villager should be facing the plant, if it is
+     north his head needs to be turned around." Picking at a bush or a tree
+     puts NOTHING in the hand (drawHeld returns early for it, below) and
+     neither does tending, which is done bare-handed down among the rows.
+     There is no prop to come out sideways, so there was never anything to
+     protect. Only water, hoe and barrow carry one.
+
+     Same shape as the axe, one job over: what matters is the thing being
+     held, not the job holding it. */
   /* A BREAK IS THE SAME CASE AS A FARM. Every one of the work-break poses
      is authored side-on and several run a prop out along +x from the hand
      - a kite string, a yo-yo, a skipping rope - so turning the villager
@@ -42380,51 +42738,44 @@ function drawPerson(u, pl, yOff){
      was computed separately down there). Two conditions that must agree is
      the bug shape that has already cost this project a whole feature. */
   const haulingLoad = isVill && u.hauling && u.carry > 0 && !u.carryFish;
-  /* ---- AND A SWING TURNS THEM SIDE-ON, FOR THE SAME REASON A LOAD DOES ----
-     Reported 16 Sep with a picture: "this is what chopping looks like, no
-     axe and both arms behind the back."
+  /* IS THERE A PROP IN THEIR HANDS? The one thing the back view needs to
+     know about a farm worker, hoisted up here because backView is decided
+     well before the farm block below runs.
 
-     Both halves of that are true and both follow from one decision. Nothing
-     held is drawn from behind (drawHeld, 04e) - rightly, because the body
-     is in front of it and a haft drawn over the shoulder blades was the
-     14 Sep report. But an axe is not a thing somebody is merely holding: it
-     is the entire reason the figure is moving. Take it away and what is
-     left is a villager jerking at nothing with both arms round the back of
-     them, which reads as a bug rather than as work.
+     ONE definition, read by backView here and by the farm block below,
+     which takes farmTask straight off it rather than working it out a
+     second time. Two conditions that must agree is the bug shape that has
+     already cost this project a whole feature. */
+  const farmPropTask = (isVill && job === "farm" && u.working > 0 && !u.moving
+                        && u.target && u.target.isNode && u.target.farmOf)
+                     ? farmTaskOf(u) : null;
+  const farmStands = farmPropTask === "water" || farmPropTask === "barrow"
+                  || farmPropTask === "hoe";
+  /* ---- THEY FACE THE WORK, AND YOU SEE THE BACK OF THEM ----
+     Asked for 16 Sep, with a picture of a villager stood side-on to the
+     tree he was cutting: "the tree is behind the villager, he should be
+     facing north - so that we see the back of his head and the arms are
+     still in the front of the body facing the tree with the axe."
 
-     So the swing is treated exactly as a carried load already is - turn
-     them side-on and the whole action is legible again, at the cost of the
-     back view on the jobs where the back view has nothing to show.
+     This spent a day going the wrong way. Chopping from behind first drew
+     no axe at all and both arms round the back, so the swing was turned
+     SIDE-ON to make it legible - which fixed the picture by refusing to
+     draw it. The right answer is the one asked for here: keep them facing
+     the tree, and put the arms and the tool in FRONT of the body where a
+     person's arms actually are when they swing something.
 
-     AND THE BUILDER IS IN HERE TOO, reported in the same breath 16 Sep:
-     "the hair is backwards and he's holding the hammer behind his back."
-     The hammer was the one carve-out - it swings clear of the shoulder, it
-     had its own back-view arm (ARM_BUILD_BACK_X) and its own test that the
-     haft must not lie across the shoulder blades. Every one of those was a
-     fix to WHERE the tool is, and tool-clears-the-back.js says in its own
-     header what the 14 Sep sweep concluded: "it looks like it is behind
-     them" and "it is drawn behind them" are two different claims, and only
-     the first one keeps coming back. A tool worked in front of somebody
-     facing away from you cannot be placed anywhere that reads right,
-     because their body is in front of it. The carve-out has now been
-     reported as wrong, so it goes the same way as the rest.
-
-     It takes the back-of-head question with it for these three jobs, which
-     is worth saying because that was the other half of the same report: a
-     headscarf dome with the hair falling dark beneath it reads as a face
-     in shadow rather than as the back of a head.
-
-     Hoisted rather than recomputed for the same reason haulingLoad is -
-     `chopping` and `buildAct` are both worked out again further down for
-     the arm posing, and two conditions that must agree is the bug shape
-     that has already cost this project a whole feature. */
-  const swingWork = isVill && (u.working > 0) && !u.moving &&
-                    (job === "wood" || job === "mine" || u.order === "build");
+     What made this hard was a rule in drawHeld that nothing held is ever
+     drawn from behind. That rule came from three failed attempts to move a
+     tool to a place that reads right on somebody's back - and it is
+     correct for a thing being CARRIED, which is all it was ever about: an
+     axe over the shoulder on the walk home has the body in front of it.
+     A tool being WORKED is the opposite. The hands come round the front to
+     use it, so drawing it in front of the torso is not a trick, it is
+     where it is. (workHeld, drawHeld below.) */
   const backView = (u.dir === "up")
-                && villagerJob(u) !== "farm"
+                && !farmStands
                 && !u.breakActivity
-                && !haulingLoad
-                && !swingWork;
+                && !haulingLoad;
   const baseCloth = u.firstVillager ? FOUNDER_CLOTH
     : u.nightWear ? NIGHTWEAR_CLOTH
     : u.bugCatcher ? BUGCATCHER_CLOTH
@@ -42612,8 +42963,7 @@ function drawPerson(u, pl, yOff){
   /* WHICH OF THE FOUR FARM JOBS this one is on, if any (FARM_TASKS above).
      Only somebody actually working their own field's node - not a berry
      bush, not a shoal. */
-  const onFarm   = picking && pickAt && !!pickAt.farmOf;
-  const farmTask = onFarm ? farmTaskOf(u) : null;
+  const farmTask = farmPropTask;   // hoisted to the backView block above
   u._farmTask = farmTask;
   /* Where the fruit is, in the sprite's own space - x flipped with the facing
      (drawUnit scales by face before this runs), y as it is. A gatherer stops
@@ -42638,8 +42988,9 @@ function drawPerson(u, pl, yOff){
   /* Only TENDING is done with the hands in the crop. Watering, carting and
      sowing are all done on your feet with something in your hands, so they
      must not take the picker's reach or all three would stand there darting
-     at the soil with a watering can. */
-  const farmStands = farmTask === "water" || farmTask === "barrow" || farmTask === "hoe";
+     at the soil with a watering can. (farmStands is hoisted to the backView
+     block above - it is the same question that decides whether they may be
+     turned round, and it is answered in one place.) */
   const reach     = (picking && !farmStands) || patting;
   const rCyc      = patting ? patCyc : pCyc;
   const reachLX   = patting ? (u.patAt.x - u.x) * (u.face < 0 ? -1 : 1) : pickLX;
@@ -43399,6 +43750,31 @@ function drawPerson(u, pl, yOff){
                   rather than swung. */
                : farmTask === "hoe"    ? 0.72 - hoeA*0.62
                : farmTask === "barrow" ? 0.86
+               /* ---- THE SWING SEEN FROM BEHIND ----
+                  Asked for 16 Sep: "we need a new animation with them being
+                  between the tree and the villager."
+
+                  Side-on, the arm swings from down-at-the-wood (0.20) back
+                  past the shoulder, and the haft crosses the body - which
+                  is exactly right when you are looking at their side and
+                  exactly wrong from behind, where it reads as an axe laid
+                  across their chest.
+
+                  Facing away, the work is UP THE SCREEN, beyond them. So
+                  both arms go up instead of across: an angle near pi puts
+                  the hands above the shoulders (sin/cos off `frontA`,
+                  below), and the stroke runs between head height and full
+                  reach so the blade travels in the gap between them and the
+                  trunk. Nothing crosses the torso at any point in it. */
+               /* PAST STRAIGHT UP, so the hand crosses to the centre line
+                  rather than swinging out from the shoulder. pi is straight
+                  up; beyond it sin goes negative and the hand travels back
+                  IN across the body, which is what puts the grip above the
+                  middle of them with the arm slanting up to meet it. The
+                  old values (2.62/2.68) sat short of pi, so the hand came
+                  out to 0.23H and took the axe with it. */
+               : (chopping && backView) ? (mining ? 3.94 + chopA*0.28
+                                                  : 3.90 + chopA*0.30)
                : chopping ? (mining ? 0.10 - chopA*1.55 : 0.20 - chopA*1.25)
                /* BUILDING, and which of the six this one does. Each has its
                   own beat: the tap of a mallet is quick and shallow, a
@@ -43557,6 +43933,26 @@ function drawPerson(u, pl, yOff){
      drawBuildTool's own back-view nudge comes off with it. */
   const armShX = (backView && armsFree)  ? tw*ARM_SIDE_X
                : (backView && buildAct)  ? tw*ARM_BUILD_BACK_X
+               /* A SOLDIER IS THEIR WEAPON, and every weapon in drawHeld's
+                  switch is drawn from this same front hand - the club, the
+                  sword, the bow, the captain's blade - so bringing the hand
+                  in brings the lot in together, rather than thirteen cases
+                  each nudged by hand. They needed it more than the axe did:
+                  measured before this, a warrior's club drew byte-identical
+                  geometry at dir "up" and dir "side", so a turned-away
+                  soldier had their weapon hung out at the shoulder exactly
+                  as if you were looking at their side. The shield rides the
+                  off arm and comes in with it for free. */
+               : (backView && chopping)  ? tw*ARM_BACK_SWING_X
+               : (backView && !isVill)   ? tw*ARM_BACK_WEAPON_X
+               /* AND ANYBODY ELSE TURNED AWAY, whose arms would otherwise be
+                  tucked inside the body - see ARM_BACK_WALK_X above. LAST of
+                  the back-view branches on purpose: a soldier's weapon hand
+                  is settled two lines up and putting this before it would
+                  hand every one of them the wider shoulder and send the
+                  weapon back out past it, which is the fault that rule
+                  exists to fix. */
+               : backView                ? tw*ARM_BACK_WALK_X
                : tw*0.72;
   /* AND THEY HAVE TO BE LIGHTER THAN THE BACK THEY LIE ON. Both arms were
      the coat's own colour or a shade under it, hanging at the body's edge -
@@ -43592,7 +43988,14 @@ function drawPerson(u, pl, yOff){
      along its own line if it ever reaches past what an arm can. */
   let chopGrip = null;
   if(chopping && !reach){
-    const fhx = armShX + Math.sin(frontA)*armLen*0.78;
+    /* The same hand as `hx` below, and it must stay the same hand - this is
+       the chop grip's copy of it. Neither pull applies inside this block (a
+       swung tool is neither a weapon nor a build action), but it is written
+       the same way so the two cannot drift. */
+    const fhxWide = armShX + Math.sin(frontA)*armLen*0.78;
+    const fhxIn   = (backView && !isVill) ? tw*HAND_BACK_IN_WEAPON : 0;
+    const fhx = fhxWide > 0 ? Math.max(0, fhxWide - fhxIn)
+                            : Math.min(0, fhxWide + fhxIn);
     const fhy = shldY+H*0.03 + Math.cos(frontA)*armLen*0.88;
     /* ON THE HAFT, not along the arm. The haft lies at its own angle - the
        same one drawHeld uses - and a hand placed along the ARM's line sits
@@ -43609,7 +44012,19 @@ function drawPerson(u, pl, yOff){
        which is why the axe always read as two-handed and the pick never
        did. The haft is pulled off the arm's line, and the hands sit much
        further apart on it - a pick is gripped wide. */
-    const haftAng = mining ? 1.05 - chopA*2.15 : 1.15 - chopA*2.00;
+    /* FACING AWAY, THE HAFT STANDS UP instead of crossing the body - it is
+       pointing at the tree, which from behind is straight up the screen.
+       This number and drawHeld's `chopAng` are the same angle written twice
+       (one places the off hand on the haft, the other draws the haft) and
+       they have to agree, so the back-view case is added to BOTH. */
+    /* STOOD NEARER UPRIGHT from behind than it was. With the hands brought
+       in to the centre line (ARM_BACK_SWING_X) the haft is what decides how
+       far the head still travels sideways, and at 0.24 it carried it back
+       out past the shoulder - the very thing the hands had just come in to
+       stop. The sweep is kept: about the same number of degrees, swung
+       about a more upright rest. */
+    const haftAng = backView ? (mining ? 0.10 - chopA*0.36 : 0.12 - chopA*0.40)
+                  : mining ? 1.05 - chopA*2.15 : 1.15 - chopA*2.00;
     const gap = H*(mining ? 0.16 + chopA*0.14 : 0.06 + chopA*0.12);
     /* ONE ARM ON EACH SIDE, ALWAYS. Going a fixed way along the haft put
        the off hand past the leading one whenever the tool came back over
@@ -43656,7 +44071,20 @@ function drawPerson(u, pl, yOff){
      light forward - rather than flat against the middle of the back. */
   let torchGrip = null;
   if(backView && (G.dark||0) > 0.18 && G.cam.z > 0.75 && carriesTorch(u)){
-    let gx = -(armShX + tw*0.34), gy = shldY + armLen*0.52;
+    /* ---- AND HELD OUT IN FRONT, NOT OFF TO ONE SIDE ----
+       Asked for 16 Sep: "make sure the villager is holding the torch in
+       front of himself when he walks north."
+
+       The first pass put it clear of the silhouette at shoulder height,
+       which solved the fist-on-the-spine problem and left the torch beside
+       him like a hand lamp on a shelf. Walking north the light should LEAD:
+       the hand comes in over the chest and up, so the flame is ahead of him
+       and the glow falls on the ground he is walking onto.
+
+       Same lesson as the axe, one step on - the tool is not stuck to the
+       side of the body, it is out in front where the person is using it.
+       Kept just off the centre line so it never sits dead on the spine. */
+    let gx = -tw*0.52, gy = shldY - armLen*0.22;
     const tdx = gx + armShX, tdy = gy - (shldY + H*0.03);
     const td  = Math.hypot(tdx, tdy) || 1;
     if(td > armLen*1.02){                     // never let the arm stretch
@@ -43733,7 +44161,24 @@ function drawPerson(u, pl, yOff){
   if(backView) ctx.lineWidth = Math.max(1.5, H*0.063);
   const fsx = armShX, fsy = shldY+H*0.03;
   const fAim = reach ? aimAt(fsx, fsy, pickIn) : null;
-  const hx = reach ? fAim[0] : armShX + Math.sin(frontA)*armLen*0.78;
+  /* See HAND_BACK_IN_* above: the shoulder is out so the arm can be seen,
+     and the same distance comes off here so the thing in the hand does not
+     go out with it. `reach` is aimed at a node and already lands where it
+     should, so it is left alone. */
+  const handBackIn = (!reach && backView && !isVill) ? tw*HAND_BACK_IN_WEAPON : 0;
+  const hxWide = armShX + Math.sin(frontA)*armLen*0.78;
+  /* NEVER PULLED PAST THE CENTRE LINE. A fixed distance is right while the
+     arm hangs on its own side, and wrong the moment a swing carries it
+     ACROSS the body: the hand arrives near the middle already, the pull
+     takes it out the far side, and the weapon swings wider than it ever did
+     side-on. Measured that way on every attacking soldier - a warrior's club
+     at 0.521H against 0.432H - before this line went in. Stopping at the
+     centre keeps the resting pose exactly as it was and costs the swing
+     nothing, because a hand at the middle of the chest is where a two-handed
+     blow passes anyway. */
+  const hx = reach ? fAim[0]
+           : hxWide > 0 ? Math.max(0, hxWide - handBackIn)
+                        : Math.min(0, hxWide + handBackIn);
   const hy = reach ? fAim[1] : shldY+H*0.03 + Math.cos(frontA)*armLen*0.88;
   armEdge(armShX, shldY+H*0.03, hx, hy);
   ctx.beginPath(); ctx.moveTo(armShX, shldY+H*0.03); ctx.lineTo(hx, hy); ctx.stroke();
@@ -44065,6 +44510,16 @@ function drawPerson(u, pl, yOff){
   const hairCol = u.oddHair
                 || hairGrey(uid, hairFair(uid, headLook.hair))
                 || "rgba(44,32,22,.85)";
+  /* ...and the shepherd's whiskers are white whatever his hair is doing.
+     Kept separate from hairCol rather than overriding it: his hair stays
+     the hair of the villager he was, which is the rule every trade in this
+     village follows (TRADE_LOOKS). Only the beard is his own. */
+  /* Slightly see-through, asked for 20 Sep - "make his beard a little more
+     transparent". Solid white on a dark face is the loudest thing on the
+     figure and pulls the eye off everything else he is doing; a little of
+     the jaw through it settles it into the face. */
+  const SHEPHERD_BEARD = "rgba(239,234,224,0.80)";
+  const beardCol = (u.shepherd ? SHEPHERD_BEARD : hairCol);
   /* ---- THE BACK OF THE HEAD ----
      Laid down BEFORE the styles below rather than after them. Every style
      here is a fringe or a crop drawn in this same colour, so painting the
@@ -44079,8 +44534,13 @@ function drawPerson(u, pl, yOff){
      above and behind, so the top is where it catches), and the dark nape
      where the hair ends and the neck begins. */
   if(backView){
+    /* PROUD OF THE SKULL, not flush with it. At headR*0.99 this was hair
+       painted ON a head rather than hair sitting on one, and with the
+       front silhouette no longer drawn over it in this view (see the mop
+       below) it was the only hair shape there was. A head of hair is
+       wider than the head. */
     ctx.fillStyle = hairCol;
-    ctx.beginPath(); ctx.arc(0, headY, headR*0.99, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, headY - headR*0.04, headR*1.06, 0, 6.283); ctx.fill();
     /* NO BRIGHT CROWN PATCH. There was one, an off-centre highlight meant
        to say "this is round" - and under a hat brim it was a pale oval in
        the middle of the head with a hat sitting over it, which is a
@@ -44098,8 +44558,8 @@ function drawPerson(u, pl, yOff){
        lower rim, deepest at the sides where a round thing turns away. */
     ctx.fillStyle = shade(hairCol, -0.18);
     ctx.beginPath();
-    ctx.arc(0, headY, headR*0.99, Math.PI*0.18, Math.PI*0.82);
-    ctx.quadraticCurveTo(0, headY + headR*0.74, headR*0.94, headY + headR*0.31);
+    ctx.arc(0, headY - headR*0.04, headR*1.06, Math.PI*0.18, Math.PI*0.82);
+    ctx.quadraticCurveTo(0, headY + headR*0.76, headR*1.00, headY + headR*0.30);
     ctx.closePath(); ctx.fill();
     /* The nape used to be drawn here and it is not any more - see the block
        after the styles below. Anything that covers the crown is drawn
@@ -44186,11 +44646,32 @@ function drawPerson(u, pl, yOff){
     } else {
       ctx.beginPath(); ctx.arc(0, headY, headR*1.04, Math.PI*0.96, Math.PI*2.08); ctx.fill();
     }
-    ctx.beginPath();
-    ctx.moveTo(-headR*0.95, headY);
-    ctx.quadraticCurveTo(-headR*1.25, headY+headR*0.85, -headR*0.35, headY+headR*0.75);
-    ctx.lineTo(-headR*0.6, headY);
-    ctx.closePath(); ctx.fill();
+    /* ---- THE TAIL SWAPS SIDES WITH THE WEARER ----
+       Same fault and same fix as the pony in the mop branch below: it hung
+       off her left whichever way she was facing, which cannot happen to a
+       real head. And hair that is UP does not also hang down - with a bun
+       at the nape this put a tail and a knot on the same skull. */
+    if(backView){
+      /* Hair that is UP does not also hang down - with a bun at the nape
+         this put a tail and a knot on the same skull. */
+      if(look.backHair !== "bun"){
+        /* The front tail is a short comma tucked against the jaw. Behind
+           the head it was the SAME colour as the dome it grows out of and
+           barely cleared it, so it vanished into the head exactly the way
+           the hair pony did. Drawn as the pony instead - gathered at the
+           side and hanging past the shoulder, on the opposite side to the
+           front, in the cloth's own colour because on this head the hair
+           is entirely covered and cloth is all there is to see. */
+        drawBackPony(headR, headY, look.accent, hairSway(u, H)*0.9);
+        ctx.fillStyle = look.accent;
+      }
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(-headR*0.95, headY);
+      ctx.quadraticCurveTo(-headR*1.25, headY+headR*0.85, -headR*0.35, headY+headR*0.75);
+      ctx.lineTo(-headR*0.6, headY);
+      ctx.closePath(); ctx.fill();
+    }
   } else {
     /* ---- THE MOP, WHICH WAS A BLOB WITH THE FACE SHOWING BESIDE IT ----
 
@@ -44224,6 +44705,19 @@ function drawPerson(u, pl, yOff){
     const deep = 0.10 + villagerRoll(vid, 8.13) * 0.26;
 
     ctx.fillStyle = hairCol;
+    /* ---- THE FRINGE IS A FRONT FEATURE, SO IT IS NOT DRAWN FROM BEHIND ----
+       The silhouette below has a brow line with a parting notch cut into
+       it - a FRINGE - and it was drawn in BOTH views. On the back of a
+       head that notch is the loudest thing on screen and it says, plainly,
+       "this is the front with the face rubbed off". It is most of why the
+       back of a head "just doesn't look right", and it is the same fault
+       as the straight chord this file already had to curve away: a level
+       or notched edge across hair only ever exists at the front.
+
+       From behind there is nothing to draw. The full round head of hair a
+       few dozen lines up IS the shape, and it now stands proud of the
+       skull because it is no longer being covered by this. */
+    if(!backView){
     ctx.beginPath();
     ctx.moveTo(-R*1.05, headY + R*0.14);
     ctx.quadraticCurveTo(-R*1.12, headY - R*0.78, -R*0.22 + sway*0.45, headY - R*1.14);
@@ -44237,15 +44731,29 @@ function drawPerson(u, pl, yOff){
                          -R*0.88,        headY + R*0.04);
     ctx.closePath();
     ctx.fill();
+    }
 
     if(look && look.female){
       /* Long, down the back - and the free end of it is what the wind and
          the walk actually move, so the sway is at full strength here and
          only a fraction of it up on the crown. */
-      ctx.beginPath();
-      ctx.ellipse(-R*0.76 - sway*0.9, headY + R*0.34, R*0.40, R*0.68, 0.25 - sway*0.03,
-                  0, 6.283);
-      ctx.fill();
+      /* ---- AND IT SWAPS SIDES WHEN SHE TURNS ROUND ----
+         It did not, and that is the other half of what was wrong: the
+         pony hung off her left in the front view and off her left in the
+         back view too, which is only possible if she never turned at all.
+         Turn a person round and what was on your left is on your right.
+         One sign flips the offset and the tilt together; the shape is
+         otherwise the very same ellipse, which is the point - it has to
+         be recognisably the same hair. A little longer from behind
+         because from behind you see the whole length of it. */
+      if(backView){
+        drawBackPony(R, headY, hairCol, sway*0.9);
+      } else {
+        ctx.beginPath();
+        ctx.ellipse(-R*0.76 - sway*0.9, headY + R*0.34, R*0.40, R*0.68,
+                    0.25 - sway*0.03, 0, 6.283);
+        ctx.fill();
+      }
     }
 
     /* ---- the texture, and it has to be nearly nothing ----
@@ -44420,7 +44928,7 @@ function drawPerson(u, pl, yOff){
     const fdx = (u.dir === "down") ? 0 : 1;
     const tache = (w, h) => {
       const cx = headR*0.12*fdx;
-      ctx.fillStyle = hairCol;
+      ctx.fillStyle = beardCol;
       ctx.beginPath();
       ctx.moveTo(cx - w, moY);
       ctx.quadraticCurveTo(cx, moY - h*0.75, cx + w, moY);
@@ -44432,7 +44940,7 @@ function drawPerson(u, pl, yOff){
          drawn as one it reads as a painted-on beard. Two overlapping low
          passes across the jaw give it a soft top edge for nothing. */
       ctx.globalAlpha = 0.26;
-      ctx.fillStyle = hairCol;
+      ctx.fillStyle = beardCol;
       ctx.beginPath();
       ctx.ellipse(headR*0.16*fdx, jawY - headR*0.04, headR*0.70, headR*0.40, 0, 0, 6.283);
       ctx.fill();
@@ -44445,18 +44953,18 @@ function drawPerson(u, pl, yOff){
       tache(headR*0.38, headR*0.15);
     } else if(fh === "goatee"){
       tache(headR*0.34, headR*0.13);
-      ctx.fillStyle = hairCol;
+      ctx.fillStyle = beardCol;
       ctx.beginPath();
       ctx.ellipse(headR*0.16*fdx, jawY + headR*0.02, headR*0.21, headR*0.26, 0, 0, 6.283);
       ctx.fill();
     } else if(fh === "short"){
-      ctx.fillStyle = hairCol;
+      ctx.fillStyle = beardCol;
       ctx.beginPath();
       ctx.ellipse(headR*0.18*fdx, jawY, headR*0.54, headR*0.30, 0, 0, 6.283);
       ctx.fill();
       tache(headR*0.34, headR*0.13);
     } else {                                  // full
-      ctx.fillStyle = hairCol;
+      ctx.fillStyle = beardCol;
       ctx.beginPath();
       ctx.ellipse(headR*0.16*fdx, jawY + headR*0.02, headR*0.72, headR*0.42, 0, 0, 6.283);
       ctx.fill();
@@ -44478,7 +44986,7 @@ function drawPerson(u, pl, yOff){
          and one fewer mark on a face this small is worth more than the
          join. */
       tache(headR*0.38, headR*0.15);
-      ctx.strokeStyle = shade(hairCol, -0.20);
+      ctx.strokeStyle = shade(beardCol, -0.20);
       ctx.lineWidth = Math.max(0.4, headR*0.075);
       ctx.beginPath();
       ctx.arc(headR*0.16*fdx, jawY - headR*0.22, headR*0.44, Math.PI*0.22, Math.PI*0.78);
@@ -44552,33 +45060,21 @@ function drawPerson(u, pl, yOff){
     ctx.beginPath();
     ctx.ellipse(0, headY-headR*0.24, headR*1.48, headR*0.38, 0, 0, 6.283); ctx.stroke();
   } else if(u.shepherd){
-    /* THE SHEPHERD. A flat cap pulled down and a fleece collar standing up
-       round the neck - which is the whole read at this size, and the one
-       thing no other trade in the village has. Deliberately NOT another
-       wide brim: the beekeeper and the farmhand both already wear one, and
-       a third would make three trades that look alike from behind.
+    /* THE SHEPHERD. A flat cap pulled down, and the white beard below it
+       (facialHairOf / beardCol, above) - which is the whole read at this
+       size and the one thing no other villager has. Deliberately NOT
+       another wide brim: the beekeeper and the farmhand both already wear
+       one, and a third would make three trades that look alike.
 
-       The collar is drawn in the fleece's own off-white rather than the
-       villager's cloth, so a shepherd reads as somebody wearing part of
-       their flock - which is exactly what a shepherd is. */
-    const fleece = "#e6e2d6", fleeceDim = "#c9c4b4";
-    /* A COLLAR, ROUND THE NECK - measured on screen, not guessed. The first
-       pass was headR*1.16 wide and sat at headR*0.92 below the head, which
-       at the zoom people play at read as a white barrel strapped across the
-       whole chest rather than anything anybody is wearing. Two thirds the
-       width, half the depth, and tucked up under the chin. */
-    ctx.fillStyle = fleece;
-    ctx.beginPath();
-    ctx.ellipse(0, headY+headR*0.74, headR*0.76, headR*0.26, 0, 0, 6.283); ctx.fill();
-    ctx.strokeStyle = "rgba(120,114,98,.45)"; ctx.lineWidth = 0.55;
-    ctx.stroke();
-    /* A few curls picked out of it, the same trick the sheep's own fleece
-       uses - a flat oval reads as a scarf, a bumpy one as wool. */
-    ctx.fillStyle = fleeceDim;
-    for(const dx of [-0.46, -0.15, 0.16, 0.48]){
-      ctx.beginPath();
-      ctx.arc(headR*dx, headY+headR*0.68, headR*0.125, 0, 6.283); ctx.fill();
-    }
+       THE FLEECE COLLAR THAT USED TO BE HERE IS GONE. Reported 20 Sep with
+       a picture: "get rid of whatever that is on the shepherd's face and
+       just make it a white beard." It sat at headY+headR*0.74 and the
+       head's own underside is at headR, so a pale oval with four evenly
+       spaced curls in it was drawn ACROSS the bottom of the face - and at
+       the size this is played at that is a mouth, not a collar. Lowering it
+       onto the shoulders was the first attempt and it was the wrong fix:
+       the right one is that the thing saying "this man is out in the
+       weather with his flock" should be his beard. */
     // the cap: a low crown and a short peak over the brow
     const cap = "#6b5a42", capDim = "#54462f";
     ctx.fillStyle = cap;
@@ -45658,6 +46154,122 @@ function drawHoneyJar(hx, hy, H){
   ctx.lineTo(hx-w*0.20, hy+h*0.26);
   ctx.stroke();
 }
+/* ---- THE REST OF WHAT COMES OUT OF A HIVE ----
+   Asked for 20 Sep: "give the beekeeper different things like honey comb to
+   give others, jars to give others, the bee smoke etc."
+
+   There were two - a jar and a slab of comb, alternating fifty-fifty - and
+   two props seen over and over stop registering as variety at all. These
+   are the other things a hive actually gives up, and each is built to read
+   as a DIFFERENT SHAPE at play zoom rather than the same silhouette in
+   another colour, which is the rule the comb already states for itself.
+
+   Wax is pale and square and stacked; a dipper is a stick with a fat end
+   and a thread of honey coming off it; the smoker is dark with a cone on
+   top and a wisp above that. None of them can be confused with the jar. */
+function drawBeeswax(hx, hy, H){
+  /* A block of rendered wax, and it is the PALEST thing in the set - comb
+     is golden, honey is amber, wax is near cream. Stacked as two so it
+     reads as something made and put by rather than something scraped out. */
+  const w = H*0.145, h = H*0.060;
+  ctx.lineWidth = Math.max(0.7, H*0.019);
+  ctx.strokeStyle = HONEY_INK;
+  for(const [dy, k] of [[h*0.62, 0.92], [-h*0.36, 1]]){
+    ctx.fillStyle = dy > 0 ? "#e8dcaf" : "#f4ecc8";
+    ctx.beginPath();
+    ctx.rect(hx - w*0.5*k, hy + dy - h*0.5, w*k, h);
+    ctx.fill(); ctx.stroke();
+  }
+  /* A single pressed line across the top one - the mark of the mould, and
+     the one detail that stops it reading as a block of cheese. */
+  ctx.strokeStyle = "rgba(150,110,44,.55)";
+  ctx.lineWidth = Math.max(0.4, H*0.011);
+  ctx.beginPath();
+  ctx.moveTo(hx - w*0.28, hy - h*0.36); ctx.lineTo(hx + w*0.28, hy - h*0.36);
+  ctx.stroke();
+}
+
+function drawHoneyDipper(hx, hy, H){
+  /* Held upright, with honey running off the end of it. The THREAD is the
+     whole read: a dipper without one is a stick, and a stick in a
+     beekeeper's hand is a tool rather than a gift. */
+  const len = H*0.20;
+  ctx.strokeStyle = "#a9803f";
+  ctx.lineWidth = Math.max(1.0, H*0.030);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(hx, hy - len*0.52);
+  ctx.lineTo(hx, hy + len*0.16);
+  ctx.stroke();
+  // the grooved head, three bands rather than a lattice - see drawHoneyComb
+  ctx.strokeStyle = "#e8b23c";
+  ctx.lineWidth = Math.max(1.4, H*0.046);
+  for(let i=0;i<3;i++){
+    const y = hy + len*0.18 + i*H*0.030;
+    ctx.beginPath();
+    ctx.moveTo(hx - H*0.028, y); ctx.lineTo(hx + H*0.028, y);
+    ctx.stroke();
+  }
+  // and the thread coming off it
+  ctx.strokeStyle = "rgba(226,164,50,.85)";
+  ctx.lineWidth = Math.max(0.5, H*0.014);
+  ctx.beginPath();
+  ctx.moveTo(hx, hy + len*0.30);
+  ctx.lineTo(hx + H*0.010, hy + len*0.62);
+  ctx.stroke();
+  ctx.fillStyle = "#e2a432";
+  ctx.beginPath(); ctx.arc(hx + H*0.012, hy + len*0.68, H*0.018, 0, 6.283); ctx.fill();
+  ctx.lineCap = "butt";
+}
+
+function drawSmoker(hx, hy, H){
+  /* THE ONE THING IN THE SET THAT IS NOT A GIFT. The smoker goes out to the
+     hive and comes back again, so it is carried on a tending round rather
+     than handed to anybody - and it is drawn dark on purpose, because the
+     other three are all pale and warm and this one should read as equipment
+     at a glance.
+
+     A tin body, a cone lid and the bellows hung off the side, with smoke
+     off the top. The smoke is what names it: without the wisp this is a
+     small dark kettle. */
+  const w = H*0.090, h = H*0.135;
+  ctx.lineWidth = Math.max(0.7, H*0.019);
+  ctx.strokeStyle = "rgba(38,30,22,.85)";
+  ctx.fillStyle = "#6f6a60";
+  ctx.beginPath();
+  ctx.rect(hx - w*0.5, hy - h*0.10, w, h*0.72);
+  ctx.fill(); ctx.stroke();
+  // the cone
+  ctx.fillStyle = "#57534a";
+  ctx.beginPath();
+  ctx.moveTo(hx - w*0.52, hy - h*0.10);
+  ctx.lineTo(hx,          hy - h*0.54);
+  ctx.lineTo(hx + w*0.52, hy - h*0.10);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  // the bellows, a soft wedge on the near side
+  ctx.fillStyle = "#7a5a3a";
+  ctx.beginPath();
+  ctx.moveTo(hx + w*0.44, hy + h*0.06);
+  ctx.lineTo(hx + w*1.05, hy + h*0.20);
+  ctx.lineTo(hx + w*0.44, hy + h*0.40);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  /* The smoke: three puffs rising and spreading, drifting on the clock so
+     it is alive rather than a decal. Pale against everything except snow,
+     which is why it carries its own faint edge (pale-prop contrast). */
+  const t = (G.t || 0) * 1.4;
+  for(let i=0;i<3;i++){
+    const p = i/3;
+    const yy = hy - h*0.62 - p*H*0.13;
+    const xx = hx + Math.sin(t + i*1.7)*H*0.018 + p*H*0.012;
+    ctx.fillStyle = "rgba(232,228,220," + (0.42 - p*0.11).toFixed(2) + ")";
+    ctx.beginPath();
+    ctx.arc(xx, yy, H*(0.020 + p*0.014), 0, 6.283);
+    ctx.fill();
+  }
+}
+
 function drawHoneyComb(hx, hy, H){
   /* A slab held flat, not a jar shape in another colour - if the two read the
      same there is no reason to have both. Paler, squarer, and with the cells
@@ -46225,7 +46837,27 @@ function drawHeld(u, hx, hy, H, atk, pl, backView, bhx, bhy){
          The load a hauler carries is not affected: haulingLoad already
          turns that villager side-on rather than letting them be drawn from
          behind at all (backView, drawPerson). */
-      if(backView && !u.lantern) break;
+      /* ---- UNLESS IT IS BEING WORKED ----
+         Asked for 16 Sep: facing the tree, "the arms are still in the front
+         of the body facing the tree with the axe".
+
+         The rule above is about a thing being CARRIED - an axe over the
+         shoulder on the walk home, a saw held at the side - and for those
+         it is right: the body is in front of them, and three attempts to
+         reposition one on somebody's back all failed for that reason.
+
+         A tool being WORKED is the other case entirely. The hands come
+         round the front to use it, so drawing it over the torso is not a
+         trick to make it visible - it is where it is. Everything in this
+         switch is drawn last of all, over the body, which is exactly the
+         layering a pair of arms out in front needs.
+
+         So: still nothing CARRIED from behind, but the axe, the pick and
+         the builder's mallet are drawn while they are actually in use. */
+      const workHeld = (u.working > 0) && !u.moving &&
+                       (villagerJob(u) === "wood" || villagerJob(u) === "mine" ||
+                        u.order === "build");
+      if(backView && !u.lantern && !workHeld) break;
       /* THE SHEPHERD'S CROOK, and it has to be tested HERE - above the
          "nothing at all when they are not doing anything" rule below.
 
@@ -46308,8 +46940,11 @@ function drawHeld(u, hx, hy, H, atk, pl, backView, bhx, bhy){
          Only while laden: on the way back they are empty-handed, which is
          what makes the outward leg read as a delivery. */
       if(u.honeyProp){
-        if(u.honeyProp === "comb") drawHoneyComb(hx, hy, H);
-        else                       drawHoneyJar(hx, hy, H);
+        if(u.honeyProp === "comb")        drawHoneyComb(hx, hy, H);
+        else if(u.honeyProp === "wax")    drawBeeswax(hx, hy, H);
+        else if(u.honeyProp === "dipper") drawHoneyDipper(hx, hy, H);
+        else if(u.honeyProp === "smoker") drawSmoker(hx, hy, H);
+        else                              drawHoneyJar(hx, hy, H);
         break;
       }
 
@@ -46443,7 +47078,11 @@ function drawHeld(u, hx, hy, H, atk, pl, backView, bhx, bhy){
          reading `_chopA` unconditionally would freeze every other tool in
          the game at one angle for ever. */
       const swingJob = u._swingJob || null;
-      const chopAng = swingJob === "wood" ? 1.15 - (u._chopA||0)*2.00
+      /* The back-view haft, kept in step with the arm pass's `haftAng` -
+         upright and pointing at the work rather than across the chest. */
+      const chopAng = (backView && swingJob === "wood") ? 0.12 - (u._chopA||0)*0.40
+                    : (backView && swingJob === "mine") ? 0.10 - (u._chopA||0)*0.36
+                    : swingJob === "wood" ? 1.15 - (u._chopA||0)*2.00
                     : swingJob === "mine" ? 1.05 - (u._chopA||0)*2.15
                     : (0.10 + Math.sin(G.t*7.5+u.id)*0.55);
       /* ---- TWO WAYS TO CARRY IT, AND EVERY VILLAGER HAS THEIR OWN ----
@@ -46500,7 +47139,14 @@ function drawHeld(u, hx, hy, H, atk, pl, backView, bhx, bhy){
          is what the hand is holding onto, out in front of them, and without
          it the haft simply starts at the fist and reads as balanced there
          rather than gripped. */
-      const buttLen = overShoulder ? 0.06 : idleAxe ? 0.04 : 0.13;
+      /* AND ALMOST NO BUTT FROM BEHIND. Side-on, 0.13H of haft below the
+         leading hand is what makes the grip read as a grip. Facing away the
+         hands are up at head height and that same overhang is the only part
+         of the axe that reaches back down over the torso - the diagonal
+         across the chest in the report. Trimmed to a stub, so the whole
+         tool sits above the shoulders where the work is. */
+      const buttLen = overShoulder ? 0.06 : idleAxe ? 0.04
+                    : (backView && work) ? 0.045 : 0.13;
       const bx = hx - Math.sin(ang)*H*buttLen;
       const by = hy + Math.cos(ang)*H*buttLen;
       ctx.strokeStyle="#6b4f30"; ctx.lineWidth=Math.max(1.6,H*0.055);
@@ -46706,6 +47352,101 @@ function drawHeld(u, hx, hy, H, atk, pl, backView, bhx, bhy){
         ctx.beginPath();
         ctx.ellipse(bhx, bhy - shH*0.22, shW*0.30, shH*0.26, 0, 0, 6.283);
         ctx.fill();
+      }
+      break;
+    }
+    /* ---- THE IRON LEGIONARY ----
+       Added 20 Sep. It had no case here at all, so an Age-2 unit costing
+       110 food, 40 iron and 30 gold walked into battle with its hands
+       visibly empty, in every direction. Found by sweeping every kind
+       rather than by anyone reporting it.
+
+       It must not simply be the swordsman again in another colour - they
+       stand next to each other in the same line. The swordsman carries a
+       tapered blade and a round shield; the legionary is the ROMAN read,
+       which is the one thing the name and the shield emoji both promise: a
+       tall rectangular scutum, and a gladius that is short and broad where
+       the other is long and fine. Silhouette does the work, so the two are
+       still told apart at a distance and in one colour. */
+    case "legionary": {
+      const night = (G.dark||0) > 0.4;
+      /* The same swing the swordsman uses, and deliberately so - what makes
+         these two different is the shape of the steel, not the timing. */
+      const ang = atk ? -0.9 : 0.30;
+      const dx = Math.sin(ang), dy = -Math.cos(ang);
+      const px = -dy, py = dx;
+      /* A GLADIUS: two-thirds the swordsman's length and half again as
+         wide. A short sword drawn at a long sword's proportions just reads
+         as a small man. */
+      const len = H*0.34, bw = H*0.070;
+      const tipX = hx + dx*len, tipY = hy + dy*len;
+      // grip and a heavy pommel below the hand
+      ctx.strokeStyle = "#4a3a28"; ctx.lineWidth = Math.max(1.3, H*0.044);
+      ctx.beginPath();
+      ctx.moveTo(hx - dx*H*0.070, hy - dy*H*0.070);
+      ctx.lineTo(hx + dx*H*0.040, hy + dy*H*0.040);
+      ctx.stroke();
+      ctx.fillStyle = shade(metal, -0.30);
+      ctx.beginPath(); ctx.arc(hx - dx*H*0.082, hy - dy*H*0.082, H*0.032, 0, 6.283); ctx.fill();
+      /* The blade holds its width most of the way and then turns in hard to
+         a short point - a leaf, not a taper. That profile IS the gladius. */
+      ctx.fillStyle = metal;
+      ctx.beginPath();
+      ctx.moveTo(hx + px*bw + dx*H*0.050, hy + py*bw + dy*H*0.050);
+      ctx.lineTo(hx + px*bw + dx*len*0.72, hy + py*bw + dy*len*0.72);
+      ctx.lineTo(tipX, tipY);
+      ctx.lineTo(hx - px*bw + dx*len*0.72, hy - py*bw + dy*len*0.72);
+      ctx.lineTo(hx - px*bw + dx*H*0.050, hy - py*bw + dy*H*0.050);
+      ctx.closePath(); ctx.fill();
+      // a lit edge down one side, the same trick that makes the others steel
+      ctx.strokeStyle = "rgba(255,252,242,.40)"; ctx.lineWidth = Math.max(0.3, H*0.011);
+      ctx.beginPath();
+      ctx.moveTo(hx + px*bw*0.80 + dx*H*0.075, hy + py*bw*0.80 + dy*H*0.075);
+      ctx.lineTo(hx + px*bw*0.80 + dx*len*0.70, hy + py*bw*0.80 + dy*len*0.70);
+      ctx.stroke();
+      // a short square guard - a gladius has almost none, so this is a stub
+      ctx.strokeStyle = shade(metal, -0.22); ctx.lineWidth = Math.max(1.1, H*0.030);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(hx + px*H*0.070 + dx*H*0.045, hy + py*H*0.070 + dy*H*0.045);
+      ctx.lineTo(hx - px*H*0.070 + dx*H*0.045, hy - py*H*0.070 + dy*H*0.045);
+      ctx.stroke();
+      ctx.lineCap = "butt";
+      if(!night){
+        /* THE SCUTUM, centred on the back fist exactly as the swordsman's
+           round shield is - that was settled after it was reported looking
+           like a table tennis paddle, and the reason holds here: a shield
+           pinned to the torso stops travelling with the arm that holds it.
+           Taller than the round one and square-shouldered, with the corners
+           taken off so it does not read as a door. */
+        const shW = H*0.105, shH = H*0.185, r = H*0.030;
+        const cx = bhx, cy = bhy - shH*0.20;
+        const box = () => {
+          ctx.beginPath();
+          ctx.moveTo(cx - shW + r, cy - shH);
+          ctx.lineTo(cx + shW - r, cy - shH);
+          ctx.quadraticCurveTo(cx + shW, cy - shH, cx + shW, cy - shH + r);
+          ctx.lineTo(cx + shW, cy + shH - r);
+          ctx.quadraticCurveTo(cx + shW, cy + shH, cx + shW - r, cy + shH);
+          ctx.lineTo(cx - shW + r, cy + shH);
+          ctx.quadraticCurveTo(cx - shW, cy + shH, cx - shW, cy + shH - r);
+          ctx.lineTo(cx - shW, cy - shH + r);
+          ctx.quadraticCurveTo(cx - shW, cy - shH, cx - shW + r, cy - shH);
+          ctx.closePath();
+        };
+        ctx.fillStyle = pl.dark; box(); ctx.fill();
+        ctx.strokeStyle = shade(pl.dark, -0.34);
+        ctx.lineWidth = Math.max(0.6, H*0.014);
+        box(); ctx.stroke();
+        /* The horizontal boss bar, which is the mark that says scutum at a
+           glance where a round boss would just say "shield again". */
+        ctx.strokeStyle = shade(pl.dark, 0.22);
+        ctx.lineWidth = Math.max(0.8, H*0.022);
+        ctx.beginPath();
+        ctx.moveTo(cx - shW*0.72, cy); ctx.lineTo(cx + shW*0.72, cy);
+        ctx.stroke();
+        ctx.fillStyle = shade(metal, 0.10);
+        ctx.beginPath(); ctx.arc(cx, cy, H*0.030, 0, 6.283); ctx.fill();
       }
       break;
     }
@@ -54176,7 +54917,12 @@ function drawLeisureVillager(o){
        pose - just the standing idle sway with an occasional fxWork spark.
        Leisure wanderers never set o.state to "working" at all, so this
        leaves every one of their own activities untouched. */
-    atkAnim:0, working: o.state==="working" ? 1 : 0,
+    /* "smoking" counts as working, and it has to. drawHeld drops anything in
+       the hand of a figure that is neither moving nor working (04e), so a
+       beekeeper stood still at the hive working the smoker had no smoker -
+       it was drawn on the walk out and vanished the moment they arrived to
+       use it, which is the one moment it is for. */
+    atkAnim:0, working: (o.state==="working" || o.state==="smoking") ? 1 : 0,
     dir:o.dir,                        // which way they are walking - see 05d
     cloth: o.clothes[0], sit: sitting, armA,
     /* The Beehive's own walker goes through this same drawing, and the veil is
@@ -54208,6 +54954,10 @@ function drawLeisureVillager(o){
        still tint - their clothes are ordinary, and dimming with the season
        suits them fine. */
     tradeCloth: o.kindTag !== "leisure",
+    /* THE TRADE DRESSES THEM, so the villager look underneath does not put
+       a hat, a scarf or an apron on as well (TRADE_LOOKS, 04e). A plain
+       leisure wanderer is still an ordinary villager and keeps theirs. */
+    tradeDress: o.kindTag !== "leisure",
     /* Every trade worker but the gardener stays hollow-handed off duty - the
        axe drawHeld gives every villager by default is right for the one
        actually chopping and wrong for everyone just standing about. The
@@ -71282,6 +72032,10 @@ const TRADE_FINDS = [
      whoever found it, carrying this home cannot spend them. Every other
      find still belongs to its finder alone. */
   { key:"herbalist", flag:"tradeHerbalist", bldg:"herbalist", village:true,
+    /* SPRING, YEAR ONE. It had no season at all, so it could turn up on any
+       night of the match. The first green things worth picking are the
+       reason, and a village wants somebody who knows them early. */
+    season:"spring", year:1,
     clue:"The air coming off the woods is sharp and green tonight, like a room somebody has just been crushing herbs in.",
     item:"a moonlit mushroom",
     found:"A mushroom growing alone in the dark, pale as a knuckle and faintly lit.",
@@ -71298,6 +72052,10 @@ const TRADE_FINDS = [
     found:"A glass on a brass handle, lying in the leaf litter as though somebody set it down a hundred years ago.",
     home:"They have not stopped looking through it since." },
   { key:"beehive",   flag:"tradeBeehive",   bldg:"beehive",
+    /* SUMMER, YEAR TWO. Also had no season. The honey flow is the summer,
+       and it sits in the second year because the first is full - this is
+       the one that shares its season, with the seamstress. */
+    season:"summer", year:2,
     clue:"The woods are humming after dark, low and steady, and much too loud for the season.",
     item:"a wild comb",
     found:"A comb the size of a shield, up in a split trunk, and the bees oddly untroubled about it.",
@@ -71312,7 +72070,7 @@ const TRADE_FINDS = [
      carries two of these five, since there are five trades and four seasons.
      Paired with the weaver on purpose: the spindle and the taper are both
      things somebody sits down with when it gets dark early. */
-  { key:"chandler",  flag:"tradeChandler",  bldg:"chandlery", season:"autumn",
+  { key:"chandler",  flag:"tradeChandler",  bldg:"chandlery", season:"autumn", year:1,
     clue:"There is one light out past the trees that is not a fire - too steady, too small, and it has been there three nights.",
     item:"a beeswax taper",
     found:"A taper of pale beeswax, half burned down and still smelling of the hive it came from.",
@@ -71320,7 +72078,7 @@ const TRADE_FINDS = [
   /* ---------- THE CASK ----------
      Winter, because a tavern is a winter idea: the one building whose whole
      purpose is that it is warm indoors while it is not outdoors. */
-  { key:"tavern",    flag:"tradeTavern",    bldg:"tavern", season:"winter",
+  { key:"tavern",    flag:"tradeTavern",    bldg:"tavern", season:"winter", year:1,
     clue:"There is a smell of hops on the cold air tonight, coming from somewhere out past the last of the houses.",
     item:"a banded cask",
     found:"A cask, iron-banded and still full, half buried where somebody left it to keep cold.",
@@ -71328,7 +72086,7 @@ const TRADE_FINDS = [
   /* ---------- THE QUERN-STONE ----------
      Summer, between the shepherd's spring lamb and the weaver's autumn
      spindle - so the three land in the order a village would want them. */
-  { key:"miller",    flag:"tradeMiller",    bldg:"mill", season:"summer",
+  { key:"miller",    flag:"tradeMiller",    bldg:"mill", season:"summer", year:1,
     /* NOT "a millstone turning, and this village has no mill", which is what
        this said and which gives the whole thing away - trade-finds.js has a
        standing rule that a clue may point at something but must never name
@@ -71343,7 +72101,7 @@ const TRADE_FINDS = [
      the cold is coming. The Weaver needs a flock to be worth anything, so
      this is deliberately the LATER season of the two - a village that found
      the lamb in spring has a shepherd by the time the spindle turns up. */
-  { key:"weaver",    flag:"tradeWeaver",    bldg:"weaver", season:"autumn",
+  { key:"weaver",    flag:"tradeWeaver",    bldg:"weaver", season:"autumn", year:2,
     clue:"Somebody has been at work out in the woods and left off in a hurry - there is thread caught on the brambles for twenty yards.",
     item:"a drop spindle",
     found:"A spindle of dark wood, still wound, lying where it was dropped.",
@@ -71357,7 +72115,7 @@ const TRADE_FINDS = [
      actually sells. A tailor's shears would say "she sews"; a box of little
      stoppered jars of colour says "she can make your village any colour you
      like", which is the whole trade. */
-  { key:"seamstress", flag:"tradeSeamstress", bldg:"seamstress", season:"summer",
+  { key:"seamstress", flag:"tradeSeamstress", bldg:"seamstress", season:"summer", year:2,
     narrative:true,
     clue:"There is a smell of vinegar and crushed leaves off the far treeline tonight, "+
          "and something down there is catching the last of the light in a colour "+
@@ -71367,7 +72125,7 @@ const TRADE_FINDS = [
           "never had a use for.",
     home:"They have not stopped turning the jars over since. They can raise a "+
          "Seamstress's Cottage now, and it will be theirs to keep." },
-  { key:"shepherd",  flag:"tradeShepherd",  bldg:"shepherdhut", season:"spring",
+  { key:"shepherd",  flag:"tradeShepherd",  bldg:"shepherdhut", season:"spring", year:2,
     clue:"Something is calling out on the hill past the trees, over and over, and it is too small a sound to be a sheep.",
     item:"a lost lamb",
     found:"A lamb, days old and entirely alone, shouting at the world about it.",
@@ -71387,13 +72145,17 @@ const TRADE_FINDS = [
 
      And a painter shut in for the winter, painting colours that are not
      out there, is simply the better picture. */
-  { key:"artist",    flag:"tradeArtist",    bldg:"artist", season:"winter",
+  { key:"artist",    flag:"tradeArtist",    bldg:"artist", season:"winter", year:2,
     clue:"There are colours out past the treeline that have no business being there in this season - a green, a red - and they have not moved in two days.",
     item:"a painter's brush",
     found:"A brush, sable and worn to a point, and a rag of canvas still wet with something. Whoever was working out here left in a hurry.",
     home:"They have not stopped turning it over. They can raise an Artist's Retreat now, and it will be theirs to keep." }
 ];
-const TRADE_FINDS_PER_SEASON = 2;
+/* THREE, while the rota is crammed into one year (TRADE_ROTA_YEARS above).
+   Summer alone carries three of the finds, so a cap of two would strand one
+   of them until the following summer - which is the very thing the one-year
+   setting exists to avoid. Back to 2 when the rota goes to two years. */
+const TRADE_FINDS_PER_SEASON = 3;
 
 /* The seamstress's call to action, read one line at a time (tellNarrative,
    07). Four beats: what you can smell, what you can see, what it means, and
@@ -71433,8 +72195,45 @@ function tradeFindByKey(key){
    is already lying on the doorstep when the match begins - both are the
    opening, and a season gate would break the one thing the first season is
    supposed to promise. */
+/* ---- WHICH SEASON, AND WHICH YEAR ----
+   Reworked 20 Sep: "make sure the specialists are spread out over two
+   years... evenly spread out over two years and baked into particular
+   seasons."
+
+   Season alone could not do it. Four of the eleven finds had no season at
+   all and could turn up any night, and the only thing spacing the rest was
+   TRADE_FINDS_PER_SEASON - so a lucky village met most of the trades in its
+   first year and then had nothing left to find.
+
+   `year` is "not before this year of the match", counted off G.seasonNo in
+   blocks of four. Year 2 finds simply are not offered until the fifth
+   season, which turns eleven trades into two years of them without any new
+   machinery. Note it counts SEASONS ELAPSED, not calendar springs: which
+   season a match opens in is random (G.season at newGame), so "year one" is
+   the first four seasons you play rather than a particular four.
+
+   The bakery has neither tag on purpose - it is the opening quest and has
+   to land in the first season, whichever season that is. */
+/* ---- HOW MANY YEARS THE ROTA IS SPREAD OVER ----
+   Set to 1 on 20 Sep, straight after the two-year rota went in: "for now
+   let's cram all of the specialists into one year, then save for later
+   we'll make it two years and I'll come up with four more specialists
+   later."
+
+   The year TAGS on the finds below are left exactly as they were, and the
+   two-year shape they describe is the one to come back to - this collapses
+   it without throwing it away. Put this back to 2 when the other four
+   specialists land and the rota is full enough to want a second year.
+
+   TRADE_FINDS_PER_SEASON goes with it: eleven finds across four seasons
+   needs three a season, where two was right when they had eight seasons to
+   land in. */
+const TRADE_ROTA_YEARS = 1;
+function tradeYear(){ return Math.floor((G.seasonNo||0) / 4) + 1; }
 function tradeInSeason(t){
-  return !t.season || t.season === G.season;
+  if(t.season && t.season !== G.season) return false;
+  if(TRADE_ROTA_YEARS > 1 && t.year && tradeYear() < t.year) return false;
+  return true;
 }
 function tradesUnlearned(){
   return TRADE_FINDS.filter(t => {
@@ -71853,15 +72652,64 @@ function mayBuildTrade(u, type){
    THE FOUNDER IS NEVER ELIGIBLE. They may find the thing and they may put
    the building up - both were asked for - but the job goes to somebody
    else, garrisoned in afterwards. */
+/* ---- WHAT COUNTS AS A TRADE BUILDING, IN ONE PLACE ----
+   Asked 16 Sep: "make sure that the villager builds the special house, then
+   becomes that npc - the sheep one didn't work yesterday or the painter."
+
+   THERE WERE TWO LISTS AND THEY DID NOT AGREE. promoteToTrade had one, and
+   the build-completion path in 03c had a SECOND, written out by hand, which
+   named only six: bakery, gardener, geologist, herbalist, caretaker,
+   beehive. So finishing a Shepherd's Hut, an Artist's Retreat, a Mill, a
+   Tavern, a Chandlery, a Weaver's or a Seamstress's Cottage never even
+   CALLED promoteToTrade. The house went up and nobody moved in - which is
+   the shepherd and the painter, reported from play.
+
+   The beehive DID work, and that is what made this hard to see from the
+   outside: whichever trades you happened to try first were on both lists or
+   neither.
+
+   One function now, asked by both. Adding a trade means adding its flag
+   here and nowhere else. "Two conditions that must agree" is the bug shape
+   that has already cost this project a whole feature more than once. */
+function tradeBuildingKind(d){
+  if(!d) return null;
+  return d.bakery ? "baker" : d.gardener ? "gardener" : d.geologist ? "geologist"
+       : d.herbalist ? "herbalist" : d.caretaker ? "caretaker"
+       : d.beehive ? "beekeeper" : d.shepherd ? "shepherd"
+       : d.weaver ? "weaver" : d.mill ? "miller"
+       : d.tavern ? "tavernkeeper" : d.chandler ? "chandler"
+       : d.artist ? "artist" : d.seamstress ? "seamstress" : null;
+}
 function promoteToTrade(u, b){
   if(!u || !b || u.firstVillager) return false;
   const d = BLDG[b.type];
   if(!d) return false;
-  const kind = d.bakery ? "baker" : d.gardener ? "gardener" : d.geologist ? "geologist"
-             : d.herbalist ? "herbalist" : d.caretaker ? "caretaker"
-             : d.beehive ? "beekeeper" : d.shepherd ? "shepherd"
-             : d.weaver ? "weaver" : d.mill ? "miller"
-             : d.tavern ? "tavernkeeper" : d.chandler ? "chandler" : null;
+  /* ---- EVERY TRADE BUILDING, AND THE TWO THAT WERE MISSING ----
+     This list is the only thing standing between a finished cottage and a
+     tradesperson: `tradeStaffed` is set nowhere else in the game, and every
+     specialist updater (updateArtist, updateSeamstress, updateBeekeepers,
+     ...) refuses to make its worker without it. A building whose flag is
+     not named here can be found, claimed, paid for and raised, and then
+     stands empty for ever.
+
+     THE ARTIST AND THE SEAMSTRESS WERE NOT IN IT. Both were built in full -
+     the painter's easel and her twenty-four pictures, the seamstress's
+     seven tiers of clan colour - and neither could ever be staffed by
+     playing the game. Reported 16 Sep ("check that all of the specials
+     work"), and found by walking the whole pipeline for all eleven trades
+     rather than by reading.
+
+     It went unseen because every specialist test in the suite sets
+     `b.tradeStaffed = true` by hand, which is the OUTPUT of this function -
+     so all of them tested the machinery past the one step that was broken.
+     tests/specialist-pipeline.js exists to never let that happen again.
+
+     `kind` is only ever used as the "is this a trade building at all" test
+     below; nothing reads the string. It lives in tradeBuildingKind now, so
+     that the build-completion path in 03c can ask the same question rather
+     than keep a second list of its own - which is exactly what it had, and
+     what cost the shepherd and the painter. */
+  const kind = tradeBuildingKind(d);
   if(!kind) return false;
   if(b.tradeStaffed) return false;                 // one to a building, ever
   b.tradeStaffed = true;
@@ -73986,9 +74834,20 @@ function liveALittle(o, dt, spd){
        (measured on seed 5: 1% of the time on the move). Widening by 7px a
        try puts the last of them ~130px out, which is far enough to find
        dry land round the end of a lake. */
+    /* ---- POTTERING HAPPENS WHERE THE WORKER IS, NOT WHERE THEY LIVE ----
+       This orbited o.home, which is right for the eleven trades whose work
+       IS their cottage and wrong for the one whose work is a field half a
+       map away. The shepherd stands out with his flock, got sent pottering
+       back to his hut, and stayed in that orbit for the rest of the match -
+       measured at a mean 394px from his own sheep, 96% of the time.
+       Reported as "make sure the shepherd is going to look after his sheep".
+
+       `o.lifeAnchor` lets a caller say where the pottering belongs. Nobody
+       else sets it, so every other trade keeps the doorstep it had. */
+    const anc = o.lifeAnchor || { x:o.home.x, y:o.home.y + o.home.h*TILE/2 + 6 };
     const a = Math.random()*6.283, dd = 14 + Math.random()*32 + tries*7;
-    const x = o.home.x + Math.cos(a)*dd;
-    const y = o.home.y + o.home.h*TILE/2 + 6 + Math.sin(a)*dd*0.7;
+    const x = anc.x + Math.cos(a)*dd;
+    const y = anc.y + Math.sin(a)*dd*0.7;
     if(isWater(x,y) || blocked(x,y,null,false)) continue;
     o.dest = {x,y}; o.lifeState = "potter"; o.legT = 0;
     return;
@@ -76309,14 +77168,35 @@ function makeSheep(home, i){
    following an instruction, which is the sort of thing this game is for. */
 const GRAZE_DAYS = SEASON_DAYS / 2;      // half a season on one patch
 const PATCH_LIFE_SEASONS = 3;            // and the good ground fades eventually
-const PATCH_BOOST = 0.10;                // a tenth more off a farm built on it
-const PATCH_BOOST_SEASONS = 1;           // for a season after it is built
+/* ---- WHAT THE GROUND IS WORTH, AND FOR HOW LONG ----
+   Asked for 20 Sep: "if you build a farm on it you get a 20% boost in food
+   for two days, then it wears off, so the square of different grass needs
+   to be the same size as the farm square."
 
-/* Farm-sized, because a farm is what it is for. Read off the building so it
-   cannot drift if a farm ever changes shape. */
-function patchRadius(){
-  const f = BLDG.farm;
-  return Math.max(f.w, f.h) * TILE * 0.62;
+   Both numbers moved and one of them changed UNIT. It was a tenth for a
+   SEASON - a small bonus you would never notice arriving or leaving. A
+   fifth for two DAYS is the opposite shape: worth aiming a field at, and
+   over soon enough that you feel it stop. Days are also the unit a player
+   actually counts in; a season is nineteen minutes and nobody is watching
+   the calendar that closely. */
+const PATCH_BOOST = 0.20;                // a fifth more off a farm built on it
+const PATCH_BOOST_DAYS = 2;              // and only for two days
+
+/* ---- A SQUARE, THE SIZE OF A FARM ----
+   It was a circle of radius max(w,h)*0.62, which is neither the shape nor
+   the size of the thing it is for - a player lining a field up with it had
+   to guess, because a round patch has no edges to line anything up with.
+   A farm's own footprint, so the patch and the field are the same square
+   and putting one on the other is something you can DO by eye rather than
+   hope for. Read off BLDG.farm so it cannot drift if a farm changes. */
+function patchHalfW(){ return BLDG.farm.w * TILE * 0.5; }
+function patchHalfH(){ return BLDG.farm.h * TILE * 0.5; }
+/* Is a point inside the square? Kept as one function because three places
+   ask it and a box test written three times is a box test that will
+   disagree with itself. */
+function inGrazedSquare(p, x, y, pad){
+  return Math.abs(x - p.x) <= patchHalfW() + (pad||0)
+      && Math.abs(y - p.y) <= patchHalfH() + (pad||0);
 }
 function leaveGrazedPatch(hut, spot){
   if(!spot) return;
@@ -76324,7 +77204,7 @@ function leaveGrazedPatch(hut, spot){
   /* One patch to a piece of ground: a flock that came back to the same field
      should deepen it rather than stack two of them. */
   for(const p of G.grazedPatches){
-    if(Math.hypot(p.x-spot.x, p.y-spot.y) < patchRadius()){
+    if(inGrazedSquare(p, spot.x, spot.y)){
       p.seasonNo = (G.seasonNo || 0);
       p.rich = Math.min(1, (p.rich||0.6) + 0.2);
       return;
@@ -76344,7 +77224,7 @@ function leaveGrazedPatch(hut, spot){
 /* Which patch a building is standing on, if any. */
 function grazedPatchAt(x, y){
   for(const p of (G.grazedPatches||[])){
-    if(Math.hypot(p.x-x, p.y-y) < patchRadius()) return p;
+    if(inGrazedSquare(p, x, y)) return p;
   }
   return null;
 }
@@ -76353,7 +77233,8 @@ function grazedPatchAt(x, y){
 function grazedFarmMult(b){
   if(!b || !BLDG[b.type] || !BLDG[b.type].farm) return 1;
   if(!b.grazedUntil) return 1;
-  return (G.seasonNo || 0) < b.grazedUntil ? (1 + PATCH_BOOST) : 1;
+  /* DAYS now, not seasons - grazedUntil is a day number. */
+  return (G.dayNo || 0) < b.grazedUntil ? (1 + PATCH_BOOST) : 1;
 }
 /* Stamped when the farm goes up rather than checked every tick: the patch
    can fade, and a field should keep the good of the ground it was built on.
@@ -76368,18 +77249,18 @@ function claimGrazedGround(b){
      the reach. Measured, a farm dropped on the patch by eye lands 45-55px
      off centre and a 2x2 farm is 68px across. */
   const d = BLDG[b.type];
-  const reach = patchRadius() + Math.max(d.w, d.h) * TILE * 0.5;
+  const pad = Math.max(d.w, d.h) * TILE * 0.5;
   let patch = null;
   for(const p2 of (G.grazedPatches||[])){
     if(p2.used) continue;
-    if(Math.hypot(p2.x-b.x, p2.y-b.y) < reach){ patch = p2; break; }
+    if(inGrazedSquare(p2, b.x, b.y, pad)){ patch = p2; break; }
   }
   if(!patch) return false;
   patch.used = true;
-  b.grazedUntil = (G.seasonNo || 0) + PATCH_BOOST_SEASONS;
+  b.grazedUntil = (G.dayNo || 0) + PATCH_BOOST_DAYS;
   if(b.p === P_YOU)
     tellAndNote("That field is going in on the ground the flock manured. It will "+
-                "come in heavier than it has any right to, for a season.", "good");
+                "come in a fifth heavier than it has any right to - for two days.", "good");
   return true;
 }
 /* Old ground goes back to being ordinary ground. */
@@ -76480,7 +77361,12 @@ function updateShepherd(dt){
     } else if(o.state === "watching"){
       o.moving = false;
       /* Standing with the flock, leaning on the crook. This is most of a
-         shepherd's day and it is deliberately not busy. */
+         shepherd's day and it is deliberately not busy.
+
+         AND HE POTTERS ROUND THE FLOCK, not round his hut. liveALittle
+         orbits o.home by default, which sent him back across the map and
+         left the sheep out on their own - see lifeAnchor (05j). */
+      o.lifeAnchor = o.grazeSpot || null;
       if(shepherdShouldShear(o, flock)) startShearing(o, flock);
       else liveALittle(o, dt, SHEPHERD_SPD);
     } else if(o.state === "shearing"){
@@ -76603,19 +77489,78 @@ function updateFlock(dt){
       s.indoors = true; s.moving = false; s.grazing = false;
       continue;
     }
+    /* ---- THEY GO WITH HIM, NOT AHEAD OF HIM ----
+       Reported 20 Sep: "make sure the shepherd is going to look after his
+       sheep and then don't just go by themselves to grazing spaces."
+
+       They did. The flock anchored on shep.grazeSpot, and that is set the
+       instant the shepherd CHOOSES a field - before he has taken a step. So
+       four sheep set off across the map on their own and he followed them
+       out, which is the opposite of the picture: the hint even says "the
+       shepherd takes the flock on to new grass" while the flock took
+       itself.
+
+       While he is walking there they anchor on HIM, and only spread over
+       the field once he has arrived and is watching. */
+    const leading = !night && shep && shep.state === "toField";
     const anchor = night ? pen
+                 : leading ? { x: shep.x, y: shep.y }
                  : (shep && shep.grazeSpot) ? shep.grazeSpot
                  : pen;
 
     const d = Math.hypot(anchor.x - s.x, anchor.y - s.y);
-    const spread = night ? 18 : SHEEP_GRAZE_R;
+    /* Closer in while they are being led than when they are spread over a
+       field - a flock on the move keeps together, and one strung out over
+       forty-six pixels of pasture is not being taken anywhere. */
+    const spread = night ? 18 : leading ? SHEEP_GRAZE_R*0.55 : SHEEP_GRAZE_R;
+
+    /* ---- EACH SHEEP HAS ITS OWN PLACE IN THE FIELD ----
+       Reported 20 Sep: they "walk clumped in a line on top of each other."
+
+       The walk out to a new patch used to aim at
+       `anchor + (Math.random()-0.5)*spread*0.6` computed FRESH EVERY FRAME.
+       A target that is re-rolled sixty times a second averages out to the
+       anchor itself, so every sheep in the flock walked at the same point -
+       and since they start in a huddle by the hut and all move at exactly
+       SHEEP_SPD, they arrive nose to tail in a queue. It reads as one sheep
+       drawn five times.
+
+       The offset is picked ONCE per destination and kept, so each animal
+       has somewhere of its own to be and they fan out on the way. Same trap
+       the chickens had twice: a per-frame roll where a windowed one was
+       meant (feedback: per-frame-vs-windowed).
+
+       The pace is per-sheep too. Five animals crossing a field at one speed
+       hold their spacing exactly, which is a marching band; a tenth either
+       way and the line comes apart on its own. */
+    /* A STABLE KEY WHILE FOLLOWING. The anchor is the shepherd himself on
+       the way over, so keying off his position would re-roll every sheep's
+       offset sixty times a second - which is exactly the per-frame fault
+       that had them walking in a line in the first place. One key for the
+       whole walk. */
+    const key = night    ? "pen"
+              : leading  ? "follow"
+              : (anchor.x|0) + ":" + (anchor.y|0) + ":field";
+    if(s.spotKey !== key){
+      s.spotKey = key;
+      const a = Math.random()*6.283, r = Math.sqrt(Math.random());
+      s.spotDX = Math.cos(a)*r*spread*0.78;
+      s.spotDY = Math.sin(a)*r*spread*0.62;      // flatter, the ground is seen at an angle
+      if(s.pace === undefined) s.pace = 0.90 + Math.random()*0.22;
+    }
     if(d > spread){
-      /* Back toward the flock. Sheep move at a sheep's pace even when they
-         are behind. */
+      /* Back toward the flock, each to their own corner of it. Sheep move at
+         a sheep's pace even when they are behind. */
       s.grazing = false;
-      moveToward(s, anchor.x + (Math.random()-0.5)*spread*0.6,
-                    anchor.y + (Math.random()-0.5)*spread*0.6,
-                    SHEEP_SPD, dt, spread*0.5);
+      /* WHICH WAY THEY ARE WALKING, and it is the same machinery every
+         person in the village uses - faceTowardPoint sets `face` for the
+         left-right flip and `dir` for the front/back views, with its own
+         hysteresis so a sheep wandering about north cannot strobe.
+         Asked for 20 Sep: "the sheep will also need to walk south and
+         north and face those directions". */
+      faceTowardPoint(s, anchor.x + s.spotDX, anchor.y + s.spotDY, dt);
+      moveToward(s, anchor.x + s.spotDX, anchor.y + s.spotDY,
+                    SHEEP_SPD * (s.pace||1), dt, 7);
       s.moving = true;
     } else {
       /* At the field: graze, wander a step, graze again. The head-down pose
@@ -76625,12 +77570,23 @@ function updateFlock(dt){
         s.grazing = !s.grazing;
         s.grazeT = s.grazing ? 2.5 + Math.random()*4 : 1 + Math.random()*2.5;
         if(!s.grazing){
-          s.tx = anchor.x + (Math.random()-0.5)*spread*1.4;
-          s.ty = anchor.y + (Math.random()-0.5)*spread*1.4;
+          /* A step to somewhere near THEIR patch rather than anywhere in
+             the field. THIS IS THE HALF THAT ACTUALLY SHOWS: the old step
+             went anywhere within spread*1.4 of the anchor, so nothing held
+             one animal apart from another and the flock stirred itself
+             back into a heap however well it fanned out on the way in.
+             Measured, reverting the travel target alone barely moves the
+             spacing; reverting this one takes it from 20.1px back to
+             14.6. */
+          s.tx = anchor.x + s.spotDX + (Math.random()-0.5)*spread*0.55;
+          s.ty = anchor.y + s.spotDY + (Math.random()-0.5)*spread*0.45;
         }
       }
       if(s.grazing){ s.moving = false; }
-      else { s.moving = !moveToward(s, s.tx, s.ty, SHEEP_SPD*0.7, dt, 6); }
+      else {
+        faceTowardPoint(s, s.tx, s.ty, dt);
+        s.moving = !moveToward(s, s.tx, s.ty, SHEEP_SPD*0.7*(s.pace||1), dt, 6);
+      }
     }
     if(s.moving) s.walk += dt*5.5;
 
@@ -76720,6 +77676,82 @@ function drawSheep(s){
     }
   }
 
+  /* ---- WHICH END OF THE SHEEP YOU ARE LOOKING AT ----
+     Added 20 Sep with the north/south walking. The body is a ring of wool
+     and reads from any angle, so only the HEAD changes: from behind there
+     is no head to see and a tail instead, and head-on it comes round to the
+     middle with both ears and both eyes.
+
+     Grazing keeps its own pose in every view - a sheep with its head down
+     is the single clearest tell that it is eating, and losing that when it
+     happened to be pointing at you would be a worse trade than the angle
+     is worth. */
+  const sdir = s.moving ? (s.dir || "side") : "side";
+
+  if(sdir === "up"){
+    /* GOING AWAY: the rump, and a tail. The head is on the other side of
+       all that wool and drawing any of it here would put a face on the
+       back of the animal. */
+    ctx.fillStyle = woolCol;
+    ctx.beginPath();
+    ctx.ellipse(0, -H*0.02, H*0.17, H*0.13, 0, 0, 6.283);
+    ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.5, H*0.034); ctx.stroke();
+    /* The tail, hanging and just off centre so it does not read as a seam
+       straight down the middle of them. */
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.8, H*0.055);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(H*0.06, -H*0.10);
+    ctx.lineTo(H*0.08 + Math.sin(s.walk*0.6+s.seed)*H*0.03, H*0.10);
+    ctx.stroke();
+    ctx.lineCap = "butt";
+    ctx.restore();
+    return;
+  }
+
+  if(sdir === "down"){
+    /* COMING AT YOU: the head in the middle, low against the chest, with
+       both ears out and both eyes. Smaller than the side view's head
+       because you are looking at the narrow way of it. */
+    /* LOW ENOUGH TO CLEAR THE FLEECE. At 0.16H the head sat inside the wool
+       ellipse (centre -0.06H, half-height 0.34H, so its underside is at
+       +0.28H) and the whole face was buried in it - checked on screen, it
+       read as a sheep bending down rather than one looking at you. Hung
+       below the body instead, the way a head-on animal's actually is. */
+    const fy = H*0.30 + graze*H*0.16;
+    ctx.fillStyle = shade(faceCol, -0.18);          // ears, either side
+    for(const sx of [-1, 1]){
+      ctx.beginPath();
+      ctx.ellipse(sx*H*0.19, fy - H*0.05, H*0.150, H*0.060, sx*0.85, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.5, H*0.032); ctx.stroke();
+    }
+    ctx.fillStyle = faceCol;
+    ctx.beginPath();
+    ctx.ellipse(0, fy, H*0.155, H*0.185, 0, 0, 6.283);
+    ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(0.6, H*0.04); ctx.stroke();
+    /* TWO eyes here, unlike the side view's one - head-on, a single eye
+       reads as a fault rather than as foreshortening. Same blink. */
+    if(!blinkShut(s.id)){
+      ctx.fillStyle = "#1d1610";
+      for(const sx of [-1, 1]){
+        ctx.beginPath();
+        ctx.arc(sx*H*0.062, fy - H*0.03, H*0.038, 0, 6.283); ctx.fill();
+      }
+    } else {
+      ctx.strokeStyle = "#1d1610"; ctx.lineWidth = Math.max(0.5, H*0.03);
+      for(const sx of [-1, 1]){
+        ctx.beginPath();
+        ctx.moveTo(sx*H*0.100, fy - H*0.03); ctx.lineTo(sx*H*0.025, fy - H*0.03);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+    return;
+  }
+
   /* The head: down at the grass, or up and looking at you. Small and dark
      against the fleece, which is where all the cuteness lives. */
   const hx = H*0.46, hy = -H*0.14 + graze*H*0.42;
@@ -76789,7 +77821,13 @@ function drawSheep(s){
    Drawn on the ground layer, under everything, so units and buildings sit on
    top of it as they would on any other terrain. */
 function drawGrazedPatch(p){
-  const r = patchRadius();
+  /* A SQUARE THE SIZE OF A FARM, drawn as one. It was a soft radial blob,
+     which is the honest shape for "ground somebody walked on" and the wrong
+     one for "put a field exactly here" - see patchHalfW. The edges are what
+     the patch is FOR now, so they are edges: a filled rectangle with a soft
+     rim, not a gradient with no boundary anywhere. */
+  const hw = patchHalfW(), hh = patchHalfH();
+  const r = Math.max(hw, hh);
   /* Fades as it ages, so old ground stops shouting before it stops working -
      and stops entirely when it stops working. */
   const age = (G.seasonNo||0) - p.seasonNo;
@@ -76798,13 +77836,17 @@ function drawGrazedPatch(p){
   const a = (0.20 + 0.16*(p.rich||0.6)) * life;
 
   ctx.save();
-  /* The cropped ground: a darker, richer green, soft-edged so it does not
-     read as a placed object. */
-  const g = ctx.createRadialGradient(p.x, p.y, r*0.25, p.x, p.y, r);
-  g.addColorStop(0, "rgba(74,92,48," + a.toFixed(3) + ")");
-  g.addColorStop(1, "rgba(74,92,48,0)");
-  ctx.fillStyle = g;
-  ctx.beginPath(); ctx.ellipse(p.x, p.y, r, r*0.82, 0, 0, 6.283); ctx.fill();
+  /* The cropped ground: a darker, richer green, filling the farm's own
+     square so a field can be lined up with it by eye. */
+  ctx.fillStyle = "rgba(74,92,48," + a.toFixed(3) + ")";
+  ctx.beginPath();
+  ctx.rect(p.x - hw, p.y - hh, hw*2, hh*2);
+  ctx.fill();
+  /* A rim, so the square has a findable edge without looking like a placed
+     object - the same reason the burrows got one (idea_burrows_blend_in). */
+  ctx.strokeStyle = "rgba(60,76,38," + (a*0.85).toFixed(3) + ")";
+  ctx.lineWidth = Math.max(0.6, TILE*0.045);
+  ctx.stroke();
 
   /* Trodden bare spots where they stood most. Hashed off the patch's own
      seed so a patch looks the same every frame and every session. */
@@ -76812,10 +77854,12 @@ function drawGrazedPatch(p){
   for(let i=0;i<7;i++){
     const h = Math.abs(Math.sin((p.seed+1)*12.9898 + i*78.233)*43758.5453) % 1;
     const h2 = Math.abs(Math.sin((p.seed+1)*39.3468 + i*11.135)*24634.6345) % 1;
-    const ang = h*6.283, rad = r*0.18 + h2*r*0.62;
+    /* Scattered INSIDE the square rather than round a centre, or the
+       trodden spots would round the corners off the thing again. */
+    const bx = p.x + (h*2 - 1) * hw * 0.78;
+    const by = p.y + (h2*2 - 1) * hh * 0.78;
     ctx.beginPath();
-    ctx.ellipse(p.x + Math.cos(ang)*rad, p.y + Math.sin(ang)*rad*0.82,
-                r*0.13, r*0.08, ang, 0, 6.283);
+    ctx.ellipse(bx, by, r*0.13, r*0.08, h*6.283, 0, 6.283);
     ctx.fill();
   }
   ctx.restore();
@@ -78403,29 +79447,103 @@ function paintDayOfSeason(){ return Math.floor((G.seasonT || 0) / DAY_LEN); }
    be given to anybody. Four times a year, a day's work handed to nobody.
    One quiet day at the turn of each season costs a painting and buys the
    rhythm - and it only exists at all while SEASON_DAYS is odd. */
-const PAINTS_PER_SEASON = Math.floor(SEASON_DAYS / 2);
+/* ---- A PICTURE TAKES DAYS, NOT AN AFTERNOON ----
+   Reworked 20 Sep, asked for in these words: "have the painter set up the
+   easel somewhere in town and then stand there painting the picture for a
+   day, it then takes it in at night and sets it up the next day to keep
+   painting, maybe the painter finishes two paintings a season."
+
+   What was here was one picture per painting DAY, on an even/odd rhythm:
+   paint on Monday, give it away on Tuesday. That rhythm cannot survive a
+   picture that takes three days - there is no alternate day to give on -
+   so the calendar is gone and the work itself decides. They paint while
+   there is an unfinished picture and they give it away the next morning,
+   which is a shape you can read off the easel rather than off a diary.
+
+   PAINT_DAYS is the whole tuning. The giving happens on the morning of the
+   first day of the NEXT picture rather than eating a day of its own, so the
+   cycle is however many days the canvas takes.
+
+   THREE A SEASON, AND THE ARITHMETIC IS THE REASON. Asked for "maybe two
+   paintings a season", and then - having been shown that two a season makes
+   the catalogue take three years - "maybe make it so it takes 2 years not
+   3". Those two do not both fit: at two a season, two years is four
+   pictures a season, and the catalogue holds six. Keeping the number two
+   would have meant deleting eight hand-written pictures.
+
+   Three a season is the only value where both halves of the ask land: six
+   per season over two years empties the catalogue EXACTLY, and nothing is
+   thrown away. A picture still takes days, still goes in at dusk and still
+   comes back out the next morning - it takes two of them instead of
+   three. */
+const PAINT_DAYS = 1.6;
+const PAINTS_PER_SEASON = 3;
+
+/* THE LAST DAY OF THE SEASON IS STILL A DAY OFF. It is the one piece of the
+   old rhythm worth keeping: a rest day at the turn, so the seasons do not
+   run into one another, and the catalogue changes over on a clean edge. */
 function paintingDay(){
   const d = paintDayOfSeason();
-  if(d % 2 !== 0) return false;
-  if((SEASON_DAYS % 2) === 1 && d >= SEASON_DAYS - 1) return false;
-  return true;
+  return d < SEASON_DAYS - 1;
 }
 
 /* Where the easel stands: out in front of the Retreat, clear of the door so
    nobody has to walk through it, and on ground somebody can stand on. It
    does not move once chosen for the day - a painter who shifted their easel
    every frame would be a painter who never got anything done. */
-/* Where the PAINTER stands to work: below the easel, so they are between
-   you and the board and the sort puts them in front of it. Their back is to
-   the village and they are looking at what they are painting, which is what
-   a painter at an easel looks like from anywhere. */
+/* ---- WHERE THE PAINTER STANDS, AND WHY IT MOVED ----
+   They used to stand squarely BELOW the easel, looking north at the board.
+   That put them between you and the picture, which sorts correctly and is
+   what a painter looks like from behind - and from behind is the problem.
+   Reported 20 Sep, in three words: "I can't see their face?" Facing north
+   is the back view, so the one villager whose whole job you are meant to
+   watch was the one villager you never saw.
+
+   So they stand to the SIDE of it now, a little below, and turn in toward
+   the board. Side-on is the view with a face in it, the easel is clear of
+   them rather than behind them, and you can see both at once. The offset is
+   small enough that they still read as AT the easel rather than beside one
+   somebody else left there. */
+const EASEL_SIDE = 15;
 function easelStand(spot){
-  return spot ? { x: spot.x, y: spot.y + 11 } : null;
+  return spot ? { x: spot.x - EASEL_SIDE, y: spot.y + 6 } : null;
 }
 /* And where they stand for the reveal: off to one side, clear of the board,
    so the thing being shown is not behind them. */
 function easelAside(spot){
   return spot ? { x: spot.x - 17, y: spot.y + 7 } : null;
+}
+
+/* ---- SOMEWHERE IN TOWN ----
+   "Have the painter set up the easel somewhere in town." The easel used to
+   go up two paces from the Retreat's own door, which is tidy and is not
+   what a painter does: they carry the thing to whatever they want to look
+   at. So a spot is chosen out among the buildings, and - this is the part
+   that makes it read - it is KEPT for the whole picture. The same easel
+   stands in the same corner of the village for three days running, a little
+   further along each evening, and you can watch it fill in.
+
+   Picked off the hall rather than off the Retreat so it lands where the
+   village actually is, at a distance that clears the buildings without
+   wandering into the woods. Falls back to the Retreat's own doorstep if the
+   village is hemmed in, because a painter with nowhere to stand should
+   still paint. */
+const TOWN_EASEL_MIN = 3, TOWN_EASEL_MAX = 7;    // tiles out from the hall
+function townEaselSpot(o){
+  const hall = G.bldgs.find(b => b.p === o.p && b.type === "town" && b.done)
+            || o.home;
+  if(!hall) return easelSpot(o.home);
+  for(let tries = 0; tries < 40; tries++){
+    const a = Math.random()*6.283;
+    const d = (TOWN_EASEL_MIN + Math.random()*(TOWN_EASEL_MAX-TOWN_EASEL_MIN))*TILE;
+    const x = hall.x + Math.cos(a)*d, y = hall.y + Math.sin(a)*d*0.85;
+    if(isWater(x, y) || blocked(x, y, null, false)) continue;
+    /* Room to stand beside it, or the painter ends up in a wall. */
+    const st = easelStand({ x, y });
+    if(isWater(st.x, st.y) || blocked(st.x, st.y, null, false)) continue;
+    return { x, y };
+  }
+  return easelSpot(o.home);
 }
 
 function easelSpot(b){
@@ -78565,6 +79683,11 @@ const PAINT_SUBJECTS = SEASON_ORDER.reduce((a,s) => a.concat(PAINT_CATALOGUE[s])
 
 /* HOW MANY A SEASON IS OWED, worked out rather than written down. Three
    painting days in a seven-day season, and the ask was two years of them. */
+/* TWO YEARS, as originally promised: "enough paintings for 2 years...
+   after two years you have seen them all". Three a season over two years is
+   six per season, which is exactly what PAINT_CATALOGUE holds - so
+   paintingsOwed() empties it with none left over and none repeated. See
+   PAINTS_PER_SEASON above for why three rather than two. */
 const PAINT_YEARS = 2;
 function paintingsOwed(){ return PAINTS_PER_SEASON * PAINT_YEARS; }
 
@@ -78746,7 +79869,10 @@ function updateArtist(dt){
       /* BACK TO THE VILLAGE. dir "up" is what drawPerson reads for the back
          view, and it is the whole of the pose: they are looking at what they
          are painting, not at you. */
-      o.dir = "up";
+      /* SIDE ON, turned in toward the board - see easelStand. This was
+         dir "up" and that is what hid the painter's face. */
+      o.dir = "side";
+      o.face = 1;                       // the easel is to their right
       o.revealing = false;
       /* `paintT` runs 0 -> 1 across the working part of the day. NOBODY CAN
          SEE IT - the board's back is to the village all day (drawOneEasel,
@@ -78766,8 +79892,27 @@ function updateArtist(dt){
         }
         continue;
       }
+      /* ---- TODAY'S SHARE, ON TOP OF WHAT IS ALREADY THERE ----
+         The picture is no longer the clock: it is what was done on the days
+         before (pieceBase, banked at dusk) PLUS this day's session. One day
+         at the easel is worth 1/PAINT_DAYS of a picture, so three of them
+         finish it and you can see it grow from one evening to the next.
+
+         pieceBase is deliberately NOT cleared by the new-day wipe below -
+         that wipe exists to stop a painter standing at an easel in the
+         dark, and the picture itself has to survive it or every night
+         would start the canvas again. */
+      /* `dayBase` IS FIXED FOR THE DAY, and that is the whole of it. The
+         first version read pieceBase here and wrote the result back to
+         pieceBase a few lines down, so the day's share was added afresh
+         THIRTY TIMES A SECOND and a picture was finished within a frame or
+         two of the easel going up. Measured as six paintings a season where
+         two were wanted, with the painter spending the rest of every day
+         stood beside a finished board. A progress number must never be
+         both the input and the output of the same expression. */
       const span = Math.max(0.01, PAINT_DONE - PAINT_START);
-      const byClock = Math.min(1, Math.max(0, (through - PAINT_START) / span));
+      const today = Math.min(1, Math.max(0, (through - PAINT_START) / span));
+      const byClock = Math.min(1, (o.dayBase || 0) + today / PAINT_DAYS);
       /* Whatever the gale has taken stays taken: the picture is the clock
          LESS the damage, so a board that went over at noon is still behind
          at four. Without this the next frame simply put it back. */
@@ -78776,13 +79921,27 @@ function updateArtist(dt){
       if(galeTakesTheBoard(o, dt))
         o.paintLost = Math.min(0.95, (o.paintLost || 0) + BLOW_OVER_COST);
       if(Math.random() < 0.06) fxWork(o.x, o.y - 4, (o.subject || {}).col || "#c4622c");
-      if(byClock >= 1 || !paintingDay()){
+      /* THE BRUSH GOES DOWN MID-AFTERNOON whether or not the picture is
+         done - that is what makes it take days. The board goes in and what
+         was done today is already banked above. */
+      if(through >= PAINT_DONE && byClock < 1){
+        o.working = 0; o.moving = false;
+        o.state = "idle";
+        o.easel = null;                    // taken in for the night
+        o.dir = "side";
+        continue;
+      }
+      /* BANKED AS THEY GO, so a picture is worth what was actually done at
+         it however the day ends - dusk, rain, or the brush going down. */
+      o.pieceBase = Math.max(o.pieceBase || 0, Math.min(1, byClock) - (o.paintLost || 0));
+      if(byClock >= 1){
         o.working = 0;
         o.paintT = 1;
+        o.pieceBase = 1;
         o.hasPainting = true;              // it is finished and waiting to be given
         /* AND THEY TURN IT ROUND. Only if there is still day left to show it
            in - a picture revealed into the dark is not a reveal. */
-        if(paintingDay() && through < REVEAL_UNTIL){
+        if(through < REVEAL_UNTIL){
           o.state = "revealing";
           o.dir = "side";
           o.revealing = true;
@@ -78808,7 +79967,7 @@ function updateArtist(dt){
       o.revealing = true;
       o.dir = "side";
       o.face = 1;                          // turned toward their own picture
-      if(through >= REVEAL_UNTIL || !paintingDay()){
+      if(through >= REVEAL_UNTIL){
         o.revealing = false;
         o.state = "idle";
         o.easel = null;                    // taken in for the night
@@ -78833,12 +79992,33 @@ function updateArtist(dt){
           giveThePainting(o, to);
           o.state = "idle"; o.showTo = null; o.dest = null;
           o.laden = false; o.hasPainting = false; o.showT = 0;
+          /* Fresh canvas: new subject, new corner of the village, and the
+             days start again. Without this the next picture would inherit
+             the last one's progress and be finished the moment it began. */
+          o.pieceBase = 0; o.pieceSpot = null; o.subject = null; o.paintLost = 0;
         }
       }
       continue;
     }
 
-    /* ---- nothing on: which day is it? ---- */
+    /* ---- nothing on: give yesterday's away, then get back to work ----
+       THE GIVING COMES FIRST, and that ordering is what makes two pictures
+       a season. It used to have a day of its own, opposite the painting
+       days; now it is an errand before the easel goes up, so the morning
+       after a picture is finished is also the first day of the next one.
+       Three working days a picture, and a season holds two of them. */
+    if(o.hasPainting && !o.gaveToday && through >= GIFT_AT){
+      const to = artistFindShowing(o);
+      if(to){
+        stopLiving(o);
+        o.showTo = to;
+        o.laden = true;
+        o.state = "showing";
+        o.showT = 0;
+        o.legT = 0;
+        continue;
+      }
+    }
     if(paintingDay()){
       /* NOT IN THE WET. Checked here rather than inside the branch so a
          painter who sheltered earlier comes back out the moment it passes -
@@ -78854,30 +80034,29 @@ function updateArtist(dt){
       }
       if(!o.hasPainting && !o.startedToday && paintingWeather() &&
          through >= PAINT_START && through < PAINT_DONE){
-        const spot = easelSpot(o.home);
+        /* A PICTURE ON THE GO KEEPS ITS CORNER OF THE VILLAGE AND ITS
+           SUBJECT. Only a fresh canvas chooses again - otherwise the easel
+           would hop across town overnight and the thing on it would become
+           a different painting, which is the opposite of watching one come
+           along over three days. */
+        if(!o.pieceSpot || !(o.pieceBase > 0)) o.pieceSpot = townEaselSpot(o);
+        const spot = o.pieceSpot;
         if(spot){
           stopLiving(o);
           o.startedToday = true;
           o.easel = spot;
-          o.subject = paintSubject(o);
-          o.paintT = 0;
+          if(!o.subject || !(o.pieceBase > 0)){
+            o.subject = paintSubject(o);
+            o.pieceBase = 0;
+          }
+          o.paintT = o.pieceBase || 0;
+          o.dayBase = o.pieceBase || 0;    // what today builds on - see byClock
           o.toldDone = false;
           o.state = "toeasel";
-          o.dest = easelStand(spot);                   // in front of it, back to the village
+          o.dest = easelStand(spot);                   // beside it, face to the village
           o.legT = 0;
           continue;
         }
-      }
-    } else if(o.hasPainting && !o.gaveToday && through >= GIFT_AT){
-      const to = artistFindShowing(o);
-      if(to){
-        stopLiving(o);
-        o.showTo = to;
-        o.laden = true;
-        o.state = "showing";
-        o.showT = 0;
-        o.legT = 0;
-        continue;
       }
     }
 
@@ -78899,7 +80078,8 @@ function updateArtist(dt){
            painter has to stand BETWEEN you and the board, and a pixel either
            side of that decides whether they sort in front of it or behind. */
         if(stand){ o.x = stand.x; o.y = stand.y; }
-        o.dir = "up";
+        o.dir = "side";
+        o.face = 1;
         o.face = 1;
       }
       continue;
@@ -84449,7 +85629,73 @@ window.addEventListener("keydown", e=>{
    visible at a time, and they live inside the same card so that moving
    between them does not resize or re-centre it under the reader. */
 const MENU_PAGES = ["mp_root","mp_new","mp_how","mp_set","mp_patch","mp_chronicle"];
+/* ---- FIVE SECONDS TO READ IT ----
+   Asked for 16 Sep: "the splash screen that we have before the game is
+   played, remove the x, and a 5 second loading bar, so people have to read
+   it."
+
+   Only on the briefing that a WAITING MATCH sits behind - the same page
+   opened from the menu as reference keeps its X and its Back, because
+   there is nothing to read it before.
+
+   AND THE X GOES ONLY HERE. It is not decoration anywhere else: Exit from
+   the pause screen drops you on this menu with the match still paused
+   underneath, and the X is what picks it back up ("the X picks it back
+   up", btnexit). Taking it out everywhere would stand a player in a menu
+   with no way back to the game they were playing. So it is hidden for the
+   length of the briefing and put back the moment the page is left.
+
+   Begin is disabled rather than hidden: a button that appears out of
+   nowhere when the bar fills is harder to find than one that was there all
+   along, greyed - the same reasoning as the Continue row on the front
+   page. */
+const READ_HOLD = 5;                 // seconds, as asked
+let readHoldT = null;
+function releaseReadingHold(){
+  if(readHoldT){ clearTimeout(readHoldT); readHoldT = null; }
+  const x = $("btnclose"), wrap = $("mm_loadwrap"), fill = $("mm_loadfill"), go = $("mm_begin");
+  if(x && x.classList) x.classList.remove("hide");
+  if(wrap && wrap.classList) wrap.classList.add("hide");
+  if(fill && fill.style) fill.style.width = "0%";
+  if(go && go.removeAttribute) go.removeAttribute("disabled");
+}
+function holdForReading(){
+  const x = $("btnclose"), wrap = $("mm_loadwrap"), fill = $("mm_loadfill"),
+        go = $("mm_begin"), cap = $("mm_loadcap");
+  if(x && x.classList) x.classList.add("hide");
+  if(wrap && wrap.classList) wrap.classList.remove("hide");
+  if(go && go.setAttribute) go.setAttribute("disabled","");
+  if(cap) cap.textContent = "The village is waking up\u2026";
+  if(readHoldT){ clearTimeout(readHoldT); readHoldT = null; }
+  /* Width from 0 to full over READ_HOLD, driven by the transition. The
+     browser needs the 0 committed before the 100% or it has nothing to move
+     away from and the bar jumps straight to the end.
+
+     FORCED REFLOW, NOT requestAnimationFrame. rAF does not run while the
+     page is hidden, and this game is opened from a file:// page in a web
+     view that can easily be backgrounded at the moment a match is dealt -
+     the first version sat at 0% with its transition still "none" until the
+     tab came forward. Reading offsetWidth flushes layout there and then,
+     whatever the page's visibility. (The hold itself is a timer, so Begin
+     unlocks on time either way; this is about the bar being honest.) */
+  if(fill && fill.style){
+    fill.style.transition = "none";
+    fill.style.width = "0%";
+    void fill.offsetWidth;                       // commit the 0
+    fill.style.transition = "width " + READ_HOLD + "s linear";
+    fill.style.width = "100%";
+  }
+  readHoldT = setTimeout(() => {
+    readHoldT = null;
+    if(go && go.removeAttribute) go.removeAttribute("disabled");
+    if(cap) cap.textContent = "Ready when you are.";
+  }, READ_HOLD * 1000);
+}
 function openMenuPage(id, opts){
+  /* Leaving the briefing by ANY route - Back, the front page, the patch
+     notes - puts the X back and stops the clock. openMenuPage is the only
+     door into a page, so this is the only place that has to remember. */
+  if(id !== "mp_how") releaseReadingHold();
   for(const p of MENU_PAGES){
     const el = $(p);
     if(!el || !el.classList) continue;
@@ -84470,6 +85716,7 @@ function openMenuPage(id, opts){
     const go = $("mm_begin"), back = $("mm_howback");
     if(go && go.classList) go.classList.toggle("hide", !starting);
     if(back && back.classList) back.classList.toggle("hide", starting);
+    if(starting) holdForReading(); else releaseReadingHold();
   }
   if(id === "mp_root" || id === "mp_set") refreshSaveRows();
   if(id === "mp_root" || id === "mp_chronicle") refreshChronicle();
@@ -84546,6 +85793,11 @@ if(document.querySelectorAll){
     b.addEventListener("click", ()=>openMenuPage("mp_root"));
 }
 $("mm_begin").addEventListener("click", ()=>{
+  /* The button is disabled while the bar runs, and this is the belt to that
+     brace: a keyboard activation or a stray synthetic click must not skip
+     the read either. */
+  if(readHoldT) return;
+  releaseReadingHold();
   $("startscreen").classList.add("hide");
   showOpening();
 });
