@@ -1201,6 +1201,8 @@
         <b>double-tap them</b> and after that every tap just does whatever makes
         sense where you tapped</li>
       <li><b>Bring back wood</b> until there is enough to <b>repair the town centre</b></li>
+      <li>On the <b>second day</b> a stranger comes down the road &mdash; talk to them,
+        answer well, and they&rsquo;ll stay: a second pair of hands, early</li>
       <li>Then build it out, however you like, into a <b>cosy empire</b></li>
       </ul>
       <p><b>Something new happens every day.</b> Get everyone <b>indoors at night</b>
@@ -1255,6 +1257,14 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn" open>
+        <summary>Patch 21.48</summary>
+        <div class="sec">The opening was too much watching and waiting</div>
+        <ul>
+          <li><strong>Repairing the town centre wants 30 wood now, down from 40</strong> &mdash; still the first, honest day of work the opening is built around, just not quite as long a stretch of it before anything else happens</li>
+          <li><strong>And on the second day, a stranger comes down the road.</strong> Talk to them and answer the question they ask, the same as any other traveller, and they stay &mdash; a real second pair of hands, early enough that repairing the ruin and feeding the next mouth can happen <em>together</em> rather than one after the other, which was most of what made the opening feel like two full days of solo, sequential chores. They join as a villager specifically, not whatever a passing soldier happens to be</li>
+        </ul>
+      </details>
+      <details class="pn">
         <summary>Patch 21.47</summary>
         <div class="sec">An oval sat on the back of the shepherd&rsquo;s head</div>
         <ul>
@@ -10885,13 +10895,20 @@ const WANDER_BUILD = ["farm","lumber","mine","house"];
    FORTY, asked for 16 Sep: "let's make the starting repair of the town
    center only cost 40 wood." It was seventy.
 
+   THIRTY, asked for 22 Sep alongside the second-day newcomer below
+   (trySecondDayVisitor, 05d): "the start of the game is too slow... it
+   takes the first full day to get 40 wood... I want the player to start
+   from nothing." Cutting the number is the whole of the change here - it
+   is still wood alone, still the first of two payments, still real work
+   rather than a search.
+
    This is the FIRST of the opening's two payments and the one the first
-   line of advice is about - forty to repair the ruin, which lights the
+   line of advice is about - thirty to repair the ruin, which lights the
    hearth and settles the camp, and then AGE_COST[0] on top of it to raise
    the repaired centre into the Stone Age. Two separate bills, which is
-   worth saying plainly because they were both seventy and therefore looked
-   like one. */
-const SETTLE_COST = { wood:40 };
+   worth saying plainly because they were once both seventy and therefore
+   looked like one. */
+const SETTLE_COST = { wood:30 };
 const SETTLE_START_PROG = 0.10;    // how much of the old walls are still standing
 
 function settled(p){ return !!G.players[p].settled; }
@@ -10932,7 +10949,7 @@ const AGE_COST = [
 
      THIS IS NOT THE REPAIR, and the opening's first line no longer says it
      is. This is the age-up that follows the repair - the repaired centre
-     raised into the Stone Age - and it costs SETTLE_COST (40) to repair
+     raised into the Stone Age - and it costs SETTLE_COST (30) to repair
      plus this on top. The advice used to generate "you need N wood to
      repair the town centre" from THIS figure, which was only ever true
      because the two happened to be the same number.
@@ -22787,6 +22804,10 @@ function tick(dt){
   peacefulArmyMirror(dt);   // and they keep pace with your army too (04b)
   /* The first nightfall of the Wandering Age brings its one visitor. */
   if(!G.firstNightDone && !settled(P_YOU) && (G.dark||0) > 0.5) firstNightVisitor();
+  /* And its second day brings a second pair of hands - trySecondDayVisitor
+     (05d). Scoped to !settled(P_YOU): once the repair is paid the ordinary
+     day-events roll takes over from day three, and this has done its job. */
+  if(!G.secondDayVisitorDone && !settled(P_YOU) && dayNumber() >= 2) trySecondDayVisitor();
   wandererGrit(dt);
   lastVillagerCheck(dt);
   cleanup();
@@ -23025,6 +23046,7 @@ function updateUnit(u, dt){
   const f = u.form ? FORMS[u.form] : null;
   const spd = civStat(u.p,u.type,"spd",d.spd) * (u.buffSpd||1) * (f?f.spd:1)
             * (u.bardBoost>0 ? BARD_SPEED_BOOST : 1)   // KG's parting gift, while it lasts
+            * (u.fishGiftT>0 ? FISHERMAN_GIFT_SPD : 1)  // a fish pressed into their hand, while it lasts
             * (u.musicSpd||1)                          // a Lute Player's tune, while it lasts
             * paintingSpeed(u)                          // somebody was given a picture today (05t)
             * GLOBAL_SPEED_SCALE
@@ -23107,6 +23129,7 @@ function updateUnit(u, dt){
   if(u.storyBoost>0) u.storyBoost -= dt;
   if(u.moonstruck>0) u.moonstruck -= dt;
   if(u.bardBoost>0) u.bardBoost -= dt;
+  if(u.fishGiftT>0) u.fishGiftT -= dt;
 
   /* Gathering for the elder's tale. Once there they simply stand - the shared
      timer in updateStoryNight decides when everyone moves on together, rather
@@ -23750,6 +23773,7 @@ function updateUnit(u, dt){
              water by hand over and over. They remember the shoal and return
              to it. (runTheCatchHome, 03e) */
           if(u.backToWater){
+            if(u.fisherman && typeof tryFishermanGift==="function") tryFishermanGift(u);
             const shoal = G.nodes.find(x => x.id === u.backToWater);
             u.backToWater = null;
             if(shoal && shoal.amt > 0 && bankBeside(shoal)){
@@ -26272,7 +26296,19 @@ const FISHGAME_SWEEP_PERIOD = 1.1;   // fallback only - a real round always pick
 const FISHGAME_SWEET_START  = 40;    // the red zone's width, in % of the bar, at t=0
 const FISHGAME_SWEET_END    = 14;    // ...and at t=FISHGAME_DURATION - it only shrinks
 const FISHGAME_PRECISE_W    = 6;     // the gold sliver's width, fixed, nested inside the red
-const FISH_BASE_FOOD        = 12;    // food from an ordinary (red-zone) catch
+/* 8, down from 12, asked for 22 Sep: "too much food then they just do
+   nothing... make it so that they bring in far less food." Measured
+   first, not guessed: the passive rate (Gather alone, never pressing
+   Play) already comes to about 0.6 food a minute off the same generic
+   gather formula every other food node uses - genuinely a slow trickle,
+   not the problem. Actively playing rounds is the lucrative path -
+   catchFish pays FISH_BASE_FOOD x a 1.75 or 2.5 multiplier PER ROUND,
+   on top of whatever the passive rate was already bringing in, and a
+   player landing the sweet zone repeatedly was the "too much food" this
+   was reported against. Cut here rather than on the multipliers, so
+   playing well is still worth more than playing badly by the same
+   margin it always was - just off a smaller base. */
+const FISH_BASE_FOOD        = 8;     // food from an ordinary (red-zone) catch
 const FISH_SWEET_MULT       = 1.75;
 const FISH_PRECISE_MULT     = 2.5;
 const FISH_RARE_ON_PRECISE  = 0.07;  // chance of the rare fish specifically, precise catches only
@@ -26458,6 +26494,38 @@ function castPowerFrom(vel, dist){
    on the card. */
 const FISHERMAN_SPEED = 1.10;
 const FISHERMAN_HOUSE_CATCHES = 5;   // fish landed before the House can be built
+
+/* A FISH IN SOMEBODY'S HAND, ON THE WAY HOME. Asked for 22 Sep, fully
+   autonomous: "maybe goes and give a fish (holding) to a soldier or
+   villager to give them a 10% speed boost or low low chance." Rolled at
+   the same moment a creel run actually delivers (runTheCatchHome's own
+   arrival, 03c) - low enough that it reads as something that happened to
+   happen, not a routine, the same shape as the baker's loaf (BREAD_BOOST)
+   but read live off a plain countdown (u.fishGiftT) rather than baked
+   into buffSpd, the same way the bard's own parting gift (bardBoost)
+   already works, and shorter-lived than the baker's day - "a boost", not
+   an ongoing wage. */
+const FISHERMAN_GIFT_CHANCE = 0.06;   // per creel delivered home
+const FISHERMAN_GIFT_SPD    = 1.10;
+const FISHERMAN_GIFT_TIME   = 90;     // seconds
+const FISHERMAN_GIFT_RANGE  = 220;    // px, from the drop-off
+
+function tryFishermanGift(u){
+  if(Math.random() >= FISHERMAN_GIFT_CHANCE) return;
+  let best = null, bd = FISHERMAN_GIFT_RANGE;
+  for(const w of G.units){
+    if(w===u || w.p!==u.p || w.hp<=0 || w.indoors) continue;
+    if(w.type!=="villager" && !UNITS[w.type].mil) continue;
+    const d = Math.hypot(w.x-u.x, w.y-u.y);
+    if(d < bd){ bd = d; best = w; }
+  }
+  if(!best) return;
+  best.fishGiftT = FISHERMAN_GIFT_TIME;
+  if(u.p===P_YOU){
+    const who = best.nightName || (best.type==="villager" ? "a villager" : "one of the soldiers");
+    hint((u.nightName||"The fisherman")+" presses a fish into "+who+"'s hands on the way past - quicker on their feet for it.");
+  }
+}
 
 /* Is this the one unit the Play/Stop prompt can offer itself to right now?
    Requires them to have actually reached the bank and settled into the
@@ -64805,7 +64873,7 @@ function sendHome(){
 
 // pull one villager out of their house at night - they get a name if this
 // is their first time, and can keep working instead of sleeping, at a cost
-function wakeVillagerForNight(u, home){
+function wakeVillagerForNight(u, home, noHint){
   if(!u.indoors || u.hp<=0) return;
   if(!u.nightName) u.nightName = pickNightName(u);
   u.x = home.x + (Math.random()-0.5)*14;
@@ -64824,9 +64892,31 @@ function wakeVillagerForNight(u, home){
   u.path = null;
   // the Ashkin do this too, and you should not be told about their staff
   if(u.p===P_YOU){
-    hint(u.nightName+" is woken for the night's work.");
+    if(!noHint) hint(u.nightName+" is woken for the night's work.");
     refreshUI();
   }
+}
+
+/* THE FISHERMAN, WOKEN FOR THE NIGHT, IS A DIFFERENT DEAL. Asked for 22
+   Sep: "the fisherman also sleeps at night but you can wake them up to go
+   night fishing, they will stay in the hut asleep the next day and will
+   not be able to be woken."
+
+   wakeVillagerForNight's own cost is the escalating one (awakeAtNight,
+   permanent stat loss, dead of it in two nights) - built for a villager
+   dragged off a bed they needed, not a trade the player is choosing to
+   work through the dark on purpose. That is exactly what sendToRest
+   already exists for: a whole day in bed, unwakeable, in exchange for the
+   escalation never starting in the first place (see its own comment,
+   below). So this reuses the walk-out and order-restore
+   wakeVillagerForNight already does, then swaps its penalty for that one:
+   u.nightFishing marks them for sendToRest at the next dawn (wakeUp)
+   rather than letting the ordinary awakeAtNight tally run against them. */
+function wakeFishermanForNight(u, home){
+  wakeVillagerForNight(u, home, true);
+  u.awakeAtNight = false;
+  u.nightFishing = true;
+  if(u.p===P_YOU) hint(u.nightName+" goes back out to the water by lantern-light. They'll sleep through tomorrow for it.");
 }
 
 // send an exhausted villager home to actually rest - resets the nightly
@@ -65014,6 +65104,19 @@ function wakeUp(){
        makes his rounds work through the village over several days rather
        than stopping once. */
     u.bakerFed = false;
+  }
+  /* THE MORNING AFTER NIGHT FISHING. wakeFishermanForNight (above) sends
+     them out with u.nightFishing set instead of the ordinary awakeAtNight
+     toll - this is where that trade gets paid: sendToRest (below) already
+     does exactly "a whole day in bed, unwakeable, tally cleared" for
+     exhaustion, and night fishing spends the same currency on purpose.
+     Its own loop, separate from the one above, because a fisherman still
+     out on the water at dawn is neither indoors nor "on their way home" -
+     the ordinary wake-up loop further down would not reach them either. */
+  for(const u of G.units){
+    if(!u.nightFishing) continue;
+    u.nightFishing = false;
+    sendToRest(u);
   }
   for(const u of G.units){
     /* ---- AND ANYBODY STILL SAT WHERE A GATHERING WAS ----
@@ -67401,13 +67504,23 @@ const NEWCOMER_JOIN_LINES = {
     "\"Better with this than with a plough,\" they say, \"but I'll take either.\""
   ]
 };
-function trySpawnNewcomer(){
+/* forceType lets a scripted call (trySecondDayVisitor, below) skip the
+   ordinary random role and guarantee a villager - a warrior or an archer
+   turning up before the ruin is even repaired reads as a bug, not a gift.
+   The ordinary day-events roll (DAY_EVENTS, "newcomer") never passes
+   anything, so it keeps the ordinary spread of roles it always had. */
+function trySpawnNewcomer(forceType){
   if(visitorsOf("newcomer").length) return false;
   if((G.newcomersJoined||0) >= NEWCOMER_MAX_PER_MATCH) return false;
-  if(!G.bldgs.some(b=>b.p===P_YOU && b.type==="town" && b.done)) return false;
+  /* b.settleSite too, not just b.done - see trySecondDayVisitor. The
+     unfinished ruin is a real camp with a real door (visitorEntry only
+     reads b.x/b.y); refusing a newcomer until the repair is paid off was
+     never a deliberate rule, it simply never came up before something
+     was asked to arrive that early. */
+  if(!G.bldgs.some(b=>b.p===P_YOU && b.type==="town" && (b.done || b.settleSite))) return false;
   const o = makeVisitor("newcomer", {
     joined:false,
-    willJoinAs: NEWCOMER_JOIN_TYPES[(Math.random()*NEWCOMER_JOIN_TYPES.length)|0],
+    willJoinAs: forceType || NEWCOMER_JOIN_TYPES[(Math.random()*NEWCOMER_JOIN_TYPES.length)|0],
     onLeave:(v)=>{
       if(!v.joined) tellAndNote("Nobody went over. The stranger waited a while, then went on their way.", "plain");
     }
@@ -67415,6 +67528,29 @@ function trySpawnNewcomer(){
   if(!o) return false;
   tellAndNote(pickLine(NEWCOMER_LINES,"newcomer"), "plain");
   return true;
+}
+
+/* ---------- the second day, and a second pair of hands ----------
+   Asked for 22 Sep, alongside cutting SETTLE_COST to 30 (02a): the
+   Wandering Age's second bottleneck - forty-five food for a first
+   trained villager, worked at entirely alone once the repair is paid -
+   could take as long as the first, and the two ran one after another
+   rather than side by side, which is most of what read as "too slow".
+   A newcomer arriving on day two is a real second pair of hands early
+   enough to matter: repairing and feeding the next mouth can happen at
+   once instead of in sequence.
+
+   Scripted rather than left to the ordinary day-events roll on purpose.
+   That pool is silent for the whole of settlingIn() - the first two days,
+   see OPENING_DAYS - which is exactly the window this needs to land in,
+   and even once it opens on day three, "newcomer" is only one weighted
+   entry among many with no guarantee of landing on any particular day.
+   One attempt, same shape as firstNightVisitor (01c): the done-flag means
+   it can never fire twice, whether or not it actually finds a spot. */
+function trySecondDayVisitor(){
+  if(G.secondDayVisitorDone) return false;
+  G.secondDayVisitorDone = true;
+  return trySpawnNewcomer("villager");
 }
 /* The join itself, once the founder has answered the question that comes
    up on arrival (askWayfarer/resolveWayfarer, 05m) - a newcomer used to
@@ -84421,9 +84557,17 @@ function refreshUI(){
                     : u.bugCatcher    ? " - the bug catcher"
                     : u.tradeFound    ? " - the "+u.tradeFound
                     : "";
+          /* THE FISHERMAN'S OWN VERSION - wakeFishermanForNight, not the
+             ordinary wakeVillagerForNight (05b). Waking anybody else for
+             the night starts the escalating exhaustion toll; waking the
+             fisherman spends a different, milder cost instead (a whole
+             day asleep and unwakeable, paid the next dawn) - see its own
+             comment for why the two cannot share a path. */
           addBtn(own ? villagerPortraitIcon(u) : "\u{1F9D1}",
-                 (u.nightName||"Villager") + who + " - tap to wake for the night",
-                 true, ()=>wakeVillagerForNight(u,b));
+                 (u.nightName||"Villager") + who +
+                 (u.fisherman ? " - tap to send out night fishing"
+                              : " - tap to wake for the night"),
+                 true, ()=>(u.fisherman ? wakeFishermanForNight : wakeVillagerForNight)(u,b));
         }
       } else if(b.type==="house"){
         addBtn("Empty", "no one sleeping here tonight", false, null, "Empty");
