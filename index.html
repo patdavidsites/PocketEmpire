@@ -844,17 +844,6 @@
   .mpage .mback{margin:18px 0 0;display:inline-block;}
   .mpage .mstart{margin:18px 0 0;display:inline-block;}
   .mpage .mstart.hide,.mpage .mback.hide{display:none;}
-  /* ---- the read-this-first bar ----
-     A track and a fill, and the fill is driven by a width transition rather
-     than an animation so that it cannot start again halfway through if the
-     page is re-opened. Begin sits under it, greyed until it is full. */
-  .loadwrap{margin:18px 0 0;}
-  .loadwrap.hide{display:none;}
-  .loadbar{height:4px;border-radius:2px;background:#2b241c;
-    border:1px solid var(--line);overflow:hidden;}
-  .loadbar>i{display:block;height:100%;width:0;background:var(--gold);
-    border-radius:2px;transition:width .2s linear;}
-  .loadcap{font-size:11px;color:#6f6753;letter-spacing:.4px;margin:7px 0 0;}
   .go[disabled]{background:#4a4034;color:#8b8170;cursor:default;}
   .go[disabled]:hover{background:#4a4034;}
   /* the patch notes are a page of their own now, so its own top rule and the
@@ -1222,16 +1211,10 @@
            last thing before a new match starts, so it carries both endings:
            Begin when a game has just been dealt, Back when it has not. -->
       <!-- ---- THE PAUSE BEFORE A MATCH ----
-           Asked for 16 Sep: "remove the x, and a 5 second loading bar, so
-           people have to read it." This page is the only thing standing
-           between picking a difficulty and playing, and it is where the
-           game explains itself - so Begin is held until the bar has run.
-           Shown only while a match is waiting behind this page; opened as
-           reference from the menu it is not here at all. -->
-      <div class="loadwrap hide" id="mm_loadwrap">
-        <div class="loadbar"><i id="mm_loadfill"></i></div>
-        <div class="loadcap" id="mm_loadcap">The village is waking up&hellip;</div>
-      </div>
+           The 5-second read-hold this page used to force (asked for 16 Sep,
+           un-asked-for 24 Sep - "remove the waiting screen, just give it an
+           X corner") is gone: the X is back and Begin is never disabled,
+           same as every other page reached from the menu. -->
       <button class="go mstart hide" id="mm_begin">Begin</button>
       <button class="ghost mback" id="mm_howback">Back</button>
     </div>
@@ -1268,6 +1251,35 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn" open>
+        <summary>Patch 21.49</summary>
+        <div class="sec">The farmyard has a few new faces</div>
+        <ul>
+          <li>Cows, donkeys, goats and pigs now wander the map as ambient wildlife, the same footing as deer and foxes</li>
+          <li>Chickens, the kennel's dogs, and ducks all have a new everyday look, standing and walking; every one of their special behaviours &mdash; a hen scratching, preening or dust-bathing, a dog sitting, sniffing, begging for a game or off on one &mdash; is exactly as it was</li>
+          <li>Rabbits and hares (and the pale winter hare) have a new look too</li>
+        </ul>
+        <div class="sec">The farm field looks like a field now</div>
+        <ul>
+          <li><strong>Real tilled soil and a proper low fence,</strong> replacing the flat brown fill and the four stray fence-posts it used to have &mdash; low enough that nobody working the rows ever stands behind it</li>
+          <li>Wheat has a real growing look, several stages from first shoots to full ear; every other crop is unchanged for now</li>
+        </ul>
+        <div class="sec">Winter looks like winter</div>
+        <ul>
+          <li><strong>Snowy ground, trees and rooftops all carry noticeably more snow,</strong> and it now builds up gradually as winter goes on rather than appearing at full depth the moment the first flakes settle &mdash; and eases away again the same way as spring comes in</li>
+          <li>The pale frost on a pond's surface, and the water's own under-the-ice colouring right at the shore, both used to hand off in one hard step at the map's tile grid instead of blending across it &mdash; fixed, and both now follow the real, ragged shape of the coast</li>
+        </ul>
+        <div class="sec">The ground had a staircase in it</div>
+        <ul>
+          <li><strong>Every shoreline in every season had a stair-stepped, dead-straight edge where it should have been soft and irregular</strong> &mdash; not the water's fault, in the end: the newer sprite-drawn ground sits on top of the older painted terrain and draws each land tile as a flat square, right up to the tile grid, completely burying the wobbled, natural coastline painted underneath it. The ground now gets that shape handed back to it at the water's edge, so the coast reads as the map actually drew it rather than as its own tile boundaries</li>
+          <li><strong>Grass meeting sand had the exact same fault</strong> &mdash; same cause, one tile type over: a flat square edge where the ground underneath was already blending smoothly. Fixed the same way</li>
+        </ul>
+        <div class="sec">Two things asked for directly</div>
+        <ul>
+          <li><strong>Peaceful is the default choice now</strong> when starting a new game</li>
+          <li><strong>The "how to play" page no longer forces a five-second wait</strong> before you can begin a match &mdash; it has its plain close button back, same as everywhere else in the menu</li>
+        </ul>
+      </details>
+      <details class="pn">
         <summary>Patch 21.48</summary>
         <div class="sec">The opening was too much watching and waiting</div>
         <ul>
@@ -10651,7 +10663,7 @@ const DIFF = {
              res:1.05, gather:1.05, nightTown:1,
              tip:"Quick to expand and quick to react. Expect company from four minutes." }
 };
-let DIFFICULTY = "medium";   // persists across restarts
+let DIFFICULTY = "peaceful";   // persists across restarts - asked to make this the default 24 Sep
 
 /* Six villager looks. Deliberately subtle: every villager wears the same
    cloth so a settlement reads as one people, and only their face, hair and a
@@ -14849,6 +14861,34 @@ function bakeTerrainArt(T){
     const bt = dAt(bx,by+1) + (dAt(bx+1,by+1)-dAt(bx,by+1))*ux;
     return tp + (bt-tp)*uy;
   };
+  /* SMOOTH LAND/WATER CLASSIFICATION, the same bilinear trick as earthAt
+     further down - reported 24 Sep with a screenshot, "hard edges on the
+     shore", still there after the sprite ground's own coastline was fixed
+     (drawSpriteTerrainTest, 04c) and after drawPondFrost was fixed (05):
+     this is a THIRD, older place with the same class of fault. Every "is
+     this water pixel actually inshore" check below used to read `tt`, the
+     ENCLOSING TILE's own flat classification - so every water sub-pixel
+     inside a land-classified tile was forced to depth 0 (pale, shore ice)
+     and every water sub-pixel one tile further out used the real, smoothly-
+     blended depthAtSub, with nothing between them. Both are already
+     individually smooth; it was the HANDOVER between the two rules,
+     landing on a dead straight line down the middle of the sub-tile gap
+     between two tiles, that made the coast a staircase of tile-width
+     steps in exactly the colour driving this (winter's ice tint is what
+     made it a hard white-to-blue edge; the identical fault is there in
+     the other three seasonal bakes too, just far less visible against
+     their lower-contrast palettes). Blended the same way earthAt already
+     blends its own per-tile boolean, so the forced-shallow rule fades out
+     across a tile or so instead of switching at one line. */
+  const landAtSub = (gx, gy) => {
+    const fx = gx/SUB - 0.5, fy = gy/SUB - 0.5;
+    const bx = Math.floor(fx), by = Math.floor(fy);
+    const ux = fade(fx-bx), uy = fade(fy-by);
+    const lAt = (ax,ay) => (ax<0||ay<0||ax>=MAPW||ay>=MAPH) ? 1 : (T[ay*MAPW+ax]!==5 ? 1 : 0);
+    const tp = lAt(bx,by)   + (lAt(bx+1,by)  -lAt(bx,by))*ux;
+    const bt = lAt(bx,by+1) + (lAt(bx+1,by+1)-lAt(bx,by+1))*ux;
+    return tp + (bt-tp)*uy;
+  };
 
   const groundBase = (gx, gy, t) => {
     const i = gy*(MAPW*SUB) + gx, o = i*3;
@@ -14863,13 +14903,14 @@ function bakeTerrainArt(T){
 
   for(let ty=0; ty<MAPH; ty++){
     for(let tx=0; tx<MAPW; tx++){
-      const tt = T[ty*MAPW+tx];
       for(let sy=0; sy<SUB; sy++){
         for(let sx=0; sx<SUB; sx++){
           const gx = tx*SUB+sx, gy = ty*SUB+sy;
           const t = TS[gy*SW+gx];
-          // water the coast took from the land is by definition right inshore
-          const dep = (t===5 && tt!==5) ? 0 : depthAtSub(gx,gy);
+          // water the coast took from the land reads as shallow - blended
+          // in via landAtSub rather than switched at the tile edge, see
+          // its own comment above depthAtSub
+          const dep = t===5 ? depthAtSub(gx,gy) * (1 - landAtSub(gx,gy)) : depthAtSub(gx,gy);
           const px = (gx/MOT)|0, py = (gy/MOT)|0;
           let r,g,b;
           if(t===5){
@@ -14952,13 +14993,14 @@ function bakeTerrainArt(T){
   const wimg = wcx.createImageData(MAPW*SUB, MAPH*SUB);
   for(let ty=0; ty<MAPH; ty++){
     for(let tx=0; tx<MAPW; tx++){
-      const tt = T[ty*MAPW+tx];
       for(let sy=0; sy<SUB; sy++){
         for(let sx=0; sx<SUB; sx++){
           const gx = tx*SUB+sx, gy = ty*SUB+sy;
           const t = TS[gy*SW+gx];
-          // water the coast took from the land is by definition right inshore
-          const dep = (t===5 && tt!==5) ? 0 : depthAtSub(gx,gy);
+          // water the coast took from the land reads as shallow - blended
+          // in via landAtSub rather than switched at the tile edge, see
+          // its own comment above depthAtSub
+          const dep = t===5 ? depthAtSub(gx,gy) * (1 - landAtSub(gx,gy)) : depthAtSub(gx,gy);
           const px = (gx/MOT)|0, py = (gy/MOT)|0;
           let r,g,b;
           if(t===5){
@@ -15033,13 +15075,14 @@ function bakeTerrainArt(T){
   ];
   for(let ty=0; ty<MAPH; ty++){
     for(let tx=0; tx<MAPW; tx++){
-      const tt = T[ty*MAPW+tx];
       for(let sy=0; sy<SUB; sy++){
         for(let sx=0; sx<SUB; sx++){
           const gx = tx*SUB+sx, gy = ty*SUB+sy;
           const t = TS[gy*SW+gx];
-          // water the coast took from the land is by definition right inshore
-          const dep = (t===5 && tt!==5) ? 0 : depthAtSub(gx,gy);
+          // water the coast took from the land reads as shallow - blended
+          // in via landAtSub rather than switched at the tile edge, see
+          // its own comment above depthAtSub
+          const dep = t===5 ? depthAtSub(gx,gy) * (1 - landAtSub(gx,gy)) : depthAtSub(gx,gy);
           const px = (gx/MOT)|0, py = (gy/MOT)|0;
           let r,g,b;
           if(t===5){
@@ -15110,13 +15153,14 @@ function bakeTerrainArt(T){
   const LEAVES = [[201,151,63],[192,122,53],[185,167,71],[168,106,48],[157,95,44]];
   for(let ty=0; ty<MAPH; ty++){
     for(let tx=0; tx<MAPW; tx++){
-      const tt = T[ty*MAPW+tx];
       for(let sy=0; sy<SUB; sy++){
         for(let sx=0; sx<SUB; sx++){
           const gx = tx*SUB+sx, gy = ty*SUB+sy;
           const t = TS[gy*SW+gx];
-          // water the coast took from the land is by definition right inshore
-          const dep = (t===5 && tt!==5) ? 0 : depthAtSub(gx,gy);
+          // water the coast took from the land reads as shallow - blended
+          // in via landAtSub rather than switched at the tile edge, see
+          // its own comment above depthAtSub
+          const dep = t===5 ? depthAtSub(gx,gy) * (1 - landAtSub(gx,gy)) : depthAtSub(gx,gy);
           const px = (gx/MOT)|0, py = (gy/MOT)|0;
           let r,g,b;
           if(t===5){
@@ -15187,6 +15231,49 @@ function bakeTerrainArt(T){
   }
   wmx.putImageData(wmi,0,0);
   G.waterMask = wm;
+
+  /* THE SAME FAULT, ONE TILE TYPE IN - reported 24 Sep alongside the coast
+     ("look at all the hard lines and straight edges"): the sprite ground
+     (drawSpriteTerrainTest, 04c) draws its grass layer only over tiles that
+     are discretely grass, one whole tile at a time, so two neighbouring
+     tiles of grass and sand meet at the same kind of dead-straight,
+     tile-grid step the coastline did. The bake right above never had this
+     problem - see "THE LAST OF THE SQUARES" further up this function - it
+     blends colour smoothly across the boundary, a whole half-tile of ramp
+     instead of a one-tile step. This is that same ramp, kept as its own
+     mask rather than the water mask's plain in/out: not "is this grass" but
+     "how much does the boundary ramp pass through this sub-cell" - a bell
+     curve (4g(1-g), g the bilinear-blended grassiness at this point) that
+     is zero deep inside a solid stretch of either and peaks only right on
+     the line the sprite drew hard, so blending the old bake back in by
+     this amount corrects the edge without touching anywhere the sprite
+     was already right. */
+  const isGrassTile = (x,y) => {
+    if(x<0||y<0||x>=MAPW||y>=MAPH) return 0;
+    const tt2 = T[y*MAPW+x];
+    return (tt2===0||tt2===1||tt2===2) ? 1 : 0;
+  };
+  const gm = document.createElement("canvas");
+  gm.width = MAPW*SUB; gm.height = MAPH*SUB;
+  const gmx = gm.getContext("2d");
+  const gmi = gmx.createImageData(MAPW*SUB, MAPH*SUB);
+  for(let gy=0; gy<MAPH*SUB; gy++){
+    for(let gx=0; gx<MAPW*SUB; gx++){
+      const fxT = gx/SUB - 0.5, fyT = gy/SUB - 0.5;
+      const bx0 = Math.floor(fxT), by0 = Math.floor(fyT);
+      const ux = fade(fxT-bx0), uy = fade(fyT-by0);
+      const q00=isGrassTile(bx0,by0),   q10=isGrassTile(bx0+1,by0);
+      const q01=isGrassTile(bx0,by0+1), q11=isGrassTile(bx0+1,by0+1);
+      const top = q00+(q10-q00)*ux, bot = q01+(q11-q01)*ux;
+      const g = top+(bot-top)*uy;
+      const feather = 4*g*(1-g);
+      const o = (gy*MAPW*SUB + gx)*4;
+      gmi.data[o] = 0; gmi.data[o+1] = 0; gmi.data[o+2] = 0;
+      gmi.data[o+3] = Math.round(feather*255);
+    }
+  }
+  gmx.putImageData(gmi,0,0);
+  G.grassEdgeMask = gm;
 
   /* THE FOG, and it had the ground's own fault twice over.
 
@@ -30504,6 +30591,31 @@ function drawSpriteTerrainTest(x0,y0,x1,y1){
   for(const sig of AUTOTILE_SIG_ORDER){
     if(!AUTOTILE_SAND[sig].naturalWidth || !AUTOTILE_GRASS[sig].naturalWidth) return;
   }
+  /* SNAPSHOT THE PICTURE AS IT STOOD BEFORE THIS FUNCTION TOUCHES IT -
+     reported 24 Sep with a screenshot, "hard edges on the shore", still
+     there after the water's own depth colouring was fixed (landAtSub,
+     02c) and after drawPondFrost was fixed (05): this sprite ground is
+     the actual cause. It is drawn corner to corner per LAND TILE
+     (isLand below, straight off G.terrain), while the bake underneath
+     it (G.terrainCanvas etc, drawn a few lines up in draw()) paints its
+     coast from TS/coastField (02c) - a wobbled, sub-cell waterline that
+     is where every OTHER coastal system already agrees the shore is
+     (G.waterMask, the wave system's G.coastLines, drawPondFrost). This
+     sprite layer never asked that question; it draws its opaque tile
+     square right up to the raw tile edge and buries the organic coast
+     completely. The fix, at the end of this function, is to cut this
+     sprite art back down to that same wobble - which means keeping a
+     copy of the honest picture from before it painted over it. */
+  const _coastPreCv = cv, _coastPreW = cv.width, _coastPreH = cv.height;
+  if(!G.coastUnderCv || G.coastUnderCv.width !== _coastPreW || G.coastUnderCv.height !== _coastPreH){
+    G.coastUnderCv = document.createElement("canvas");
+    G.coastUnderCv.width = _coastPreW; G.coastUnderCv.height = _coastPreH;
+    G.coastUnderCx = G.coastUnderCv.getContext("2d");
+  }
+  G.coastUnderCx.setTransform(1,0,0,1,0,0);
+  G.coastUnderCx.globalCompositeOperation = "copy";
+  G.coastUnderCx.drawImage(_coastPreCv, 0, 0);
+  G.coastUnderCx.globalCompositeOperation = "source-over";
   const isLand = (tx,ty) => {
     if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return false;
     return G.terrain[ty*MAPW+tx] !== 5;
@@ -30581,7 +30693,32 @@ function drawSpriteTerrainTest(x0,y0,x1,y1){
        themselves. A single path with all the rects as sub-paths, filled
        once, has no such thing: canvas fill covers the whole union at
        flat `snowA` regardless of how many rects overlap inside it. */
-    const snowA = Math.min(1, (G.snow-0.15)/0.6) * 0.60;
+    // asked for 24 Sep, "make the winter grass more white" - raised from a
+    // 0.60 ceiling to 0.82, then asked again the same day for more still -
+    // 0.94, close to a full white-out at deep winter rather than a wash
+    const snowA = Math.min(1, (G.snow-0.15)/0.6) * 0.94;
+    /* MASKED TO THE TERRAIN'S OWN SHAPE, not a flat tile square - asked for
+       24 Sep: "go around the edges of the ground and beach and dirt tiles
+       and make sure they're not hard corners, we made that fix a long time
+       ago". That fix is the autotile art's own ragged, organic edge (every
+       grass/sand blob has real transparent pixels around its border, not a
+       square) - and this wash was painting straight OVER it: a flat white
+       square per land tile, opaque corner to corner, so the coastline went
+       from the sand's own soft, wavy edge to a dead straight tile-grid line
+       the moment G.snow crossed its threshold. Raising the wash's own
+       opacity (the "more white" request just above) only made this worse -
+       a fainter square at least let the real edge show through underneath.
+
+       `source-atop` is the fix: it composites the new fill only where the
+       canvas ALREADY has non-zero alpha, using that alpha as the mask - and
+       the grass/sand autotiles were drawn immediately above this, in this
+       same function, so "already opaque" is exactly the land art's own
+       ragged silhouette. The single-path-one-fill discipline above (the
+       OD-overdraw double-blend fix) still holds inside this mode - it is
+       only the compositing rule that changes, not how the fill itself is
+       built. */
+    ctx.save();
+    ctx.globalCompositeOperation = "source-atop";
     ctx.fillStyle = "rgba(255,255,255,"+snowA.toFixed(3)+")";
     ctx.beginPath();
     for(let ty=y0; ty<y1; ty++){
@@ -30591,7 +30728,59 @@ function drawSpriteTerrainTest(x0,y0,x1,y1){
       }
     }
     ctx.fill();
+    ctx.restore();
   }
+
+  /* THE CORRECTION - see the long note where G.coastUnderCv was filled,
+     at the top of this function. G.waterMask is the SAME wobbled
+     coastline the water depth shading, the pond frost and the coastal
+     waves all already draw to (G.waterMask, baked in bakeTerrainArt from
+     TS/coastField, 02c) - painted "down to the displacement that rounds
+     the corners off the tiles" per its own comment. Cut the PRE-SPRITE
+     snapshot down to just that shape (destination-in keeps only where
+     the mask says water) and lay the result back on top: every pixel
+     the wobble calls land is untouched - the sprite art stands - and
+     every pixel it calls water reverts to the organic bake that was
+     there before this function painted a flat tile-grid square over it.
+     The boundary between "untouched" and "reverted" is then the wobble
+     itself, not the tile grid - which is the whole fix. */
+  const cgx = surfaceScratch();
+  cgx.setTransform(1,0,0,1,0,0);
+  cgx.globalCompositeOperation = "copy";
+  cgx.drawImage(G.coastUnderCv, 0, 0);
+  cgx.globalCompositeOperation = "source-over";
+  blitWaterMask(cgx, x0, y0, x1, y1, "destination-in");
+  cgx.globalCompositeOperation = "source-over";
+
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.drawImage(G.waterCv, 0, 0);
+  ctx.restore();
+
+  /* THE SAME FAULT, ONE TILE TYPE IN - reported straight back, same
+     screenshot, "look at all the hard lines and straight edges": grass
+     against sand has the identical disease as the coast did, because this
+     is the same sprite layer drawing the same kind of hard, one-tile-at-a-
+     time silhouette - just for its grass pass rather than its land-vs-
+     water one. G.grassEdgeMask (02c, right by G.waterMask) is not a
+     land/water switch, it is a feather - zero deep inside solid grass or
+     solid sand, rising only right on the line the sprite drew hard - so
+     the same trick applies: cut the pre-sprite snapshot down to that
+     feather and lay it back on top, blending the old bake's already-smooth
+     colour ramp back through exactly where the sprite's hard edge is,
+     and nowhere else. */
+  const ggx = surfaceScratch();
+  ggx.setTransform(1,0,0,1,0,0);
+  ggx.globalCompositeOperation = "copy";
+  ggx.drawImage(G.coastUnderCv, 0, 0);
+  ggx.globalCompositeOperation = "source-over";
+  blitGrassEdgeMask(ggx, x0, y0, x1, y1, "destination-in");
+  ggx.globalCompositeOperation = "source-over";
+
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.drawImage(G.waterCv, 0, 0);
+  ctx.restore();
 }
 
 
@@ -33778,6 +33967,46 @@ DUCK_DRAKE_SHEET.__cellH = DUCK_HEN_SHEET.__cellH = 96;
 const DUCK_ANCHOR_FRAC = 1;
 const DUCK_SPRITE_H = 6 / (54/96);
 
+/* ---------- the farm field, Modern Farm asset pack ----------
+   Asked for 24 Sep, mocked up first (composited outside the game, shown
+   for approval before anything was wired in) then built once the low
+   post-and-wire look was picked over the pack's own solid picket fence -
+   "too much and will get in the way of villagers working on it". Replaces
+   the flat brown fill + furrow-lines soil and the four-stub-post fence
+   hint in drawBuilding's own farm branch (04d) with real tiled soil and a
+   proper low border round the whole footprint - low enough that a
+   farmhand working the rows is never behind it. Crop art itself (below)
+   is wheat only for now, the one shown in the mock-up; every other crop
+   keeps its existing hand-drawn look until it gets the same treatment.
+   FARM_SOIL is a single borderless 48px tile, tiled edge to edge - the
+   pack's own "modular" soil box (bordered top/bottom pieces) was tried
+   first and dropped: its baked-in border read as an odd stripe across the
+   middle of the field once tiled at a size the border piece was not drawn
+   for. FARM_POST/FARM_HWIRE/FARM_VWIRE are cropped from the big fence
+   sheet's own low wire-and-post piece (2_Fences_48x48.png) rather than its
+   solid picket sets. */
+const FARM_SOIL = new Image();
+FARM_SOIL.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABFUlEQVR4nO2ZsQ7CMAxEDysL0CEDbHwOK1/DL3eDIQOFETbkgUgxSaRekjdVVeqmupPtOpvr5fyGgfB8/bzvd1vTs49l+V5P+70pjkZAjoAcl2Ob2JoUG5yOh5RXt6+AoAcLeWUJq1VicUohIEfQg4Vq2CDHik0pICDH5fQ2OeheKEbKHugVELSUhbzRNjmZRPdCwRhHr6dXQECOK5Vt5tv97z8sPwpZT71QivS1i6BX8ekVEPRsoRoEY1GjV0BAjisVqFTm8SpOSnGkV0BAjsOKmRJ6KnoFBOQ4rBg/ChnbXMivbGzYhQKClrLQrHoP6xlW7Ai1hoXCmAsxzIWCMZOUihMjNkWnV0DQ83Q6xpgLGaD/gA+RcUz2uA83qgAAAABJRU5ErkJggg==";
+const FARM_POST = new Image();
+FARM_POST.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAC6klEQVR4nOWZz2sTQRTH375ONnGz1TY/bASlB4kXCUUUEaEHEUV7UcSboJfWg6L9B0Tx4tGDihe9iuJdL1I8CIIXSykFMQhaPaQhSdNkmx+btBGkefNad7sbPZTZfC/5ZmZ2J+T74c3sjvbq2lnIHEuCl57O1Mlnhm3ynQEkb7fXyZcaA+Sr8lLQULY3OrL9xuld0IsO33rx51POrqgQFJf4VAxBxsfA8T0W+dTBFPlcNkcgfFgxqX02L3Eyzd3kjx7Sta6f/ypRBFjrzwQQFJdY19BX5Tk1tp98LvuLsDk/fY7aT+QXPSe8/rBE1x5PRwin+x8lfvdOLvVPAgiKS2QtubBsVbGlk38/V6boH9yV2CwzbOxClXx2Lk8+NiLxeHLVIH/njUn3NFplwqmvEkBQXGIo7J5czZaLS6llemKjJwbJx0Zq5H/MF8nHUxKhZP07+VxLtvdVAgiKSyRDbddOa02QbzQqrCdGrphjqLz7CU77ool02HH8LNsvJaJNdn9Z/QKfAILiEtt1hnQZvRAh8gsz38inx/Y6VphRhgpA2LEimabcljeR/5et/kkAIcgICSG7o4PyqeptVj6dTYDc83BV87yqgGN1GoonyK9WKz0hdPPipU4gEkAIMkLttlzkysUC+aThjMpoJu7YzrHhKrN7apuqkLemLw8HIwGEICNUr1mOOIGBjtjwhcxuSITGWdXiOFlWxbHi8YXPTZ839l3KJ4CguMRyk70i3qJN2PQoPcIxkAj5myvsOf5R1ghGAgiKSxRa7oWIVwY3nEpLznjwKuTrh4htC+Jfup2uBSMBBMUlIsL9vRCy8yzTNHqqKtaK95bYZAcftt0bct0FUfkEEBSX2Bd1R0hnD/WWVZmiLwY+86o8bk9kXBa7J8fJz3lZ952S8gkgKC5t4fEVXwP5eVk6JiN+/UWb7GXCCwfaz7t+san/80n91MvVyUAkgKC4hN+BbhGfOQKExE4IQXHhTv+A/9VvzmDsaBC7K+IAAAAASUVORK5CYII=";
+const FARM_HWIRE = new Image();
+FARM_HWIRE.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJQAAAAKCAYAAABSUHfnAAABxElEQVR4nGMsTElngIFfb17/h7HzAiXg4n8+fYGzG4+JwNkf3r6Bs3ftWsTIMARAdkAQQT+2b38GZy/ZtmdI+MvNLQ7uLwFhRBzVWyHiiIWPB86etP4FnD11wzqq+ZHl6qPvcIc0lDfDJf5c64Szv379BmeLiQrD2TGhkXC2moY63JxbN24OeEJDDmA1DXW4eJR/AEE/2oRUwdkCKo5Dzl/LNm6As79+fQRncyOZ4x5XCWff/sbzn1r+YqJE8ygYBehgNEGNAqoCxrDIInhxx/bxElzCVEYOzlbhfw1nf371E87e9hFRiIbEIaoJNSVROHvKvKUM2KoMWgDkKiAnKRrOfvf2K5w9Y3INnB2u+oegvzJyW+BsIWHuIeEvL36EOK8YO5x95yMiXk4/QVSFv/j14OxVy/tGq7xRMHjAaIIaBVQFOIu3uIBAeFVoLCYIFxf/+QTOnnSbC87m4eFjINT7QK4yKAHIRT0yePMR0VNbsno5nP3k4T2s7vRWYMHqr3nPEcMJX758grNl5JXg7KbyPAZ6gXdI/kXuwSFXtcjuzFNFhMNLdhk4++yr93D2og3radJLHS2hRgFVwWiCGgUM1AQAoU2tzIBGpm4AAAAASUVORK5CYII=";
+const FARM_VWIRE = new Image();
+FARM_VWIRE.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAnCAYAAAAsPDnbAAAAnUlEQVR4nGOcmJb0n4GBgeHWqw8MMPDx1ycGJgYcgAmXBAvMiLxACbjgn0885Bh1+xsPmLHj6A+4oKXSN3KMYoAC96w6uODdpbnkGCUgLAJmvHv7FS7YepSZHKPERIXBjDcfv8EFeXj4yDCK8caFB+AYnDJvKVyQ9dsjRgrC6tXrt3DBVctnUhLsH96+IU4HE0Gjvnz5RKFRTMNdAgDd/S+iGOBAkQAAAABJRU5ErkJggg==";
+
+/* Wheat's own growth-stage strip, 7 stages in one row (sown -> full ear).
+   Age (0..1, cropAgeOf) maps onto these 7 by simple floor/round - there is
+   no continuous morph between purchased frames the way the hand-drawn
+   stalk height was continuous, so the visible change is a little more
+   stepped than before. Close-up detail (earClose, CROP_DETAIL_ZOOM,
+   05-wildlife) is UNCHANGED - this sprite only replaces the ordinary,
+   zoomed-out view, same split the sheep/chicken/dog sprites already use
+   between "plain" and "the part that was hand-built in real detail". */
+const WHEAT_STAGES = new Image();
+WHEAT_STAGES.src = "data:image/png;base64,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";
+WHEAT_STAGES.__cellW = 48; WHEAT_STAGES.__cellH = 48; WHEAT_STAGES.__stages = 7;
+
+
 const CRITTER_SPRITES = {
   cow:    { sheet: CRITTER_COW_SHEET,    anchorFrac: 1, baseH: 17 / (75/144) },
   donkey: { sheet: CRITTER_DONKEY_SHEET, anchorFrac: 1, baseH: 17 / (75/144) },
@@ -34286,6 +34515,19 @@ function blitWaterMask(gx, x0, y0, x1, y1, mode){
   const dpr = (cv.width / (cv.clientWidth || cv.width)) || 1;
   gx.globalCompositeOperation = mode;
   gx.drawImage(G.waterMask,
+               x0*SUBT, y0*SUBT, (x1-x0)*SUBT, (y1-y0)*SUBT,
+               (x0*TILE - G.cam.x)*z*dpr, (y0*TILE - G.cam.y)*z*dpr,
+               (x1-x0)*TILE*z*dpr, (y1-y0)*TILE*z*dpr);
+  return true;
+}
+
+/* Same idea, for the grass/sand edge - see G.grassEdgeMask, 02c. */
+function blitGrassEdgeMask(gx, x0, y0, x1, y1, mode){
+  if(!G.grassEdgeMask) return false;
+  const SUBT = G.terrainSub || 1, z = G.cam.z;
+  const dpr = (cv.width / (cv.clientWidth || cv.width)) || 1;
+  gx.globalCompositeOperation = mode;
+  gx.drawImage(G.grassEdgeMask,
                x0*SUBT, y0*SUBT, (x1-x0)*SUBT, (y1-y0)*SUBT,
                (x0*TILE - G.cam.x)*z*dpr, (y0*TILE - G.cam.y)*z*dpr,
                (x1-x0)*TILE*z*dpr, (y1-y0)*TILE*z*dpr);
@@ -34991,12 +35233,30 @@ function drawNodeBody(n){
       if(G.snow > 0.15 && G.cam.z > 1.35){
         const snowA = Math.min(1, (G.snow-0.15)/0.6);
         ctx.filter = "brightness(2.4) saturate(0.10)";
-        for(const b of [[0.62,0.22],[0.45,0.40],[0.30,0.65]]){
+        /* asked for 24 Sep, "cover the trees more with snow" - widened from
+           a 62%-of-height ceiling to 80%, and each band a good deal denser,
+           so a fully-snowed tree reads as properly laden rather than just
+           dusted at the very tip. Then asked again the same day to make
+           that BUILD UP through winter and recede through spring rather
+           than sitting at one fixed extent the moment G.snow crosses its
+           threshold: each band now has its own arrival point along
+           snowProg (0 at the first dusting, 1 at a full G.snow=1) and
+           only widens in once winter has gotten that far, top of the tree
+           first - so early snow is a cap at the crown, and the wide, faint
+           band down near the bottom is the last thing to show up, only
+           once the season is deep into it. Needs no clock of its own: it
+           is a pure function of G.snow, which already ramps up over
+           winter and back down after (03c) - so the SAME formula that
+           builds it up unwinds it again through spring for free. */
+        const snowProg = Math.min(1, Math.max(0, (G.snow-0.15)/0.85));
+        for(const b of [[0.80,0.32,0.70],[0.60,0.52,0.45],[0.40,0.72,0.20],[0.22,0.88,0.00]]){
+          const local = Math.min(1, Math.max(0, (snowProg-b[2])/0.30));
+          if(local <= 0) continue;
           ctx.save();
           ctx.beginPath();
-          ctx.rect(ix, iy, dw, dh*b[0]);
+          ctx.rect(ix, iy, dw, dh*b[0]*local);
           ctx.clip();
-          ctx.globalAlpha = snowA * b[1];
+          ctx.globalAlpha = snowA * b[1] * local;
           ctx.drawImage(img, ix, iy, dw, dh);
           ctx.restore();
         }
@@ -36470,9 +36730,16 @@ function drawFarmCrop(b){
      is drawn by the soil pass at the back, where it cannot land on top of
      somebody working the rows. */
   drawCropField(x, y, w, dep, kindKey, age.grow, ripe, ripe <= 0.001, age.over, "tall");
-  // and the near row of posts in front of it, where it belongs
-  ctx.fillStyle = "#6b5233";
-  for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
+  // and the near edge of the low wire fence in front of it, where it belongs
+  if(FARM_POST.naturalWidth){
+    const postW = TILE*0.28, postH = TILE*0.42;
+    ctx.drawImage(FARM_POST, x-postW/2, y+dep-postH*0.3, postW, postH);
+    ctx.drawImage(FARM_POST, x+w-postW/2, y+dep-postH*0.3, postW, postH);
+    ctx.drawImage(FARM_HWIRE, x, y+dep-TILE*0.02, w, TILE*0.09);
+  } else {
+    ctx.fillStyle = "#6b5233";
+    for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
+  }
   ctx.globalAlpha = 1;
 }
 
@@ -36758,14 +37025,31 @@ function drawBuilding(b){
   if(d.farm){
     const ripe = b.node ? b.node.amt/b.node.max : 1;
     const bare = ripe <= 0.001;
-    ctx.fillStyle = "#5c4630";
-    ctx.fillRect(x, y, w, dep);
-    ctx.fillStyle = "#6b5138";
-    ctx.fillRect(x+2, y+2, w-4, dep-4);
-    // furrows
-    ctx.strokeStyle = "rgba(38,28,18,.45)"; ctx.lineWidth = 1;
-    for(let i=1;i<6;i++){
-      ctx.beginPath(); ctx.moveTo(x+3, y+dep*i/6); ctx.lineTo(x+w-3, y+dep*i/6); ctx.stroke();
+    /* PURCHASED ASSET: Modern Farm, real tiled soil instead of a flat fill
+       plus drawn furrow lines - see the note above FARM_SOIL (04c) for why
+       this is the plain borderless tile and not the pack's own "modular"
+       bordered box. Tiled at a finer grain than the map's own ground tiles
+       (TILE/3) so a small 2x2 field still reads as worked earth rather
+       than one or two oversized soil squares. */
+    if(FARM_SOIL.naturalWidth){
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x, y, w, dep); ctx.clip();
+      const st = TILE/3;
+      for(let sy=y; sy<y+dep; sy+=st){
+        for(let sx=x; sx<x+w; sx+=st){
+          ctx.drawImage(FARM_SOIL, sx, sy, st+0.6, st+0.6);
+        }
+      }
+      ctx.restore();
+    } else {
+      ctx.fillStyle = "#5c4630";
+      ctx.fillRect(x, y, w, dep);
+      ctx.fillStyle = "#6b5138";
+      ctx.fillRect(x+2, y+2, w-4, dep-4);
+      ctx.strokeStyle = "rgba(38,28,18,.45)"; ctx.lineWidth = 1;
+      for(let i=1;i<6;i++){
+        ctx.beginPath(); ctx.moveTo(x+3, y+dep*i/6); ctx.lineTo(x+w-3, y+dep*i/6); ctx.stroke();
+      }
     }
     /* THE BACK OF THE FENCE GOES DOWN FIRST, before anything is growing.
 
@@ -36774,11 +37058,28 @@ function drawBuilding(b){
        which is wrong for every crop, and unmissable once the corn got tall
        enough to reach them. A field is a box you look into: the far side is
        behind what is in it, the near side is in front. Only the near row is
-       left to the end now. */
-    ctx.fillStyle = "#6b5233";
-    for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y-3, 2, 5);
-    ctx.strokeStyle="rgba(32,26,20,.45)"; ctx.lineWidth=1;
-    ctx.strokeRect(x, y, w, dep);
+       left to the end now.
+
+       PURCHASED ASSET: the pack's own low post-and-wire fence, not its
+       solid picket sets - asked for after a first mock-up with the picket
+       fence came back "too much and will get in the way of villagers
+       working on it". Corner posts plus a thin wire line read as a
+       boundary without ever standing taller than the crop growing behind
+       it. Back edge and both sides go down here, with the crop; the near
+       edge waits with the near posts below, same reasoning as before. */
+    if(FARM_POST.naturalWidth){
+      const postW = TILE*0.28, postH = TILE*0.42;
+      ctx.drawImage(FARM_POST, x-postW/2, y-postH*0.7, postW, postH);
+      ctx.drawImage(FARM_POST, x+w-postW/2, y-postH*0.7, postW, postH);
+      ctx.drawImage(FARM_HWIRE, x, y-postH*0.42, w, TILE*0.09);
+      ctx.drawImage(FARM_VWIRE, x-TILE*0.03, y, TILE*0.06, dep);
+      ctx.drawImage(FARM_VWIRE, x+w-TILE*0.03, y, TILE*0.06, dep);
+    } else {
+      ctx.fillStyle = "#6b5233";
+      for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y-3, 2, 5);
+      ctx.strokeStyle="rgba(32,26,20,.45)"; ctx.lineWidth=1;
+      ctx.strokeRect(x, y, w, dep);
+    }
 
     /* What's actually growing (05-wildlife.js): an ordinary farm's own
        summer pick (b.veg - corn or sunflowers, purely a look, rolled and
@@ -36856,11 +37157,19 @@ function drawBuilding(b){
       ctx.fillRect(x+2, y+2, w-4, dep-4);
       ctx.globalAlpha = 1;
     }
-    // and the NEAR row of posts last, in front of the crop where it belongs -
-    // unless the crop is tall, in which case both go in the later pass
+    // and the NEAR edge of the fence last, in front of the crop where it
+    // belongs - unless the crop is tall, in which case both go in the
+    // later pass (drawFarmCrop, above)
     if(!farmTallCrop(b)){
-      ctx.fillStyle = "#6b5233";
-      for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
+      if(FARM_POST.naturalWidth){
+        const postW = TILE*0.28, postH = TILE*0.42;
+        ctx.drawImage(FARM_POST, x-postW/2, y+dep-postH*0.3, postW, postH);
+        ctx.drawImage(FARM_POST, x+w-postW/2, y+dep-postH*0.3, postW, postH);
+        ctx.drawImage(FARM_HWIRE, x, y+dep-TILE*0.02, w, TILE*0.09);
+      } else {
+        ctx.fillStyle = "#6b5233";
+        for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
+      }
     }
     if(bare && b.p===P_YOU){
       const pulse = 0.5+0.5*Math.sin(G.t*2.4+b.id);
@@ -37198,13 +37507,22 @@ function drawBuilding(b){
       ctx.ellipse(x+w/2, y-H+dep*0.30, w*0.44, ridgeA2*0.72, 0, Math.PI, 0);
       ctx.closePath(); ctx.fill();
     } else {
-      // gable, hip and lean-to: a band of snow along the ridge and slope
+      /* gable, hip and lean-to: snow down the slope - asked for 24 Sep,
+         "cover... buildings more with snow"; was a band stopping barely
+         past the ridge (0.52 of the roof's own depth), widened to a ceiling
+         of 0.88 so most of the visible slope carries it at a full G.snow,
+         rather than just the peak. Asked again the same day to make that
+         BUILD UP through winter and recede through spring instead of
+         appearing at its full extent the moment G.snow crosses 0.15 - see
+         the identical snowProg reasoning on the tree's own snow, 04c. */
       const inset2 = d.roof==="hip" ? w*0.26 : 0;
+      const snowProg = Math.min(1, Math.max(0, (G.snow-0.15)/0.85));
+      const slopeFrac = 0.18 + 0.70*snowProg;
       ctx.beginPath();
       ctx.moveTo(x+inset2-1, rTop);
       ctx.lineTo(x+w-inset2+1, rTop);
-      ctx.lineTo(x+w+3, y-H+dep*0.52);
-      ctx.lineTo(x-3, y-H+dep*0.52);
+      ctx.lineTo(x+w+3, y-H+dep*slopeFrac);
+      ctx.lineTo(x-3, y-H+dep*slopeFrac);
       ctx.closePath(); ctx.fill();
       /* Icicles off the eaves. Deliberately irregular: three of them at a
          fixed 0.22/0.50/0.78 spacing, all much the same length, read as a
@@ -37425,13 +37743,17 @@ function drawBuilding(b){
         ctx.stroke();
         /* Snow on it. The shared roof-snow pass upstream is skipped for this
            roof because it only knows the standard shapes, so the cap is cut
-           to the pitch here: it lies along the top of the slope and stops
-           well short of the eaves, the way it does on every other roof. */
+           to the pitch here instead - widened the same way and for the same
+           reason as that shared pass (24 Sep, "cover... buildings more with
+           snow"), most of the slope now rather than just the cap. */
         if(G.snow > 0.15){
           ctx.save();
           ctx.globalAlpha = Math.min(1, G.snow*1.15);
           ctx.fillStyle = "#eef2f6";
-          const t = 0.46;                       // how far down the slope it lies
+          // builds up through winter and recedes through spring, same
+          // snowProg formula as the shared roof band and the tree (04c)
+          const snowProg = Math.min(1, Math.max(0, (G.snow-0.15)/0.85));
+          const t = 0.14 + 0.68*snowProg;        // how far down the slope it lies
           ctx.beginPath();
           ctx.moveTo(cx, y-H-pitch);
           ctx.lineTo(x-eo + (cx-(x-eo))*(1-t), eave - (eave-(y-H-pitch))*t);
@@ -56498,14 +56820,66 @@ function drawPondFrost(x0, y0, x1, y1){
   const ponds = pondIds();
   if(!ponds.size) return;
   const m = seaBody();
-  ctx.fillStyle = "rgba(214,230,238,.34)";
+  const isPondWater = (tx,ty) => {
+    if(tx<0||ty<0||tx>=MAPW||ty>=MAPH) return false;
+    const i = ty*MAPW+tx;
+    return T[i]===5 && ponds.has(m[i]);
+  };
+  /* HARD TILE-SQUARE SHORELINE, reported 24 Sep with a screenshot - a
+     staircase of right-angle steps following the coast, completely
+     unrelated to the land-side snow wash (drawSpriteTerrainTest, 04c,
+     fixed earlier the same day with source-atop against the terrain
+     art's own ragged edge). That fix only ever touched land tiles; this
+     is water, drawn as one flat, unmasked fillRect per tile with nothing
+     to mask against - water has no ragged silhouette of its own for
+     source-atop to read.
+
+     So the frost fades out by DISTANCE FROM SHORE instead: `openness` is
+     how many of a tile's 8 neighbours are also pond water (0..1), and
+     alpha scales with it - full frost at a pond's open centre, nothing at
+     all on a tile touching land, a smooth gradient across the tile or two
+     between. The coastline itself is left showing plain water (which
+     already reads as winter - drawPondFrost only ever added a light skin
+     of extra pale further out), so there is no longer a contrasting edge
+     sitting right on top of the shore's own organic line for a hard
+     square to show up against.
+
+     Batched into opacity buckets and each bucket filled as ONE path
+     rather than one fillRect per tile - the same double-blend-at-the-
+     seams fault the snow wash's own comment describes (just above,
+     drawSpriteTerrainTest) would otherwise show up between neighbouring
+     tiles in the SAME bucket wherever their overdrawn rects overlap.
+     Ponds are capped at POND_MAX_TILES, so this is cheap regardless of
+     bucket count. */
+  const OD = 0.75;
+  const buckets = [];
   for(let ty=y0; ty<y1; ty++){
     for(let tx=x0; tx<x1; tx++){
-      const i = ty*MAPW+tx;
-      if(T[i] !== 5) continue;
-      if(!ponds.has(m[i])) continue;
-      ctx.fillRect(tx*TILE, ty*TILE, TILE, TILE);
+      if(!isPondWater(tx,ty)) continue;
+      let openN = 0;
+      for(let dy=-1; dy<=1; dy++) for(let dx=-1; dx<=1; dx++){
+        if(dx===0 && dy===0) continue;
+        if(isPondWater(tx+dx, ty+dy)) openN++;
+      }
+      const openness = openN/8;
+      if(openness < 0.05) continue;               // touching land: no frost at all
+      const bucket = Math.round(openness*10);      // 0..10
+      if(bucket <= 0) continue;
+      if(!buckets[bucket]) buckets[bucket] = [];
+      buckets[bucket].push(tx, ty);
     }
+  }
+  for(let b=1; b<buckets.length; b++){
+    const q = buckets[b];
+    if(!q || !q.length) continue;
+    const alpha = 0.34 * (b/10);
+    ctx.fillStyle = "rgba(214,230,238,"+alpha.toFixed(3)+")";
+    ctx.beginPath();
+    for(let i=0;i<q.length;i+=2){
+      const tx=q[i], ty=q[i+1];
+      ctx.rect(tx*TILE-OD, ty*TILE-OD, TILE+OD*2, TILE+OD*2);
+    }
+    ctx.fill();
   }
 }
 
@@ -61687,6 +62061,37 @@ function drawCropField(x, y, w, dep, kindKey, growFrac, ripe, bare, overFrac, pa
       k.tallMax*gf + Math.sin(G.t*1.4 + rx*0.7 + ry)*0.6;
     const sunClose = k.shape === "flower" && G.cam.z > CROP_DETAIL_ZOOM;
     const earClose = k.headStyle === "grain" && G.cam.z > CROP_DETAIL_ZOOM;
+    /* PURCHASED SPRITE, wheat only, the ordinary (non-close-up) view - see
+       the note above WHEAT_STAGES (04c). Its own small early-return rather
+       than threading a branch through the shared stalk/cob/pod loop below,
+       so corn, sunflowers and peas are untouched by this. Close-up stays
+       exactly as it was: earClose still switches to the hand-built ear
+       detail (drawWheatEar) at CROP_DETAIL_ZOOM and above, same split the
+       sheep/chicken/dog sprites already use between the plain view and the
+       part that was hand-built in real detail. */
+    if(kindKey === "wheat" && !earClose && WHEAT_STAGES.naturalWidth){
+      const cw = WHEAT_STAGES.__cellW, chh = WHEAT_STAGES.__cellH, nStages = WHEAT_STAGES.__stages;
+      // growFrac below SOWN_UNTIL never reaches here (drawCropField returns
+      // earlier for that case), so this only ever maps the 0.14..1 range
+      const stageF = Math.min(1, Math.max(0, (growFrac - SOWN_UNTIL) / (1 - SOWN_UNTIL)));
+      const stage = Math.min(nStages-1, Math.floor(stageF * nStages));
+      const dh = Math.max(3, k.tallMax*gf*2.3), dw = dh*(cw/chh);
+      for(let ry=0; ry<k.rows; ry++){
+        for(let rx=0; rx<k.cols; rx++){
+          const px = x+5 + rx*(w-10)/Math.max(1,k.cols-1);
+          const py = y+5 + ry*(dep-10)/Math.max(1,k.rows-1);
+          if(taken(rx, ry)){ stubs.push(px, py); continue; }
+          const sway = swayOf(rx)*0.35;
+          ctx.save();
+          ctx.translate(px+sway, py);
+          ctx.rotate(sway*0.04);
+          ctx.drawImage(WHEAT_STAGES, stage*cw, 0, cw, chh, -dw/2, -dh, dw, dh);
+          ctx.restore();
+        }
+      }
+      cropStubble(stubs, col);
+      return;
+    }
     /* The straw bleaches under the ear. Wheat standing past ripe goes from a
        live gold to the pale dry colour of a field waiting to be cut. */
     const strawCol = (k.headStyle === "grain")
@@ -86863,73 +87268,13 @@ window.addEventListener("keydown", e=>{
    visible at a time, and they live inside the same card so that moving
    between them does not resize or re-centre it under the reader. */
 const MENU_PAGES = ["mp_root","mp_new","mp_how","mp_set","mp_patch","mp_chronicle"];
-/* ---- FIVE SECONDS TO READ IT ----
-   Asked for 16 Sep: "the splash screen that we have before the game is
-   played, remove the x, and a 5 second loading bar, so people have to read
-   it."
-
-   Only on the briefing that a WAITING MATCH sits behind - the same page
-   opened from the menu as reference keeps its X and its Back, because
-   there is nothing to read it before.
-
-   AND THE X GOES ONLY HERE. It is not decoration anywhere else: Exit from
-   the pause screen drops you on this menu with the match still paused
-   underneath, and the X is what picks it back up ("the X picks it back
-   up", btnexit). Taking it out everywhere would stand a player in a menu
-   with no way back to the game they were playing. So it is hidden for the
-   length of the briefing and put back the moment the page is left.
-
-   Begin is disabled rather than hidden: a button that appears out of
-   nowhere when the bar fills is harder to find than one that was there all
-   along, greyed - the same reasoning as the Continue row on the front
-   page. */
-const READ_HOLD = 5;                 // seconds, as asked
-let readHoldT = null;
-function releaseReadingHold(){
-  if(readHoldT){ clearTimeout(readHoldT); readHoldT = null; }
-  const x = $("btnclose"), wrap = $("mm_loadwrap"), fill = $("mm_loadfill"), go = $("mm_begin");
-  if(x && x.classList) x.classList.remove("hide");
-  if(wrap && wrap.classList) wrap.classList.add("hide");
-  if(fill && fill.style) fill.style.width = "0%";
-  if(go && go.removeAttribute) go.removeAttribute("disabled");
-}
-function holdForReading(){
-  const x = $("btnclose"), wrap = $("mm_loadwrap"), fill = $("mm_loadfill"),
-        go = $("mm_begin"), cap = $("mm_loadcap");
-  if(x && x.classList) x.classList.add("hide");
-  if(wrap && wrap.classList) wrap.classList.remove("hide");
-  if(go && go.setAttribute) go.setAttribute("disabled","");
-  if(cap) cap.textContent = "The village is waking up\u2026";
-  if(readHoldT){ clearTimeout(readHoldT); readHoldT = null; }
-  /* Width from 0 to full over READ_HOLD, driven by the transition. The
-     browser needs the 0 committed before the 100% or it has nothing to move
-     away from and the bar jumps straight to the end.
-
-     FORCED REFLOW, NOT requestAnimationFrame. rAF does not run while the
-     page is hidden, and this game is opened from a file:// page in a web
-     view that can easily be backgrounded at the moment a match is dealt -
-     the first version sat at 0% with its transition still "none" until the
-     tab came forward. Reading offsetWidth flushes layout there and then,
-     whatever the page's visibility. (The hold itself is a timer, so Begin
-     unlocks on time either way; this is about the bar being honest.) */
-  if(fill && fill.style){
-    fill.style.transition = "none";
-    fill.style.width = "0%";
-    void fill.offsetWidth;                       // commit the 0
-    fill.style.transition = "width " + READ_HOLD + "s linear";
-    fill.style.width = "100%";
-  }
-  readHoldT = setTimeout(() => {
-    readHoldT = null;
-    if(go && go.removeAttribute) go.removeAttribute("disabled");
-    if(cap) cap.textContent = "Ready when you are.";
-  }, READ_HOLD * 1000);
-}
+/* The briefing used to force a 5-second read-hold here (X hidden, Begin
+   disabled) before a freshly-dealt match could start - asked for 16 Sep,
+   un-asked-for 24 Sep ("remove the waiting screen, just give it an X
+   corner"). Gone: this page now behaves the same whether it was opened to
+   start a match or just as reference from the menu - X visible, Begin (or
+   Back) usable immediately. */
 function openMenuPage(id, opts){
-  /* Leaving the briefing by ANY route - Back, the front page, the patch
-     notes - puts the X back and stops the clock. openMenuPage is the only
-     door into a page, so this is the only place that has to remember. */
-  if(id !== "mp_how") releaseReadingHold();
   for(const p of MENU_PAGES){
     const el = $(p);
     if(!el || !el.classList) continue;
@@ -86950,7 +87295,6 @@ function openMenuPage(id, opts){
     const go = $("mm_begin"), back = $("mm_howback");
     if(go && go.classList) go.classList.toggle("hide", !starting);
     if(back && back.classList) back.classList.toggle("hide", starting);
-    if(starting) holdForReading(); else releaseReadingHold();
   }
   if(id === "mp_root" || id === "mp_set") refreshSaveRows();
   if(id === "mp_root" || id === "mp_chronicle") refreshChronicle();
@@ -87027,11 +87371,6 @@ if(document.querySelectorAll){
     b.addEventListener("click", ()=>openMenuPage("mp_root"));
 }
 $("mm_begin").addEventListener("click", ()=>{
-  /* The button is disabled while the bar runs, and this is the belt to that
-     brace: a keyboard activation or a stray synthetic click must not skip
-     the read either. */
-  if(readHoldT) return;
-  releaseReadingHold();
   $("startscreen").classList.add("hide");
   showOpening();
 });
