@@ -53,6 +53,7 @@
     --sal: env(safe-area-inset-left, 0px);
     --sar: env(safe-area-inset-right, 0px);
     --gutter-b: 12px;
+    --topbar-h: 58px;   /* kept in step with #topbar's own height below */
   }
   @media (pointer: coarse){ :root{ --gutter-b: 34px; } }
   body.device-phone, body.device-tablet{ --gutter-b: 34px; }
@@ -65,7 +66,28 @@
   /* ---------- top resource bar ---------- */
   #topbar{position:absolute;top:0;left:0;right:0;height:58px;display:flex;align-items:stretch;
     gap:0;padding:0 calc(6px + var(--sar)) 0 calc(6px + var(--sal));background:linear-gradient(180deg,#2a241e 0%,#191512 100%);
-    border-bottom:1px solid var(--line);z-index:10;overflow:hidden;}
+    border-bottom:1px solid var(--line);z-index:10;overflow:hidden;transition:transform .18s, opacity .18s;}
+  /* Slid up rather than display:none - a resource bar that vanished outright
+     would also drop its own space, and everything below (castgauge's `top`
+     among them) is measured assuming it is there. Off-screen keeps the
+     layout honest and still frees the view. */
+  #topbar.hide{transform:translateY(-100%);opacity:0;pointer-events:none;}
+  /* Top-right corner, the little white-ish box the player's own sketch drew
+     over the resource bar - "click it and the resources disappear". Sits
+     BELOW #topbar rather than inset into its own corner ("lower that top
+     right hide button, so the top panel is like it was before", 29 Sep) -
+     it was squeezing the Knowledge stat to make room for itself; now it
+     floats just under the bar instead, and the bar goes back to being
+     untouched. Its own element rather than a topbar child, so it stays put
+     and clickable once the bar it controls has slid away. */
+  #topbarToggle{position:absolute;top:calc(var(--topbar-h) + var(--sat) + 8px);
+    right:calc(8px + var(--sar));
+    z-index:11;width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
+    cursor:pointer;transition:.12s;color:var(--parch);}
+  #topbarToggle:hover{background:#3d332a;border-color:#6b5a48;}
+  #topbarToggle svg{width:13px;height:13px;transition:transform .18s;}
+  #topbarToggle.flipped svg{transform:rotate(180deg);}
   .res{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:3px;padding:6px 4px;white-space:nowrap;min-width:0;}
   .res + .res{border-left:1px solid rgba(74,63,51,.5);}
@@ -112,13 +134,40 @@
      The sides matter too: in landscape a notched phone puts the camera
      housing over one end of this bar, and left:0/right:0 with a flat 8px of
      padding ran the outermost button straight under it. */
+  /* "Normal view" per the player's own sketch: the bar itself is see-
+     through so the village shows behind it, in BOTH the compact layout
+     and the old full panel (29 Sep: "let's make that panel transparent
+     too, you showed it to me before I like it") - only the fully-hidden
+     state below differs. The individual chips (.btn/.gbtn) sit on top of
+     it a little see-through themselves now too, not solid black - see
+     their own rules further down. */
   #cmdbar{position:absolute;left:0;right:0;bottom:0;z-index:10;
-    background:linear-gradient(180deg,#1b1713 0%,#241f1a 100%);border-top:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(27,23,19,.32) 0%,rgba(36,31,26,.32) 100%);
+    border-top:1px solid rgba(74,63,51,.4);
     display:flex;flex-direction:column;gap:5px;
     padding-top:5px;
     padding-left:calc(8px + var(--sal));
     padding-right:calc(8px + var(--sar));
-    padding-bottom:max(var(--gutter-b), var(--sab));}
+    padding-bottom:max(var(--gutter-b), var(--sab));
+    transition:background .18s, border-color .18s, max-height .18s, padding .18s;}
+  /* Fully tucked away - a tap on the arrow (see #uiCycleBtn) brings it back.
+     max-height rather than display:none, so the collapse itself animates;
+     the children are display:none as well so nothing inside can still be
+     tapped through a sliver of padding. */
+  #cmdbar.panel-hidden{max-height:0;padding-top:0;padding-bottom:0;overflow:hidden;
+    border-top-color:transparent;}
+  /* Named explicitly rather than "> *" - the floating control column
+     (#uiCycleBtn itself among them) are children of #cmdbar too, purely for
+     the `bottom:calc(100% + Npx)` anchoring, and must stay clickable or
+     there would be no way back once the panel is hidden. */
+  #cmdbar.panel-hidden #fishcard,
+  #cmdbar.panel-hidden #bugcard,
+  #cmdbar.panel-hidden #tip,
+  #cmdbar.panel-hidden #queuewrap,
+  #cmdbar.panel-hidden #queststrip,
+  #cmdbar.panel-hidden #groupbar,
+  #cmdbar.panel-hidden #agebar,
+  #cmdbar.panel-hidden #cmdrow{display:none;}
   #cmdrow{display:flex;gap:8px;align-items:stretch;position:relative;height:84px;}
   /* the almanac replaces selinfo+btns entirely when nothing is selected -
      using the whole width instead of squeezing into the narrow stats column */
@@ -461,16 +510,41 @@
   .btn:active{transform:translateY(1px);}
   .btn.off{opacity:.38;cursor:default;}
   .btn.off:hover{background:var(--panel-2);border-color:var(--line);}
+  /* "make those black buttons and grouping icons maybe 50% of the
+     transparency of the panel below it, so a little transparent not as
+     black" (29 Sep) - same rgb as --panel-2/the group slots below, just an
+     alpha added, so a little of the now-see-through bar (and the village
+     behind it) comes through the chips themselves too. */
+  #cmdbar .btn{background:rgba(48,41,33,.55);}
+  #cmdbar .btn:hover{background:rgba(61,51,42,.75);}
+  #cmdbar .btn.off:hover{background:rgba(48,41,33,.55);}
   .btn .n{font-size:12px;font-weight:600;display:block;white-space:nowrap;
     overflow:hidden;text-overflow:ellipsis;}
   .btn .c{font-size:9px;color:var(--parch-dim);margin-top:2px;display:block;
     font-variant-numeric:tabular-nums;letter-spacing:.2px;white-space:nowrap;
     overflow:hidden;text-overflow:ellipsis;}
+  /* present on every has-icon button (addBtn, 07) but only ever shown in
+     the compact panel - see #cmdbar.panel-new #btns .btn.has-icon .ic */
+  .btn .ic{display:none;}
   .btn.hi{border-color:var(--gold);}
   .btn.hi .n{color:var(--gold);}
 
+  /* ---------- the panel cycle arrow ----------
+     Bottom of the stack, right above the group numbers (#groupbar, inside
+     #cmdbar, sits well below this whole column already) - "put the bottom
+     right hide arrow above the grouping numbers" (29 Sep). Tap: see-through
+     <-> solid. Double-tap the SAME arrow: tuck the panel away entirely. Tap
+     again once hidden: back to the see-through default. See the click
+     handler in 07-ui-and-boot.js for the state machine. */
+  #uiCycleBtn{position:absolute;right:8px;bottom:calc(100% + 8px);z-index:11;
+    width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
+    cursor:pointer;transition:.12s;color:var(--parch);}
+  #uiCycleBtn:hover{background:#3d332a;border-color:#6b5a48;}
+  #uiCycleBtn svg{width:14px;height:14px;transition:transform .18s;}
+  #uiCycleBtn.flipped svg{transform:rotate(180deg);}
   /* ---------- pause button ---------- */
-  #pausebtn{position:absolute;right:8px;bottom:calc(100% + 8px);z-index:11;
+  #pausebtn{position:absolute;right:8px;bottom:calc(100% + 50px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     cursor:pointer;transition:.12s;}
@@ -480,7 +554,7 @@
      Stacked directly on top of the pause button and sharing every one of its
      numbers, so the two read as one column of controls rather than as a
      button and a thing somebody added later. 34 + 8 of gap = 42. */
-  #storybtn{position:absolute;right:8px;bottom:calc(100% + 50px);z-index:11;
+  #storybtn{position:absolute;right:8px;bottom:calc(100% + 92px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     cursor:pointer;transition:.12s;color:var(--parch);
@@ -493,7 +567,7 @@
      then .hi (toggled by syncQuestButton, 07) swaps it gold - the same
      var(--gold) highlight the rest of the game already uses for "something
      to look at" (.btn.hi elsewhere in this sheet). */
-  #questbtn{position:absolute;right:8px;bottom:calc(100% + 92px);z-index:11;
+  #questbtn{position:absolute;right:8px;bottom:calc(100% + 134px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     cursor:pointer;transition:.12s;color:var(--parch);
@@ -504,7 +578,7 @@
      One more 34+8 above the quest button, same column, same shape - a red
      border and glyph are the whole difference, which is the point: it
      reads as the T button's own odd cousin, not a whole new kind of thing. */
-  #debugbtn{position:absolute;right:8px;bottom:calc(100% + 134px);z-index:11;
+  #debugbtn{position:absolute;right:8px;bottom:calc(100% + 176px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid #7a3838;border-radius:3px;
     cursor:pointer;transition:.12s;color:#d97a6a;
@@ -641,7 +715,58 @@
   .go.ghost:hover{background:rgba(255,255,255,.06);}
 
   #groupbar{display:flex;gap:3px;flex:none;}
-  .gbtn{flex:1;min-width:0;height:21px;border-radius:3px;background:rgba(36,31,26,.92);
+  /* The build menu already has its own category picker (BUILD_CATEGORIES,
+     07) matching military/food & wood/gold & stone/knowledge/village - the
+     ask on top of that (29 Sep) was for the group row to get out of its way
+     while it's open, the same as almanac-mode already clears the selection
+     column for a different reason. */
+  #cmdbar.build-mode #groupbar{display:none;}
+  #cmdbar.panel-new #groupbar{display:none;}
+
+  /* ---------- the compact panel's icon-only button row (29 Sep) ----------
+     Reuses every addBtn call already made across refreshUI's many branches
+     completely unchanged (07-ui-and-boot.js) - same names, same actions,
+     same enabled/off/hi logic - and only restyles the same DOM as small
+     square icon slots instead of text pills. See BTN_ICON_MAP/iconForBtn
+     there for which buttons get a real icon; anything that function
+     doesn't cover keeps the ordinary small text pill (.btn.no-icon)
+     rather than showing a blank or a wrong icon. */
+  #cmdbar.panel-new #btns{grid-auto-columns:44px;gap:5px;}
+  /* the one thing #btns can hold that ISN'T a button - a resource node's
+     own description card (.rescard, above) - wants its usual full width,
+     not a 44px sliver, so it's excused from the compact column size. */
+  #cmdbar.panel-new #btns:has(.rescard){grid-auto-columns:minmax(112px,1fr);}
+  #cmdbar.panel-new #btns .btn.has-icon{
+    width:44px;height:44px;padding:0;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #cmdbar.panel-new #btns .btn.has-icon .n,
+  #cmdbar.panel-new #btns .btn.has-icon .c{display:none;}
+  #cmdbar.panel-new #btns .btn .ic{display:none;}
+  #cmdbar.panel-new #btns .btn.has-icon .ic{display:block;font-size:19px;line-height:1;}
+  #cmdbar.panel-new #btn_fade, #cmdbar.panel-new #btn_hint{display:none;}
+
+  /* the collapsed selection icon - "the info box should be hidden by
+     default but just have a little icon... click it and a bigger picture
+     comes up" (12 Sep). data-icon is set once per refreshUI (07), read
+     back here via content:attr() rather than duplicating it in the DOM. */
+  #cmdbar.panel-new #selinfo{
+    width:44px;flex:none;border-right:none;padding:0;
+    align-items:center;justify-content:center;
+    background:rgba(48,41,33,.55);border:1.5px solid var(--line);border-radius:9px;
+    cursor:pointer;position:relative;
+  }
+  #cmdbar.panel-new #selinfo::before{content:attr(data-icon);font-size:19px;}
+  #cmdbar.panel-new #selinfo > *{display:none;}
+  #cmdbar.panel-new #selinfo.expanded{
+    width:auto;flex:1;min-width:0;align-items:flex-start;justify-content:center;
+    padding:6px 10px;border-radius:8px;
+  }
+  #cmdbar.panel-new #selinfo.expanded::before{display:none;}
+  #cmdbar.panel-new #selinfo.expanded > *{display:block;}
+
+  /* alpha lowered from .92 alongside .btn above - same ask, same fix */
+  .gbtn{flex:1;min-width:0;height:21px;border-radius:3px;background:rgba(36,31,26,.55);
     border:1px solid var(--line);color:var(--parch-dim);cursor:pointer;
     font-family:inherit;font-size:11px;font-weight:600;display:flex;
     align-items:center;justify-content:center;position:relative;padding:0;}
@@ -963,6 +1088,7 @@
      support and the shorter viewport edge, and stamps the class on <body>.
      Small nudges only: readable numbers and honest tap targets on a phone,
      untouched on a computer. */
+  body.device-phone{ --topbar-h: 64px; }
   body.device-phone #topbar{height:64px;}
   body.device-phone .res .val{font-size:17px;}
   /* the numbers grow but the labels shrink - eight columns of
@@ -971,6 +1097,7 @@
     max-width:100%;overflow:hidden;text-overflow:ellipsis;}
   body.device-phone .gbtn{height:26px;font-size:12px;}
   body.device-phone #menubtn{width:42px;height:42px;}
+  body.device-tablet{ --topbar-h: 61px; }
   body.device-tablet #topbar{height:61px;}
   body.device-tablet .res .val{font-size:16px;}
   body.device-tablet .gbtn{height:23px;}
@@ -990,6 +1117,13 @@
   <div class="res"><span class="lbl">Iron</span><span class="row"><span class="dot" style="background:#8a8f98"></span><span class="val" id="r_iron">0</span></span></div>
   <div class="res"><span class="lbl">Knowledge</span><span class="row"><span class="dot" style="background:#7f9fc4"></span><span class="val" id="r_know">0</span></span></div>
 </div>
+<!-- "top right of the screen that white box is an arrow, you click it and
+     the resources disappear" (29 Sep sketch). Its own element rather than
+     living inside #topbar, so it stays put and clickable once the bar it
+     controls has slid away. -->
+<button id="topbarToggle" title="Hide resources">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+</button>
 
 <div id="mmwrap"><canvas id="minimap" width="150" height="150"></canvas></div>
 <div id="menupanel" class="hide">
@@ -1032,7 +1166,7 @@
   <div class="cg-hint" id="cg_hint"><b>Flick up</b> to cast</div>
 </div>
 
-<div id="cmdbar">
+<div id="cmdbar" class="panel-new">
   <!-- The catch card. Sits above the bar rather than inside the 84px command
        row, which has nowhere near the room for a portrait and five lines of
        text. Tapping anywhere on it dismisses it and lets the villager cast
@@ -1069,6 +1203,12 @@
        top of the bar whatever height the bar happens to be, the same trick
        #storybtn uses - see the note by #tip in the stylesheet. -->
   <div id="tip"><span id="tiptext"></span><button id="tipx" title="Got it" aria-label="Dismiss">&times;</button></div>
+  <!-- "put the bottom right hide arrow above the grouping numbers... commit
+       and patch" (29 Sep). Tap cycles see-through/solid; double-tap tucks
+       the whole panel away; see the state machine in 07-ui-and-boot.js. -->
+  <button id="uiCycleBtn" title="Hide this panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
   <button id="storybtn" title="What has been said (last two days)">T</button>
   <!-- Lights gold when there is a quest to look at - see syncQuestButton. -->
   <button id="questbtn" title="Quests">!</button>
@@ -1348,6 +1488,27 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn" open>
+        <summary>Patch 22.2</summary>
+        <div class="sec">Moonlight, and long shadows after dusk</div>
+        <ul>
+          <li><strong>Early night now has its own directional moonlight</strong> &mdash; a cool wash from the upper right, and long soft shadows cast by buildings and trees, strongest right after dusk and fading back out as the night gets properly dark</li>
+        </ul>
+        <div class="sec">Doors that actually open</div>
+        <ul>
+          <li><strong>Every building with a door now swings it open</strong> as a villager comes or goes, instead of a door drawn shut all the time</li>
+          <li><strong>The farm's gate is gone</strong> &mdash; just an open run in the fence now, rather than a gate that never moved</li>
+        </ul>
+        <div class="sec">A smaller, see-through command panel</div>
+        <ul>
+          <li><strong>A new arrow below the resource bar hides and shows it</strong></li>
+          <li><strong>The bottom command panel has a compact new look by default</strong> &mdash; a row of small icons for whatever a selected villager or building can do, one icon for the selection itself that opens into its full name and stats on tap, and the panel behind it all see-through so the village shows through</li>
+          <li><strong>A new arrow above the group numbers switches to the original full panel</strong> &mdash; group numbers, name and stats, and the old text-button grid, also now see-through the same way; tap the arrow again to go back to the compact layout, or double-tap it (from either one) to tuck the whole panel away until you tap it once more</li>
+          <li><strong>Tapping Build now shows an icon for each category</strong> &mdash; Military, Food &amp; Wood, Gold &amp; Stone, Knowledge, Village &mdash; before the ordinary building list, which is unchanged; the group numbers stay out of the way for all of it, same as a plain selection already got</li>
+          <li><strong>The old panel's chips &mdash; group numbers and buttons alike &mdash; are a little see-through now too</strong>, not solid black</li>
+        </ul>
+      </details>
+
+      <details class="pn">
         <summary>Patch 22.1</summary>
         <div class="sec">The fisherman drags the boat down first</div>
         <ul>
@@ -33784,6 +33945,7 @@ function draw(){
 
        (drawLightOcclusion, at the foot of this file.) */
     drawMoonShadows(d, c);      // the moon's own long shadows, same "last, over the washes" rule
+    drawMoonTreeShadows(d, c);  // and the trees' - same rule, own budget
     drawLightOcclusion(ctx, lamps.concat(torches, boatLanterns), c);
   }
 
@@ -38381,6 +38543,40 @@ function drawMoonShadows(d, c){
   ctx.restore();
 }
 
+/* Trees, added 28 Sep once the building-only version above was measured
+   safe. Its own function (not folded into the loop above) so the cost of
+   "far more casters, much smaller each" can be measured and capped on
+   its own terms rather than sharing a budget with buildings. Cap
+   deliberately conservative to start - trees are the one object kind in
+   this game where "hundreds on screen" is a real, ordinary case
+   (CLAUDE.md's own performance note), not an edge case the way it is for
+   buildings. First-found-in-array rather than nearest/biggest-first,
+   unlike the lamp system - a cheap ordering, fine while the cap is this
+   tight; worth revisiting only if a busy screen visibly runs out of
+   casters before running out of trees. */
+const MOON_TREE_MAX_CASTERS = 70;
+function drawMoonTreeShadows(d, c){
+  const a = moonAmount(d);
+  if(a <= 0.03 || c.z < OCCLUDE_MIN_Z) return;
+  ctx.save();
+  ctx.globalCompositeOperation = "multiply";
+  ctx.filter = "blur(0.9px)";
+  const alpha = 0.4*a;
+  let count = 0;
+  for(const n of G.nodes){
+    if(count >= MOON_TREE_MAX_CASTERS) break;
+    if(n.kind !== RES.WOOD || n.amt <= 0) continue;
+    if(!exploredTo(P_YOU, n.x, n.y)) continue;
+    const sp = w2s(n.x, n.y);
+    const rad = (n.r||11) * c.z;
+    if(sp.x < -80 || sp.y < -80 || sp.x > VW+80 || sp.y > VH+80) continue;
+    moonBlade(sp.x, sp.y, Math.max(9, rad*0.9), Math.max(28, rad*2.5), alpha);
+    count++;
+  }
+  ctx.filter = "none";
+  ctx.restore();
+}
+
 function drawLightOcclusion(nx, lamps, c){
   if(!lamps || !lamps.length) return;
   if(c.z < OCCLUDE_MIN_Z) return;
@@ -40310,7 +40506,10 @@ function drawBuilding(b){
        shed. */
     case "captainstation": {
       // a plain, solid door - a general's house, not a barracks
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.55, y+dep-doorH*0.9, doorW*1.1, doorH*0.9);
+      {
+        const dW=doorW*1.1, dX=cx-dW/2, dY=y+dep-doorH*0.9, dH=doorH*0.9;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       ctx.strokeStyle="#8f959e"; ctx.lineWidth=1.2;
       ctx.beginPath(); ctx.moveTo(cx, y+dep-doorH*0.85); ctx.lineTo(cx, y+dep-1); ctx.stroke();
       /* A pair of spare blades crossed on the wall beside the door - kept
@@ -40335,7 +40534,10 @@ function drawBuilding(b){
       break;
     }
     case "armoury": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.6, y+dep-doorH*0.9, doorW*1.2, doorH*0.9);
+      {
+        const dW=doorW*1.2, dX=cx-dW/2, dY=y+dep-doorH*0.9, dH=doorH*0.9;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       ctx.strokeStyle="#8f959e"; ctx.lineWidth=1.4;         // iron banding
       for(const t of [0.30, 0.68]){
         ctx.beginPath();
@@ -40368,7 +40570,10 @@ function drawBuilding(b){
     }
     case "tradingpost": {
       // double doors, thrown open - it is a shop
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.85, y+dep-doorH*0.9, doorW*1.7, doorH*0.9);
+      {
+        const dW=doorW*1.7, dX=cx-dW/2, dY=y+dep-doorH*0.9, dH=doorH*0.9;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       ctx.strokeStyle="rgba(180,160,120,.5)"; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(cx, y+dep-doorH*0.9); ctx.lineTo(cx, y+dep); ctx.stroke();
       // a hanging sign with a set of scales on it - the trade itself
@@ -40403,7 +40608,10 @@ function drawBuilding(b){
       break;
     }
     case "warcollege": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.6, y+dep-doorH*0.9, doorW*1.2, doorH*0.9);
+      {
+        const dW=doorW*1.2, dX=cx-dW/2, dY=y+dep-doorH*0.9, dH=doorH*0.9;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // a pell - the post soldiers hack at - wrapped in straw, and a rack of
       // practice swords. Nothing sharp: this is a school.
       const px2 = x + w*0.20;
@@ -40434,7 +40642,10 @@ function drawBuilding(b){
       break;
     }
     case "musiccollege": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.6, y+dep-doorH*0.85, doorW*1.2, doorH*0.85);
+      {
+        const dW=doorW*1.2, dX=cx-dW/2, dY=y+dep-doorH*0.85, dH=doorH*0.85;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // a horn hung by the door, and a bench for whoever is practising outside
       const hx2 = cx + doorW*1.3, hy2 = y+dep-H*0.48;
       ctx.strokeStyle="#c9a24a"; ctx.lineWidth=1.8;
@@ -40490,7 +40701,10 @@ function drawBuilding(b){
       break;
     }
     case "caretaker": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.55, y+dep-doorH*0.85, doorW*1.1, doorH*0.85);
+      {
+        const dW=doorW*1.1, dX=cx-dW/2, dY=y+dep-doorH*0.85, dH=doorH*0.85;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // seedling trays, a watering can and a barrow - the tools of the job
       const sx3 = x + w*0.20;
       for(let i=0;i<3;i++){
@@ -40541,7 +40755,10 @@ function drawBuilding(b){
     case "scouttower": {
       /* Not a fort: a ladder up the outside, a horn to blow, and no stone
          anywhere. The military tower is the one that gets cut stone. */
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.4, y+dep-doorH*0.7, doorW*0.8, doorH*0.7);
+      {
+        const dW=doorW*0.8, dX=cx-dW/2, dY=y+dep-doorH*0.7, dH=doorH*0.7;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       ctx.strokeStyle="#8a6f48"; ctx.lineWidth=1.2;
       const lx2 = x + w*0.78;
       ctx.beginPath();
@@ -40561,7 +40778,10 @@ function drawBuilding(b){
     }
     case "fortress": {
       // arrow slits and iron-strapped doors, and a brazier lit by the gate
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.8, y+dep-doorH, doorW*1.6, doorH);
+      {
+        const dW=doorW*1.6, dX=cx-dW/2, dY=y+dep-doorH, dH=doorH;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       ctx.fillStyle="#8f959e";
       for(const t of [0.28, 0.72]) ctx.fillRect(cx-doorW*0.8, y+dep-doorH*t, doorW*1.6, 1.6);
       ctx.fillStyle="#241c14";
@@ -40615,7 +40835,10 @@ function drawBuilding(b){
     }
     case "hermithouse": {
       // herbs drying under the eave, a lantern, and a stool by the door
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.5, y+dep-doorH*0.8, doorW, doorH*0.8);
+      {
+        const dW=doorW*1, dX=cx-dW/2, dY=y+dep-doorH*0.8, dH=doorH*0.8;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       ctx.strokeStyle="rgba(110,124,88,.85)"; ctx.lineWidth=1;
       for(let i=0;i<4;i++){
         const px4 = x + w*0.24 + i*3.2;
@@ -40683,11 +40906,17 @@ function drawBuilding(b){
       break;
     }
     case "lodge": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW/2, y+dep-doorH*0.85, doorW, doorH*0.85);
+      {
+        const dW=doorW*1, dX=cx-dW/2, dY=y+dep-doorH*0.85, dH=doorH*0.85;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       break;
     }
     case "barracks": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.7, y+dep-doorH, doorW*1.4, doorH);
+      {
+        const dW=doorW*1.4, dX=cx-dW/2, dY=y+dep-doorH, dH=doorH;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // crossed blades mounted on the wall
       ctx.strokeStyle="#c3cad1"; ctx.lineWidth=2.4; ctx.lineCap="round";
       ctx.beginPath(); ctx.moveTo(x+w*0.14,y+dep-H*0.78); ctx.lineTo(x+w*0.34,y+dep-H*0.42); ctx.stroke();
@@ -40695,7 +40924,10 @@ function drawBuilding(b){
       break;
     }
     case "range": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW/2, y+dep-doorH*0.9, doorW, doorH*0.9);
+      {
+        const dW=doorW*1, dX=cx-dW/2, dY=y+dep-doorH*0.9, dH=doorH*0.9;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // target on the wall
       ctx.strokeStyle="#d8cbae"; ctx.lineWidth=1.6;
       ctx.beginPath(); ctx.arc(x+w*0.80, y+dep-H*0.58, 7, 0, 6.283); ctx.stroke();
@@ -40704,10 +40936,13 @@ function drawBuilding(b){
       break;
     }
     case "stable": {
-      // split stable doors
-      ctx.fillStyle=dark;
-      ctx.fillRect(x+w*0.20, y+dep-doorH, doorW, doorH);
-      ctx.fillRect(x+w*0.62, y+dep-doorH, doorW, doorH);
+      // split stable doors - two panels, hinged outward from the middle
+      // rather than both the same way, since real double doors do
+      {
+        const dY=y+dep-doorH, amt=doorSwingAmt(b, cx, y+dep);
+        drawSwingingDoor(x+w*0.20, dY, doorW, doorH, amt, -1, dark);
+        drawSwingingDoor(x+w*0.62, dY, doorW, doorH, amt,  1, dark);
+      }
       ctx.strokeStyle="#6b5636"; ctx.lineWidth=1.4;
       ctx.beginPath(); ctx.moveTo(x+4, y+dep-H*0.52); ctx.lineTo(x+w-4, y+dep-H*0.52); ctx.stroke();
       /* A trough and a bale outside. The split doors were all it had and they
@@ -40733,7 +40968,10 @@ function drawBuilding(b){
       break;
     }
     case "bakery": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW/2, y+dep-doorH*0.85, doorW, doorH*0.85);
+      {
+        const dW=doorW*1, dX=cx-dW/2, dY=y+dep-doorH*0.85, dH=doorH*0.85;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // a squat oven chimney, always smoking - nobody bakes without a fire lit
       const chimEmbed=5, chimTop=roofTop-(CHIM_H-chimEmbed);
       ctx.fillStyle=shade(wallBase,-0.18); ctx.fillRect(cx+w*0.20, chimTop, 6, CHIM_H);
@@ -40779,7 +41017,10 @@ function drawBuilding(b){
       break;
     }
     case "grove": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW/2, y+dep-doorH*0.8, doorW, doorH*0.8);
+      {
+        const dW=doorW*1, dX=cx-dW/2, dY=y+dep-doorH*0.8, dH=doorH*0.8;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // living canopy over the roof
       const gy = y-H-ridgeA*0.75;
       ctx.fillStyle="#4e7040";
@@ -40861,7 +41102,10 @@ function drawBuilding(b){
       break;
     }
     case "observatory": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW/2, y+dep-doorH*0.8, doorW, doorH*0.8);
+      {
+        const dW=doorW*1, dX=cx-dW/2, dY=y+dep-doorH*0.8, dH=doorH*0.8;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       const gy = y-H-ridgeA*0.75;
       ctx.fillStyle=shade(wallBase,-0.35);
       ctx.beginPath();
@@ -40877,7 +41121,7 @@ function drawBuilding(b){
       break;
     }
     case "siege": {
-      ctx.fillStyle=dark; ctx.fillRect(x+w*0.28, y+dep-doorH*1.05, w*0.44, doorH*1.05);
+      drawSwingingDoor(x+w*0.28, y+dep-doorH*1.05, w*0.44, doorH*1.05, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
       // timber frame + a hoist arm off the roof
       ctx.strokeStyle="#6b5636"; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(x+3,y+dep-H+3); ctx.lineTo(x+w-3,y+dep-3); ctx.stroke();
@@ -40923,7 +41167,7 @@ function drawBuilding(b){
       break;
     }
     case "lumber": {
-      ctx.fillStyle=dark; ctx.fillRect(x+w*0.30, y+dep-doorH*0.9, w*0.40, doorH*0.9);
+      drawSwingingDoor(x+w*0.30, y+dep-doorH*0.9, w*0.40, doorH*0.9, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
       // stacked logs against the wall
       for(let i=0;i<3;i++){
         ctx.fillStyle=shade("#7a5a36", i*0.08);
@@ -40968,7 +41212,7 @@ function drawBuilding(b){
        and its live ember are what say "blacksmith" rather than either of
        those two. */
     case "blacksmith": {
-      ctx.fillStyle=dark; ctx.fillRect(x+w*0.24, y+dep-doorH*0.95, doorW*1.1, doorH*0.95);
+      drawSwingingDoor(x+w*0.24, y+dep-doorH*0.95, doorW*1.1, doorH*0.95, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
       ctx.fillStyle="#241d18"; ctx.fillRect(x+w*0.62, y+dep-H*0.42, w*0.24, H*0.42);
       const flick = 0.75+0.25*Math.sin(G.t*3.1+b.id*2);
       ctx.fillStyle="rgba(255,120,50,"+(0.55*flick).toFixed(3)+")";
@@ -41025,7 +41269,10 @@ function drawBuilding(b){
     case "granary": {
       ctx.fillStyle="#c9a24a";
       ctx.fillRect(x+1, y+dep-H, w-2, H);
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.55, y+dep-doorH*0.7, doorW*1.1, doorH*0.7);
+      {
+        const dW=doorW*1.1, dX=cx-dW/2, dY=y+dep-doorH*0.7, dH=doorH*0.7;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       // bold barrel-stave banding - the "it's a grain store" tell
       ctx.strokeStyle="#6b5233"; ctx.lineWidth=2;
       for(let i=1;i<=3;i++){
@@ -41065,7 +41312,10 @@ function drawBuilding(b){
        yet, unlike the Observatory's beacon) are what set it apart, and
        hint at the "moonlit things take a liking to it" flavour text. */
     case "shrine": {
-      ctx.fillStyle=dark; ctx.fillRect(cx-doorW*0.4, y+dep-doorH*0.55, doorW*0.8, doorH*0.55);
+      {
+        const dW=doorW*0.8, dX=cx-dW/2, dY=y+dep-doorH*0.55, dH=doorH*0.55;
+        drawSwingingDoor(dX, dY, dW, dH, doorSwingAmt(b, cx, y+dep), ((b.id|0)%2)?1:-1, dark);
+      }
       ctx.fillStyle="#8d8781";
       ctx.beginPath(); ctx.ellipse(x+w*0.14, y+dep-3, 2.2, 4.5, 0.15, 0, 6.283); ctx.fill();
       ctx.beginPath(); ctx.ellipse(x+w*0.86, y+dep-3, 2.2, 4.5, -0.15, 0, 6.283); ctx.fill();
@@ -87208,6 +87458,35 @@ function unitDoing(u){
   return UNIT_DOING[u.order] || "Waiting for work";
 }
 
+/* ---------- icon-only rendering skin for the compact panel ----------
+   The compact layout (panel-new, _head.html) doesn't get its own set of
+   buttons - it reuses every addBtn call already made across refreshUI's
+   many branches untouched, and just draws them as a small icon instead of
+   a text pill when that CSS class is active (.btn .ic, hidden otherwise).
+   So this table only needs the handful of names a player sees constantly,
+   not one entry per branch: BTN_ICON_MAP for the common plain-text ones,
+   then a fallback that reads a leading glyph off names that already carry
+   one (the trade finds, the discovery-event unlocks, the wall/back/cancel
+   marks - 🌱/🐾/🏚️/🎣/🔍/←/✓/✕ and the rest, scattered through the file).
+   Anything neither covers keeps the ordinary small text button rather
+   than showing a blank or a wrong icon - see .btn.no-icon in the CSS. */
+const BTN_ICON_MAP = {
+  "Gather":"\u{1F33E}", "Attack":"⚔️", "Build / Repair":"\u{1F528}",
+  "Move":"\u{1F6B6}", "Garrison":"\u{1F6AA}", "Remove":"\u{1FA93}",
+  "Follow":"\u{1F463}", "Unfollow":"✋", "Hold":"\u{1F6E1}️", "Holding":"\u{1F6E1}️",
+  "Rest":"\u{1F634}", "Play":"\u{1F3B5}", "Stop":"⏹️", "Villager":"\u{1F9D1}",
+  "Rally point":"\u{1F6A9}", "Load":"⬆️", "Unload":"⬇️", "Replenish":"\u{1F504}",
+  "Send them out":"\u{1F6AA}", "Read the ground":"\u{1F441}️", "Scarecrow":"\u{1F400}",
+  "Military":"\u{1F6E1}️", "Food & Wood":"\u{1F33E}", "Gold & Stone":"⛏️",
+  "Knowledge":"\u{1F4DA}", "Village":"\u{1F3E0}",
+};
+const BTN_ICON_LEADING = /^(\p{Emoji_Presentation}|[←-⯿☀-➿])️?/u;
+function iconForBtn(name){
+  if(BTN_ICON_MAP[name]) return BTN_ICON_MAP[name];
+  const m = BTN_ICON_LEADING.exec(name);
+  return m ? m[0] : null;
+}
+
 function refreshUI(){
   if(BTN_HELD>0){ UI_REFRESH_PENDING=true; return; }
   requestAnimationFrame(()=>{ updateBtnScrollHint(); updateAlmScrollHint(); });
@@ -87224,6 +87503,31 @@ function refreshUI(){
   G._lastBtnsSig = btnsSig;
 
   const cmdrow = $("cmdrow");
+  /* "no group numbers etc" while the build menu is open (29 Sep) - the
+     category picker, the list inside a category, and placing all keep
+     G.uiMode "build" the whole way through (startPlacing, 03b, never
+     touches it), so one toggle up here covers every branch below without
+     repeating it in each. Cleared the same way whenever uiMode is anything
+     else, including the "← Back"/Cancel buttons that set it to "main". */
+  $("cmdbar").classList.toggle("build-mode", G.uiMode === "build");
+
+  /* A cheap, generic icon for the compact panel's collapsed #selinfo (the
+     CSS reads it back via content:attr(data-icon), _head.html) - covers
+     the ordinary cases in one place rather than asking every one of the
+     ~20 branches below to set it individually; anything unusual just
+     falls back to the magnifying glass rather than showing nothing. */
+  {
+    const si = $("selinfo");
+    let ic = "\u{1F50D}";                          // 🔍 magnifying glass - the fallback
+    if(G.wayfarerQ) ic = "\u{1F4AC}";               // a question
+    else if(sel.length > 1) ic = "\u{1F465}";       // several selected
+    else if(sel.length === 1){
+      const e = sel[0];
+      if(e.type && UNITS[e.type]) ic = "\u{1F9D1}";        // any unit
+      else if(e.type && BLDG[e.type]) ic = "\u{1F3DB}️"; // any building
+    }
+    if(si) si.setAttribute("data-icon", ic);
+  }
 
   /* A wayfarer's question outranks whatever is selected. It is a thing the
      village is waiting on an answer to, and burying it behind a selection
@@ -89097,8 +89401,10 @@ function refreshUI(){
 
   function addBtn(name, sub, enabled, fn, lockMsg, hi){
     const el=document.createElement("div");
-    el.className="btn"+(enabled?"":" off")+(hi?" hi":"");
-    el.innerHTML="<span class='n'>"+name+"</span><span class='c'>"+(lockMsg||sub)+"</span>";
+    const ic = iconForBtn(name);
+    el.className="btn"+(enabled?"":" off")+(hi?" hi":"")+(ic?" has-icon":" no-icon");
+    el.innerHTML=(ic?"<span class='ic'>"+ic+"</span>":"")
+               +"<span class='n'>"+name+"</span><span class='c'>"+(lockMsg||sub)+"</span>";
 
     const action = (enabled && fn) ? fn
                  : lockMsg ? ()=>hint(lockMsg)
@@ -90140,6 +90446,69 @@ window.addEventListener("resize", ()=>{ updateBtnScrollHint(); updateAlmScrollHi
 $("menubtn").addEventListener("click", ()=>{
   $("menupanel").classList.toggle("hide");
   syncDiffButtons();
+});
+
+// "top right of the screen that white box is an arrow, you click it and the
+// resources disappear" (29 Sep sketch). Plain two-state toggle - nothing
+// else reads #topbar's visibility, so there's no state machine needed here.
+$("topbarToggle").addEventListener("click", ()=>{
+  const hidden = $("topbar").classList.toggle("hide");
+  $("topbarToggle").classList.toggle("flipped", hidden);
+  $("topbarToggle").title = hidden ? "Show resources" : "Hide resources";
+});
+
+/* The bottom panel's own three states - "you press it once it brings up
+   the full panel, you press it again it hides the panel and goes back to
+   the new small buttons, but if you double click it, it hides all of the
+   bottom row buttons" (29 Sep, correcting an earlier version of this that
+   put "old" between "new" and "hidden" in a one-way chain). So: a plain
+   tap is a straight toggle between 'new' (the compact icon row) and 'old'
+   (today's original full panel, group row and all - both are see-through
+   now, see #cmdbar's own CSS); a double-tap jumps straight to 'hidden'
+   from either; and tapping the same arrow again from 'hidden' always
+   returns to 'new', never 'old'.
+
+   Kept as plain page chrome (a JS closure variable, not a G field): it is
+   not something a save needs to remember, and G gets rebuilt from scratch
+   every match (see newGame in 02b) which would silently reset it
+   mid-session for no reason. */
+let botPanelState = "new";     // "new" | "old" | "hidden"
+let lastCycleTapAt = 0;
+const UI_CYCLE_DBLTAP_MS = 380;
+function renderBotPanelState(){
+  const cb = $("cmdbar"), arrow = $("uiCycleBtn");
+  cb.classList.toggle("panel-new", botPanelState === "new");
+  cb.classList.toggle("panel-hidden", botPanelState === "hidden");
+  arrow.classList.toggle("flipped", botPanelState === "hidden");
+  arrow.title = botPanelState === "hidden" ? "Show this panel"
+              : botPanelState === "old" ? "Back to the compact panel"
+              : "Show the full panel";
+}
+$("uiCycleBtn").addEventListener("click", ()=>{
+  const now = performance.now();
+  const isDouble = (now - lastCycleTapAt) < UI_CYCLE_DBLTAP_MS;
+  lastCycleTapAt = now;
+  if(isDouble){
+    botPanelState = "hidden";
+  } else if(botPanelState === "hidden"){
+    botPanelState = "new";
+  } else {
+    botPanelState = (botPanelState === "new") ? "old" : "new";
+  }
+  renderBotPanelState();
+});
+renderBotPanelState();
+
+/* "the info box should be hidden by default but just have a little icon...
+   click it and a bigger picture comes up" (12 Sep), and later given its
+   own icon in the compact row (29 Sep) - #selinfo itself collapses to that
+   icon in CSS (panel-new, _head.html) and this is the tap that expands it
+   back to the real name/sub/stats it always held. Only means anything in
+   the compact layout; the old full panel never collapses it, so the tap
+   is a no-op there rather than fighting that panel's own layout. */
+$("selinfo").addEventListener("click", ()=>{
+  if(!$("cmdbar").classList.contains("panel-new")) return;
+  $("selinfo").classList.toggle("expanded");
 });
 
 if(document.querySelectorAll){
