@@ -486,6 +486,38 @@
     cursor:pointer;transition:.12s;color:var(--parch);
     font-family:Georgia,serif;font-size:15px;font-weight:600;letter-spacing:.02em;}
   #storybtn:hover{background:#3d332a;border-color:#6b5a48;}
+  /* ---------- the quest button ----------
+     One more 34+8 above the story button, same column, same shape - asked
+     for 27-28 Sep, "a box showing '!' that lights golden when a quest is
+     available". Plain like the story button until something is waiting,
+     then .hi (toggled by syncQuestButton, 07) swaps it gold - the same
+     var(--gold) highlight the rest of the game already uses for "something
+     to look at" (.btn.hi elsewhere in this sheet). */
+  #questbtn{position:absolute;right:8px;bottom:calc(100% + 92px);z-index:11;
+    width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
+    cursor:pointer;transition:.12s;color:var(--parch);
+    font-family:Georgia,serif;font-size:16px;font-weight:700;}
+  #questbtn:hover{background:#3d332a;border-color:#6b5a48;}
+  #questbtn.hi{border-color:var(--gold);color:var(--gold);}
+  /* ---------- the debug button (Test mode only) ----------
+     One more 34+8 above the quest button, same column, same shape - a red
+     border and glyph are the whole difference, which is the point: it
+     reads as the T button's own odd cousin, not a whole new kind of thing. */
+  #debugbtn{position:absolute;right:8px;bottom:calc(100% + 134px);z-index:11;
+    width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+    background:var(--panel-2);border:1px solid #7a3838;border-radius:3px;
+    cursor:pointer;transition:.12s;color:#d97a6a;
+    font-family:Georgia,serif;font-size:15px;font-weight:600;letter-spacing:.02em;}
+  #debugbtn:hover{background:#3d2a2a;border-color:#a85a4a;}
+  #debugbtn.hide{display:none;}
+  #debugscreen .card{max-width:520px;}
+  #questscreen .card{max-width:520px;}
+  #debugtext{width:100%;height:min(46vh,380px);box-sizing:border-box;resize:none;
+    background:#181410;color:var(--parch-dim);border:1px solid var(--line);
+    border-radius:3px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:10.5px;line-height:1.4;padding:8px;margin:10px 0;}
+  #debugcopied{font-size:12px;color:var(--gold);margin-left:10px;}
   /* The story list itself, styled off the logbook's diary rather than
      inventing a second look for the same kind of content - .logsec for the
      day headings, --parch for text, and the logbook's own tone colours. */
@@ -644,6 +676,36 @@
      the flex gap with them, so an empty queue left a band of nothing sitting
      over the group numbers all match. */
   #queuewrap.hide{display:none;}
+  /* ---------- the quest strip ---------- */
+  #queststrip{position:relative;flex:none;margin-bottom:6px;
+    display:flex;align-items:flex-start;gap:9px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:4px;
+    padding:8px 28px 8px 9px;}
+  #queststrip.hide{display:none;}
+  #qs_box{flex:0 0 auto;width:19px;height:19px;margin-top:1px;
+    border:1.5px solid var(--line);border-radius:3px;background:#181410;
+    display:flex;align-items:center;justify-content:center;}
+  #qs_box svg{width:14px;height:14px;overflow:visible;}
+  #qs_box path{fill:none;stroke:var(--gold);stroke-width:3;
+    stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:26;stroke-dashoffset:26;transition:stroke-dashoffset .45s ease-out;}
+  /* The tick draws itself in rather than popping on, so the moment a quest
+     actually completes reads as an event, not a value flipping. */
+  #qs_box.done path{stroke-dashoffset:0;}
+  #qs_text{flex:1 1 auto;font-size:12px;line-height:1.42;color:var(--parch-dim);}
+  #qs_text .qs_name{display:block;color:var(--gold);font-weight:700;
+    font-size:12.5px;margin-bottom:1px;}
+  #qs_x{position:absolute;top:4px;right:4px;width:20px;height:20px;padding:0;
+    background:none;border:none;color:var(--parch-dim);font-size:15px;
+    line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  #qs_x:hover{color:var(--parch);}
+  /* Gold/orange on purpose - asked for by colour, and it doubles as the
+     same "something to look at" cue the rest of the game already uses
+     var(--gold) for, just at button scale rather than a border. */
+  #qs_all{flex:0 0 auto;align-self:flex-end;background:none;border:none;
+    color:var(--gold);font-size:11px;font-weight:600;text-decoration:underline;
+    cursor:pointer;padding:0;margin-top:3px;}
+  #qs_all:hover{color:#f0c264;}
   #queue{display:flex;gap:4px;height:20px;align-items:stretch;
     overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x;}
   #queue::-webkit-scrollbar{display:none;}
@@ -736,9 +798,21 @@
      screen, so it clears the bar at whatever height the bar happens to be
      on this layout - the same reason the canvas measures CMDBAR_H (02e)
      instead of assuming 96 pixels, which is the bug that put the
-     tap-a-resource prompt half underneath it. */
+     tap-a-resource prompt half underneath it.
+
+     THE THIRD max-width TERM IS THE STORY/QUEST/DEBUG BUTTON COLUMN.
+     Centred (left:50%) with no matching reservation, a wide tip and that
+     right-edge column were free to overlap - and did, confirmed on a
+     mobile-width shot the moment a second button (the quest "!") joined
+     the story T in that stack: a tall three-line tip reached the button
+     column's own vertical range and the two sat on top of each other.
+     `calc(100vw - 100px)` keeps the box's right edge at least 50px clear
+     of the screen edge (the column is 34px wide at right:8px, so ~42px is
+     actually needed - 50px is the button width plus a little air), on
+     every viewport, so the column can grow another button deep without
+     this being revisited each time. */
   #tip{position:absolute;left:50%;bottom:calc(100% + 10px);z-index:13;
-    width:max-content;max-width:min(78vw, 560px);
+    width:max-content;max-width:min(78vw, 560px, calc(100vw - 100px));
     display:flex;align-items:flex-start;gap:10px;
     background:linear-gradient(180deg,rgba(50,42,31,.97) 0%,rgba(37,31,24,.97) 100%);
     border:1px solid var(--line);border-top:2px solid var(--gold);
@@ -933,6 +1007,10 @@
        buttons back when that lands. -->
   <button id="mnu_save">Save village</button>
   <button id="mnu_restart">Restart game</button>
+  <!-- Off by default, in-session only (a page reload forgets it, same as
+       DIFFICULTY forgets nothing it does not choose to - this remembers
+       nothing on purpose: it is a debugging aid, not a saved preference). -->
+  <button id="mnu_testmode">Test mode: Off</button>
   <button id="mnu_close">Close</button>
 </div>
 <div id="errbox" class="hide"></div>
@@ -992,6 +1070,14 @@
        #storybtn uses - see the note by #tip in the stylesheet. -->
   <div id="tip"><span id="tiptext"></span><button id="tipx" title="Got it" aria-label="Dismiss">&times;</button></div>
   <button id="storybtn" title="What has been said (last two days)">T</button>
+  <!-- Lights gold when there is a quest to look at - see syncQuestButton. -->
+  <button id="questbtn" title="Quests">!</button>
+  <!-- Test mode only (mnu_testmode, below) - a way to copy the whole live
+       game out as text for a bug report: the save state, the message log
+       and the last error, in one box with a Copy button. Stacked one more
+       42px above the story button, same column. Hidden by default so an
+       ordinary player never sees it - see syncTestModeButton. -->
+  <button id="debugbtn" class="hide" title="Copy the game's state for a bug report">T</button>
   <button id="pausebtn" title="Pause">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/></svg>
   </button>
@@ -1008,6 +1094,17 @@
       <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
       <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="#d9a441" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
     </div>
+  </div>
+  <!-- The quest strip. Asked for 28 Sep, after the first version (a full-
+       screen list) came back "not overwhelming" - one quest at a time,
+       above the group numbers, a checkbox on the left, a close on the
+       top right, the box ticking once the thing is actually done. Same
+       flow-sits-above-groupbar trick #queuewrap uses just above. -->
+  <div id="queststrip" class="hide">
+    <button id="qs_x" title="Close" aria-label="Close">&times;</button>
+    <div id="qs_box"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+    <div id="qs_text"></div>
+    <button id="qs_all">Hint</button>
   </div>
   <div id="groupbar"></div>
   <!-- and the age bar goes in the gap under them, right above the almanac -->
@@ -1252,6 +1349,44 @@
            the splash is opened before the game script has run. -->
       <details class="pn" open>
         <summary>Patch 22.1</summary>
+        <div class="sec">The fisherman drags the boat down first</div>
+        <ul>
+          <li><strong>Taking the rowboat out now has three real beats</strong>, not one glide &mdash; hauled slowly down the bank first, then paddled properly once afloat, before the rod comes out at the fishing ground</li>
+          <li><strong>And the paddle out actually takes longer for a farther fishing ground</strong> &mdash; it used to cross any distance in the same fixed hop, which read as gliding regardless of how far the water actually went</li>
+        </ul>
+        <div class="sec">A quest list</div>
+        <ul>
+          <li><strong>A new &quot;!&quot; button</strong> next to the T button shows what the village still has to do &mdash; nineteen to start, all reachable in the first season: surviving the first night, rebuilding the town centre, raising your first house and farm, catching a fish and a bug, patting a dog, listening to the elder, playing out a real catch from the fishing boat, and more</li>
+          <li><strong>Tap it for one quest at a time</strong>, not a wall of them &mdash; a small strip above the building row, with a box that ticks itself the moment you&#39;ve actually done the thing</li>
+          <li><strong>&quot;Hint&quot; opens the fuller list</strong> &mdash; five quests you haven&#39;t started yet, shown as a riddle rather than telling you outright what to do</li>
+        </ul>
+        <div class="sec">The sheep don&#39;t bounce any more</div>
+        <ul>
+          <li><strong>Sheep keep their calm, settled look while walking</strong> now, instead of the purchased pack&#39;s own happy hop &mdash; it read as a different, more excitable animal than this village&#39;s sheep have ever been</li>
+        </ul>
+        <div class="sec">Spring flowers, and autumn actually leading in</div>
+        <ul>
+          <li><strong>Small flowers now come up in spring grass</strong> &mdash; mostly tiny and varied in colour, with about one in ten bigger and bright enough to catch the eye from a distance, thinning out as the season ends</li>
+          <li><strong>Autumn's ground and grass are noticeably more orange</strong>, both from the season's first day and further still by the middle of it, instead of a wash that barely showed once the grass itself was on top of it</li>
+          <li><strong>Fixed the &quot;no green flash&quot; lead-in from Patch 22.1 never actually firing</strong> &mdash; it watched for winter's last day, but winter is followed by spring, not autumn; only summer ever leads into autumn. The very first moment of autumn now really does open already warm, off a real season change, not just in the test that checked it by hand</li>
+          <li><strong>Four in five of the older trees turn for autumn now</strong>, not one in five &mdash; conifers still can&#39;t, there is no autumn pine in the art, but broadleaf trees overwhelmingly do</li>
+        </ul>
+        <div class="sec">A real bug: Peaceful was not peaceful</div>
+        <ul>
+          <li><strong>Fixed a village going to war with the Ashkin on its own</strong>, without the player ever ordering an attack &mdash; a villager fighting off an ordinary night beast (a wolf, a spider, anything out in the dark) was being read as attacking the Ashkin, since every beast is tagged the same way the Ashkin are so &quot;Attack&quot; can target it. Peaceful now stays peaceful through an ordinary night&#39;s defending, however long the match runs</li>
+        </ul>
+        <div class="sec">A painting no longer crosses water</div>
+        <ul>
+          <li><strong>Fixed a bug where the painter could get stuck carrying a finished picture</strong> and never delivering it &mdash; the house or villager they were sent to could be on the far side of a lake, unreachable on foot however close it looked on the map</li>
+        </ul>
+        <div class="sec">Test mode</div>
+        <ul>
+          <li><strong>A &quot;Test mode&quot; toggle in the menu</strong>, by Restart game &mdash; turns on a red T above the ordinary one that copies out the game&#39;s save state, its recent messages and the last error as text, with a Copy button, for reporting a bug with the actual state attached rather than a description of it</li>
+        </ul>
+        <div class="sec">A body for every bug in the book</div>
+        <ul>
+          <li><strong>Fixed a rare map that could open with no snails anywhere on it</strong> &mdash; every entry in the bug book that rides a snail was unreachable for that whole match</li>
+        </ul>
         <div class="sec">The tavernkeeper reaches everyone</div>
         <ul>
           <li><strong>The tavernkeeper can now walk straight to another specialist</strong> for their round, not just catch them by chance - a shepherd or beekeeper could go the whole match without a drink before, however close their door was</li>
@@ -4063,6 +4198,27 @@
     <h1>What has been said</h1>
     <p id="storycount"></p>
     <div id="storylist"></div>
+  </div>
+</div>
+
+<div class="screen hide" id="questscreen">
+  <div class="card">
+    <button class="cardx" id="btnquestclose" title="Close" aria-label="Close">&times;</button>
+    <div class="kicker">Word gets around</div>
+    <h1>Quests</h1>
+    <p id="questcount"></p>
+    <div id="questlist"></div>
+  </div>
+</div>
+
+<div class="screen hide" id="debugscreen">
+  <div class="card">
+    <button class="cardx" id="btndebugclose">×</button>
+    <div class="kicker">Test mode</div>
+    <h1>The game's state</h1>
+    <p id="debugcount"></p>
+    <textarea id="debugtext" readonly spellcheck="false"></textarea>
+    <button class="go" id="btndebugcopy">Copy</button><span id="debugcopied"></span>
   </div>
 </div>
 
@@ -9469,12 +9625,13 @@ const BLOOM_GROW   = SEASON_LEN * 0.168;   // spring flowers coming up
 const BLOOM_FADE   = SEASON_LEN * 0.131;   // and dying back toward the end
 const TURN_GROW    = SEASON_LEN * 0.187;   // autumn: leaves turning gold
 const FALL_START   = 0.55;  // and start dropping past this point in the season
-/* The ground starts warming toward autumn on winter's LAST DAY, not at the
-   season boundary - asked for directly: the colour should be a lead-in, not
-   a switch. G.autumnLeadIn (03c) carries that day's climb across the
-   boundary as turnAt's own starting point, so the ground is already some
-   way toward orange at the very first moment of autumn rather than green
-   again for a day while turnAt climbs from zero. */
+/* The ground starts warming toward autumn on summer's LAST DAY (the season
+   immediately before autumn), not at the season boundary - asked for
+   directly: the colour should be a lead-in, not a switch. G.autumnLeadIn
+   (03c) carries that day's climb across the boundary as turnAt's own
+   starting point, so the ground is already some way toward orange at the
+   very first moment of autumn rather than green again for a day while
+   turnAt climbs from zero. */
 const AUTUMN_LEAD_TARGET = 0.6;
 
 /* Autumn. `turn` is how golden the leaves have gone, `fall` is how far they
@@ -10935,6 +11092,12 @@ const DIFF = {
              tip:"Quick to expand and quick to react. Expect company from four minutes." }
 };
 let DIFFICULTY = "peaceful";   // persists across restarts - asked to make this the default 24 Sep
+/* Test mode - gates the debug button (#debugbtn, 07) that copies the whole
+   live game out as text for a bug report. Off by default, and forgets
+   nothing across a reload on purpose: unlike DIFFICULTY this is not a
+   preference worth remembering, it is a debugging aid somebody turns on
+   right before they need it. */
+let TEST_MODE = false;
 
 /* Six villager looks. Deliberately subtle: every villager wears the same
    cloth so a settlement reads as one people, and only their face, hair and a
@@ -13516,6 +13679,13 @@ function defaultGameState(){
     firstNightNudged:false,
     // and whether the standing-through-it deed has been settled either way
     firstNightStood:false,
+    /* The "!" quest list (05u) - questsDone is keyed by quest key, questT is
+       updateQuests' own check-throttle timer. Listed here rather than
+       created lazily so a fresh match never starts with yesterday's quests
+       already ticked off. */
+    questsDone:{}, questT:0,
+    // "listen to an elder" (05u) - set the moment the elder is tapped/selected
+    elderHeard:false,
     // the ordinary small things that are about after dark - see updateNightBugs
     nightbugs:[],
     /* The goblin camp, and the campaign against them. `camp` is the one
@@ -15532,11 +15702,20 @@ function bakeTerrainArt(T){
                green for an ochre-orange while keeping its own lights and
                darks, so the patchiness underneath still shows. The wash
                fades in with the season like the rest of this canvas (the
-               draw alpha is autumnAmt, 04c). */
-            const wl = (r+g+b)/765, wk = 0.42;
-            r = r*(1-wk) + 196*(0.55+wl*0.9)*wk;
-            g = g*(1-wk) + 128*(0.55+wl*0.9)*wk;
-            b = b*(1-wk) +  52*(0.55+wl*0.9)*wk;
+               draw alpha is autumnAmt, 04c).
+
+               The target colour (200,150,75) is not a guess - it is
+               sampled off TREE4_AUTUMN, the purchased canopy sprite
+               already standing in every autumn wood, so the ground
+               actually agrees with the trees growing out of it rather
+               than being a second, different orange. Raised from 0.42 to
+               0.56: asked for directly, twice, after a mockup at the old
+               strength still read as barely tinted green - "make autumn
+               the first photo more orange". */
+            const wl = (r+g+b)/765, wk = 0.56;
+            r = r*(1-wk) + 200*(0.55+wl*0.9)*wk;
+            g = g*(1-wk) + 150*(0.55+wl*0.9)*wk;
+            b = b*(1-wk) +  75*(0.55+wl*0.9)*wk;
           }
           const o = (gy*MAPW*SUB + gx)*4;
           aimg.data[o]   = Math.max(0,Math.min(255,r));
@@ -16123,7 +16302,15 @@ function stockEveryShape(){
     /* Where that body belongs - the same table the opening spawn and the
        top-up both use, so a guaranteed one is not dropped somewhere its own
        entries can never name it. */
-    const spot = bugSpotWhere(BUG_BODY_HOME[shape] || null, 200);
+    /* 900, not 200 - measured against seed 1: a water-gated body (snail,
+       dragonfly, mayfly) combines two restrictive tests at once (touches
+       water AND, for most of the tries, near the village) and 200 random
+       tiles over the whole map came up empty for the snail on this one
+       seed, same shape of bug pickTradeFindSpot (05g) already hit and
+       fixed the same way - more tries, not a smarter search, since the
+       spot demonstrably exists (found on a later, unrelated call with
+       different draws from the same seed). */
+    const spot = bugSpotWhere(BUG_BODY_HOME[shape] || null, 900);
     if(!spot) continue;                       // no ground for it on this map
     G.bugs.push(Object.assign({
       shape, key:null, bee:false, hopper:false,
@@ -19553,7 +19740,12 @@ function selectOne(ent){
     hint("A quick tug on the line - " + FISH_BITE_GIFT + " extra food, landed clean.");
     fxWork(ent.x, ent.y-6, "#bcd9e8");
   }
-  if(isAnElder(ent) || ent === G.mcstar){ G.sel = [ent]; refreshUI(); return; }
+  if(isAnElder(ent) || ent === G.mcstar){
+    // the "listen to an elder" quest (05u) - tapping IS listening, the same
+    // reading tapping the Noticeboard already gets for its fact of the day
+    if(isAnElder(ent)) G.elderHeard = true;
+    G.sel = [ent]; refreshUI(); return;
+  }
   /* Clicking a soldier grabs the whole squad of that type, so armies move
      together. Anything civilian stays single-select: a worker is given a job,
      not marched, and a fleet of fishing boats that all selected together sent
@@ -22510,6 +22702,7 @@ function tick(dt){
   updateFeud(dt);
   updateHounds(dt);         // and a hound that cannot get there comes home (05g)
   updateDeeds(dt);          // and the village notices what it has done (05h)
+  updateQuests(dt);         // the "!" list, tier one - a finite starter chain (05u)
   updateVillageDogs(dt);    // and the dogs get on with their day (05i)
   watchPupCollector();      // and a pup nobody is coming for is a pup lost (05g)
   updateChatFacing(dt);     // and whoever is being talked at turns to listen (05j)
@@ -23162,10 +23355,16 @@ function tick(dt){
   if(G.season==="autumn"){
     G.turn = turnAt(G.seasonT, G.autumnLeadIn||0);
     G.fall = fallAt(G.seasonT);
-  } else if(G.season==="winter" && G.seasonT >= SEASON_LEN-DAY_LEN){
-    /* winter's last day: the ground starts warming here, so the first
-       moment of autumn is not a green field that only turns orange over
-       the day that follows (AUTUMN_LEAD_TARGET, 01f) */
+  } else if(G.season==="summer" && G.seasonT >= SEASON_LEN-DAY_LEN){
+    /* summer's last day - the season immediately before autumn
+       (SEASON_ORDER: summer, autumn, winter, spring) - is where the ground
+       starts warming, so the first moment of autumn is not a green field
+       that only turns orange over the day that follows (AUTUMN_LEAD_TARGET,
+       01f). This used to check "winter" here, which can never be true the
+       day before autumn - winter is followed by spring, not autumn - so the
+       lead-in silently never fired in a real match; only the test caught it,
+       and only because it forced G.season by hand instead of letting the
+       real transition run. */
     G.autumnLeadIn = AUTUMN_LEAD_TARGET * (G.seasonT-(SEASON_LEN-DAY_LEN))/DAY_LEN;
     G.turn = G.autumnLeadIn;
     G.fall = Math.max(0, G.fall - dt/25);
@@ -27267,7 +27466,25 @@ function tryFishermanGift(u){
 const BOAT_TRIP_CHANCE  = 0.05;   // rolled per second, only while settled and waiting
 const BOAT_TRIP_CATCHES = 3;        // rounds actually played and landed sends it home early
 const BOAT_TRIP_MAX     = 80;       // seconds left on autopilot alone - "maybe half a day"
-const BOAT_ROW_TIME     = 1.6;      // seconds, the cosmetic hop each way
+/* FLOOR, not the actual duration any more - asked for again the same
+   night: "the rowboat shouldn't just glide over the water quickly, it
+   should slowly get to the fish." A flat 1.6s regardless of how far the
+   hunted shoal actually was (BOAT_HUNT_MIN..MAX, 120-420px - a 3.5x
+   range) read as a glide precisely because the boat crossed 420px exactly
+   as fast as 120px. The paddle leg now takes distance/BOAT_PADDLE_SPEED,
+   with this as the minimum so a shoal right at the launch does not row
+   unrealistically fast either. See advanceBoatHop, just below. */
+const BOAT_ROW_TIME     = 1.6;      // seconds, floor for the paddle leg
+const BOAT_PADDLE_SPEED = 45;       // px/sec - slower than a villager's own 56 walking speed
+/* The door<->launch leg, over the bank rather than open water - asked for
+   28 Sep, by name: "drag it SLOWLY from the house into the water". Longer
+   than the open-water row on purpose, not just differently drawn - see
+   u.boatDragging, set in advanceBoatHop just below. This one stays a flat
+   time rather than distance-scaled: boatLaunchSpot's own ring search (just
+   below) keeps the launch close to the house on purpose, so the leg is
+   short and roughly the same length every time regardless of the shoal
+   hunted afterward. */
+const BOAT_DRAG_TIME    = 2.6;      // seconds, the door<->launch leg specifically
 /* A beat at the water's edge before they row on - asked for 23 Sep:
    "get the boat, [it sits at] the edge of the water, start rowing...
    to the fish." Without it the two outbound hops (door->launch,
@@ -27341,7 +27558,24 @@ function pickBoatShoal(launch){
 function advanceBoatHop(u){
   if(u.boatQueue && u.boatQueue.length){
     const next = u.boatQueue.shift();
-    u.rowFrom = { x:u.x, y:u.y }; u.rowTo = next; u.rowT = BOAT_ROW_TIME;
+    /* DRAGGING (over the bank, boat not yet properly afloat) versus
+       PADDLING (open water, out to the shoal) - asked for 28 Sep: "drag
+       it slowly from the house into the water, then paddle the boat
+       before stopping". Same reference-check idiom boatPauseNext already
+       uses just below, for the same reason: `next` IS u.boatDoor/
+       u.boatLaunch, not a copy, so this is exact rather than a floated
+       x/y comparison. Outbound, the drag leg is the FIRST one (door -
+       where u.x/u.y already are - to the launch); inbound it is the
+       LAST one (launch to the door). Both are identified by the door
+       being one end of the leg; u.boatOutbound tells "door to launch"
+       (dragging out) apart from "launch to door" (dragging back) from
+       the shared "next===u.boatLaunch" the two would otherwise agree on
+       with a paddle leg that also touches the launch (the inbound one,
+       shoal to launch). */
+    u.boatDragging = (next === u.boatDoor) || (next === u.boatLaunch && u.boatOutbound);
+    u.rowFrom = { x:u.x, y:u.y }; u.rowTo = next;
+    u.rowT = u.boatDragging ? BOAT_DRAG_TIME
+           : Math.max(BOAT_ROW_TIME, Math.hypot(next.x-u.x, next.y-u.y) / BOAT_PADDLE_SPEED);
     /* Flagged here rather than tested by position once landed, because
        `next` is the very object u.boatLaunch points at (the outbound
        queue is built as [u.boatLaunch, {the shoal}]) - a reference check
@@ -27409,7 +27643,7 @@ function endBoatTrip(u){
   u.boatPhase = null; u.boatQueue = null; u.boatOutbound = null;
   u.boatHouse = u.boatDoor = u.boatLaunch = u.boatShoal = null;
   u.boatWalkT = 0;
-  u.boatPauseT = 0; u.boatPauseNext = false;
+  u.boatPauseT = 0; u.boatPauseNext = false; u.boatDragging = false;
   /* Left over from "fishing" (still "gather" at the hunted shoal, which is
      the ordinary code for staying an active order) rather than cleared
      when the trip started coming home - the gather tick would otherwise
@@ -28206,6 +28440,18 @@ function catchFish(u, tier){
   // three played rounds is what actually sends a boat trip home early -
   // see updateFishermanBoat's own comment for why passive trips never do
   if(u.onBoat) u.boatCatches = (u.boatCatches||0) + 1;
+  // the "catch a fish at night" quest (05u) - moonlitCatchActive (01f) is
+  // the same "is this actually a moonlit catch" check the night bonus
+  // itself uses, not a separate guess at what counts
+  if(u.p===P_YOU && moonlitCatchActive()) pl.nightFishCaught = true;
+  /* The "play the fishing game, on the boat" quest (05u) - asked for 28
+     Sep, specifically the PLAYED game, not an autopilot bite. G.fishGame
+     is only ever set while a real round is under way (startFishGame) and
+     is still the live one here - resolveFishRound calls catchFish with it
+     not yet cleared - so checking it apart from u.onBoat is what actually
+     tells a tapped-out round on the boat apart from the boat's own
+     autopilot idly reeling one in while nobody was watching. */
+  if(u.p===P_YOU && u.onBoat && G.fishGame && G.fishGame.unit===u) pl.boatPlayCaught = true;
 
   if(!pl.fishLog) pl.fishLog = {};
   const entry = pl.fishLog[species.key] || (pl.fishLog[species.key] = { count:0, best:0 });
@@ -28877,8 +29123,22 @@ function dealDamage(src, t, dmg, cls){
      being read as the player starting a war. Aggression is going to their
      side of the map or laying into their buildings; shooting somebody who
      walked onto your doorstep is not. */
+  /* NOT A NIGHT BEAST. The comment above already said "a wolf or a night
+     beast is not the player picking a fight" - the check underneath it
+     never actually said so. Every beast is tagged p:P_AI on purpose, with
+     no side of its own, purely so "Attack" has something to target
+     (trySpawnRaid and friends, 01c) - and this check read that same tag
+     as "an Ashkin unit". A villager fighting off a spider or a wolf was
+     declaring war on the Ashkin on the spot: the whole army's own
+     first-push hold lifts (aiThink, 04b), and a village that never
+     ordered an attack on anybody finds itself fighting a real war a few
+     days later with no idea why. Reported directly: "the enemy attacked
+     me and wiped me out, i hadn't attacked them first." Measured with a
+     player that never once orders an attack (attackArmy: Infinity in
+     player-bot.js): peaceBroken went true by day 8 all the same, off a
+     villager killing a spider, and the village was gone by day 13. */
   if(DIFFICULTY === "peaceful" && !G.peaceBroken && dealt > 0 &&
-     src && src.p === P_YOU && t.p === P_AI){
+     src && src.p === P_YOU && t.p === P_AI && t.kindTag !== "beast"){
     let aggression = (t.kind === "bldg");        // their buildings are never "defence"
     if(!aggression){
       let nearMine = 1e9;
@@ -31422,7 +31682,13 @@ function draw(){
   ctx.drawImage(G.terrainCanvas,
                 x0*SUBT, y0*SUBT, (x1-x0)*SUBT, (y1-y0)*SUBT,
                 x0*TILE, y0*TILE, (x1-x0)*TILE, (y1-y0)*TILE);
-  const autumnAmt = Math.min(1, (G.turn||0)*0.55 + (G.fall||0)*0.65);
+  /* 0.70/0.72, not 0.55/0.65 - asked for directly, twice, after the ground
+     was still barely orange at full turn: "make autumn the first photo
+     more orange and the middle of autumn even more orange". Turn alone
+     (no leaf-fall yet) now carries most of the way there by day one; fall
+     stacking on top by late season pushes it to fully the baked colour,
+     which is right for a wood standing bare-branched into winter. */
+  const autumnAmt = Math.min(1, (G.turn||0)*0.70 + (G.fall||0)*0.72);
   if(autumnAmt > 0.01 && G.terrainAutumn){
     ctx.globalAlpha = autumnAmt;
     ctx.drawImage(G.terrainAutumn,
@@ -31437,6 +31703,7 @@ function draw(){
                   x0*SUBT, y0*SUBT, (x1-x0)*SUBT, (y1-y0)*SUBT,
                   x0*TILE, y0*TILE, (x1-x0)*TILE, (y1-y0)*TILE);
     ctx.globalAlpha = 1;
+    drawSpringFlowers(x0, y0, x1, y1);
   }
   if(G.snow > 0.01 && G.terrainWinter){
     ctx.globalAlpha = G.snow;
@@ -34389,22 +34656,25 @@ TREE_SWAY_FRAMES[5].src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAD
 const TREE_STUMP = new Image(); TREE_STUMP.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADOElEQVR42u3bsUpbURgH8K+hgk+ggy1kMdlScO5UMO6lT+CSpYOP4tDFJU8g7ip06iw0m3ERrIM+QSBgO51wcntvvBWMufb3A1GvNyrX73/O+e49RgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD1vXEJlm/jXe931dfuf438TQTg/yp6YRCA/67wfxx9qnzNx8F3QRCA1xWAVPDji9sYXT9ERMSXz+9jfHE7Ozc/XgyCEAhAY4t/OOhGZ2crjk9uotduRWdnaxaG9HGSApGOpxAIwPNouQTPLy/ysoLPZ4Gi4aD75B6Cx711CZan127NjfrFMFSFBAFotFT0nZ2tyhG/uP6fD8Oli6gHaPYdoEV3fapCExGxf3SpERaA5gbgYG87Dk+vZscO9rbnzslH/OOTm9lSKS/+4aAb+0eXAmAJ1FypmR1dP0Sv3Zq9TyN9WgKl4k9hyT8n3AVqonzUryroRYWeL4MQgMZKo3yVfKlU9zUIwEo3wGVF/diIXzWDeBYgAK929E/3/vPziv0AAtDIDXB5IZcFoezBVzpWnEHMAgLQyN2fKQSHp1eVTW3duz4bm53djc3OrqstAKtT+Jud3VT8B3vb/7xkKXs6XJwZZt9zbf0s/UxXXgBWovhTUUbJ/f9UyGl0rwpHVcNc+iBNCARgFYs/PfCqKuayXqDsfwKqmt9euzX7GXO/AwLwIsUfETGd9GM66ZcVf76MKa79R9cPc2/5a1MoqnqC4aAbefCEQACW7v5ufB41tj9Eza3S6fwUlGJfUGygiyEg7AV6qRCkETgVaL50GV/c/jX6p/1Ah6dX9YMynfRjbf3M1oiwG3SVe4Gygs53di46tvDc6aT/1NkIS6Cl9QJ1NrPlx4qNb50Z4f5ufJ6KXvGbAVYnBKmIv344qxrR5wKRBabsNVWjvqIXgGaEobAs2v/2s//czTcCsPIzhGIXAIFQ+AJAeSgEAAAAAAAAAAAAAAAAoNwfv3pUTK0/S8UAAAAASUVORK5CYII=";
 
 /* ---------- sheep, Tiny Swords Update 010 "Happy Sheep" ----------
-   Two full sheets rather than per-frame images: each is a single row of
-   128x128 frames, so one Image and a sub-rect drawImage per frame is
-   enough - Idle is the standing/grazing breathe loop (8 frames), Bouncing
-   is the happy hop used while walking (6 frames), tied to the same gait
-   phase (s.walk) the old procedural legs used. Both face LEFT by default,
-   opposite the flock's own convention (face>=0 = moving right, no flip) -
-   drawSheep mirrors it back to match. See drawSheep, 05n, for how these
-   are picked and why the up/down/away views and the shorn look stay
-   hand-drawn - this pack only has the one facing angle and no shorn
-   variant. */
+   One sheet: a single row of 128x128 frames, so one Image and a sub-rect
+   drawImage per frame is enough - the standing/grazing breathe loop (8
+   frames). Faces LEFT by default, opposite the flock's own convention
+   (face>=0 = moving right, no flip) - drawSheep mirrors it back to match.
+   See drawSheep, 05n, for how it is picked and why the up/down/away views
+   and the shorn look stay hand-drawn - this pack only has the one facing
+   angle and no shorn variant.
+
+   The pack's other sheet, "Bouncing" (a 6-frame happy hop for walking),
+   was tried and dropped 27 Sep: "the new sheep don't need a jumping
+   animation" - a hop reads as a different, more excitable animal than
+   SHEEP_SPD=16 and this file's own "a sheep in a hurry is not a sheep"
+   suggest. Idle plays whether the sheep is moving or not now; the whole-
+   sprite `bob` translate in drawSheep (tied to `s.walk`, same phase the
+   old procedural legs used) still gives walking its own motion. */
 const SHEEP_IDLE_SHEET = new Image();
 SHEEP_IDLE_SHEET.src = "data:image/png;base64,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";
-const SHEEP_BOUNCE_SHEET = new Image();
-SHEEP_BOUNCE_SHEET.src = "data:image/png;base64,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";
-const SHEEP_SPRITE_FRAME = 128;    // px, one frame square on either sheet
-const SHEEP_IDLE_N = 8, SHEEP_BOUNCE_N = 6;
+const SHEEP_SPRITE_FRAME = 128;    // px, one frame square on the sheet
+const SHEEP_IDLE_N = 8;
 
 /* ---------- Spring tree, "exterior_pack_premium_version" Grassland/Spring ----------
    Asked for 24 Sep, the one piece worth taking from the seasonal packs (the
@@ -35158,12 +35428,29 @@ function snowCoat(img){
   if(!w || !h) return null;                    // not decoded yet: try again next frame
   c = document.createElement("canvas"); c.width = w; c.height = h;
   const x = c.getContext("2d");
-  x.filter = "brightness(2.5) saturate(0.08)";
+  /* Asked for 28 Sep, town centre: "doesn't need to completely turn white
+     in winter, just be covered in snow" - then, once icicles were pointed
+     out as already hanging correctly off every building's eaves
+     (drawIcicles, 05f), narrowed further: "go back to the roof being
+     covered in snow[,] and icicles" - the roof, not a wash that still
+     reached down into the walls. The old gradient only tapered from 1.0
+     alpha at the top to 0.55 at the very bottom - barely a taper at all -
+     so the whole building washed out near-white, roof AND walls AND door
+     alike. This is now a hard-ish cutoff: solid over roughly the roof's
+     own share of the sprite, gone by just over a third of the way down,
+     nothing at all below that - walls keep their real colour, only the
+     roof reads as snow-capped. Brightness/saturation eased back too
+     (2.5/0.08 -> 1.55/0.2) so a coated pixel reads as "this colour, but
+     snowy" rather than flat white. */
+  x.filter = "brightness(1.55) saturate(0.2)";
   x.drawImage(img, 0, 0, w, h);
   x.filter = "none";
   x.globalCompositeOperation = "destination-in";
   const g = x.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(0.55, "rgba(0,0,0,0.92)"); g.addColorStop(1, "rgba(0,0,0,0.55)");
+  g.addColorStop(0,    "rgba(0,0,0,0.9)");
+  g.addColorStop(0.22, "rgba(0,0,0,0.78)");
+  g.addColorStop(0.34, "rgba(0,0,0,0.1)");
+  g.addColorStop(0.4,  "rgba(0,0,0,0)");
   x.fillStyle = g; x.fillRect(0, 0, w, h);
   SNOW_COATS.set(img, c);
   return c;
@@ -35171,7 +35458,11 @@ function snowCoat(img){
 function snowOn(img, x, y, w, h){
   if(!(G.snow > 0.15)) return;
   const c = snowCoat(img); if(!c) return;
-  ctx.globalAlpha = Math.min(1, (G.snow-0.15)/0.6) * 0.92;
+  // clipped to the roof now (the gradient above), so this can afford to
+  // read as a real cap of snow rather than a faint dusting - was 0.92
+  // (whole sprite, too strong) then 0.62 (whole sprite, still too weak
+  // once actually confined to just the roof share)
+  ctx.globalAlpha = Math.min(1, (G.snow-0.15)/0.6) * 0.8;
   ctx.drawImage(c, x, y, w, h);
   ctx.globalAlpha = 1;
 }
@@ -35278,13 +35569,6 @@ SPR_FX.heal = new Image(); SPR_FX.heal.src = "data:image/png;base64,iVBORw0KGgoA
    eight 74x64 frames of leaves coming down, laid over a gold Farm 4 Seasons
    tree in autumn (drawNodeBody). Logged in ASSET_LOG.md. */
 const FALL_LEAVES = new Image(); FALL_LEAVES.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlAAAABACAYAAADVq0n3AAAEs0lEQVR42u3dLW9UWRgH8GdIkP0ApBMEekVNxZoKkrUVKGRtwWL6CTC13bWVVRWjNmmCwCAGgRiFbNjcD8AHuKhLNgSmM9y38/L7KRKStjlz557/fc5zzo0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAkXZ0dt3c3562RAABS9CjVP+zrl/9CiBI2AaCKAHV3c95enR23Q4UohE0AKDpA3d2ct0OEntfX60WzaeLFm9XCRyRsAkDRAWrISfz19brY8DRklU7YDEueAOQdoF68WS2aTVN0+EmlSldL2AxLnoKm8QJq6IEymVtqS61K53MQNI0XUM0uvFKp0s1TpSt1yVPQ9IAEsLOLk6P29vLUk16hbi9P29vL01GDQSnhacxxMv7Gy3InRDkVqIuTo/b49KlPruCwqUoXSVQ7Shn/sat02hcsdyJATVZZ6PMz3r7/tGg2zfef5yMsM2yajATN1JeDsdyJADXZZH6wPPz+776T63p1b+u+sFk94ckknVOVztEr0CNEdX0bRiNGq9L9bNyNLKE3iRl66eh//ZozwxLe2/efFp///Tjpk0dOPUBDVul+HHeXug0KoUpHqNL1CZpzXb/dSgKVN5FPeTPreoC6UBIZLLm9+/tDHCwPQ6O8njFBk9BLp5fOQwBz3+hz2vExVyk9l0lxjGXOH8vlwsHD14kxEjCjotYKo0C1NzOjUEbQ/H8f3Vifa+7XyxThRtAUMIGBb9waEYUomxHKDpgeTARMYKQnXzdW1brSd1alvEQjYPouAYW/fmPKs0egpkqd71VaS57oFSPswostOznWq/uddwvUekKwkBlFHFC6Xt0n/TqK1HbtpDpRjnV0iJBp1ysC1C+/TD+72exz3tCQ4Sm3p5gnfzzZ6WbtNRTph6i/Xv5je3HGx4k4OmTe8+m8KYHqAlR3s+nzZRrq7JGLk6P2+as/s9oK22yancKm8JR+iDIK+Vfs5jjgN7fPb6yQ6bVcRI3H/k9Z7r46O97ab9L9fw5PMfuO29DLdzlU6yxzaqoO5w2FvrrIbuflVA8IKnYZj9PUN8JuS/BDISqlD22OyeKhL3Auu7P22c1Z63u8HBlS9vEHOR38y7TzkCMy0glRj3Jauti2pJVS0+wQS5x9xuhXN99uqeJgeZjsE4xlzhi8l06lLrJ6b1+zafTWee/i1t/RtcCoVj7MewQzKh/PscS575NJCmO5bYzmXuZMfdnzd48Mqa1qpUoHEHo9BE2HUva5xn4ndNV6sK9KnQdqSGqydMGTUnjap+Ezp00KJp1+gbHWnjrXMyQ8WbrYiYR2ZO3brDv19euVSPNcY7VV6jQiQ8x/Enkk0OSb82sBaqvSpXKG0q7X59SbFA6Wh7F89ji7azj3a2yo8+lyCU99GmyFLyik1JrzC1RV6SwBpPq37ROKSlnqDBU6DfpQ60Fmud3Aa2zwLaHC4VyiNIJfroEt56DpXgWqClX+3TlW61Q25g1QqZ8b5vsOgGqdfguTPYC5BBNjFLGT1M0B4w++p0Bh/VduCj4HIBQPAAAPF1HrOVCAmyOAF/sCCFEAAAAAADCib6CcvVRSuqmjAAAAAElFTkSuQmCC";
-/* PURCHASED ASSET: Farm - 4 Seasons 16x16 Tileset (antarcticbees), fence gate
-   animations: gate_spring_summer_autumn-Sheet and gate_winter-Sheet (four 16px
-   frames: shut, opening, open). One stands at the front of every finished
-   field and opens when somebody comes up to it (drawFarmGate, 04d). Logged in
-   ASSET_LOG.md. */
-const FARM_GATE = new Image(); FARM_GATE.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAACm53kpAAACAElEQVR42u2VsUoDQRCG/ztCzuKWlRBQkAhCQJJCrEwhWFmlE2x8A1sfwzfwDSztUtmm0CpYXAgIglGIcBwsm8I0noXsOXe5292LiY1OtTd73+zM7Mws8C9/W5zLi9MYAAb9ANf3gaM2lP5pNIYIZe7eoB9g/7CNLE/3AaRYW/5pNMZV787Jc9rEm4TyrgqSbp53O/GgHyR6EUmcdzvx2UE7Vv9RJssrVkQSvM5AORteJV0nRbytKMalyqONZkyDBjDnSLfZiIuMKl6xSrLfRj6Uv9YCbl72lpn9PFs2vC5py7p9AHB3dhulDVCmiNcl0Yb/6fm2fKoCJryF4L2tDWK6fVx4A5TndZZibG5wwlsQoTS2zFIrgAba/BigvfY1uXmNpYIQoYS3d5KbnCzPa98crzP4z7faCqE8PdO2tRaZGYpxbQFeZ5g93GDyEhr7lOp1ztkOx1XyqQRMpZc4TI1PpZesN8Ww0CDlKUd5nWT5X3kF6MeEt/DqdxY2RnkaiM9m1nxe0lcpFXrjm3KIrfWqsc/y1pQXhjLV8VivGoMv4sv2/1wF0JvSOaEOo8OO8lPpQUQSPpuh9zh2eo9jpwxvqpoivuzs4DWGiohkytB3Jr1k7TNARLNEr3PkS+chG7RtID/lyyaiQg3NHfqWD3ZZI05N+iLecoIvi1/kBfkEYovSJB1bn1cAAAAASUVORK5CYII=";
-const FARM_GATE_WINTER = new Image(); FARM_GATE_WINTER.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAACm53kpAAAB/ElEQVR42u2WsUoDQRCG/zsP4SDLSlJoIaKihBAEEasUgkUqwVp8A8En8QV8Ax9ASGVhlzIEQpA0eojFFV5g2SIgylnInnOXu929JNroVHuz+WZnZmdmA/zL3xbn6vIsBoB+d4ib3sBRG0r/NHqGiGTuXr87xH6riSxP9wGkWFv+afSM67uuk+e0iTcJ5V0VJN28aLfifneY6MVY4qLdis8P9mL1O8pkecWKsQSvMVDOhldJ10kRbyuKcanyaHUnpkEDmHLkZHMzLjKqeMUqyX4b+Uj+Wgu4edlbZPbzbNnwuqQt6vYBwN2qb5Q2QJkiXpdEG37e8235VAWEvIHhR10bhNw+LrwByvMaSzE2NxjyBkQkjS2z0Aqgge6+DdBcGn0FUGWpIEQksXxwmpucLM+r3xyvMbDHe22FUJ6eadtas8wMxbi2AK8xvPVuEb68GvuU6nXO2Q7Hn+RTCZATL3GYGpcTL1mviYdCg5SnHOV1kuV/5RWgHyFv4GXlcGZjlKeBMP/dms9L+k+KR298bfKA9Ypv7LO8NeWFoUx1PCq+Mfgivmz/T1UAvSmdE+owOuwoLycexFiC+e/oBIHTCQKnDG+qmiK+7OzgVQZPjGXK0HcmvWTN/LRe58iXzkM2aNtA5uXLJsKjhmwOVX+HU5O+JD/1UiyIn+UF+QQ+FNFKFJIu8AAAAABJRU5ErkJggg==";
 /* PURCHASED ASSET (blended): the FIRST-AGE TOWN CENTRE. Our own pyramid roof
    shape, drawn with the Farmer_House_1 roof tiles from Modern_Farm_v1.2
    (Props_and_Buildings_48x48) gradient-mapped onto our thatch gold, over that
@@ -35366,6 +35650,97 @@ function drawLeafCarpets(x0, y0, x1, y1){
       } else {
         ctx.drawImage(FALL_GROUND, rx, ry, rw, rh, c.x-dw/2, c.y-dh/2, dw, dh);
       }
+    }
+  }
+  ctx.globalAlpha = 1;
+  ctx.imageSmoothingEnabled = true;
+}
+
+/* DAISIES AND SMALL SPRING FLOWERS. Asked for directly: "spring should be
+   sprinkled with daisys, and coloured flowers small". Checked the purchased
+   packs first - no daisy or ground-flower sprite in any of them, only grass
+   tufts with no petals and tree blossom, which is a different thing at a
+   different scale - so this is hand-drawn, the same way the leaf carpets
+   above and the season piles are: small, cheap shapes, not a sprite.
+
+   Same placement trick as leafCarpetAt (no stored state, a hash over small
+   ground blocks), but at 2 tiles rather than 4 - flowers want to be
+   numerous and small, not occasional and large like a leaf drift - and
+   gated on G.bloom rather than a season fraction, so they come in and go
+   out exactly with the flowers already tinting the ground (bloomAt, 01f):
+   thin at the edges of spring, thick in the middle, gone by summer.
+
+   ONLY A TENTH READ FROM ACROSS THE FIELD - "maybe only 10% viewable from
+   a distance, the rest smaller, and varied in size and colour". Everything
+   else is a small fleck that adds texture up close without turning the
+   whole field into a wall of flowers when zoomed out. */
+const SPRING_FLOWER_COLS = [
+  ["#fdfaf0","#e8c23a"],   // white daisy, yellow heart - the common one
+  ["#fdfaf0","#e8c23a"],   // twice, so it stays the ordinary one (see HONEY_GIFTS)
+  ["#f4dce8","#e8a4c0"],   // pink
+  ["#e6d8f5","#b489d6"],   // violet
+  ["#fff4d0","#f0c94a"],   // pale yellow
+  ["#f0c9dc","#c9536a"]    // a deeper pink, the rarest
+];
+function springFlowerAt(bx, by){
+  const h = (k) => { const v = Math.sin(bx*211.7 + by*97.3 + k*61.1)*43758.5453; return v - Math.floor(v); };
+  if(h(1) > 0.30) return null;
+  const big = h(2) < 0.10;                        // the tenth that reads from a distance
+  return {
+    x: (bx*2 + h(3)*2)*TILE, y: (by*2 + h(4)*2)*TILE,
+    col: SPRING_FLOWER_COLS[Math.floor(h(5)*SPRING_FLOWER_COLS.length) % SPRING_FLOWER_COLS.length],
+    // r is a screen-pixel radius, not a tile fraction - the first version left
+    // this at ~0.5-1.8px, which is sub-pixel at TILE=34 and drew nothing
+    // visible at all despite every flower actually being placed and painted
+    r: (big ? 1.3 + h(6)*0.5 : 0.45 + h(6)*0.55) * 6,
+    petals: h(7) < 0.5 ? 4 : 5,
+    a: h(8)*6.283, big,
+    alpha: big ? 0.95 : 0.55 + h(9)*0.35
+  };
+}
+function drawSpringFlowers(x0, y0, x1, y1){
+  const fade = G.bloom||0;
+  if(fade <= 0.01) return;
+  ctx.imageSmoothingEnabled = false;
+  for(let by=Math.floor(y0/2)-1; by<=Math.ceil(y1/2); by++){
+    for(let bx=Math.floor(x0/2)-1; bx<=Math.ceil(x1/2); bx++){
+      const f = springFlowerAt(bx, by);
+      if(!f) continue;
+      const tx = Math.floor(f.x/TILE), ty = Math.floor(f.y/TILE);
+      if(tx < 2 || ty < 2 || tx >= MAPW-2 || ty >= MAPH-2) continue;
+      if(G.terrain[ty*MAPW+tx] >= 3) continue;          // grass only, not water or sand
+      if(!exploredTo(P_YOU, f.x, f.y)) continue;
+      let covered = false;
+      for(const b of G.bldgs){
+        if(Math.abs(f.x-b.x) < b.w*TILE/2 + 6 && Math.abs(f.y-b.y) < b.h*TILE/2 + 6){ covered = true; break; }
+      }
+      if(covered || blocked(f.x, f.y, null, false)) continue;
+      ctx.globalAlpha = f.alpha*fade;
+      /* Pale petals over a busy green/yellow grass weave read as nothing -
+         measured directly, not guessed: a 4.5px-radius flower was there and
+         filling (confirmed via a fill-call counter) but invisible in a real
+         screenshot. Same fix as every other pale prop in this game
+         (feedback_pale_prop_contrast): a dark outline UNDER the fill, so the
+         shape reads against grass, snow or sand instead of matching
+         whichever one happened to be on screen. */
+      ctx.fillStyle = "rgba(35,28,20,.55)";
+      for(let k=0;k<f.petals;k++){
+        const a = f.a + k/f.petals*6.283;
+        ctx.beginPath();
+        ctx.ellipse(f.x + Math.cos(a)*f.r*0.85, f.y + Math.sin(a)*f.r*0.85,
+                     f.r*0.7, f.r*0.5, a, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.fillStyle = f.col[0];
+      for(let k=0;k<f.petals;k++){
+        const a = f.a + k/f.petals*6.283;
+        ctx.beginPath();
+        ctx.ellipse(f.x + Math.cos(a)*f.r*0.85, f.y + Math.sin(a)*f.r*0.85,
+                     f.r*0.55, f.r*0.38, a, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.fillStyle = f.col[1];
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r*0.4, 0, 6.283); ctx.fill();
     }
   }
   ctx.globalAlpha = 1;
@@ -36477,21 +36852,26 @@ function drawNodeBody(n){
        fruit (the Orchard's grafted trees actually yield food), the
        moonTonight glow (marks a tree harvestable for moonstone tonight),
        and drawTreeFire (a tree can be on fire). */
-    /* A MIXED FOREST, not a monoculture that all changes costume together -
-       asked for 23 Sep, second thoughts on the first version of this (which
-       swapped every single tree to a deciduous look every autumn): real
-       conifers do not turn, so a whole forest doing it in lockstep the
-       instant the season ticked over was always going to read as a wardrobe
-       change rather than a season passing. Roughly one tree in five is the
-       round deciduous species instead (Tree3/Tree4, Free Pack - see the
-       comment above TREE3_FRAMES) - a stable hash of the tree's own id, not
-       re-rolled per frame or per draw, so a given tree is reliably one
-       species for its whole life. The conifer majority never recolours and
-       keeps exactly what it already had, snow included; the deciduous
-       minority is green/gold (Tree3) outside autumn and swaps to the fully
-       autumn Tree4 only in autumn. */
+    /* MOSTLY A CHANGING FOREST, not a monoculture that all changes costume
+       together - asked for 23 Sep, second thoughts on the first version of
+       this (which swapped every single tree to a deciduous look every
+       autumn): real conifers do not turn, so a whole forest doing it in
+       lockstep the instant the season ticked over was always going to read
+       as a wardrobe change rather than a season passing.
+
+       Raised from one tree in five to four in five on 27 Sep - "all of the
+       trees need to be autumn colours, all of them" - as far as that can
+       honestly go: a real pine has no orange to turn, and no purchased
+       pack in this project has an autumn-pine sprite to fake one with, so
+       a genuine conifer minority is what "all of them" becomes once
+       nothing is invented that was never bought. A stable hash of the
+       tree's own id, not re-rolled per frame or per draw, so a given tree
+       is reliably one species for its whole life. The conifer minority
+       never recolours and keeps exactly what it already had, snow
+       included; the deciduous majority is green/gold (Tree3) outside
+       autumn and swaps to the fully autumn Tree4 only in autumn. */
     const mf = modernTreeFor(n) || seasonTreeFor(n);   // a Modern Farm or Farm 4 Seasons tree, or null (MF_TREES)
-    const isDeciduous = mf ? mf.deciduous : ((n.id*31)|0) % 5 === 0;
+    const isDeciduous = mf ? mf.deciduous : ((n.id*31)|0) % 5 !== 0;
     const isAutumnLook = isDeciduous && G.season === "autumn";
     /* about half the deciduous trees wear the spring look in spring and
        summer - its own avalanche hash of the id, not a second `%` of the
@@ -38158,7 +38538,8 @@ function drawFarmCrop(b){
     ctx.drawImage(FARM_POST, x-postW/2, y+dep-postH*0.3, postW, postH);
     ctx.drawImage(FARM_POST, x+w-postW/2, y+dep-postH*0.3, postW, postH);
     ctx.drawImage(FARM_HWIRE, x, y+dep-TILE*0.02, w, TILE*0.09);
-    drawFarmGate(b, x, y, w, dep);     // (the low-crop fields draw theirs in drawBuilding)
+    // no gate any more - just an open run in the fence (see doorSwingAmt,
+    // below, for the animation that replaced it on real building doors)
   } else {
     ctx.fillStyle = "#6b5233";
     for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
@@ -38212,24 +38593,49 @@ function dressSprite(img, cx, baseY, hh, flip, shadow){
 }
 /* Hay in summer, and pumpkins as well in autumn, at the end of the field
    opposite the scarecrow. */
-/* THE FIELD GATE (FARM_GATE, 04c): a small timber gate at the middle of the
-   near fence, that swings open as somebody walks up to it and shuts again
-   behind them. Timed off G.t, not counted per frame. */
-function drawFarmGate(b, x, y, w, dep){
-  const img = G.season === "winter" ? FARM_GATE_WINTER : FARM_GATE;
-  if(!b.done || !img.naturalWidth) return;
-  const gx = x + w/2, gy = y + dep;
-  const now = G.t || 0, dt = Math.max(0, Math.min(0.1, now - (b._gateAt === undefined ? now : b._gateAt)));
-  b._gateAt = now;
+/* A BUILDING'S OWN DOOR, SWINGING - replaces the field gate above (removed;
+   a farm's fence just has an open run in it now, no gate object at all).
+   Asked for 28 Sep: get rid of the farm gate, and give ordinary building
+   doors the same "opens as somebody walks up, shuts behind them" animation
+   the gate used to have on its own. Every building's door was a flat,
+   permanently-shut rectangle before this - a door that never opens reads
+   as a wall with a dark patch on it once you actually look for it.
+
+   Two small pieces rather than one big one, so any door-drawing case can
+   opt in with one line: `doorSwingAmt` is the SAME proximity-and-easing
+   idea the gate used (eases toward 1 while a same-side villager stands at
+   the doorway, back toward 0 once they've gone, timed off G.t rather than
+   counted per frame so it is frame-rate independent); `drawSwingingDoor`
+   is the actual look - the door panel foreshortens toward its hinge as it
+   opens (the cheap trick every top-down game uses for a door swinging
+   away from flat-on to the camera, the same idea as a book cover closing)
+   and a dark doorway shows through the gap it leaves, rather than trying
+   to draw a genuinely rotated door in a view that has no real depth to
+   rotate into. */
+function doorSwingAmt(b, dcx, dcy){
+  const now = G.t || 0;
+  const dt = Math.max(0, Math.min(0.1, now - (b._doorAt === undefined ? now : b._doorAt)));
+  b._doorAt = now;
   let near = false;
   for(const u of G.units){
     if(u.type !== "villager" || u.p !== b.p) continue;
-    if(Math.abs(u.x - gx) < 20 && Math.abs(u.y - gy) < 20){ near = true; break; }
+    if(Math.abs(u.x - dcx) < 16 && Math.abs(u.y - dcy) < 16){ near = true; break; }
   }
-  b._gate = Math.max(0, Math.min(1, (b._gate||0) + (near ? dt*4 : -dt*2)));
-  const fi = Math.min(2, Math.round(b._gate*2));
-  const gw = 12, gh = 12;
-  ctx.drawImage(img, fi*16, 0, 16, 16, gx - gw/2, gy - gh*0.72, gw, gh);   // standing in the line of the fence
+  b._doorT = Math.max(0, Math.min(1, (b._doorT||0) + (near ? dt*5 : -dt*2)));
+  return b._doorT;
+}
+function drawSwingingDoor(dX, dY, dW, dH, amt, hinge, fillStyle){
+  // the doorway itself, revealed as the panel swings clear of it
+  ctx.fillStyle = "rgba(20,16,10,.6)";
+  ctx.fillRect(dX, dY, dW, dH);
+  const k = 1 - amt*0.82;                       // the panel's own width, foreshortening toward the hinge
+  const hx = hinge < 0 ? dX : dX + dW;          // the hinge edge is the one that never moves
+  ctx.save();
+  ctx.translate(hx, 0);
+  ctx.scale(hinge < 0 ? k : -k, 1);
+  ctx.fillStyle = fillStyle;
+  ctx.fillRect(0, dY, dW, dH);
+  ctx.restore();
 }
 function drawFieldDressing(b, x, y, w, dep, side){
   if(G.season !== "summer" && G.season !== "autumn") return;
@@ -38773,7 +39179,7 @@ function drawBuilding(b){
         ctx.drawImage(FARM_POST, x-postW/2, y+dep-postH*0.3, postW, postH);
         ctx.drawImage(FARM_POST, x+w-postW/2, y+dep-postH*0.3, postW, postH);
         ctx.drawImage(FARM_HWIRE, x, y+dep-TILE*0.02, w, TILE*0.09);
-        drawFarmGate(b, x, y, w, dep);
+        // no gate - just an open run in the fence, same as the tall-crop pass above
       } else {
         ctx.fillStyle = "#6b5233";
         for(let i=0;i<=4;i++) ctx.fillRect(x-1 + i*(w)/4, y+dep-2, 2, 5);
@@ -40111,8 +40517,12 @@ function drawBuilding(b){
     }
     case "house": {
       const hv = houseVariant(b);
-      ctx.fillStyle=dark;
-      ctx.fillRect(cx-doorW*hv.doorScale/2, y+dep-doorH*0.9, doorW*hv.doorScale, doorH*0.9);
+      {
+        const dW = doorW*hv.doorScale, dX = cx-dW/2, dY = y+dep-doorH*0.9, dH = doorH*0.9;
+        const openAmt = doorSwingAmt(b, cx, y+dep);
+        const hinge = ((b.id|0)%2) ? 1 : -1;    // which side the hinge is on, fixed per house
+        drawSwingingDoor(dX, dY, dW, dH, openAmt, hinge, dark);
+      }
       /* Each household keeps its own hours: one threshold for when the lamp
          goes on after dusk, another for when they turn in. Every house used
          to be lit at the same fixed colour all day and all night.
@@ -59328,7 +59738,16 @@ const GRASS_BAKE = 2;
 const GRASS_COL = {
   spring: "rgba(126,158,88,",
   summer: "rgba(108,138,76,",
-  autumn: "rgba(154,138,76,",
+  autumn: "rgba(190,134,62,",   // was 154,138,76 - too muted to read as autumn at
+                                 // all: this is the blade layer baked once per
+                                 // season and it sits on top of the gradual
+                                 // terrainAutumn wash (04c) at normal zoom,
+                                 // masking nearly all of it. Measured directly -
+                                 // a full-strength wash (autumnAmt=1) and a
+                                 // bare-summer wash (autumnAmt=0.43) came out
+                                 // PIXEL IDENTICAL in a sampled patch of open
+                                 // ground, because this flat tone was doing all
+                                 // the actual work the player sees
   winter: "rgba(122,136,112,"
 };
 function grassTone(){ return GRASS_COL[G.season] || GRASS_COL.summer; }
@@ -66006,6 +66425,8 @@ function beginHenFuss(u, c){
 function henFussArrive(u, c){
   if(!u || !c) return false;
   u.moving = false;
+  // the "pat a chicken" quest (05u) - asked for it, arrived, that is the fuss
+  if(u.p===P_YOU) G.players[P_YOU].chickenFussed = true;
   u.patAnim = HEN_FUSS_TIME;          // the same bend-down the dogs already use
   u.patAt = { x:c.x, y:c.y };
   u.gladT = GLAD_TIME;                // and they are pleased about it
@@ -78082,6 +78503,8 @@ function beginDogPlay(u, d){
 function dogPlayArrive(u, d){
   if(!u || !d) return false;
   u.order = null; u.playWith = null; u.moving = false; u.path = null;
+  // the "pat a dog" quest (05u) - asked for it, arrived, that is patting
+  if(u.p===P_YOU) G.players[P_YOU].dogPatted = true;
   if(d === G.gumby || d === G.floyd){
     /* The little dogs get the same fuss and then the same game: the pat
        runs first and rolls straight into fetch when it ends
@@ -81315,14 +81738,17 @@ function drawSheep(s){
      replace the look, side-on only: the pack has one facing angle and no
      shorn variant, so up/down/away and the shorn silhouette below are
      untouched hand-drawn work, unchanged from before this went in. */
-  if(sdir === "side" && !s.shorn && SHEEP_IDLE_SHEET.naturalWidth && SHEEP_BOUNCE_SHEET.naturalWidth){
-    const sheet = s.moving ? SHEEP_BOUNCE_SHEET : SHEEP_IDLE_SHEET;
-    const n = s.moving ? SHEEP_BOUNCE_N : SHEEP_IDLE_N;
-    /* Bouncing runs on the same gait phase the legs used to; idle runs on
-       a slow clock offset per-sheep so a flock doesn't breathe in unison. */
-    const fi = s.moving
-      ? Math.floor(((s.walk % 6.283) / 6.283) * n) % n
-      : Math.floor((G.t*3.2 + s.seed*11) % n);
+  if(sdir === "side" && !s.shorn && SHEEP_IDLE_SHEET.naturalWidth){
+    /* Idle only, walking or not - dropped the pack's "Bouncing" sheet
+       27 Sep ("the new sheep don't need a jumping animation"). A happy hop
+       reads as a different, excitable animal against SHEEP_SPD=16 and
+       "a sheep in a hurry is not a sheep" (top of this file); the gentle
+       per-sheep breathing loop plus the whole-sprite `bob` translate just
+       above (tied to `s.walk`, same as the old procedural legs) is motion
+       enough while walking without the pack's own hop cycle on top of it. */
+    const sheet = SHEEP_IDLE_SHEET;
+    const n = SHEEP_IDLE_N;
+    const fi = Math.floor((G.t*3.2 + s.seed*11) % n);
     /* Every frame's content sits inside the 128x128 cell at roughly
        x:42-92 y:35-86 (measured, not assumed) - feet/ground contact is
        the one thing that holds still across every frame, at y=86. Scaled
@@ -83312,29 +83738,53 @@ function easelSpot(b){
 
    Never the same door twice running, so a Retreat next to one cottage does
    not simply paint for that cottage for the rest of the match. */
+/* Straight-line distance alone used to be the whole of this: the nearest
+   house or villager within GIFT_REACH, no matter what lay between the two.
+   On a village that reaches round a bay or a lake that "nearest" can be
+   across the water from the painter, unreachable on foot however close it
+   reads on the map - and the painter then walks toward it for as long as
+   workerWalk's own give-up takes (WORKER_GIVE_UP, 90s) before delivering
+   anyway to a household they were never actually able to reach, which
+   plays as "carries the painting and never sets up" for a minute and a
+   half. Same trap this project has hit for a building at a fixed offset
+   and a unit sent across a strait before - reachability has to be checked,
+   not assumed from distance. landConnected is a real flood-fill and not
+   something to call once a candidate, so it only runs on the SHORTLIST -
+   nearest first, skipping anyone not on the painter's own landmass, which
+   costs nothing extra for the ordinary case where everyone already is. */
 function artistFindShowing(o){
   const p = o.p;
-  let best = null, bd = 1e9;
+  const otx = Math.floor(o.x/TILE), oty = Math.floor(o.y/TILE);
+  const reachable = (x, y) => landConnected(otx, oty,
+    Math.max(0,Math.min(MAPW-1,Math.floor(x/TILE))),
+    Math.max(0,Math.min(MAPH-1,Math.floor(y/TILE))), G.terrain);
+
+  const houses = [];
   for(const b of G.bldgs){
     if(b.p !== p || !b.done || b.hp <= 0) continue;
     if(b === o.home) continue;
     if(!BLDG[b.type] || !BLDG[b.type].pop) continue;      // a house, not a store
     if(b === o.lastShown) continue;
     const d = Math.hypot(b.x - o.x, b.y - o.y);
-    if(d < bd && d < GIFT_REACH){ bd = d; best = b; }
+    if(d < GIFT_REACH) houses.push({ b, d });
   }
-  if(best) return best;
+  houses.sort((a,c) => a.d - c.d);
+  for(const h of houses) if(reachable(h.b.x, h.b.y)) return h.b;
+
   /* No house free: somebody on their feet will do. Not the founder - they
      have enough to carry - and not somebody already indoors, since the
      whole point is to be shown it. */
+  const folk = [];
   for(const u of G.units){
     if(u.p !== p || u.hp <= 0 || u.type !== "villager") continue;
     if(u.indoors || u.roughing || u.firstVillager) continue;
     if(u === o.lastShown) continue;
     const d = Math.hypot(u.x - o.x, u.y - o.y);
-    if(d < bd && d < GIFT_REACH){ bd = d; best = u; }
+    if(d < GIFT_REACH) folk.push({ u, d });
   }
-  return best;
+  folk.sort((a,c) => a.d - c.d);
+  for(const f of folk) if(reachable(f.u.x, f.u.y)) return f.u;
+  return null;
 }
 
 /* ============================================================
@@ -83902,6 +84352,311 @@ function clearPaintingLifts(){
     if(u.paintingLift && u.paintingDay !== (G.dayNo || 0)){
       u.paintingLift = 0; u.paintingDay = undefined;
     }
+  }
+}
+
+/* ============================================================
+   QUESTS - the persistent "!" list
+   ============================================================
+   Asked for 27-28 Sep: a box next to the T button that lights gold when a
+   quest is available, "many, many quests tied into achievements so there
+   is always something to do", rewards mixing resources and unlocks, and
+   doubling as the tutorial for a new player.
+
+   TIER 1 ONLY, tonight - a finite starter chain, kept to things reachable
+   within the first season on purpose ("let's focus on just the first
+   season", 28 Sep): the four named directly first (survive the night,
+   rebuild the town centre, create a villager, gather 100 of a resource),
+   five more in the same early spirit (reach the Stone Age, build a house,
+   build a farm, have a traveller call, and the capstone, seeing the season
+   itself out), then four more asked for by name ("listen to an elder,
+   mine moonstone at night, catch a fish, catch a bug"), then five more
+   again (pat a dog, fuss a chicken, catch a fish after dark once the
+   Fisherman's House is up, catch a moonlit bug, have the baker's round
+   reach you), then one more the same night the boat's own animation was
+   redone ("maybe add in a quest for the player clicking play on the
+   fisherman and catching a fish whilst he or she is on the boat") - a
+   little tour of systems a new player might not otherwise find in one
+   season. Every one of the nineteen hangs off a real, already-tested
+   state check; none of them needed a new mechanic, only a check on what
+   already exists. The fuller plan (once tier 1 is
+   exhausted: an infinite trickle/checklist, one-off unique events, and
+   named multi-step quest LINES - romance, wildling, vampire, more to
+   come, plus a genuinely new mechanic, a named villager who wants a
+   specific thing from a specific specialist, fulfilled by ordering them
+   to gather at that building for a short scripted exchange - the bread
+   quest below is NOT this, it is a plain state check standing in for it)
+   is real but not built - see idea_quest_achievement_system in project
+   memory. Each of those is its own future design pass, not something to
+   improvise into this file at the same sitting as the foundation.
+
+   SHAPE MIRRORS OPENING_STEPS (05d) ON PURPOSE - ready/done/text, checked
+   every tick - but ADDS A REAL REWARD, which OPENING_STEPS never had (it is
+   advice, not a quest). A quest earns itself the moment done() goes true;
+   there is no separate "claim" button to press, the same low-friction
+   choice Deeds (05h) already made for the same reason - an extra tap that
+   exists only to confirm something the game already knows happened is a
+   chore, not a reward.
+
+   EVERY QUEST ALSO CARRIES A `hint` - asked for 28 Sep: the "!" strip
+   shows the plain `name`/`desc` once a quest is the CURRENT one (05u's
+   own text remains helpful there, that is the tutorial half of the ask),
+   but the "Hint" panel (the strip's secondary view, 07) shows quests NOT
+   yet reached as a riddle instead, five at a time, so a player who goes
+   looking ahead has to work a little for it. `hidden` (unset here, reads
+   false) is a reserved field for a future quest that should never appear
+   in that riddle list at all - "we'll have hidden quests later that you
+   will never see on this hint menu" - nothing in tier 1 uses it yet.
+
+   pl.pop starting at 1 (not a captured baseline) is safe to rely on
+   directly - "you start at 1/4" is the game's own stated design (POP_BASE,
+   02d, recalcPop) across every difficulty, not something that drifts. */
+const QUEST_CHECK_EVERY = 1.5;
+const QUEST_HINT_MAX = 5;   // "maybe just 5 at a time" - the riddle list's own cap
+
+const QUEST_CHAIN = [
+  { key:"firstnight", name:"Through the Night",
+    desc:"Keep everyone alive through the village's first night.",
+    hint:"The first dark is the deepest one. Everyone needs to still be standing when it lifts.",
+    ready:() => true,
+    done:() => !!G.firstNightStood,
+    reward:{ food:40 },
+    line:"The first night is behind you, and everyone is still standing." },
+  /* RENAMED 28 Sep, from "Raise the Centre" / "Repair the ruined town
+     centre and light the hearth" - asked for directly, folding in the
+     opening's own first line (OPENING_STEPS' "wood" step, 05d) rather
+     than a more atmospheric phrasing of the same thing. Generated off
+     SETTLE_COST (02a) the same way that step's own text is, so a changed
+     price changes this line too rather than this one quietly lying. */
+  { key:"settle", name:"Rebuild the Town Center",
+    desc:() => "Gather "+SETTLE_COST.wood+" wood and rebuild your Town Center.",
+    hint:"A ruin is not a ruin for ever. Wood says otherwise, before anything else.",
+    ready:() => true,
+    done:() => !!G.players[P_YOU].settled,
+    reward:{ wood:40 },
+    line:"The hearth is lit. What was a ruin is a village's centre again." },
+  { key:"stoneage", name:"Into the Stone Age",
+    desc:"Raise the repaired centre into a proper age.",
+    hint:"What was raised once can be raised again, into something that lasts longer.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => !!G.players[P_YOU].stoneAge,
+    reward:{ stone:40 },
+    line:"The Stone Age is here. What was a wandering camp can build in earnest now." },
+  { key:"house", name:"A Roof Overhead",
+    desc:"Build a house - somewhere besides the hall to sleep.",
+    hint:"Not everyone can fit under one roof for ever.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => G.bldgs.some(b=>b.p===P_YOU && b.type==="house" && b.done),
+    reward:{ wood:30 },
+    line:"A roof besides the hall's own. The village has somewhere else to sleep." },
+  { key:"farm", name:"A Field of Your Own",
+    desc:"Build a farm.",
+    hint:"The ground gives more back when you ask it properly.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => G.bldgs.some(b=>b.p===P_YOU && b.type==="farm" && b.done),
+    reward:{ food:30 },
+    line:"Ground broken for the first field. Whatever grows there is the village's own doing." },
+  { key:"villager", name:"More Hands",
+    desc:"Grow the village past its founding number.",
+    hint:"One pair of hands becomes two, eventually, if the village is fed for it.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => G.players[P_YOU].pop > 1,
+    reward:{ food:30 },
+    line:"Another pair of hands has joined the village." },
+  { key:"visitor", name:"A Face at the Door",
+    desc:"Have a traveller stop at the village.",
+    hint:"Not everyone who comes to the door lives here.",
+    ready:() => !!G.players[P_YOU].settled,
+    /* Live presence, not a captured flag - VISITOR_STAND (05d) holds a
+       visitor for 999 seconds, held until dusk or their own event ends, so
+       the 1.5s check throttle here will always catch one long before they
+       leave. A durable flag would be the safer general habit, but this
+       hold time makes one unnecessary for tier 1. */
+    done:() => (G.visitors||[]).length > 0,
+    reward:{ know:15 },
+    line:"Somebody stopped at the door who did not live here. The village is on a path now, not hidden away." },
+  { key:"stockpile", name:"A Stockpile Worth Having",
+    desc:"Gather 100 of any one resource.",
+    hint:"A hundred of anything is a start worth having.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => {
+      const res = G.players[P_YOU].res;
+      for(const k in res) if((res[k]||0) >= 100) return true;
+      return false;
+    },
+    reward:{ know:20 },
+    line:"A hundred of something, set by for whatever comes next." },
+  /* Four more asked for by name, 28 Sep: "listen to an elder, mine
+     moonstone at night, catch a fish, catch a bug" - each already has a
+     real system behind it; none of these needed new mechanics, only a
+     check on what already exists. */
+  { key:"elder", name:"A Word From Someone Older",
+    desc:"Stop and listen to the village's elder.",
+    hint:"Somebody in this village remembers more than they let on. Go and listen.",
+    ready:() => !!G.elder,
+    done:() => !!G.elderHeard,
+    reward:{ know:25 },
+    line:"An old story, heard right through. Some of it will turn out to matter." },
+  { key:"moonstone", name:"What the Dark Leaves Behind",
+    desc:"Bring home some moonstone.",
+    hint:"The dark leaves something behind, for whoever knows to look for it.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => (G.players[P_YOU].res.moonstone||0) > 0,
+    reward:{ food:25 },
+    line:"A little of the moonlight itself, carried home and set safely by." },
+  { key:"fish", name:"One That Didn't Get Away",
+    desc:"Catch a fish.",
+    hint:"Something is waiting under the water, if you go and ask for it.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => Object.keys(G.players[P_YOU].fishLog||{}).length > 0,
+    reward:{ food:20 },
+    line:"The first fish is in the creel. There will be a book kept on this before long." },
+  { key:"bug", name:"Something Small, Caught Carefully",
+    desc:"Catch a bug.",
+    hint:"Not everything worth catching is big.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => Object.keys(G.players[P_YOU].bugLog||{}).length > 0,
+    reward:{ know:15 },
+    line:"Something small, caught carefully, and let go none the worse for it." },
+  /* Asked for 28 Sep, with the general principle alongside it - "make
+     certain quests only begin once you have unlocked that particular
+     building or specialist": pat a dog, fuss a chicken, and (this being
+     the one actually specific to a trade) a fisherman's catch, which does
+     not go "ready" without the Fisherman's House up first, the same way
+     "elder" already does not go ready without the Lodge.
+
+     dogPatted/chickenFussed/nightFishCaught are not in the newGame()
+     literal (02b) the way questsDone/elderHeard are - and do not need to
+     be. G.players is rebuilt as entirely new objects every newGame(), so
+     an unset field reads back undefined (falsy) on a fresh match with no
+     lazy-init trap to fall into; that trap is specifically about a field
+     surviving on an object that newGame() does NOT recreate, which is not
+     the case here. Written out at the three set sites (05i, 05-wildlife,
+     03e) instead. */
+  { key:"dogpat", name:"Good Dog",
+    desc:"Pat one of the village's dogs.",
+    hint:"Somebody in this village has four legs and would like some attention.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => !!G.players[P_YOU].dogPatted,
+    reward:{ food:15 },
+    line:"A good dog, and it knows it." },
+  { key:"henfuss", name:"Feathers Settled",
+    desc:"Make a fuss of one of the hens.",
+    hint:"The yard has a favourite, waiting to be found and told so.",
+    ready:() => keepsHens(P_YOU),
+    done:() => !!G.players[P_YOU].chickenFussed,
+    reward:{ food:15 },
+    line:"Feathers settled, and one hen in the yard considers itself the favourite now." },
+  { key:"nightfish", name:"A Catch By Moonlight",
+    desc:"Catch a fish after dark, with the Fisherman's House raised.",
+    hint:"The water keeps different fish after dark - for whoever has earned the right gear for it.",
+    ready:() => hasWorker("fisherhouse"),
+    done:() => !!G.players[P_YOU].nightFishCaught,
+    reward:{ food:30 },
+    line:"Landed by moonlight rather than daylight - the water keeps different fish after dark." },
+  { key:"boatplay", name:"Out On the Water",
+    desc:"Play the fishing game and land one while the fisherman is out on the boat.",
+    hint:"Tap Play while somebody is out on the water, not just watching the rod bend on its own.",
+    ready:() => hasWorker("fisherhouse"),
+    done:() => !!G.players[P_YOU].boatPlayCaught,
+    reward:{ food:20 },
+    line:"Caught with your own hand on the line, not just the boat's own quiet autopilot." },
+  { key:"moonbug", name:"The Ones That Glow",
+    desc:"Catch one of the moonlit bugs.",
+    hint:"Some of the small things only come out for the moon.",
+    ready:() => !!G.players[P_YOU].settled,
+    done:() => {
+      const log = G.players[P_YOU].bugLog||{};
+      return BUG_TYPES.some(b=>b.moon && log[b.key]);
+    },
+    reward:{ know:20 },
+    line:"Something that only comes out for the moon, and it did not get away either." },
+  { key:"bread", name:"Fresh From the Oven",
+    desc:"Have the baker's round reach one of your own, with the bakery staffed.",
+    hint:"Something warm is coming from the ovens, for whoever the round reaches.",
+    ready:() => hasWorker("bakery"),
+    /* Live, not a captured flag - u.breadT is set to DAY_LEN (161s) by the
+       baker's ordinary round (updateBaker, 03b), which is far longer than
+       this file's own QUEST_CHECK_EVERY throttle, the same reasoning
+       "visitor" already relies on. A full "a named villager wants a loaf,
+       fulfilled by ordering them to gather at the bakery for a short
+       scripted exchange" is a real, distinct feature - asked for the same
+       night as this - and is not what this is. This checks the bread the
+       game already hands out; it does not invent a new way to ask for it. */
+    done:() => G.units.some(u=>u.p===P_YOU && (u.breadT||0) > 0),
+    reward:{ food:25 },
+    line:"Still warm. The baker's round reaches everyone eventually, and today it was them." },
+  /* The capstone - "let's focus on just the first season" (28 Sep). Ready
+     from the start rather than gated on settling: a village that is
+     somehow still unsettled by season's end has earned this one too, if
+     anything more than one that had an easier run of it. */
+  { key:"season", name:"Through the First Season",
+    desc:"See the first season out.",
+    hint:"Every season ends eventually. Just be there when it does.",
+    ready:() => true,
+    done:() => (G.seasonNo||0) >= 1,
+    reward:{ gold:20 },
+    line:"The first season is behind the village, and it is still standing." }
+];
+
+function questEarned(key){ return !!(G.questsDone && G.questsDone[key]); }
+function questsEarnedCount(){ return QUEST_CHAIN.filter(q=>questEarned(q.key)).length; }
+/* `desc` is a plain string on most quests but a function on a couple
+   (settle, generated off SETTLE_COST) - one accessor so every caller gets
+   the resolved text without caring which. */
+function questDesc(q){ return typeof q.desc==="function" ? q.desc() : q.desc; }
+/* The quest a player would actually go and look at next - the first one in
+   the list neither earned nor blocked on ready(). Drives the "!" button's
+   gold highlight: lit while there is something to aim at, dark once the
+   chain (tier 1, tonight) is exhausted rather than lit forever after. */
+function questAvailable(){
+  for(const q of QUEST_CHAIN){
+    if(questEarned(q.key)) continue;
+    if(q.ready()) return q;
+  }
+  return null;
+}
+/* The riddle list - up to QUEST_HINT_MAX quests nobody has earned yet, in
+   chain order, `hidden` ones (none exist in tier 1) filtered out entirely
+   rather than shown locked. Ready or not: an unready quest riddled is
+   still fair - "somebody in this village has four legs" does not require
+   having found the kennel first to make sense of. */
+function questHintList(){
+  const out = [];
+  for(const q of QUEST_CHAIN){
+    if(q.hidden) continue;
+    if(questEarned(q.key)) continue;
+    out.push(q);
+    if(out.length >= QUEST_HINT_MAX) break;
+  }
+  return out;
+}
+
+/* Checked on a timer from the tick, the same throttle idiom DEED_CHECK_EVERY
+   uses (05h) - four entries would be cheap to check every frame, but tier 1
+   will not stay four entries forever and the habit is worth having now. */
+function updateQuests(dt){
+  if(!G.running || G.over) return;
+  G.questT = (G.questT||0) + dt;
+  if(G.questT < QUEST_CHECK_EVERY) return;
+  G.questT = 0;
+  const pl = G.players[P_YOU];
+  for(const q of QUEST_CHAIN){
+    if(questEarned(q.key)) continue;
+    if(!q.ready() || !q.done()) continue;
+    G.questsDone[q.key] = { day: G.dayNo||0, when: (typeof diaryStamp==="function" ? diaryStamp() : "") };
+    /* NO REWARD PAID OUT, 28 Sep - "for now the reward for each of these
+       quests is just the tick box, but eventually there will be resource
+       and unique rewards, like decorates or banners for the town or
+       special units etc". `reward` stays on each entry below as a
+       placeholder for that future pass rather than deleted outright - the
+       numbers were already thought through once and the shape (a plain
+       resource bundle) may or may not survive contact with "banners and
+       special units" as the real design, but there is no cost to keeping
+       them written down. Nothing currently reads q.reward. */
+    /* Told the same way a deed is - news, not an errand (tellAndNote, 05d) -
+       so earning one does not interrupt whatever the player is doing. */
+    tellAndNote(q.line, "deed", true);
   }
 }
 
@@ -84955,11 +85710,21 @@ function drawDruidForm(u, col, pl){
    special-casing needed there beyond the one dispatch line. */
 function drawFishermanRowboat(u, pl){
   const r = u.r * 1.55, L = r*1.6;
-  const rock = Math.sin(G.t*1.7 + u.id)*0.04;
+  /* DRAGGING (over the bank) reads nothing like PADDLING (open water) -
+     asked for 28 Sep, by name: "drag it slowly from the house into the
+     water, then paddle the boat before stopping and getting the rod
+     out". A smooth sine rock is a hull answering to water under it; on
+     the bank it is a heavier, uneven judder instead, twice the rate and
+     a fraction of the amplitude - short jolts rather than a gentle roll,
+     the way a hull actually being hauled over ground behaves. */
+  const dragging = !!u.boatDragging;
+  const rock = dragging ? Math.sin(G.t*11 + u.id)*0.012
+                         : Math.sin(G.t*1.7 + u.id)*0.04;
   const wood = "#8a6a44", woodDark = "#6b4f30", woodLight = "#a5865c";
 
-  // wake, only while actually under way (the short row, not sat fishing)
-  if(u.rowT > 0){
+  // wake, only while actually afloat and under way - dragging is still on
+  // the bank, nothing to wake
+  if(u.rowT > 0 && !dragging){
     ctx.fillStyle = "rgba(200,225,235,.16)";
     ctx.beginPath(); ctx.ellipse(0, r*0.3, L*0.8, r*0.4, 0,0,6.283); ctx.fill();
   }
@@ -85019,7 +85784,7 @@ function drawFishermanRowboat(u, pl){
      on G.t, both oars together, stands in for that; shipped (this exact
      unmoving pose, unchanged) the rest of the time, which now covers the
      launch pause as well as settled fishing. */
-  const rowing = u.rowT > 0;
+  const rowing = u.rowT > 0 && !dragging;   // shipped, not stroking, while still on the bank
   const stroke = rowing ? (Math.sin(G.t*5.5)*0.5+0.5) : 0;
   ctx.strokeStyle = "#6b5233"; ctx.lineWidth = Math.max(1.0, r*0.07); ctx.lineCap = "round";
   for(const side of [-1,1]){
@@ -85030,6 +85795,37 @@ function drawFishermanRowboat(u, pl){
     if(rowing){ ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(hx, hy, r*0.085, 0, 6.283); ctx.fill(); }
   }
 
+  if(dragging){
+    /* THE FISHERMAN, STANDING, HAULING THE BOAT - asked for 28 Sep, the
+       other half of the same request the drag/paddle split above
+       answers. NOT positioned clear of the hull the way a first attempt
+       at this tried - measured on a real screenshot and reverted: the
+       boat is deliberately sized to ONE SEATED person (see the note
+       where L/r are set, top of this function), so there is barely more
+       room on top of that than the seated figure itself already uses,
+       and a full body pushed out to one side at this scale mostly just
+       overlapped the hull rather than reading as "beside it". Same
+       anchor point the seated pose uses instead - what changes is
+       standing rather than seated-and-clipped (a visible pair of legs
+       below the gunwale line reads as "not yet aboard" on its own) and
+       the arms, gripping the near gunwale rather than resting in a lap.
+       u.walk is driven straight off G.t for a hauling stride, since the
+       ordinary movement tick that would set it does not run at all
+       while a boat hop is under way (u.rowT>0 short-circuits updateUnit,
+       03c) - there is no real walk to read here, only one worth faking. */
+    ctx.save();
+    const prevWalk = u.walk, prevSit = u.sit, prevArmA = u.armA, prevArmB = u.armB;
+    u.walk = G.t*6.5; u.sit = false; u.armA = undefined; u.armB = undefined;
+    ctx.translate(0, r*0.55);
+    drawPerson(u, pl, 0);
+    u.walk = prevWalk; u.sit = prevSit; u.armA = prevArmA; u.armB = prevArmB;
+    ctx.restore();
+    // both hands down onto the near gunwale, pushing rather than resting
+    const gripX = L*0.10, gripY = r*0.20;
+    ctx.strokeStyle = skin; ctx.lineWidth = Math.max(1.0, r*0.09); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(-r*0.20, r*0.15); ctx.lineTo(gripX, gripY - r*0.12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r*0.20, r*0.15); ctx.lineTo(gripX, gripY + r*0.12); ctx.stroke();
+  } else {
   /* THE FISHERMAN, SEATED - drawPerson ITSELF now, not a stand-in shaped
      like them. Reported three times running as "a different villager" -
      first over the vest colour, then again once the vest and skin tone
@@ -85065,6 +85861,7 @@ function drawFishermanRowboat(u, pl){
   drawPerson(u, pl, 0);
   u.sit = prevSit; u.armA = prevArmA;
   ctx.restore();
+  }
 
   // the arm, held roughly where a seated, forward-hunched hand actually
   // is at this crop - only once they are actually fishing (u.onBoat), not
@@ -89036,8 +89833,15 @@ function answerCampaign(finish){
    LOOP
    ============================================================ */
 let errShown = false;
+/* The last real exception, kept for the debug dump (below) - reportError
+   only ever showed e.message on screen, which is enough to tell the player
+   something broke but not enough to find WHERE. Every exception still
+   overwrites this, shown or not, so the dump always has the freshest one. */
+let lastErr = null;
 function reportError(e, where){
   console.error("[Cosy Empires] "+where+":", e);
+  lastErr = { where, message: (e && e.message) ? e.message : String(e),
+              stack: (e && e.stack) ? e.stack : null, t: (typeof G!=="undefined" && G) ? G.t : null };
   if(errShown) return;
   errShown = true;
   const box = $("errbox");
@@ -89142,7 +89946,7 @@ function frame(ts){
 }
 
 let uiTimer=0;
-setInterval(()=>{ if(G&&G.running) refreshUI(); }, 700);
+setInterval(()=>{ if(G&&G.running){ refreshUI(); syncQuestButton(); } }, 700);
 
 /* ============================================================
    BOOT
@@ -89618,6 +90422,192 @@ $("storybtn").addEventListener("click", ()=>{
   // a second press closes it, the way a toggle should
   if($("storyscreen").classList.contains("hide")) openStory(); else closeStory();
 });
+
+/* ---------- the quest button: the "!" strip ----------
+   Asked for 27-28 Sep, next to the T button - lights gold (the same
+   var(--gold) highlight #debugbtn's kin already uses elsewhere) while
+   there is a quest to look at, dark once tier 1 (05u) is exhausted rather
+   than lit forever after.
+
+   FIRST VERSION opened a full-screen list of all thirteen (now eighteen)
+   at once and came back "not overwhelming" the same night - one quest at
+   a time, a small strip above the group numbers, a checkbox on the left,
+   a close top right, the box ticking once the thing is actually done.
+   The full list did not go away, it moved to "See all" inside the strip -
+   good, tested code, just no longer the FIRST thing pressing "!" shows. */
+let questStripKey = null;   // which quest is pinned in the strip right now
+/* Only re-picks the pinned quest when it is missing, earned, or has gone
+   un-ready - NOT on every refresh. Re-picking on every refresh would yank
+   a just-completed quest out from under its own tick the instant
+   questAvailable() stops returning it, and the whole point of animating
+   the tick is that the player gets to see it happen. */
+function pickQuestStripKey(){
+  if(questStripKey){
+    const q = QUEST_CHAIN.find(x=>x.key===questStripKey);
+    if(q && !questEarned(q.key) && q.ready()) return questStripKey;
+  }
+  const avail = questAvailable();
+  questStripKey = avail ? avail.key : null;
+  return questStripKey;
+}
+function refreshQuestStrip(){
+  const q = questStripKey && QUEST_CHAIN.find(x=>x.key===questStripKey);
+  const box = $("qs_box");
+  if(!q){
+    $("qs_text").innerHTML = "<span class='qs_name'>All caught up</span>"+
+      "Nothing waiting right now.";
+    box.classList.remove("done");
+    return;
+  }
+  $("qs_text").innerHTML = "<span class='qs_name'>"+esc(q.name)+"</span>"+esc(questDesc(q));
+  box.classList.toggle("done", questEarned(q.key));
+}
+function openQuestStrip(){
+  pickQuestStripKey();
+  refreshQuestStrip();
+  $("queststrip").classList.remove("hide");
+}
+function closeQuestStrip(){
+  $("queststrip").classList.add("hide");
+}
+/* The "Hint" panel - asked for 28 Sep as the strip's own secondary view,
+   riddles rather than plain text: a quest not yet earned shows only
+   `hint`, its real name held back as "?", capped to QUEST_HINT_MAX (05u)
+   so even eighteen-and-growing quests never turn into a wall of clues.
+   Earned ones still show plainly underneath - there is no riddle left in
+   something already done. */
+function refreshQuestList(){
+  const rows = [];
+  const earned = QUEST_CHAIN.filter(q=>questEarned(q.key));
+  const riddled = questHintList();
+  if(riddled.length){
+    rows.push("<div class='logsec'>Word gets around &mdash; "+riddled.length+
+              (riddled.length===QUEST_HINT_MAX ? "+" : "")+" still to place</div>");
+    for(const q of riddled){
+      rows.push("<div class='logrow unseen'>"+
+                "<span class='logname'>?</span>"+
+                "<span class='logstate'>"+(q.ready()?"In progress":"Not yet")+"</span></div>");
+      rows.push("<div class='deedline'>"+esc(q.hint)+"</div>");
+    }
+  }
+  if(earned.length){
+    rows.push("<div class='logsec'>Done &mdash; "+earned.length+" of "+QUEST_CHAIN.length+"</div>");
+    for(const q of earned){
+      rows.push("<div class='logrow deedgot'>"+
+                "<span class='logname'>"+esc(q.name)+"</span>"+
+                "<span class='logstate'>Done</span></div>");
+      rows.push("<div class='deedline'>"+esc(q.line)+"</div>");
+    }
+  }
+  $("questlist").innerHTML = rows.join("");
+  $("questcount").textContent = questsEarnedCount() + " of " + QUEST_CHAIN.length + " done.";
+}
+function openQuestScreen(){
+  refreshQuestList();
+  G.running = false;
+  $("questscreen").classList.remove("hide");
+}
+function closeQuestScreen(){
+  $("questscreen").classList.add("hide");
+  if(G && !G.over) G.running = true;
+}
+$("btnquestclose").addEventListener("click", closeQuestScreen);
+$("qs_x").addEventListener("click", closeQuestStrip);
+$("qs_all").addEventListener("click", ()=>{ closeQuestStrip(); openQuestScreen(); });
+$("questbtn").addEventListener("click", ()=>{
+  if($("queststrip").classList.contains("hide")) openQuestStrip(); else closeQuestStrip();
+});
+function syncQuestButton(){
+  const b = $("questbtn");
+  if(!b) return;
+  b.classList.toggle("hi", !!(G && !G.over && typeof questAvailable==="function" && questAvailable()));
+  if(!$("queststrip").classList.contains("hide")) refreshQuestStrip();
+}
+
+/* ---------- Test mode: copy the whole game out for a bug report ----------
+   Asked for 27 Sep: a toggle by Restart game, and once it is on, a second
+   T - red, one more 34px above the ordinary one - that dumps the live
+   game as text with a Copy button, so a bug can be reported by pasting the
+   actual state rather than describing it from memory.
+
+   Three parts, in order: the last real exception if there has been one
+   (what actually broke, and where - lastErr, above), the message log
+   (what the village was doing up to that point - the T button's own
+   G.msgLog), and the save state itself (buildSave, 06b - the same payload
+   Save village writes, which already strips the live canvases and
+   resolves every object reference, so it is safe to serialise as it
+   stands). Built fresh each time the button is pressed rather than kept
+   live, since nobody is reading it between presses. */
+function syncTestModeButton(){
+  const b = $("mnu_testmode");
+  if(b) b.textContent = "Test mode: " + (TEST_MODE ? "On" : "Off");
+  const d = $("debugbtn");
+  if(d) d.classList.toggle("hide", !TEST_MODE);
+}
+function buildDebugDump(){
+  const parts = [];
+  parts.push("Cosy Empires debug dump — " + new Date().toISOString());
+  if(lastErr){
+    parts.push("\n--- last error ---\n" +
+      "in " + lastErr.where + " at G.t=" + lastErr.t + "\n" +
+      lastErr.message + (lastErr.stack ? "\n" + lastErr.stack : ""));
+  } else {
+    parts.push("\n--- last error ---\nnone caught this session");
+  }
+  const msgs = (G && G.msgLog) ? G.msgLog.slice(-80) : [];
+  parts.push("\n--- last " + msgs.length + " message(s) ---\n" +
+    (msgs.length ? msgs.map(m => "["+ (m.when||"") +"] " + m.text).join("\n")
+                 : "(nothing said yet)"));
+  parts.push("\n--- save state ---");
+  try {
+    const payload = (typeof buildSave === "function") ? buildSave() : null;
+    parts.push(payload ? JSON.stringify(payload) : "(no game in progress)");
+  } catch(e){
+    parts.push("(could not build: " + (e && e.message ? e.message : e) + ")");
+  }
+  return parts.join("\n");
+}
+function openDebug(){
+  const text = buildDebugDump();
+  $("debugtext").value = text;
+  $("debugcount").textContent = text.length.toLocaleString() + " characters";
+  $("debugcopied").textContent = "";
+  G.running = false;
+  $("debugscreen").classList.remove("hide");
+}
+function closeDebug(){
+  $("debugscreen").classList.add("hide");
+  if(G && !G.over) G.running = true;
+}
+$("btndebugclose").addEventListener("click", closeDebug);
+$("debugbtn").addEventListener("click", ()=>{
+  if($("debugscreen").classList.contains("hide")) openDebug(); else closeDebug();
+});
+$("btndebugcopy").addEventListener("click", async ()=>{
+  const text = $("debugtext").value;
+  let ok = false;
+  /* navigator.clipboard needs a secure context, which a plain file:// page
+     and some webviews do not count as - the textarea select-and-execCommand
+     route is the fallback every browser still honours for that case. */
+  try {
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }
+  } catch(e){ /* fall through to the fallback */ }
+  if(!ok){
+    try {
+      $("debugtext").focus(); $("debugtext").select();
+      ok = document.execCommand && document.execCommand("copy");
+    } catch(e){ ok = false; }
+  }
+  $("debugcopied").textContent = ok ? "Copied." : "Could not copy — select the text by hand.";
+});
+$("mnu_testmode").addEventListener("click", ()=>{
+  TEST_MODE = !TEST_MODE;
+  syncTestModeButton();
+});
+syncTestModeButton();
 /* The whole box takes the tap, not only the little cross. The cross is what
    SAYS the thing is dismissible - on a phone, insisting the thumb find a
    26-pixel target when the whole card is sitting there is a way of making
