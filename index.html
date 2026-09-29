@@ -731,14 +731,23 @@
      there for which buttons get a real icon; anything that function
      doesn't cover keeps the ordinary small text pill (.btn.no-icon)
      rather than showing a blank or a wrong icon. */
-  #cmdbar.panel-new #btns{grid-auto-columns:44px;gap:5px;}
+  /* ONE row, not the ordinary two-row scrolling grid - "we want this"
+     (29 Sep, pointing at a single flush row of same-sized icons). Swaps
+     #btns from a CSS grid to a plain flex row for the compact layout only;
+     .btn.has-icon below is what actually pins every icon to the same
+     44x44 square regardless of how tall #btns itself has been stretched
+     by #cmdrow's own align-items:stretch. */
+  #cmdbar.panel-new #btns{display:flex;flex-wrap:nowrap;align-items:center;gap:5px;}
   /* the one thing #btns can hold that ISN'T a button - a resource node's
-     own description card (.rescard, above) - wants its usual full width,
-     not a 44px sliver, so it's excused from the compact column size. */
-  #cmdbar.panel-new #btns:has(.rescard){grid-auto-columns:minmax(112px,1fr);}
+     own description card (.rescard, above) - wants its usual full width
+     and height, not a single icon-row slot, so it's excused. */
+  #cmdbar.panel-new #btns:has(.rescard){display:grid;grid-auto-columns:minmax(112px,1fr);}
   #cmdbar.panel-new #btns .btn.has-icon{
-    width:44px;height:44px;padding:0;border-radius:9px;
+    width:44px;height:44px;flex:none;padding:0;border-radius:9px;
     display:flex;align-items:center;justify-content:center;
+  }
+  #cmdbar.panel-new #btns .btn.no-icon{
+    height:44px;flex:none;align-self:center;
   }
   #cmdbar.panel-new #btns .btn.has-icon .n,
   #cmdbar.panel-new #btns .btn.has-icon .c{display:none;}
@@ -751,7 +760,7 @@
      comes up" (12 Sep). data-icon is set once per refreshUI (07), read
      back here via content:attr() rather than duplicating it in the DOM. */
   #cmdbar.panel-new #selinfo{
-    width:44px;flex:none;border-right:none;padding:0;
+    width:44px;height:44px;flex:none;align-self:center;border-right:none;padding:0;
     align-items:center;justify-content:center;
     background:rgba(48,41,33,.55);border:1.5px solid var(--line);border-radius:9px;
     cursor:pointer;position:relative;
@@ -759,7 +768,8 @@
   #cmdbar.panel-new #selinfo::before{content:attr(data-icon);font-size:19px;}
   #cmdbar.panel-new #selinfo > *{display:none;}
   #cmdbar.panel-new #selinfo.expanded{
-    width:auto;flex:1;min-width:0;align-items:flex-start;justify-content:center;
+    width:auto;height:auto;flex:1;min-width:0;align-self:stretch;
+    align-items:flex-start;justify-content:center;
     padding:6px 10px;border-radius:8px;
   }
   #cmdbar.panel-new #selinfo.expanded::before{display:none;}
@@ -1505,6 +1515,7 @@
           <li><strong>A new arrow above the group numbers switches to the original full panel</strong> &mdash; group numbers, name and stats, and the old text-button grid, also now see-through the same way; tap the arrow again to go back to the compact layout, or double-tap it (from either one) to tuck the whole panel away until you tap it once more</li>
           <li><strong>Tapping Build now shows an icon for each category</strong> &mdash; Military, Food &amp; Wood, Gold &amp; Stone, Knowledge, Village &mdash; before the ordinary building list, which is unchanged; the group numbers stay out of the way for all of it, same as a plain selection already got</li>
           <li><strong>The old panel's chips &mdash; group numbers and buttons alike &mdash; are a little see-through now too</strong>, not solid black</li>
+          <li><strong>Fixed the compact icon row showing as two rows with an oversized selection icon</strong> &mdash; it's one flush row of same-sized squares now, as designed</li>
         </ul>
       </details>
 
