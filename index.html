@@ -54,6 +54,19 @@
     --sar: env(safe-area-inset-right, 0px);
     --gutter-b: 12px;
     --topbar-h: 58px;   /* kept in step with #topbar's own height below */
+    /* "these buttons need to move up so that they don't move, so it's
+       easier to double click them" (29 Sep) - the side-stack (the cycle
+       arrow, !, T, pause) used to anchor off #cmdbar's own top edge
+       (bottom:calc(100% + Npx)), which moves every time #cmdbar's content
+       does: the compact panel vs the old full one (group row and all) are
+       different heights, so a real double-tap - two taps close enough
+       together to land on the same spot - could miss its own second tap.
+       This is a FIXED distance from the viewport bottom instead, sized to
+       clear the tallest state (the old panel: padding-top 5 + group row
+       21 + its own 5px gap + the 84px command row + bottom padding) with
+       an 8px margin, so the stack never moves regardless of which state
+       #cmdbar is in. */
+    --sidestack-base: calc(123px + max(var(--gutter-b), var(--sab)));
   }
   @media (pointer: coarse){ :root{ --gutter-b: 34px; } }
   body.device-phone, body.device-tablet{ --gutter-b: 34px; }
@@ -150,6 +163,15 @@
     padding-right:calc(8px + var(--sar));
     padding-bottom:max(var(--gutter-b), var(--sab));
     transition:background .18s, border-color .18s, max-height .18s, padding .18s;}
+  /* "remove the panel in the background, just have the buttons floating
+     exactly where they are so you can see more of the world" (29 Sep) -
+     the compact layout drops the bar's own background and border
+     entirely now, rather than just being see-through; each icon (and the
+     selection square) still carries its own chip background, so they go
+     on floating right where they are, just with nothing behind THEM
+     either. The old full panel is untouched - still see-through, not
+     fully gone, per the separate round that asked for that. */
+  #cmdbar.panel-new{background:transparent;border-top-color:transparent;}
   /* Fully tucked away - a tap on the arrow (see #uiCycleBtn) brings it back.
      max-height rather than display:none, so the collapse itself animates;
      the children are display:none as well so nothing inside can still be
@@ -536,7 +558,7 @@
      <-> solid. Double-tap the SAME arrow: tuck the panel away entirely. Tap
      again once hidden: back to the see-through default. See the click
      handler in 07-ui-and-boot.js for the state machine. */
-  #uiCycleBtn{position:absolute;right:8px;bottom:calc(100% + 8px);z-index:11;
+  #uiCycleBtn{position:fixed;right:calc(8px + var(--sar));bottom:calc(var(--sidestack-base) + 0px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     cursor:pointer;transition:.12s;color:var(--parch);}
@@ -544,7 +566,7 @@
   #uiCycleBtn svg{width:14px;height:14px;transition:transform .18s;}
   #uiCycleBtn.flipped svg{transform:rotate(180deg);}
   /* ---------- pause button ---------- */
-  #pausebtn{position:absolute;right:8px;bottom:calc(100% + 50px);z-index:11;
+  #pausebtn{position:fixed;right:calc(8px + var(--sar));bottom:calc(var(--sidestack-base) + 42px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     cursor:pointer;transition:.12s;}
@@ -554,7 +576,7 @@
      Stacked directly on top of the pause button and sharing every one of its
      numbers, so the two read as one column of controls rather than as a
      button and a thing somebody added later. 34 + 8 of gap = 42. */
-  #storybtn{position:absolute;right:8px;bottom:calc(100% + 92px);z-index:11;
+  #storybtn{position:fixed;right:calc(8px + var(--sar));bottom:calc(var(--sidestack-base) + 84px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     cursor:pointer;transition:.12s;color:var(--parch);
@@ -567,7 +589,7 @@
      then .hi (toggled by syncQuestButton, 07) swaps it gold - the same
      var(--gold) highlight the rest of the game already uses for "something
      to look at" (.btn.hi elsewhere in this sheet). */
-  #questbtn{position:absolute;right:8px;bottom:calc(100% + 134px);z-index:11;
+  #questbtn{position:fixed;right:calc(8px + var(--sar));bottom:calc(var(--sidestack-base) + 126px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
     cursor:pointer;transition:.12s;color:var(--parch);
@@ -578,7 +600,7 @@
      One more 34+8 above the quest button, same column, same shape - a red
      border and glyph are the whole difference, which is the point: it
      reads as the T button's own odd cousin, not a whole new kind of thing. */
-  #debugbtn{position:absolute;right:8px;bottom:calc(100% + 176px);z-index:11;
+  #debugbtn{position:fixed;right:calc(8px + var(--sar));bottom:calc(var(--sidestack-base) + 168px);z-index:11;
     width:34px;height:34px;display:flex;align-items:center;justify-content:center;
     background:var(--panel-2);border:1px solid #7a3838;border-radius:3px;
     cursor:pointer;transition:.12s;color:#d97a6a;
@@ -722,6 +744,13 @@
      column for a different reason. */
   #cmdbar.build-mode #groupbar{display:none;}
   #cmdbar.panel-new #groupbar{display:none;}
+  /* "when this panel is shown always include the group numbers above it
+     like normal" (29 Sep) - the almanac card, expanded from its collapsed
+     icon, gets its usual companion back: the old full panel always pairs
+     the group row with the almanac, and this is the compact layout's
+     equivalent of that same pairing, not a new thing. Only while the
+     almanac itself is actually open, not for the ordinary icon row. */
+  #cmdbar.panel-new:has(#cmdrow.almanac-mode #selinfo.expanded) #groupbar{display:flex;}
 
   /* ---------- the compact panel's icon-only button row (29 Sep) ----------
      Reuses every addBtn call already made across refreshUI's many branches
@@ -737,43 +766,145 @@
      .btn.has-icon below is what actually pins every icon to the same
      44x44 square regardless of how tall #btns itself has been stretched
      by #cmdrow's own align-items:stretch. */
-  #cmdbar.panel-new #btns{display:flex;flex-wrap:nowrap;align-items:center;gap:5px;}
+  /* Real DOM order is #selinfo, then #btnwrap - right for the old panel's
+     own left-to-right reading, backwards for the compact layout's "icons
+     first, then whatever room is left for the name/status" (the mock-up,
+     and every reference screenshot since). Reordered visually rather than
+     in the markup, so nothing that reads the DOM structure has to care. */
+  /* Right-packed at first ("might help with reachability", 29 Sep), then
+     corrected the same day: circled the leftover gap sitting all on one
+     side and asked for the row centred instead - "make it more like this
+     so it's in the middle". Neither the icons nor the (content-sized, not
+     flex-growing) selection card claim the leftover width, so centring
+     splits whatever's left evenly on both sides rather than piling it on
+     the left. */
+  #cmdbar.panel-new #cmdrow{justify-content:center;}
+  #cmdbar.panel-new #selinfo{order:2;}
+  /* Both sides now SHARE the row rather than the icons claiming their full
+     natural width first and leaving whatever's left for the card - on a
+     narrow phone (measured 29 Sep: 375 CSS px) that left the card as
+     little as 66px, nowhere near enough for a name. #btnwrap/#btns/each
+     icon can all shrink a little (flex-shrink, with a floor so an icon
+     never goes illegibly small); #selinfo grows to take any extra room a
+     wider screen has, but never below its own floor either. */
+  #cmdbar.panel-new #btnwrap{order:1;flex:0 1 auto;min-width:0;}
+  #cmdbar.panel-new #btns{display:flex;flex-wrap:nowrap;align-items:center;gap:4px;flex:0 1 auto;min-width:0;}
   /* the one thing #btns can hold that ISN'T a button - a resource node's
      own description card (.rescard, above) - wants its usual full width
      and height, not a single icon-row slot, so it's excused. */
-  #cmdbar.panel-new #btns:has(.rescard){display:grid;grid-auto-columns:minmax(112px,1fr);}
+  #cmdbar.panel-new #btns:has(.rescard){display:grid;flex:1;grid-auto-columns:minmax(112px,1fr);}
+  /* min-width EXPLICITLY set (not just width) - a narrow-screen media
+     query below (@media max-width:410px, .btn{min-width:66px}) was
+     winning against a bare `width:44px` here, since a box's used width is
+     max(width, min-width): the icons were rendering at 66px regardless.
+     Reported 29 Sep from an actual device, not visible on desktop. */
   #cmdbar.panel-new #btns .btn.has-icon{
-    width:44px;height:44px;flex:none;padding:0;border-radius:9px;
+    flex:0 1 40px;width:40px;height:40px;min-width:32px;padding:0;border-radius:9px;
     display:flex;align-items:center;justify-content:center;
   }
   #cmdbar.panel-new #btns .btn.no-icon{
-    height:44px;flex:none;align-self:center;
+    flex:0 1 auto;height:40px;min-width:36px;max-width:80px;align-self:center;
   }
   #cmdbar.panel-new #btns .btn.has-icon .n,
   #cmdbar.panel-new #btns .btn.has-icon .c{display:none;}
   #cmdbar.panel-new #btns .btn .ic{display:none;}
-  #cmdbar.panel-new #btns .btn.has-icon .ic{display:block;font-size:19px;line-height:1;}
+  #cmdbar.panel-new #btns .btn.has-icon .ic{display:block;font-size:17px;line-height:1;}
   #cmdbar.panel-new #btn_fade, #cmdbar.panel-new #btn_hint{display:none;}
 
-  /* the collapsed selection icon - "the info box should be hidden by
-     default but just have a little icon... click it and a bigger picture
-     comes up" (12 Sep). data-icon is set once per refreshUI (07), read
-     back here via content:attr() rather than duplicating it in the DOM. */
+  /* the selection icon - back to a tap-to-expand square, matching the
+     other six ("icons only, no card, unless the player clicks the
+     silhouette icon", 29 Sep - reversing the previous round's "always
+     visible" version once it turned out to leave too little room for the
+     icons on a real phone). Collapsed: exactly the same 40x40 square as
+     an action icon, showing data-icon (set once per refreshUI, 07 -
+     already tracks whatever's selected, a unit/building/multi each get
+     their own glyph, so this already does the "icon changes with what
+     you click" part without needing anything new). Expanded (.expanded,
+     toggled by the click handler in 07-ui-and-boot.js): grows to show
+     the real name/sub/job/stats beside it. */
+  /* Fixed 40x40, always - never grows, never changes position, whether
+     collapsed or expanded ("don't move the buttons", 29 Sep, after
+     expanding used to grow #selinfo itself in the flex row, which shifted
+     the icon row and the whole centred cluster every time it opened).
+     The revealed text is #selinfotext, positioned absolutely off its
+     right edge below - entirely outside flex flow, so nothing about this
+     square or anything beside it ever moves when it opens or closes. */
   #cmdbar.panel-new #selinfo{
-    width:44px;height:44px;flex:none;align-self:center;border-right:none;padding:0;
-    align-items:center;justify-content:center;
+    flex:0 1 40px;width:40px;height:40px;min-width:32px;align-self:center;
+    border-right:none;padding:0;cursor:pointer;
+    display:flex;flex-direction:row;align-items:center;justify-content:center;
     background:rgba(48,41,33,.55);border:1.5px solid var(--line);border-radius:9px;
-    cursor:pointer;position:relative;
+    position:relative;
   }
-  #cmdbar.panel-new #selinfo::before{content:attr(data-icon);font-size:19px;}
-  #cmdbar.panel-new #selinfo > *{display:none;}
-  #cmdbar.panel-new #selinfo.expanded{
-    width:auto;height:auto;flex:1;min-width:0;align-self:stretch;
-    align-items:flex-start;justify-content:center;
-    padding:6px 10px;border-radius:8px;
+  /* "the blue silhouette we had before" (29 Sep) - was gold, matching
+     everything else in the sidestack that means "something to look at";
+     the info icon isn't that, it's a plain "here's what's selected"
+     marker, so it gets its own colour back rather than borrowing gold. */
+  #cmdbar.panel-new #selinfo::before{
+    content:attr(data-icon);font-size:17px;flex:none;
+    width:32px;height:32px;border-radius:7px;
+    display:flex;align-items:center;justify-content:center;
+    border:1.5px solid #6fa3d8;color:#6fa3d8;background:rgba(20,28,40,.55);
   }
-  #cmdbar.panel-new #selinfo.expanded::before{display:none;}
-  #cmdbar.panel-new #selinfo.expanded > *{display:block;}
+  /* "don't put the new panel information underneath, just put it to the
+     right of the buttons" (29 Sep) - absolutely positioned off #selinfo's
+     own right edge (position:relative above), so it overlays the world
+     rather than taking up row space; #selinfo's own box (and everything
+     flex-laid-out beside it) is completely unaffected by whether this is
+     showing or how wide it needs to be. */
+  #cmdbar.panel-new #selinfotext{
+    display:none;position:absolute;top:0;left:calc(100% + 8px);
+    width:max-content;max-width:190px;
+    flex-direction:column;justify-content:center;
+    padding:6px 10px;border-radius:9px;
+    background:rgba(30,25,20,.92);border:1.5px solid var(--line);
+    z-index:1;overflow:hidden;
+  }
+  #cmdbar.panel-new #selinfo.expanded > #selinfotext{display:flex;}
+  #cmdbar.panel-new #selname{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #cmdbar.panel-new #selsub{font-size:8px;margin-top:1px;}
+  #cmdbar.panel-new #seljob{font-size:9px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #cmdbar.panel-new #selstats{font-size:9px;margin-top:1px;line-height:1.25;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+  /* "even if you don't have anything selected just have those small
+     buttons and the blue silhouette" (29 Sep) - with nothing selected,
+     the compact layout no longer falls back to the full-width almanac
+     card; it keeps the same collapsed icon everything else uses (data-
+     icon set to a calendar glyph for this case, refreshUI 07) and reveals
+     the almanac - unchanged, same widget - on the same tap-to-expand.
+     Tapping the arrow to the OLD panel still shows the almanac plainly,
+     exactly as it always has - this only touches the compact layout. */
+  #cmdbar.panel-new #cmdrow.almanac-mode #selinfo{display:flex;}
+  #cmdbar.panel-new #cmdrow.almanac-mode #almanac{display:none;}
+  #cmdbar.panel-new #cmdrow.almanac-mode #selinfo.expanded ~ #almanac{
+    display:flex;flex:1;min-width:0;margin-left:8px;
+  }
+  /* "the same icons as image 1, just desaturated/grey" (29 Sep) - the row
+     keeps its shape whether or not anything's selected, rather than
+     collapsing down to a single icon and back; #almplaceholders (static
+     markup, _head.html) only ever shows here, and only while collapsed -
+     once the almanac itself is open there's real content to show instead
+     and the placeholders would just be in its way. */
+  #almplaceholders{display:none;order:1;flex:0 1 auto;gap:4px;align-items:center;}
+  #cmdbar.panel-new #cmdrow.almanac-mode #almplaceholders{display:flex;}
+  #cmdbar.panel-new #cmdrow.almanac-mode:has(#selinfo.expanded) #almplaceholders{display:none;}
+  #almplaceholders .ph{
+    width:40px;height:40px;flex:0 1 40px;min-width:32px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;border-radius:9px;
+    background:rgba(48,41,33,.55);border:1.5px solid var(--line);
+    filter:grayscale(1);opacity:.4;pointer-events:none;
+  }
+  /* The reveal here is #almanac itself, to the icon's left (above) - not
+     #selinfo's own "Nothing selected" text, which said nothing the
+     almanac wasn't already about to say better. Stays the same 40px
+     square even while expanded, rather than growing into a second,
+     mostly-empty card next to the real one. */
+  #cmdbar.panel-new #cmdrow.almanac-mode #selinfo.expanded{
+    flex:0 1 40px;width:40px;max-width:40px;min-width:32px;
+  }
+  #cmdbar.panel-new #cmdrow.almanac-mode #selinfo.expanded > #selinfotext{display:none;}
 
   /* alpha lowered from .92 alongside .btn above - same ask, same fix */
   .gbtn{flex:1;min-width:0;height:21px;border-radius:3px;background:rgba(36,31,26,.55);
@@ -1260,11 +1391,32 @@
   <!-- and the age bar goes in the gap under them, right above the almanac -->
   <div id="agebar" class="hide"><div id="agefill"></div><span id="agelabel"></span></div>
   <div id="cmdrow">
+  <!-- selinfotext wraps the four fields purely for the compact panel's
+       layout (an icon badge beside a text column, panel-new below) -
+       every existing id refreshUI (07) already writes to is unchanged. -->
   <div id="selinfo">
-    <div id="selname">Nothing selected</div>
-    <div id="selsub">—</div>
-    <div id="seljob"></div>
-    <div id="selstats"></div>
+    <div id="selinfotext">
+      <div id="selname">Nothing selected</div>
+      <div id="selsub">—</div>
+      <div id="seljob"></div>
+      <div id="selstats"></div>
+    </div>
+  </div>
+  <!-- "the same icons as image 1, just desaturated/grey" (29 Sep) - with
+       nothing selected, the compact row keeps the same shape rather than
+       collapsing down to one lone icon: the same six glyphs a villager's
+       own action row would show, greyed out since there's nothing
+       selected to actually do them to. Purely decorative and static -
+       not addBtn output, no click handlers, no real action behind any of
+       them - #selinfo (the calendar icon, still in colour) is the only
+       thing in this row that does anything with nothing selected. -->
+  <div id="almplaceholders">
+    <div class="ph">🌾</div>
+    <div class="ph">🚶</div>
+    <div class="ph">⚔️</div>
+    <div class="ph">🚪</div>
+    <div class="ph">🔨</div>
+    <div class="ph">🪓</div>
   </div>
   <div id="about" class="hide"><div id="aboutbody"></div></div>
   <div id="btnwrap"><div id="btns"></div>
@@ -1516,6 +1668,30 @@
           <li><strong>Tapping Build now shows an icon for each category</strong> &mdash; Military, Food &amp; Wood, Gold &amp; Stone, Knowledge, Village &mdash; before the ordinary building list, which is unchanged; the group numbers stay out of the way for all of it, same as a plain selection already got</li>
           <li><strong>The old panel's chips &mdash; group numbers and buttons alike &mdash; are a little see-through now too</strong>, not solid black</li>
           <li><strong>Fixed the compact icon row showing as two rows with an oversized selection icon</strong> &mdash; it's one flush row of same-sized squares now, as designed</li>
+        </ul>
+        <div class="sec">The quest strip moves on by itself</div>
+        <ul>
+          <li><strong>Fixed the &quot;!&quot; strip not advancing to the next quest</strong> &mdash; ticking one off used to just sit there done for ever until you closed and reopened the strip by hand; now it moves on to whatever's next a moment after the tick draws in, the same as reopening it would</li>
+        </ul>
+        <div class="sec">Fixed the compact panel on a real phone</div>
+        <ul>
+          <li><strong>The icon row no longer overflows on a narrow screen</strong> &mdash; a leftover rule meant for the old text buttons was quietly forcing every icon wider than intended, only visible on an actual device, not a desktop browser</li>
+        </ul>
+        <div class="sec">Back to a tap for the selection card, and a steadier arrow</div>
+        <ul>
+          <li><strong>The selected villager or building's name and status are an icon again by default</strong>, matching the other six - tap it to see the name and stats, tap again to go back to just the icon</li>
+          <li><strong>The arrow above it (and the !/T/pause column) no longer shifts position</strong> when the panel changes shape - it used to move a little between the compact layout and the old full one, which could make a real double-tap land on empty space instead of the arrow's second tap</li>
+          <li><strong>The compact panel's own background is gone entirely now</strong>, not just see-through - the icons float right on the village with nothing behind them, so more of it shows</li>
+        </ul>
+        <div class="sec">A few more corrections to the compact panel</div>
+        <ul>
+          <li><strong>The info icon is blue again</strong>, not gold - gold is what the rest of the sidestack uses for "something to look at", and the info icon isn't that</li>
+          <li><strong>Tapping it to see the name and stats no longer shifts it upward</strong> - it was stretching to the full row height and only using the middle of it, which read as the icon jumping up rather than just growing</li>
+          <li><strong>With nothing selected, the panel now shows the same six action icons, greyed out, plus the info icon</strong> instead of the full day/age/population almanac - the row keeps the same shape either way rather than resizing; tap the info icon to see the almanac exactly as it always looked, tap again to go back</li>
+          <li><strong>The icons (and the name/status card) sit centred in the row now</strong> rather than spreading to fill it or bunching against one edge</li>
+          <li><strong>Fixed the info icon sitting behind a taller name/status card instead of beside it</strong> - a villager or building with a lot to say (several stat lines) had the icon centred against the whole card and ended up looking like it was behind the text rather than next to the first line</li>
+          <li><strong>The group numbers show above the almanac card when it's expanded</strong>, the same pairing the old full panel always had</li>
+          <li><strong>Opening the name/status card no longer moves the icons</strong> - it floats out to the icon's right instead of taking up room in the row; if there's genuinely nowhere for it to go on a narrow screen, the whole row shifts left just enough to fit it, rather than the card's own text getting squeezed</li>
         </ul>
       </details>
 
@@ -59829,6 +60005,25 @@ function drawPondFrost(x0, y0, x1, y1){
       buckets[bucket].push(tx, ty);
     }
   }
+  /* Reported 29 Sep with a screenshot: a faint grid of lines sitting right
+     on the tile boundaries across the ice, unrelated to the shoreline
+     staircase this function's own header comment already fixed. Batching
+     same-bucket tiles into one path stops THEM double-blending at their
+     shared seams (the fault its own comment describes) - but says nothing
+     about a tile in one bucket sitting next to a tile in another, and the
+     OD overdraw margin exists precisely so neighbours' rects overlap a
+     little. Two DIFFERENT alphas drawn with the ordinary "source-over"
+     compositing stack in that overlap strip, coming out more opaque than
+     either bucket alone - a grid of faint seams everywhere the openness
+     gradient happens to cross a bucket boundary, which on a pond of any
+     size is most of it. "lighten" instead: the overlap resolves to
+     whichever layer was already lighter there rather than adding the two
+     together, so the seam disappears while the OD margin can keep doing
+     its actual job (closing sub-pixel gaps at zoom). Scoped with its own
+     save/restore so the compositing mode never leaks into whatever draws
+     after this. */
+  ctx.save();
+  ctx.globalCompositeOperation = "lighten";
   for(let b=1; b<buckets.length; b++){
     const q = buckets[b];
     if(!q || !q.length) continue;
@@ -59841,6 +60036,7 @@ function drawPondFrost(x0, y0, x1, y1){
     }
     ctx.fill();
   }
+  ctx.restore();
 }
 
 /* ============================================================
@@ -87531,6 +87727,7 @@ function refreshUI(){
     const si = $("selinfo");
     let ic = "\u{1F50D}";                          // 🔍 magnifying glass - the fallback
     if(G.wayfarerQ) ic = "\u{1F4AC}";               // a question
+    else if(!sel.length) ic = "\u{1F4C5}";          // 📅 nothing selected - the almanac's behind it
     else if(sel.length > 1) ic = "\u{1F465}";       // several selected
     else if(sel.length === 1){
       const e = sel[0];
@@ -90379,7 +90576,12 @@ function frame(ts){
 }
 
 let uiTimer=0;
-setInterval(()=>{ if(G&&G.running){ refreshUI(); syncQuestButton(); } }, 700);
+/* syncSelinfoShift is a no-op the instant #selinfo isn't .expanded (the
+   common case), so it's cheap to just re-check on the same tick as
+   everything else - keeps the shift right if the selection's own content
+   changes width while the card is open (a longer name, HP dropping a
+   digit), not just at the moment it's first tapped open. */
+setInterval(()=>{ if(G&&G.running){ refreshUI(); syncQuestButton(); syncSelinfoShift(); } }, 700);
 
 /* ============================================================
    BOOT
@@ -90494,6 +90696,12 @@ function renderBotPanelState(){
   arrow.title = botPanelState === "hidden" ? "Show this panel"
               : botPanelState === "old" ? "Back to the compact panel"
               : "Show the full panel";
+  /* The left-shift syncSelinfoShift applies is a plain inline style on
+     #cmdrow, not gated by any CSS class - leaving it set while switching
+     away from the compact layout would carry it straight into the old
+     full panel (or the hidden one) and shove content it was never meant
+     to touch. Only the compact layout ever earns a shift. */
+  if(botPanelState !== "new") $("cmdrow").style.transform = "";
 }
 $("uiCycleBtn").addEventListener("click", ()=>{
   const now = performance.now();
@@ -90510,16 +90718,34 @@ $("uiCycleBtn").addEventListener("click", ()=>{
 });
 renderBotPanelState();
 
-/* "the info box should be hidden by default but just have a little icon...
-   click it and a bigger picture comes up" (12 Sep), and later given its
-   own icon in the compact row (29 Sep) - #selinfo itself collapses to that
-   icon in CSS (panel-new, _head.html) and this is the tap that expands it
-   back to the real name/sub/stats it always held. Only means anything in
-   the compact layout; the old full panel never collapses it, so the tap
-   is a no-op there rather than fighting that panel's own layout. */
+/* "icons only, no card, unless the player clicks the silhouette icon"
+   (29 Sep) - #selinfo collapses to a plain icon square in CSS (panel-new,
+   _head.html) and this is the tap that reveals the real name/sub/job/
+   stats beside it. Only means anything in the compact layout; the old
+   full panel never collapses it, so the tap is a no-op there rather than
+   fighting that panel's own layout.
+
+   #selinfotext floats off #selinfo's own right edge, outside flex flow
+   entirely (CSS) - "don't move the buttons... just put it to the right
+   of the buttons" - so nothing shifts as a SIDE EFFECT of it opening. But
+   if the card genuinely has nowhere to go at its natural width (a narrow
+   phone, #selinfo sitting close to the right edge already), "move that
+   row of buttons slightly to the left until the text box fits in" (29
+   Sep) - shift #cmdrow itself, by exactly the shortfall, rather than
+   shrinking the card's text to fit. */
+function syncSelinfoShift(){
+  const el = $("selinfo"), cmdrow = $("cmdrow");
+  if(!el.classList.contains("expanded")){ cmdrow.style.transform = ""; return; }
+  cmdrow.style.transform = "";           // measure at full width first
+  const r = $("selinfotext").getBoundingClientRect();
+  const margin = 8;
+  const overflow = r.right - (window.innerWidth - margin);
+  if(overflow > 0) cmdrow.style.transform = "translateX(-" + overflow + "px)";
+}
 $("selinfo").addEventListener("click", ()=>{
   if(!$("cmdbar").classList.contains("panel-new")) return;
   $("selinfo").classList.toggle("expanded");
+  requestAnimationFrame(syncSelinfoShift);
 });
 
 if(document.querySelectorAll){
@@ -90946,6 +91172,10 @@ function pickQuestStripKey(){
   questStripKey = avail ? avail.key : null;
   return questStripKey;
 }
+/* Guards the auto-advance timer below against being scheduled twice - the
+   strip refreshes every 700ms (syncQuestButton) and would otherwise queue
+   a fresh setTimeout on every one of those while the tick sits there. */
+let questStripAdvancing = false;
 function refreshQuestStrip(){
   const q = questStripKey && QUEST_CHAIN.find(x=>x.key===questStripKey);
   const box = $("qs_box");
@@ -90956,7 +91186,24 @@ function refreshQuestStrip(){
     return;
   }
   $("qs_text").innerHTML = "<span class='qs_name'>"+esc(q.name)+"</span>"+esc(questDesc(q));
-  box.classList.toggle("done", questEarned(q.key));
+  const justEarned = questEarned(q.key);
+  box.classList.toggle("done", justEarned);
+  /* "get ticked off when you do them and move to the next one" (29 Sep) -
+     the tick was drawing (the .45s stroke animation, CSS) and then just
+     sitting there for ever, since pickQuestStripKey() was only ever called
+     from openQuestStrip() - nothing advanced the pin once a quest was
+     earned. Give the tick a moment to actually be seen, then move on by
+     forcing a fresh pick, same as closing and reopening the strip would. */
+  if(justEarned && !questStripAdvancing){
+    questStripAdvancing = true;
+    setTimeout(()=>{
+      questStripAdvancing = false;
+      if($("queststrip").classList.contains("hide")) return;   // closed meanwhile - openQuestStrip will pick fresh
+      questStripKey = null;
+      pickQuestStripKey();
+      refreshQuestStrip();
+    }, 1800);
+  }
 }
 function openQuestStrip(){
   pickQuestStripKey();
