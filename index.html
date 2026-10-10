@@ -799,14 +799,24 @@
      while it's open, the same as almanac-mode already clears the selection
      column for a different reason. */
   #cmdbar.build-mode #groupbar{display:none;}
+  /* HIDDEN IN THE COMPACT PANEL, AND HIDDEN WHENEVER YOU ARE IN IT.
+     (7 Oct: "the panels change sometimes group numbers sometimes not", then
+     "the group numbers can be hidden in this mode, but only hidden in this
+     mode.")
+
+     Hiding them here is wanted - the compact panel is meant to be a single
+     row. What was wrong was that it did not stay hidden: an exception put
+     the row back while the almanac card happened to be expanded
+     (`:has(#cmdrow.almanac-mode #selinfo.expanded)`, added 29 Sep), so your
+     groups appeared when you opened the almanac and vanished when you closed
+     it, and the panel changed height underneath your thumb each way. Two
+     reasonable asks a fortnight apart that added up to a row coming and
+     going on a condition nobody can see.
+
+     So: gone in the compact panel, always; there in the full one, always.
+     The build menu clears it too, which is its own deliberate ask and a
+     state you are plainly IN rather than one you fall into. */
   #cmdbar.panel-new #groupbar{display:none;}
-  /* "when this panel is shown always include the group numbers above it
-     like normal" (29 Sep) - the almanac card, expanded from its collapsed
-     icon, gets its usual companion back: the old full panel always pairs
-     the group row with the almanac, and this is the compact layout's
-     equivalent of that same pairing, not a new thing. Only while the
-     almanac itself is actually open, not for the ordinary icon row. */
-  #cmdbar.panel-new:has(#cmdrow.almanac-mode #selinfo.expanded) #groupbar{display:flex;}
 
   /* ---------- the compact panel's icon-only button row (29 Sep) ----------
      Reuses every addBtn call already made across refreshUI's many branches
@@ -1934,9 +1944,27 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn" open>
+        <summary>Patch 23.3</summary>
+        <div class="sec">Working side by side</div>
+        <ul>
+          <li><strong>Thorns have come up in the world.</strong> Once the founder has brought the hound home from the hollow, the same black hooked stuff that grew out there starts appearing in the daylight world &mdash; low scrub, a few small patches, sometimes simply in the way. Nothing walks through them and no path goes near them.</li>
+          <li><strong>And they grow round the ore.</strong> A ring of them comes up around a rock, low enough that the rock stands clear in the middle of it, and while they are there nobody can work it &mdash; tap it and the village says so rather than sending somebody on a pointless walk. Burn the ring off and the ore is yours again.</li>
+          <li><strong>Two ways to burn them.</strong> Tap a patch and you are told what it is and what might answer it. An archer whose arrows are already alight can do it at any hour. The founder can put a torch to one after dark &mdash; send them to it and tap Gather. The fire runs along a patch from wherever it was struck.
+            <br><span class="dim">The founder&rsquo;s own torch is not working yet &mdash; the archers are the way to do it for now. It is being looked at.</span></li>
+          <li><strong>The elder breathes, and walks like everyone else.</strong> Standing still she was drawn exactly the same every frame, while every villager around her rocks very slightly on their own clock &mdash; so she read as a statue in a village of people. She has that now. Her walk also used smaller numbers than a villager&rsquo;s for no reason, so she looked stiffer than the people beside her; it uses theirs, damped by whether she is managing a cane or a frame.</li>
+          <li><strong>The boat stops flying across the map.</strong> The trip was always right &mdash; out of the hut, dragged down the bank, paddled to the shoal and home again. The drawing was not: the boat was slid along its leg using the wrong length of time, so it was drawn a long way back off the start of its own course, sometimes most of the way across the map, before darting back to the jetty and setting off properly. It now stays on the line between where it is coming from and where it is going, the whole way.</li>
+          <li><strong>The fisherman stays a fisherman.</strong> When a shoal was fished out, the nearest food was usually a berry bush &mdash; so the village&rsquo;s fisherman wandered off and started picking fruit. He now looks for another stretch of water with fish in it and a bank to stand on, and if there is nothing biting anywhere in reach he stops and says so, rather than quietly taking up somebody else&rsquo;s job.</li>
+          <li><strong>The Fisherman&rsquo;s House can be improved now.</strong> It was the one building you could put up and then never do anything more with. Three steps &mdash; seasoned nets, a fish weir, and a harbourman who knows the water &mdash; and each one means the shoals go down more slowly. The catch itself is unchanged: the fisherman is no quicker and no slower, the water simply lasts. The weir also carries a lamp, so the lines stay out after dark.</li>
+          <li><strong>Everyone at a tree, rock or bush has their own place at it.</strong> Only fields gave their hands a spot of their own; everywhere else the whole crew walked at the middle of the thing and stopped wherever they happened to arrive, so a party sent together ended up in each other and were pushed apart by shoving rather than standing where they meant to. Each now takes the nearest free place around it, so the first one there keeps the side they walked up to and the rest fill in around them.</li>
+        </ul>
+      </details>
+      <details class="pn">
         <summary>Patch 23.2</summary>
         <div class="sec">The hens</div>
         <ul>
+          <li><strong>The group numbers stop coming and going.</strong> On the compact panel the row of group numbers is meant to be out of the way, and it was &mdash; except that opening the almanac card put it back, and closing the almanac took it away again, so the panel changed height underneath your thumb. The compact panel now keeps them hidden whatever else you open, and the full panel always shows them.</li>
+          <li><strong>Nobody is left standing about in their nightclothes.</strong> Now and then somebody gives up on sleep and steps out into the yard for a few minutes. There was nothing that ever had to bring them back in &mdash; if the walk home was interrupted, that was where they stayed. They are indoors by the middle of the night now whatever happens, and nobody starts an outing that late.</li>
+          <li><strong>And they go in if something is in the village.</strong> A villager out in their nightclothes is the least equipped person there is. If a beast or a raider comes near them, or you ring the bell, they cut the outing short and head for their door instead of standing in the dark.</li>
           <li><strong>A hen turns round rather than flickering.</strong> Which way a hen faced was decided by whether her destination was more than a hair to her left or right &mdash; so a bird walking to a spot almost straight above or below her sat right on the line, and flipped left and right every frame instead of facing one way. It now takes a real distance to turn her, and there is a floor under how often she can turn at all.</li>
         </ul>
       </details>
@@ -14611,6 +14639,27 @@ const BLDG_UPG = {
     { name:"Harbour Wall",   age:2, cost:{stone:190,iron:70,know:110}, hp:170, train:0.15, vis:3,
       about:"A wall against the weather, and a lookout along the top of it." }
   ],
+  /* ---- THE FISHERMAN'S HOUSE ----
+     Asked for 7 Oct: "give the fisherman hut upgrades so the fish schools
+     empty slower." It had no upgrade line at all, which is also the one
+     thing every other building in this list has (see the upgrade-ladders
+     note): a Fisherman's House was the only thing you could build and then
+     never do anything more with.
+
+     `shoalCare` is the share of a catch the water does NOT lose. The angler
+     still carries the same fish home - nothing about their rate changes -
+     but the shoal goes down more slowly, so the same stretch of water feeds
+     the village for longer. That is what was asked for, and it is also the
+     only resource in the game that comes back on its own, so a house that
+     looks after its water is the natural thing to spend on. */
+  fisherhouse: [
+    { name:"Seasoned Nets",  age:0, cost:{wood:65,food:40},            hp:70,  shoalCare:0.25,
+      about:"Nets tarred and mended, with a wider mesh. The small ones go back, and the water keeps its young." },
+    { name:"The Fish Weir",  age:1, night:1, cost:{wood:120,stone:55,know:60}, hp:110, shoalCare:0.40,
+      about:"A weir across the shallows takes what swims into it and lets the rest by. There is a lamp on the post, so the lines stay out after dark." },
+    { name:"The Harbourman", age:2, cost:{gold:120,food:100,know:115}, hp:165, shoalCare:0.55,
+      about:"Somebody who has watched this water his whole life and knows which beds to leave alone this year. The shoals barely notice the village at all." }
+  ],
   granary: [
     { name:"Raised Floor",   age:0, cost:{wood:45,stone:25},           hp:60,  reseed:1,
       about:"Off the ground and away from the mice. Enough spare seed for a field." },
@@ -20584,6 +20633,40 @@ function tapAt(sx, sy){
           return;
         }
       }
+      /* ---- A THORN, ON THE SAME GATHER GESTURE ----
+         Asked for 7 Oct: "only the founder can burn by clicking gather at
+         night on them, or the archers with the flame upgrade can attack
+         them." So the gesture is the one the player already uses for work,
+         and the thorn is checked before a node because it is not one - it
+         has no isNode and would otherwise fall through to "tap a resource".
+         (thornTapAt / orderThornBurn, 05zn) */
+      if(typeof thornTapAt === "function"){
+        const th = thornTapAt(w.x, w.y);
+        if(th){
+          const burners = own.filter(u => u.hp>0 &&
+            ((typeof founderMayBurn==="function" && u.firstVillager) ||
+             (typeof archerMayBurn==="function" && archerMayBurn(u))));
+          if(!burners.length){
+            hint("Nothing here will get through that. The founder could burn it "+
+                 "with a torch after dark, or an archer with flaming arrows.");
+          } else {
+            let sent = 0;
+            for(const u of burners) if(orderThornBurn(u, th)) sent++;
+            hint(sent > 1 ? "They go to burn the thorns." : "Going to burn the thorns.");
+            fxPing(th.x, th.y);
+          }
+          G.action=null; refreshUI();
+          return;
+        }
+      }
+      if(n && n.isNode && typeof thornsGuard === "function" && thornsGuard(n)){
+        /* Said at the tap rather than after the walk: being sent at a thing
+           you cannot work and finding out on arrival is the sort of thing
+           that reads as the order being ignored. (05zn) */
+        hint("There are thorns all round that. Burn them off and it is yours.");
+        G.action=null; refreshUI();
+        return;
+      }
       if(n && n.isNode){
         /* A shoal is worked from a boat and a berry patch on foot, so the
            order goes to whichever of the selected units can actually reach
@@ -25475,6 +25558,7 @@ function tick(dt){
       trySpawnFallenStar();
       tryPupClue();          // the fainter noises in the run-up to hearing it properly (05g)
       tryWolfPup();         // the year's pup, crying out in the woods (05g)
+      tryThorns();          // and the thorns, once the hound has been brought home (05zn)
       tryWassail();         // midwinter, and the trees want waking
       tryVigil();           // and a light for whoever the village lost
       rollNightCrops();     // and what opens out there once it is properly dark
@@ -25846,6 +25930,7 @@ function tick(dt){
   updateBattleSites(dt);
   updateDropPiles(dt);      // the stack by the door gets put away
   updateChickens(dt);
+  stepThorns(dt);            // thorns that have caught burning down (05zn)
   updateMeteorShower(dt);
   updateBirdRadar(dt);
   updateGoldenStag(dt);
@@ -27166,10 +27251,34 @@ function updateUnit(u, dt){
           }
           u.farmSlot = taken;
         }
+        /* ---- AND THE SAME FOR EVERY OTHER KIND OF NODE ----
+           A tree, a rock or a bush had no slots at all: everybody walked at
+           its centre and stopped at the first point within reach, so where
+           they stood was decided by the direction they arrived from and a
+           pair sent together stood in each other. Counted the same way the
+           field's crew is counted, assigned once per node, and kept on the
+           unit so the walk to the drop-off and back does not reshuffle them
+           (nodeWorkSpot, 04e). */
+        if(!n.farmOf && u.nodeSlotFor !== n.id){
+          u.nodeSlotFor = n.id;
+          pickNodeSlot(u, n);        // the nearest place nobody has claimed (04e)
+        }
+        /* THORNS ROUND IT MEAN YOU CANNOT WORK IT (05zn). Checked here as
+           well as at the tap, because an order given before the thorns came
+           up would otherwise go on being worked straight through them. */
+        if(typeof thornsGuard === "function" && thornsGuard(n)){
+          u.working = 0; u.gatherT = 0;
+          if(u.p===P_YOU && !G._thornGatherTold){
+            G._thornGatherTold = true;
+            hint("Thorns have grown up round it. They will have to be burned off first.");
+          }
+          break;
+        }
         const farmSpot = n.farmOf ? farmWorkSpot(u, n) : null;
-        const reach = fishSpot ? 4 : farmSpot ? 4 : (n.farmOf ? n.r*0.55 : n.r+9);
-        const ax = fishSpot ? fishSpot.x : farmSpot ? farmSpot.x : n.x;
-        const ay = fishSpot ? fishSpot.y : farmSpot ? farmSpot.y : n.y;
+        const nodeSpot = (!n.farmOf && !fishSpot) ? nodeWorkSpot(u, n) : null;
+        const reach = fishSpot ? 4 : farmSpot ? 4 : nodeSpot ? 5 : (n.farmOf ? n.r*0.55 : n.r+9);
+        const ax = fishSpot ? fishSpot.x : farmSpot ? farmSpot.x : nodeSpot ? nodeSpot.x : n.x;
+        const ay = fishSpot ? fishSpot.y : farmSpot ? farmSpot.y : nodeSpot ? nodeSpot.y : n.y;
         if(moveToward(u, ax, ay, spd, dt, reach)){
           // the cast: only an angler has one, and only the moment they've
           // actually arrived - drawHeld reads fishPhase/fishPhaseT to swing
@@ -27330,7 +27439,18 @@ function updateUnit(u, dt){
                                        was asked for wider. (floristGiftMult, 05v) */
                                     * floristGiftMult(u)
                                     * hungerMult(u), n.amt);   // moonstone plating, the drop-off's own ladder, and an empty larder (01f)
-            n.amt -= take; u.carry += take; u.carryKind = n.kind;
+            /* ---- WHAT THE WATER ACTUALLY LOSES ----
+               A looked-after shoal gives up its fish without being stripped:
+               the angler carries the same catch home, the water goes down by
+               less (shoalCare, the Fisherman's House ladder, 02a). Applied
+               to the NODE only and never to `take`, so no upgrade here can
+               make a fisherman slower - the whole point is that the same
+               stretch of water lasts longer. Fish are the one resource that
+               comes back on its own, which is why this is the thing the
+               house is worth spending on. */
+            const careDrain = (n.water && n.kind===RES.FOOD)
+              ? Math.max(0.2, 1 - bldgTierBest(u.p, "fisherhouse", "shoalCare")) : 1;
+            n.amt -= take * careDrain; u.carry += take; u.carryKind = n.kind;
             /* AND YOU HEAR IT. This line, rather than the swing animation,
                for the same reason the pop below is here: it is the one place
                where something actually comes out of the node, so it is one
@@ -27418,7 +27538,34 @@ function updateUnit(u, dt){
             else if(n.kind==="wood") fxChip(u.x, u.y, "#8a6a42", 4);
             else if(n.vein) fxChip(u.x, u.y, n.kind==="gold"?"#d9a441":"#9b9b98", 4);
             if(n.amt<=0 && !n.farmOf){
-              const nn = nearestNode(u, n.kind);
+              /* ---- AN ANGLER LOOKS FOR MORE FISH, NOT FOR BERRIES ----
+                 Reported 7 Oct: "if the fisherman is gathering, after going
+                 to bed he needs to keep gathering, only idle when he can't
+                 catch more fish."
+
+                 He did keep his order overnight - that part was already
+                 right. What he did NOT keep was his trade. nearestNode will
+                 not hand a shoal to a land villager, quite deliberately, so
+                 the moment a shoal ran dry the nearest FOOD was a berry bush
+                 and the village's fisherman walked off to pick fruit.
+                 Measured: emptied at 54s, picking berries by 60s.
+
+                 Another shoal with a bank to stand on, then. And if there is
+                 no fish to be had anywhere, the fisherman goes IDLE rather
+                 than taking up a different job - which is what was asked for,
+                 and is also the only way the player is told the fishing has
+                 run out. An ordinary villager who was merely sent to the
+                 water is not a fisherman and falls through to the old
+                 behaviour, because for them a berry bush is a fine answer. */
+              let nn = null;
+              if(n.water) nn = nearestShoalFromBank(u);
+              if(!nn && u.fisherman){
+                u.order = null; u.target = null; u.fishPhase = null;
+                if(u.p===P_YOU) hint((u.nightName||"The fisherman")+" has fished these waters out. "+
+                                     "There is nothing biting anywhere in reach.");
+                break;
+              }
+              if(!nn) nn = nearestNode(u, n.kind);
               u.target = nn || null;
             }
           }
@@ -27855,6 +28002,9 @@ function rebuildNav(){
       for(let x=b.tx; x<b.tx+b.w; x++)
         if(x>=0&&y>=0&&x<MAPW&&y<MAPH) L[y*MAPW+x] = 1;
   }
+  // thorns are walls too, so a path goes round them rather than into them
+  const tg = G.thornGrid;
+  if(tg) for(let i=0;i<n;i++) if(tg[i]===1) L[i] = 1;
   G.navDirty = false;
 }
 
@@ -28302,6 +28452,15 @@ function blocked(wx, wy, self, naval, rad){
   const lt = G.longTable;
   if(lt && wx > lt.x-lt.hw-pad && wx < lt.x+lt.hw+pad &&
            wy > lt.y-lt.hh-pad && wy < lt.y+lt.hh+pad) return true;
+  /* AND THE THORNS. One array read per call, not a loop over them, for the
+     reason the long table's own note gives: this runs thousands of times
+     inside a single pathfind. The grid is rebuilt when a thorn appears or
+     burns away and at no other time (rebuildThornGrid, 05zn). */
+  const tg = G.thornGrid;
+  if(tg){
+    const ttx = Math.floor(wx/TILE), tty = Math.floor(wy/TILE);
+    if(ttx>=0 && tty>=0 && ttx<MAPW && tty<MAPH && tg[tty*MAPW+ttx] === 1) return true;
+  }
   return false;
 }
 
@@ -28663,6 +28822,29 @@ function nearestNode(u, kind){
    the water is not an option, and aiming them at the node itself just grinds
    them against the water's edge forever. Null means it is too far out, which
    is what keeps open-water schools a boat's job. */
+/* ---- ANOTHER SHOAL, FOR SOMEBODY STANDING ON THE BANK ----
+   nearestNode refuses to hand a shoal to a land villager ("fish are food a
+   land villager cannot reach"), and for walking up to one that is quite
+   right. It is wrong for an angler, who does not walk into the water at all:
+   they stand on the bank and cast, which is what bankBeside and the fishSpot
+   reach exist for.
+
+   So when a shoal is fished out, this is what the angler is offered - the
+   nearest OTHER shoal that still has fish in it and a piece of bank to stand
+   on. Checked for a bank, not just for water, because a shoal in the middle
+   of a lake is no more use to them than it was before. */
+function nearestShoalFromBank(u){
+  let best = null, bd = 1e9;
+  for(const n of G.nodes){
+    if(!n.water || n.amt <= 0 || n.kind !== RES.FOOD) continue;
+    const d = Math.hypot(n.x-u.x, n.y-u.y);
+    if(d >= bd) continue;
+    if(!bankBeside(n)) continue;          // last, it is the dear one
+    best = n; bd = d;
+  }
+  return best;
+}
+
 function bankBeside(n){
   for(let ring=1; ring<4; ring++){
     let best=null, bd=1e9;
@@ -30087,6 +30269,13 @@ function advanceBoatHop(u){
     u.rowFrom = { x:u.x, y:u.y }; u.rowTo = next;
     u.rowT = u.boatDragging ? BOAT_DRAG_TIME
            : Math.max(BOAT_ROW_TIME, Math.hypot(next.x-u.x, next.y-u.y) / BOAT_PADDLE_SPEED);
+    /* HOW LONG THIS LEG WAS, kept for the drawing. The boat is drawn by
+       sliding it from rowFrom to rowTo as rowT runs down, and that needs the
+       duration of THIS leg - which is a drag time, or a distance over a
+       paddle speed, and only coincidentally BOAT_ROW_TIME. See the note at
+       the drawing end (04d): dividing by the constant instead is what sent
+       the boat across the map. */
+    u.rowDur = u.rowT;
     /* Flagged here rather than tested by position once landed, because
        `next` is the very object u.boatLaunch points at (the outbound
        queue is built as [u.boatLaunch, {the shoal}]) - a reference check
@@ -30171,7 +30360,7 @@ function updateFishermanBoat(u, dt){
   if(u.rowT > 0){
     u.rowT -= dt;
     if(u.rowT <= 0){
-      u.x = u.rowTo.x; u.y = u.rowTo.y; u.rowFrom = u.rowTo = null;
+      u.x = u.rowTo.x; u.y = u.rowTo.y; u.rowFrom = u.rowTo = null; u.rowDur = 0;
       if(u.boatPauseNext){ u.boatPauseNext = false; u.boatPauseT = BOAT_LAUNCH_PAUSE; }
       else advanceBoatHop(u);
     }
@@ -34827,6 +35016,14 @@ function draw(){
     if(!exploredTo(P_YOU,n.x,n.y)) continue;
     drawList.push({ e:n, y:n.y, kind:1 });
   }
+  /* Thorns, sorted by their own foot like everything else with height, so a
+     villager walking past in front of one is in front of it (05zn). */
+  for(const t of (G.thorns||[])){
+    if(t.gone) continue;
+    if(t.x<c.x-40||t.y<c.y-40||t.x>c.x+VW/c.z+40||t.y>c.y+VH/c.z+40) continue;
+    if(!exploredTo(P_YOU,t.x,t.y)) continue;
+    drawList.push({ e:t, y:t.y, kind:31 });
+  }
   for(const b of G.bldgs){
     if(!exploredTo(P_YOU,b.x,b.y)) continue;
     // Sort by where the building is actually DRAWN, not by its tile footprint.
@@ -35260,6 +35457,7 @@ function draw(){
       /* 30. COUNTED, not guessed - 29 was taken and smoke.js caught it on the
          first build, which is precisely what that check is there for. */
       case 30: drawOneEasel(it.e); break;   // the painter's easel, at its own foot
+      case 31: drawThorn(it.e); break;      // a thorn bush, in the way (05zn)
       case 3: drawUnit(it.e); drawGrassAtFeet(it.e); break;
       case 4: drawCritter(it.e); break;
       case 5: drawElder(); break;
@@ -46574,7 +46772,25 @@ function drawUnit(u){
      land-type unit would otherwise need is not. */
   let x=u.x, y=u.y;
   if(u.rowT>0 && u.rowFrom && u.rowTo){
-    const k = 1 - Math.max(0, u.rowT)/BOAT_ROW_TIME;
+    /* ---- THE BOAT FLEW ACROSS THE MAP ----
+       Reported 7 Oct: "the fisherman's boat still flies around the map, it
+       just needs to be dragged from the fisherman hut to the water."
+
+       This divided by BOAT_ROW_TIME, which is not how long the leg takes -
+       it is only the FLOOR for a paddle. A leg actually runs for
+       BOAT_DRAG_TIME (2.6s) when the boat is being hauled over the bank, or
+       for its own distance over BOAT_PADDLE_SPEED out on the water. Both are
+       longer than the 1.6s constant, so k began NEGATIVE and the boat was
+       drawn extrapolated backwards off the start of its own line: -0.63 of a
+       leg for every drag, and -4.6 of one for a four-hundred-pixel paddle,
+       which is most of the way across the map. It then flew back to the
+       jetty and did the trip properly.
+
+       The leg's own duration is recorded when the hop starts (rowDur, 03e).
+       Clamped as well, so a saved game from before this - which has rowT but
+       no rowDur - slides along its line rather than anywhere else. */
+    const dur = u.rowDur > 0 ? u.rowDur : BOAT_ROW_TIME;
+    const k = Math.max(0, Math.min(1, 1 - Math.max(0, u.rowT)/dur));
     x = u.rowFrom.x + (u.rowTo.x-u.rowFrom.x)*k;
     y = u.rowFrom.y + (u.rowTo.y-u.rowFrom.y)*k;
   }
@@ -50503,6 +50719,70 @@ function farmSpotBase(u){
   const a = (slot - FARM_CREW_MAX + 1) * GOLDEN_ANGLE;
   return [Math.cos(a) * FARM_RING, Math.sin(a) * FARM_RING];
 }
+/* ---- ROOM ROUND A TREE, A ROCK OR A BUSH ----
+   Asked for 7 Oct: "fix villagers working directly on top of each other,
+   have them spread out or work alongside someone else."
+
+   The farm got this on 2 Oct and nothing else did. Every other gatherer
+   walked at the node's own CENTRE and stopped as soon as they were within
+   n.r+9 of it - so where they ended up was decided entirely by which
+   direction they happened to come from, and a pair sent from the same place
+   stood in the same spot. Four woodcutters on one tree were four villagers
+   in a heap.
+
+   A slot each, round the ring they were already standing on. The radius is
+   unchanged - n.r+9 is exactly where they stopped before - so only the
+   ANGLE is new and nothing about gathering reach or rate moves.
+
+   AND IT CHECKS THE GROUND, which is the whole lesson of farmWorkSpot below
+   and of the hearth ring before it: a picker that knows the geometry and not
+   the ground sends somebody to stand in a lake and they never arrive. Each
+   slot is tried in turn and the node's centre is the honest last resort. */
+const NODE_SLOTS = 6;
+/* The node's own id turns the ring, so two trees side by side are not laid
+   out identically and their crews do not end up in rows. */
+function nodeSlotSpot(n, k){
+  const rr = (n.r || 8) + 9;
+  const a = ((n.id|0) % 13) * 0.4833 + k * (6.283 / NODE_SLOTS);
+  return { x: n.x + Math.cos(a)*rr, y: n.y + Math.sin(a)*rr };
+}
+function nodeWorkSpot(u, n){
+  if(!u || !n || n.farmOf) return null;          // a field has its own picker
+  if(u.nodeSlotFor !== n.id || u.nodeSlot === undefined) return null;
+  return nodeSlotSpot(n, u.nodeSlot);
+}
+/* ---- THE NEAREST FREE PLACE, NOT A NUMBERED ONE ----
+   Called once, when a villager takes up a node. The first version handed out
+   slots in order - first hand slot 0, second slot 1 - which spread them, and
+   also walked a lone villager all the way round the tree to whichever side
+   slot 0 happened to be on. That is a longer walk for no reason and it
+   changed which side of the plant they end up on, which
+   tests/gathering-food-faces-the-plant.js caught at once.
+
+   Sorted by how far each place is from where they are STANDING, so the first
+   one there takes the side they arrived at - exactly what used to happen -
+   and everyone after takes the nearest place nobody has claimed. Ground is
+   checked before distance, because a spot in a lake is not a near one. */
+function pickNodeSlot(u, n){
+  const cands = [];
+  for(let k=0;k<NODE_SLOTS;k++){
+    const p = nodeSlotSpot(n, k);
+    if(isWater(p.x, p.y) || blocked(p.x, p.y, null, false)) continue;
+    cands.push({ k, d: Math.hypot(p.x-u.x, p.y-u.y) });
+  }
+  if(!cands.length){ u.nodeSlot = undefined; return; }   // hemmed in: as before
+  cands.sort((a, b) => a.d - b.d);
+  for(const c of cands){
+    let taken = false;
+    for(const o of G.units){
+      if(o === u || o.hp <= 0 || o.p !== u.p) continue;
+      if(o.nodeSlotFor === n.id && o.nodeSlot === c.k){ taken = true; break; }
+    }
+    if(!taken){ u.nodeSlot = c.k; return; }
+  }
+  u.nodeSlot = cands[0].k;      // more hands than places: share the nearest
+}
+
 function farmWorkSpot(u, n){
   const b = n && n.farmOf;
   if(!b) return null;
@@ -60844,9 +61124,36 @@ function drawElder(){
   const r = e.r, H = r*2.25;
   const skin = SKINS[e.skin % SKINS.length];
   const robe = e.robeCol || "#6b6357", robeLit = shade(robe,0.18), robeDim = shade(robe,-0.26);
-  const swing = e.moving ? Math.sin(e.walk)*0.7 : 0;
+  /* ---- THE VILLAGER'S OWN WALK, AND THE VILLAGER'S OWN IDLE ----
+     Asked for 7 Oct: "fix animations of the elder, use the founder as a
+     guide and then use the elder skin over the top."
+
+     She had her own smaller numbers for no reason anyone wrote down - a 0.7
+     arm swing against a villager's 0.85, and a bob of H*0.035 against their
+     H*0.045 - so walking beside one she read as stiffer than everybody else
+     in the village. These are now the SAME two numbers drawPerson uses
+     (04e), scaled by how briskly she is actually going: she is old and
+     slower than a villager, and the amplitudes should say that rather than
+     being quietly clipped.
+
+     The bigger gap was standing still. A villager rocks very slightly on
+     their own clock the moment they stop (idleSway, 04e) - the code there
+     says plainly that without it they read as dead, and the homeLife
+     children had to have it added by hand for the same reason. The elder
+     had nothing: she stopped, and became a statue in a village of people
+     who breathe. She stands about a great deal - telling, waiting, between
+     errands - so she was the figure it showed on most.
+
+     Phased off her own size rather than an id, because an elder has no id
+     and adding one to a saved object is not worth a fixed number; r varies
+     per elder and is stable for her lifetime, which is all the phase needs
+     to stop her and a villager nodding in unison. */
   const chair = e.aid === "chair";
-  const bob = (e.moving && !chair) ? Math.abs(Math.sin(e.walk))*H*0.035 : 0;
+  const brisk = e.aid === "frame" ? 0.72 : e.aid === "cane" ? 0.84 : 1;
+  const swing = e.moving ? Math.sin(e.walk)*0.85*brisk : 0;
+  const bob = (e.moving && !chair) ? Math.abs(Math.sin(e.walk))*H*0.045*brisk : 0;
+  const ePhase = (e.r || 7) * 37.7;
+  const idleSway = (!e.moving && !chair) ? Math.sin(G.t*0.6 + ePhase)*0.045 : 0;
   // she stoops a little, and more so when she stops to talk - excepting
   // Wheels, who's seated and doesn't stoop at all
   const stoop = chair ? 0 : (e.state==="telling" || e.state==="storynight") ? 0.10 : 0.06;
@@ -60858,7 +61165,7 @@ function drawElder(){
   ctx.beginPath(); ctx.ellipse(0, 1, r*0.95, r*0.36, 0, 0, 6.283); ctx.fill();
 
   ctx.scale(e.face<0?-1:1, 1);
-  ctx.rotate(-stoop);
+  ctx.rotate(-stoop + idleSway);     // the stoop she always has, plus the breath she did not
 
   const footY=0, hipY=-H*0.34, shldY=-H*0.62, headY=-H*0.80, headR=H*0.20, tw=H*0.19;
   // a wheelchair rider's robe only comes down to the lap, not the ground
@@ -74345,8 +74652,60 @@ function sendOneHome(u){
    (idea: villagers' little lives, brainstorm item 7) */
 const CANT_SLEEP_CHANCE = 0.12;    // per roll - the cooldown in 03c spaces the rolls out
 const CANT_SLEEP_OUT    = [8, 16]; // seconds spent outside before heading back in
+
+/* ---- NOBODY IS OUT IN THEIR NIGHTCLOTHES PAST THE MIDDLE OF THE NIGHT ----
+   Asked for 7 Oct: "the npc villagers that come out from the houses
+   shouldn't stay outside after half of the night, also they should flee if
+   the town is attacked."
+
+   There was no deadline on this at all. The outing ran on its own little
+   timer and ended by handing the villager to sendOneHome - and if that walk
+   stalled, or the door was awkward, or anything else took the order off
+   them, nothing in the night ever looked at them again. The timer is what
+   they were out for; this is the hour by which they are in regardless. */
+function nightHalfWay(){ return (nightAt() + DAWN_AT) / 2; }
+/* THE CLOCK ONLY, not the clock AND the phase. The first version also
+   refused whenever G.phase was not "night", which is the same answer twice
+   over on a real clock and a different answer on a test's: this whole
+   feature decides it is night by G.dark (see tryCantSleep's first line), and
+   tests/cant-sleep.js sets exactly that and nothing else. Asking for a phase
+   as well meant the outing could never start there, which is a rule arriving
+   through the back door rather than being stated. Darkness says whether it
+   is night; this says how far through. */
+function pastHalfTheNight(){
+  const f = (G.dayF === undefined) ? ((G.dayT||0)/DAY_LEN) : G.dayF;
+  return f >= nightHalfWay();
+}
+
+/* ---- AND THEY GO IN IF SOMETHING IS IN THE VILLAGE ----
+   Somebody who stepped out in their nightclothes for a few minutes is the
+   least equipped person in the village, and the old note here said as much
+   with a shrug: "anything that can catch a villager outside at night - a
+   raid included - can catch this one too." As a rule for where they STAND
+   that is right; as a rule for what they DO it is wrong. They go back in.
+
+   Hostility through hostile() (01a) rather than a plain side check, so the
+   goblins' own quarrel is read the same way the rest of the game reads it.
+   The bell counts as well: if the player has rung it, the village has been
+   told there is trouble, and that is reason enough to be indoors. */
+const CANT_SLEEP_SCARE_R = 190;
+function cantSleepScared(u){
+  if(G.bell && G.bell[u.p]) return true;
+  for(const b of (G.beasts||[])){
+    if(b.hp > 0 && !b.fleeing && Math.hypot(b.x-u.x, b.y-u.y) < CANT_SLEEP_SCARE_R) return true;
+  }
+  for(const e of G.units){
+    if(e.hp <= 0 || !hostile(e.p, u.p)) continue;
+    const d = UNITS[e.type];
+    if(!d || !(d.atk > 0)) continue;               // a stray sheep is not a raid
+    if(Math.hypot(e.x-u.x, e.y-u.y) < CANT_SLEEP_SCARE_R) return true;
+  }
+  return false;
+}
+
 function tryCantSleep(){
   if((G.dark||0) < 0.4) return false;
+  if(pastHalfTheNight()) return false;             // too late to be starting this
   if(G.units.some(u=>u.cantSleepOut)) return false;      // one at a time
   if(Math.random() > CANT_SLEEP_CHANCE) return false;
   const cands = G.units.filter(u=>u.p===P_YOU && u.type==="villager" &&
@@ -74381,7 +74740,16 @@ function updateCantSleep(dt){
     if(u.hp<=0){ u.cantSleepOut=false; u.nightWear=false; continue; }
     if(u.indoors){ u.cantSleepOut=false; u.nightWear=false; u.cantSleepT=0; continue; }
     u.cantSleepT -= dt;
-    if(u.cantSleepT <= 0 && u.order !== "home") sendOneHome(u);
+    /* Three ways in: the outing ran its course, the night is half gone, or
+       there is something out there. The last two cut the outing short rather
+       than waiting for its timer, which is the whole point of them. */
+    const done   = u.cantSleepT <= 0;
+    const late   = pastHalfTheNight();
+    const scared = cantSleepScared(u);
+    if((done || late || scared) && u.order !== "home"){
+      if(late || scared) u.cantSleepT = 0;         // the outing is over, however long was left
+      sendOneHome(u);
+    }
   }
 }
 
@@ -100254,6 +100622,443 @@ function stepNightReturn(dt){
        with the line about how tired he is. */
     nightQuestReward(R.key);
     G.nightReturn = null;
+  }
+}
+
+/* ============================================================
+   THORNS IN THE WAKING WORLD
+   ============================================================
+   Asked for 7-8 Oct, in two parts:
+
+     "Let's add those thorn bushes from the night quest game to the main
+      game, only the founder can burn by clicking gather at night on them,
+      or the archers with the flame upgrade can attack them."
+
+     "Maybe they are introduced to the real world after the player has done
+      that night rescue dog quest etc, just random around the map, maybe
+      blocking a path or around a resource... you click the thorns and it
+      gives you the description and suggestion the founder might be able to
+      do something or an archer..."
+
+   And then, on seeing the first of them: "it doesn't have to be a lot of
+   thorns and they need to be small so not taller than ore for now, similar
+   size." So: few, and no bigger than an ore rock (r 11 in mapgen). THORN_R
+   is 9 and the drawing is built to that rather than scaled down from the
+   forest's, which stands waist-high on a man.
+
+   WHY THEY ARE NOT NODES. A node is a thing you take something from: it has
+   an amount, a carry kind, a drop-off, a yield, a place in nearestNode and
+   in every gather path. A thorn gives nothing - it is in the way, and then
+   it is gone. Making it a node to get the tap panel for free would have put
+   a fake resource through all of that. Its own array, like the beasts and
+   the bugs, and the three things it genuinely needs - blocking, a tap, and
+   fire - are wired by hand below.
+   ============================================================ */
+
+/* ---- SMALL, AND ROUND THE THING THEY GUARD ----
+   Second pass, 8 Oct: "the thorns need to be a lot smaller and surround the
+   ore, so you have to burn them to use the ore, so the ore itself needs to
+   be taller than the thorns (don't change the ore size), so you can see that
+   the thorns are in the way of gathering the ore."
+
+   So they are low scrub around the foot of a rock, not bushes beside it. An
+   ore rock is r 11 and stands its full height; a thorn is r 5 with canes of
+   5 to 9 px, which is low enough that the rock is plainly visible over the
+   top of them and the ring reads as something round the bottom of it. */
+const THORN_R          = 4;      // the ore keeps its own size; this goes under it
+const THORN_MAX        = 24;     // individual bushes; a ring is 8 of them
+const THORN_RINGS      = 3;      // but only this many guarded nodes at once
+const THORN_RING       = 7;      // bushes in a ring, which is what closes it
+const THORN_PATCH      = [2, 3]; // and a loose patch is still only a few
+const THORN_BURN_TIME  = 2.4;    // seconds from catching to gone
+const THORN_SPREAD     = 46;     // px/sec the fire runs along a patch
+const THORN_NIGHT_DARK = 0.45;   // how dark it must be for the founder's torch to do it
+const THORN_REACH      = 22;     // how close the founder stands to set one alight
+
+/* Only after the hound. The user's own gate: thorns arrive in the world as a
+   consequence of the night quest rather than as scenery that was always
+   there, so a village that has never been out in the dark never meets them. */
+function thornsUnlocked(){
+  return !!(G && G.nightQuest && G.nightQuest.done && G.nightQuest.done.hound);
+}
+
+/* ---- WHERE THEY BLOCK ----
+   A Uint8Array per tile rather than a loop over the thorns. blocked() runs
+   thousands of times inside a single pathfind (its own note says so), so
+   what it can afford is one array read. Rebuilt only when a thorn appears or
+   burns away, never per frame. */
+function rebuildThornGrid(){
+  const n = MAPW*MAPH;
+  if(!G.thornGrid || G.thornGrid.length !== n) G.thornGrid = new Uint8Array(n);
+  else G.thornGrid.fill(0);
+  for(const t of (G.thorns||[])){
+    if(t.gone) continue;
+    const tx = Math.floor(t.x/TILE), ty = Math.floor(t.y/TILE);
+    if(tx>=0 && ty>=0 && tx<MAPW && ty<MAPH) G.thornGrid[ty*MAPW+tx] = 1;
+  }
+  G.navDirty = true;      // and the pathfinder's own grid is rebuilt from this
+}
+
+/* ---- WHAT THE RING ACTUALLY DOES ----
+   "You have to burn them to use the ore." Not by blocking the ground: a ring
+   sits about 16px out from an ore rock, which is well inside a single 32px
+   tile, so tile blocking cannot tell the inside of the ring from the outside
+   and never could. The rule is on the WORK instead - a node with thorns
+   still standing round it cannot be gathered - and the ring is the picture
+   of that rule rather than the mechanism of it.
+
+   Cheap enough to ask every gather tick: there are a couple of dozen thorns
+   on the whole map at most, and this stops at the first one it finds. */
+function thornsGuard(n){
+  if(!n || !G.thorns) return false;
+  for(const t of G.thorns){
+    if(!t.gone && t.guardsId === n.id) return true;
+  }
+  return false;
+}
+
+function thornAt(wx, wy){
+  if(!G.thornGrid) return false;
+  const tx = Math.floor(wx/TILE), ty = Math.floor(wy/TILE);
+  if(tx<0 || ty<0 || tx>=MAPW || ty>=MAPH) return false;
+  return G.thornGrid[ty*MAPW+tx] === 1;
+}
+
+/* ---- PUTTING THEM OUT ----
+   Two kinds of place, both the user's: loose on open ground where they are
+   simply in the way, and ringing a resource so getting at it costs you
+   something first. Never against the player's own buildings, and never on
+   the hall's doorstep - a patch that lands across your own door is not an
+   obstacle, it is a bug report. */
+function thornSpotIsFair(x, y){
+  if(isWater(x,y) || blocked(x,y,null,false)) return false;
+  for(const b of G.bldgs){
+    if(Math.hypot(b.x-x, b.y-y) < Math.max(b.w,b.h)*TILE*0.5 + TILE*1.6) return false;
+  }
+  for(const u of G.units){
+    if(u.hp>0 && Math.hypot(u.x-x, u.y-y) < TILE) return false;
+  }
+  return !thornAt(x, y);
+}
+
+/* ---- A RING AROUND A NODE ----
+   Evenly round it rather than scattered, because a gap you can see is a gap
+   the player will expect to walk through - and they cannot, since what stops
+   them is the node being guarded rather than the ground being blocked (see
+   thornsGuard). An even ring is the picture that matches the rule. */
+function addThornRing(n){
+  if(!n) return 0;
+  let put = 0;
+  /* JUST OUTSIDE THE ROCK, not on it. Tried at n.r*0.92 first, which on an
+     iron rock (r 9) put eight bushes straight on top of it and buried the
+     thing they were supposed to be guarding - you could not see the ore at
+     all, which is the opposite of "so you can see that the thorns are in the
+     way of gathering the ore". Outside its own radius by a bush's width, so
+     the rock stands clear in the middle of the ring and over the top of it. */
+  const rr = n.r + THORN_R*0.95;
+  const off = Math.random()*6.283;
+  for(let i=0;i<THORN_RING;i++){
+    const a = off + i*(6.283/THORN_RING);
+    const x = n.x + Math.cos(a)*rr, y = n.y + Math.sin(a)*rr*0.86;   // a little flat, like every ring in this view
+    if(isWater(x,y)) continue;
+    G.thorns.push({ id: G.nextId++, x, y, r: THORN_R*(0.88+Math.random()*0.24),
+                    seed: Math.random()*6.283, burn: 0, lit: false, gone: false,
+                    guards: n.kind, guardsId: n.id });
+    put++;
+  }
+  return put;
+}
+
+function addThornPatch(cx, cy, guards){
+  /* THE CAP IS A CAP ON BUSHES, NOT ON PATCHES. tryThorns checks it before
+     calling this, which let a patch of four start from six standing and
+     finish with ten - "it doesn't have to be a lot of thorns" asks for the
+     total, so the patch is trimmed to what is left rather than the roll
+     being thrown away. */
+  const room = THORN_MAX - (G.thorns||[]).filter(t => !t.gone).length;
+  if(room <= 0) return 0;
+  const n = Math.min(room,
+    THORN_PATCH[0] + ((Math.random()*(THORN_PATCH[1]-THORN_PATCH[0]+1))|0));
+  let put = 0;
+  for(let i=0;i<n;i++){
+    const a = Math.random()*6.283, d = i===0 ? 0 : THORN_R*1.3 + Math.random()*THORN_R;
+    const x = cx + Math.cos(a)*d, y = cy + Math.sin(a)*d;
+    if(!thornSpotIsFair(x,y)) continue;
+    G.thorns.push({ id: G.nextId++, x, y, r: THORN_R*(0.85+Math.random()*0.3),
+                    seed: Math.random()*6.283, burn: 0, lit: false, gone: false,
+                    guards: guards || null });
+    put++;
+  }
+  return put;
+}
+
+/* One patch at a time, rarely, and only up to THORN_MAX standing. Called from
+   the day roll (05d) rather than on a timer of its own, so it keeps the same
+   once-a-day cadence as everything else that puts something on the map. */
+function tryThorns(){
+  if(!thornsUnlocked()) return false;
+  if(!G.thorns) G.thorns = [];
+  const standing = G.thorns.filter(t => !t.gone).length;
+  if(standing >= THORN_MAX) return false;
+  if(Math.random() > 0.5) return false;
+
+  /* Round a resource about half the time. Picked from nodes the player can
+     actually reach and has probably seen, rather than the far side of the
+     map where it would never be met. */
+  const hall = G.bldgs.find(b => b.p===P_YOU && b.type==="town");
+  if(!hall) return false;
+  const near = G.nodes.filter(n => n.amt > 0 && !n.water && !n.farmOf &&
+                                   Math.hypot(n.x-hall.x, n.y-hall.y) < TILE*26);
+  let put = 0;
+  const rings = new Set((G.thorns||[]).filter(t=>!t.gone && t.guardsId).map(t=>t.guardsId)).size;
+  if(near.length && rings < THORN_RINGS && Math.random() < 0.6){
+    /* Round one that is not already ringed, and only if there is room for a
+       whole ring - half a ring is a node you can still walk up to, which
+       says the opposite of what it should. */
+    const free = near.filter(n => !thornsGuard(n));
+    if(free.length && (G.thorns.filter(t=>!t.gone).length + THORN_RING) <= THORN_MAX){
+      put = addThornRing(free[(Math.random()*free.length)|0]);
+    }
+  }
+  if(!put){
+    for(let k=0;k<12 && !put;k++){
+      const a = Math.random()*6.283, d = TILE*(8 + Math.random()*16);
+      put = addThornPatch(hall.x + Math.cos(a)*d, hall.y + Math.sin(a)*d, null);
+    }
+  }
+  if(!put) return false;
+  rebuildThornGrid();
+  if(!G.thornsSeen){
+    G.thornsSeen = true;
+    storyLine("Thorns have come up somewhere out past the village - the same black, " +
+              "hooked stuff that grew in the hollow. Nothing walks through them. " +
+              "Tap them and the village will tell you what it knows.");
+  }
+  return true;
+}
+
+/* ---- SETTING THEM ALIGHT ----
+   The fire runs along the patch from wherever it was struck, which is the
+   night walk's own idea (igniteHedge, 05zl) and the reason a patch reads as
+   one thing rather than four bushes that happen to be near each other. */
+function igniteThorn(t, fromX, fromY){
+  if(!t || t.gone || t.lit) return false;
+  const patch = thornPatchOf(t);
+  for(const c of patch){
+    if(c.gone || c.lit) continue;
+    c.lit = true;
+    c.burn = -Math.hypot(c.x-fromX, c.y-fromY) / THORN_SPREAD;   // negative: it has not caught yet
+  }
+  return true;
+}
+/* Everything within reach of everything else, walked outward - a patch is
+   whatever is joined up, not a stored group, so one burning down never
+   leaves a stale list behind. */
+function thornPatchOf(t){
+  const out = [t], seen = new Set([t.id]);
+  for(let i=0;i<out.length;i++){
+    for(const o of G.thorns){
+      if(o.gone || seen.has(o.id)) continue;
+      if(Math.hypot(o.x-out[i].x, o.y-out[i].y) < THORN_R*3.2){ seen.add(o.id); out.push(o); }
+    }
+  }
+  return out;
+}
+
+function stepThorns(dt){
+  if(!G.thorns || !G.thorns.length) return;
+  stepThornOrders();
+  let lost = false;
+  for(const t of G.thorns){
+    if(t.gone || !t.lit) continue;
+    t.burn += dt / THORN_BURN_TIME;
+    if(t.burn > 0 && Math.random() < dt*6) fxChip(t.x, t.y-4, "#e08a3a", 1);
+    if(t.burn >= 1){ t.gone = true; lost = true; }
+  }
+  if(lost){
+    G.thorns = G.thorns.filter(t => !t.gone);
+    rebuildThornGrid();
+  }
+}
+
+/* ---- WHO CAN DO IT ----
+   The founder with a torch in the dark, or an archer whose arrows are
+   already alight. Both are the user's: "only the founder can burn by
+   clicking gather at night on them, or the archers with the flame upgrade
+   can attack them." */
+function founderMayBurn(u){
+  return !!(u && u.firstVillager && u.hp > 0 && (G.dark||0) >= THORN_NIGHT_DARK);
+}
+function archerMayBurn(u){
+  const d = u && UNITS[u.type];
+  return !!(d && d.cls === "arc" && G.players[u.p] && G.players[u.p].fireArrows
+            && typeof extremeWeatherActive === "function" && !extremeWeatherActive());
+}
+
+/* The nearest thorn a unit is standing close enough to deal with. */
+function thornInReach(u, reach){
+  let best = null, bd = reach || THORN_REACH;
+  for(const t of (G.thorns||[])){
+    if(t.gone) continue;
+    const d = Math.hypot(t.x-u.x, t.y-u.y);
+    if(d < bd){ bd = d; best = t; }
+  }
+  return best;
+}
+
+/* What the panel says when you tap one. The description IS the hint - the
+   user asked for the suggestion to come from tapping it rather than from a
+   tutorial line, so this is where a player learns there are two answers. */
+function thornLookText(t){
+  const night = (G.dark||0) >= THORN_NIGHT_DARK;
+  const whose = t && t.guards ? ("It has grown up around the " + t.guards + ".") : "";
+  return {
+    name: "Thorns",
+    sub:  "In the way",
+    what: "Black, hooked and far too thick to push through. " + whose,
+    uses: night
+      ? "The founder could put a torch to it - send them to it and tap Gather."
+      : "Fire is the only thing that answers it. The founder could burn it with their torch, but not in daylight.",
+    faster: "Archers with flaming arrows, once the village has them."
+  };
+}
+
+/* ---- DRAWING ONE ----
+   The night walk's bramble (drawBramble, 05zl) brought down to size. The
+   forest's stands waist-high on a man - 28 to 54px of cane - which is right
+   for a thing he has to burn through and far too big here: "they need to be
+   small so not taller than ore for now, similar size." An ore rock is r 11
+   and about that tall, so the canes run 11 to 19 and the whole bush tops out
+   under 10px - low scrub round the foot of a rock that stands well clear of
+   it. Eleven canes at this size: sixteen was right when they were twice as
+   tall and is a solid blob once they are not.
+
+   Kept: the three passes (dark edge, cane, lit edge) which is what makes it
+   read against grass as well as against a dark wood, the pale hooks, and the
+   fire running up it as it burns. */
+function drawThorn(t){
+  const env = 1 - Math.max(0, t.burn), charred = Math.max(0, Math.min(1, t.burn*2.2));
+  const alpha = t.burn > 0.88 ? (1 - t.burn)/0.12 : 1;
+  if(alpha <= 0.01) return;
+  const hs = (a,b) => { const v = Math.sin(a*12.9898 + b*78.233)*43758.5453; return v - Math.floor(v); };
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(t.x, t.y);
+  ctx.lineCap = "round";
+  ctx.fillStyle = "rgba(6,10,6,0.38)";
+  ctx.beginPath(); ctx.ellipse(0, 1, t.r*1.15, t.r*0.46, 0, 0, 6.283); ctx.fill();
+  for(let pass=0; pass<3; pass++){
+    for(let k=0; k<9; k++){
+      const a = -Math.PI/2 + (hs(t.seed,k)-0.5)*2.7;
+      /* SHORTER THAN THE ROCK. An iron rock is low and flat, and canes of
+         5-9 still stood over the top of it - "the ore itself needs to be
+         taller than the thorns" is the whole point of the ring, so these are
+         3 to 6 and the rock is plainly the tallest thing in it. */
+      const len = (3 + hs(k,t.seed)*3) * (0.3 + 0.7*env);
+      /* BENT, not a spray of spikes. Scaled off the cane's own length the way
+         the forest's is, rather than a flat number - at this size a fixed
+         bend of a few pixels on an 11px cane is a straight line, and a patch
+         of them came out looking like a bundle of straw. */
+      const bend = (hs(k,t.seed+3)-0.5)*len*0.8;
+      const sway = Math.sin((G.t||0)*0.9 + k)*0.5 * gustAt(t.x, t.y) * 2;
+      const ex = Math.cos(a)*len*0.75 + bend + sway, ey = -Math.abs(Math.sin(a))*len - 2;
+      const mx = Math.cos(a)*len*0.3 - bend*0.8, my = ey*0.45, x0 = (hs(k,4)-0.5)*t.r*1.1;
+      if(pass===0){ ctx.strokeStyle = "#0b120b"; ctx.lineWidth = 1.4; }
+      else if(pass===1){
+        ctx.strokeStyle = charred > 0.01
+          ? "rgb("+Math.round(42-20*charred)+","+Math.round(52-32*charred)+",30)" : "#33421f";
+        ctx.lineWidth = 1.1;
+      } else {
+        if(charred > 0.01){
+          const glow = 0.85*Math.sin(Math.PI*Math.min(1, t.burn*1.4));
+          ctx.strokeStyle = "rgba(255,"+Math.round(130+60*Math.sin((G.t||0)*9+k))+",40,"+glow.toFixed(3)+")";
+        } else ctx.strokeStyle = "rgba(90,104,62,0.55)";   // a dull sheen, not a highlight
+        ctx.lineWidth = 0.7;
+      }
+      ctx.beginPath(); ctx.moveTo(x0, 0); ctx.quadraticCurveTo(mx, my, ex, ey); ctx.stroke();
+      if(pass===2){
+        // the thorns themselves: pale hooks along the cane, two to a cane here
+        /* The hooks are what makes it a THORN rather than a shrub, so they
+           stay - but pale cream at this size turned the whole bush straw
+           coloured. Bone, thin, and short. */
+        ctx.strokeStyle = charred > 0.5 ? "#3a2c1e" : "#9c9470";
+        ctx.lineWidth = 0.6;
+        for(let s=1; s<=2 && (k%2===0); s++){      // every other cane, or it is all hooks
+          const u = s/3;
+          const px = (1-u)*(1-u)*x0 + 2*(1-u)*u*mx + u*u*ex;
+          const py = 2*(1-u)*u*my + u*u*ey;
+          const d = (s % 2 ? 1 : -1);
+          ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + d*1.2, py - 0.9); ctx.stroke();
+        }
+      }
+    }
+  }
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
+
+/* ---- THE TAP, AND BEING SENT TO ONE ----
+   A thorn is not a node, so the tap chain has to be told about it by hand
+   (03a). Generous radius: it is a small bush and the point of tapping it is
+   to be told what it is. */
+function thornTapAt(wx, wy){
+  let best = null, bd = THORN_R*1.8;
+  for(const t of (G.thorns||[])){
+    if(t.gone) continue;
+    const d = Math.hypot(t.x-wx, t.y-wy);
+    if(d < bd){ bd = d; best = t; }
+  }
+  return best;
+}
+
+/* Walk them to it and remember why they are going. The burn itself happens
+   when they arrive (stepThornOrders), not here, so being sent at one in
+   daylight is a walk that ends in nothing rather than an order refused -
+   the founder stands in front of it with an unlit torch, which is the
+   honest picture and tells the player what the problem is. */
+function orderThornBurn(u, t){
+  if(!u || !t || t.gone) return false;
+  const a = Math.atan2(u.y-t.y, u.x-t.x);
+  const sx = t.x + Math.cos(a)*(t.r + 12), sy = t.y + Math.sin(a)*(t.r + 12);
+  giveOrder(u, { order:"move", target:null, site:null, tx:sx, ty:sy });
+  u.burnThorn = t.id;
+  return true;
+}
+
+/* Called from stepThorns. A handful of units at most ever carry burnThorn,
+   so this is a scan over the ones that do rather than over all of them. */
+function stepThornOrders(){
+  for(const u of G.units){
+    if(!u.burnThorn) continue;
+    if(u.hp <= 0){ u.burnThorn = 0; continue; }
+    const t = (G.thorns||[]).find(x => x.id === u.burnThorn && !x.gone);
+    if(!t){ u.burnThorn = 0; continue; }           // somebody else got there first
+    const d = Math.hypot(t.x-u.x, t.y-u.y);
+    if(founderMayBurn(u) && d <= t.r + THORN_REACH){
+      if(igniteThorn(t, u.x, u.y)){
+        u.burnThorn = 0; u.order = null; u.target = null;
+        if(u.p===P_YOU) hint((u.nightName||"The founder")+" sets the thorns alight.");
+      }
+      continue;
+    }
+    if(archerMayBurn(u) && d <= (UNITS[u.type].rng || 90)){
+      if(igniteThorn(t, u.x, u.y)){
+        u.burnThorn = 0; u.order = null; u.target = null;
+        if(u.p===P_YOU) hint("A flaming arrow goes into the thorns.");
+      }
+      continue;
+    }
+    /* Arrived, and still cannot. Said once rather than every frame, and the
+       order is let go so they are not stood there for ever. */
+    if(d <= t.r + THORN_REACH && !u.moving){
+      if(u.p===P_YOU && !u.thornToldT){
+        u.thornToldT = 1;
+        hint(u.firstVillager
+          ? "Not in daylight - the founder needs the dark for a torch to be any use."
+          : "Only the founder with a torch after dark, or an archer with flaming arrows.");
+      }
+      u.burnThorn = 0; u.order = null;
+    }
   }
 }
 
