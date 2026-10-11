@@ -1922,6 +1922,8 @@
         <div class="mlist">
           <button class="mrow" id="mm_boattest">Fisherman boat test
             <span class="msub">Jump to a village with a fisherman ready to take the boat out</span></button>
+          <button class="mrow" id="mm_paintertest">Painter test
+            <span class="msub">Watch the painter wake, set up the easel, paint, turn the picture round and give it away</span></button>
           <!-- The night forest, by hand. The quests themselves stay off
                (NIGHT_QUESTS_ON, 05zj) until the scene is finished and has been
                measured on a real device, so this is the only way in - asked
@@ -1944,6 +1946,38 @@
            not a scripted accordion - it needs no JS, and it still works if
            the splash is opened before the game script has run. -->
       <details class="pn" open>
+        <summary>Patch 23.4</summary>
+        <div class="sec">A long list, smallest first</div>
+        <ul>
+          <li><strong>Shadows by the founder&rsquo;s torch are the shape of the thing that casts them.</strong> Trees, rocks, ore veins, berry bushes and buildings all threw the same flat wedge, some of it a darker hole than the night itself. Now each lays down its own picture &mdash; a round tree a round shadow, a pine a pointed one, the town centre its walls, roof and chimney &mdash; flat in the night&rsquo;s own colour, running from its foot away from the flame and running on a little past the edge of the light, so the far side of a house has its shadow too (it used to be lost where the torch could not reach). Window lamps and braziers throw a building&rsquo;s outline; walls and anything flat keep the plain wedge.</li>
+          <li><strong>The founder can burn the thorns now.</strong> Sent at a thorn bush after dark with his torch, he was being walked home to bed on the very next frame &mdash; the bedtime sweep treats anybody still outside as a straggler &mdash; and, once that was stopped, he stood at the corner of the bush&rsquo;s blocked ground a few steps short of it and never reached. Now going to burn thorns counts as being out on purpose (for a minute and a half), and he sets them alight from where the ground stops him. The note under the old &ldquo;not working yet&rdquo; line in 23.3 no longer applies.</li>
+          <li><strong>A way to watch the painter&rsquo;s whole day.</strong> Settings, Test scenarios, <em>Painter test</em>: a village with an Artist&rsquo;s Retreat, a few cottages and a painter fast asleep before dawn. The camera follows them while they wake, carry the easel out, paint (a caption says what they are doing and how far the picture has got), turn the finished picture round for the village and carry it to a neighbour&rsquo;s door. A dial runs it at 1, 6 or 20 times normal speed; dragging the map lets go of the camera, and Close puts everything back. Nothing is faked &mdash; it is the ordinary painter.</li>
+          <li><strong>Footprints in the snow fade quicker.</strong> They lasted eighty seconds, enough to leave a trail right across the village; now about forty.</li>
+          <li><strong>One shadow under a building, not two.</strong> In a light snowfall or under heavy cloud a house had the sun&rsquo;s long grey shadow and its own dark oval beside it. The two now take turns: the sun&rsquo;s shadow while the sun is strong enough to cast one, the oval when it is not &mdash; and the same for everything else that has both.</li>
+          <li><strong>Reflections in the water are easier to see.</strong> A house or a villager standing right at the water&rsquo;s edge was already reflected, but faintly enough to pass for nothing; the reflections are a little stronger (0.30 to 0.38). They still hang straight down from the foot, so they only show where there is water directly beneath.</li>
+          <li><strong>Rain on the roofs.</strong> In a downpour or a squall roofs go darker and glossy and stay so while the ground is wet, drying with it. Drops splash ON the roof &mdash; each a small ring lying in the slope of the pitch with a few droplets thrown up off it and a little downhill, never floating above it &mdash; the water that runs off streaks down toward the eave, and at the eave it falls past the wall and lands in a ring on the ground.</li>
+          <li><strong>Light spills out of windows and doors at night.</strong> A lit window used to be a bright rectangle on the wall and nothing more. Now it lays a soft patch of light on the ground outside, brightest at the foot of the wall and gone about a body-length out, with the glazing bar leaving a thin dark seam through it; a doorway lays a wider, longer wedge, and the town centre&rsquo;s grows while somebody is at the door.</li>
+          <li><strong>You start with nothing at all.</strong> The camp used to open with 45 stone, enough for the first Mine. Now the stores are empty on day one, like everything else about the opening: the first stone is fetched by hand from the deposit lying just past the edge of the town centre&rsquo;s light, and the Mine comes after it.</li>
+          <li><strong>Far fewer Moonwings.</strong> The pale, glowing bird that crosses the sky after dark was meant to be a sight you remember, but it was turning up on about four nights in five and staying up for over a minute. It now comes about once a week.</li>
+          <li><strong>More kinds of bird, not more birds.</strong> The sky holds exactly as many birds as it did, but they are no longer all the same few. Goldfinches, greenfinches, swallows, blue tits and starlings now go over in flocks, and the hawk is joined by a kestrel and a buzzard, each with its own colour and size. The same seven new birds have pages in the Bird Book, with the season each one comes in.</li>
+          <li><strong>The founder keeps out of the special finds.</strong> The glass, the mill wheel, the standing stone and the rest are for somebody else to fetch. Only the trade finds were refused them before &mdash; and the mushroom was allowed on purpose &mdash; so a group order that happened to include the founder could still walk them out to a mill wheel. None of the four will take them now, at the tap or when they arrive.</li>
+          <li><strong>A villager who is already somebody cannot become somebody else.</strong> Pick up one of the trade finds and you are that trade for good, so a villager who is already the Gardener, the Fisherman, the Bug Catcher or the Bird Keeper now says so &mdash; &ldquo;Edda is already the Gardener. Send somebody else for this.&rdquo; &mdash; and the find stays where it is for the next villager. They can still fetch the mill wheel and the stone, which make nobody anything.</li>
+          <li><strong>No more wolf pup.</strong> The night quest in the forest is how the Kennel is found now, so nothing cries out in the woods any more and no pup is ever left for somebody to fetch. On Easy, Medium and Hard, which have no night quest, the Kennel is simply there to build from the start; a village saved with a pup already out in the woods has it taken in and the Kennel handed over.</li>
+          <li><strong>The first town centre stops growing a second window and a second door at night.</strong> The warm glow in its windows was laid on from measurements for an earlier picture of the hall, so after dark it sat half over the real window and half over bare wall, and a lit rectangle hung beside the door on plain boards &mdash; which is exactly two windows and two doors. The light now sits in the panes of the window and on the door&rsquo;s upper panel, where they are.</li>
+          <li><strong>The herbalist looks like somebody who lives in a hedge.</strong> He used to wear plum and look like anybody else with a basket. Now he is dressed in moss green, with a floppy, slumped hat that has moss growing on it and a toadstool at the brim, a long grey-green beard, two clumps of moss on his shoulders, and a vine that winds up from his hip across his chest with leaves and two small flowers on it. A bit of Radagast the Brown, if Radagast was quieter.</li>
+          <li><strong>New villagers come out of the town centre&rsquo;s door.</strong> They were being set down a good way out in front of the hall &mdash; past where the Long Table stands, so as never to land in it &mdash; and simply stood there in the open. They now appear on the doorstep, under the door the hall actually has, and only walk on round the table on the one day a year it is out.</li>
+          <li><strong>The torch goes down while the founder picks berries.</strong> After dark he stood at the bush for as long as the picking took with a lit torch still held up in his fist. While he is actually picking, the torch is now stood in the ground beside him, still burning, with a few stones round its foot &mdash; and it goes back into his hand when he stops.</li>
+          <li><strong>Villagers stop standing crooked while they work.</strong> Chopping, mining and building all lean the whole body into the job &mdash; which is right side on, where they are leaning at the tree, but when they faced you or faced away the tree was straight ahead or behind and the lean just tipped them sideways, like somebody standing on a diagonal. Facing up or down the screen they now bow into it instead: they sink a little and get a little shorter.</li>
+          <li><strong>Builders stand at the wall.</strong> The building is drawn a good deal smaller than the ground it is marked out on, and a builder has to stop at the edge of the marked ground &mdash; so the person with the hammer was ten or fifteen pixels short of the wall they were hammering. They are now drawn right up against it. Nothing about where they can walk has changed; it is the picture that closes the gap.</li>
+          <li><strong>The sleepers&rsquo; faces are off the outside of the buildings again.</strong> They were drawn on the front of every house with somebody asleep in it so you could tap one to pick that villager, but on the roofs they read as stray marks. The way to find somebody is the way it always was; the faces are switched off, not deleted, in case a better way to reach a sleeper turns up.</li>
+          <li><strong>A new age before the Stone Age: the Hearth Age.</strong> Mend the town centre and light the hearth and the camp is now an age of its own, no longer lumped in with the ruin, and it has more to build than the four things it used to allow. Besides the farm, lumber camp, mine and house, the camp can now put up the Granary, the Elder&rsquo;s Lodge, the Noticeboard and the Barracks &mdash; still as one short row, with none of the category tabs the Stone Age brings. The way out costs more to match: the Stone Age now wants 100 wood and 50 food (it was 70 wood), the Bronze Age 170 knowledge, 170 food and 60 wood, and the Iron Age 300 knowledge, 250 food and 140 gold. In a run of twelve bot-played starts the Stone Age used to land on about day 4.7; it now lands on about day 5.7.</li>
+          <li><strong>The specialists&rsquo; own buildings are no longer locked behind the Stone Age.</strong> The seasonal farm for a crop you are carrying, a trade&rsquo;s hall for whoever brought its find home, the fisherman&rsquo;s house and the rest were all hidden while the camp&rsquo;s short list was showing, so a villager carrying a crop in the first few days had nowhere to plant it. They are offered on the camp&rsquo;s own row now, to the one villager who earned each, exactly as they are later.</li>
+          <li><strong>When the berries run out, the pickers go and wait at a field.</strong> With every wild bush eaten and the fields all sown and between crops, there was nothing ripe to be sent to, so whoever had been picking simply stopped and joined the idle count. They now carry on to the nearest of your own fields, and are there when the crop comes in. If you have no field at all they still stop, because then the village really has no food to pick.</li>
+          <li><strong>Every start has stone at the edge of its light.</strong> The starting stone and the little gold and iron seams were meant to sit just past the edge of the town centre&rsquo;s light, something you walk out and come across. On most maps they did, but on a crowded or watery one the stone could land twelve tiles out. A start whose first tries come away empty now gets a small stone deposit at that edge before the search goes any further; the nearest stone is now never more than about ten tiles away.</li>
+          <li><strong>The ruined town centre and the berry bushes throw shadows by torchlight.</strong> Trees, finished buildings and rocks already threw a shadow away from the founder&rsquo;s torch, but the old hall you start beside &mdash; where the whole first night is spent &mdash; threw nothing, because only a finished building counted, and a building going up threw nothing until it was done. The ruin and any site more than three fifths raised now cast a shadow, and a wild berry bush casts a short, light one. Fields and shoals still do not: they are flat.</li>
+        </ul>
+      </details>
+      <details class="pn">
         <summary>Patch 23.3</summary>
         <div class="sec">Working side by side</div>
         <ul>
@@ -12882,6 +12916,25 @@ const BERRY_START_BUSHES = 2;
 const BERRY_CLEAR_TILES  = 9;
 
 const WANDER_BUILD = ["farm","lumber","mine","house"];
+/* THE HEARTH AGE (user, 10 Oct: "add in another age before Stone Age, add in
+   these buildings but not the categories like in Stone Age, just add the elder
+   building, barracks, noticeboard, granary").
+
+   Between the ruin and the Stone Age there is the camp: the hearth is lit, the
+   village is settled and the only thing left is raising the centre. It was
+   called the Wandering Age along with the ruin and offered four buildings.
+   It is its own age now, and it offers eight - the four above plus the Elder's
+   Lodge, the Barracks, the Noticeboard and the Granary - still as one flat
+   short list, with none of the category tabs the Stone Age brings.
+
+   WANDER_BUILD stays as it was and is still what the AI's opening holds to
+   (04b): this is the player's menu and the player's gate, and the rival is not
+   handed a barracks four days early by a change to what you may put up.
+   Specialist and one-off buildings (the seasonal farm, a trade's own hall) are
+   not listed: they are raised by a particular villager, are offered on that
+   villager's own button, and are allowed in the camp as well (campMayBuild). */
+const CAMP_BUILD = WANDER_BUILD.concat(["granary","lodge","noticeboard","barracks"]);
+const HEARTH_AGE = "Hearth Age";
 /* Wood alone. It used to want stone as well, and on a stone-poor start that
    meant three in-game days of walking about looking for an outcrop before the
    repair could even begin - a search, not an opening. There are trees
@@ -12913,7 +12966,7 @@ function stoneAge(p){ return !!G.players[p].stoneAge; }
    what it says rather than assembling the same string itself. */
 function ageLabel(p){
   const pl = G.players[p];
-  return pl.stoneAge ? AGES[pl.age] : WANDERING_AGE;
+  return pl.stoneAge ? AGES[pl.age] : (pl.settled ? HEARTH_AGE : WANDERING_AGE);
 }
 /* Settled but not yet in the Stone Age: the camp, between the two gates. */
 function wandering(p){ return settled(p) && !stoneAge(p); }
@@ -12955,12 +13008,22 @@ const AGE_COST = [
      what made the old day-two "Food today" step unreachable. Wood is the
      one thing the opening asks for now, which is what the first line has
      always said it was. */
-  { wood:70 },
-  { know:140, food:140 },
+  /* RAISED, 10 Oct ("maybe up the resources people need to get to Stone Age
+     and further ages"). The camp has eight buildings to raise now and a
+     granary to fill, and seventy wood for the whole of the next age was less
+     than the camp's own first three buildings. Wood and food only, because
+     the AI's hold on the next age (04b) is written for those two.
+
+     Measured (12 seeded bot-played starts, tests/wandering-age.js's own rig):
+     seventy wood put the Stone Age at a median of day 4.7; 100 wood and 50
+     food puts it at about day 5.7 and 120/60 at day 6.7, which was a longer
+     camp than the opening is meant to have. It is the old agreed 100/50. */
+  { wood:100, food:50 },
+  { know:170, food:170, wood:60 },
   // Iron used to want 340 knowledge, 320 food and 180 gold. On a small island
   // that is a long way past what the land will bear, and the Troop Carrier
   // sits behind it - so an AI stuck on Bronze could never cross at all.
-  { know:260, food:210, gold:110 }
+  { know:300, food:250, gold:140 }
 ];
 
 /* ---------- and in PEACEFUL, Bronze wants a bit of everything ----------
@@ -13141,7 +13204,14 @@ const RES = { FOOD:"food", WOOD:"wood", STONE:"stone", GOLD:"gold", MOONSTONE:"m
    it (ai-regression, the easy-drop work in September), and handing them the
    same stone is a balance change that deserves its own measurement rather
    than riding along with a change to the opening. */
-const START_STONE = 45;
+/* ZERO, 10 Oct: "don't start with any resources at the start". The 45 above
+   was the answer to the Mine's chicken-and-egg (forty stone to raise the
+   building that gets stone), but the stone the Mine would dig is NOT the only
+   stone there is: plantStartStone (02d) lays a loose deposit just past the
+   edge of the town centre's light on every start, so the first stone is
+   simply fetched by hand and the Mine comes after. The opening is now the
+   same as everything else in it: the village owns nothing. */
+const START_STONE = 0;
 const START_GOLD  = 0;
 /* How close to a base a scattered ore vein may land, in tiles. The two
    deposits placed beside each base already sit at 8-11; this is the floor
@@ -15472,6 +15542,7 @@ function defaultGameState(){
     grazedPatches: [],         // ground the flock has left behind it (05n)
     weavers: [],               // the loom's own walker (05o)
     nightFliers: [],           // the things that fly by night, new ones (05zc)
+    moonwingDay: -99,          // the last day a Moonwing came over: it is a once-in-a-few-nights sight (05zc)
     winemakers: [],            // the winery's, out with grapes and bottles (05zb)
     wineUntil: 0,              // how long the village stays in good cheer
     basketweavers: [],         // and the withy-cutter's, out with a basket (05za)
@@ -15774,6 +15845,7 @@ function newGame(){
      reads better this way round too - you find out what you have settled on
      once you have settled on it. (WANDERING_AGE) */
   G.pendingFounding = true;
+  retirePup();              // no pup in any mode: a Kennel from the start where the night quest is not the way (05g)
   centerOnTown();
 }
 
@@ -18806,7 +18878,11 @@ function spawnBird(kind){
   const x = edge ? (Math.random()<0.5?-40:WORLD_W+40) : Math.random()*WORLD_W;
   const a = Math.atan2(WORLD_H/2-y, WORLD_W/2-x) + (Math.random()-0.5)*1.1;
   const hawk = (kind === "hawk");
-  G.birds.push({ x, y, a, seed:Math.random()*6.28,
+  /* WHAT KIND (05zc): a finch flock is sometimes goldfinches or swallows, a hawk
+     is sometimes a kestrel. Same number of birds as ever - this only chooses
+     which, and from its own dice so the match's stream is not touched. */
+  const sp = hawk ? pickHawkKind() : pickFlockKind();
+  G.birds.push({ x, y, a, seed:Math.random()*6.28, sp,
                  spd: hawk ? 34+Math.random()*16 : 52+Math.random()*46,
                  alt: birdAlt(hawk ? "hawk" : "flock"),
                  n:   hawk ? 1 : 5+((Math.random()*5)|0),
@@ -19568,6 +19644,19 @@ function plantStartStone(cfx, cfy){
   for(let ring = 0; ring < 4; ring++){
     vein(RES.STONE, cfx, cfy, START_STONE_RING + ring*2, START_STONE_RING + 3 + ring*2);
     if(G.nodes.length > before){ markStartStone(before); return true; }
+    /* BEFORE GOING FURTHER OUT, A SMALL ONE AT THE EDGE OF THE LIGHT (user,
+       10 Oct: "make sure that every town has some gold and stone somewhere at
+       the edge of the light circle"). Measured over four difficulties and
+       thirty seeds the nearest stone was at seven tiles for most starts and
+       out at ten to twelve and a half for a few, because a full vein needs room
+       for nine rocks and a crowded or watery ring has none. Two rings of vein
+       attempts first (so the ordinary start is untouched); if both come away
+       empty, a pebble of the old size in the same band is far better than a
+       big vein beyond the dark, which is a walk and not a find. */
+    if(ring === 1){
+      plantNear(RES.STONE, cfx, cfy, START_STONE_AMT, START_STONE_RING - 1, START_STONE_RING + 3);
+      if(G.nodes.length > before){ markStartStone(before); return true; }
+    }
   }
   const got = plantNear(RES.STONE, cfx, cfy, START_STONE_AMT, START_STONE_RING, START_STONE_RING + 5);
   markStartStone(before);
@@ -20508,6 +20597,9 @@ function tapAt(sx, sy){
     return;
   }
 
+  /* A SLEEPER'S FACE ON THEIR BUILDING (05zo). First on the map, so the building under it does not take the tap. */
+  if(!G.action && typeof tapSleepFace === "function" && tapSleepFace(w)) return;
+
   const own = G.sel.filter(e=>e.p===P_YOU && e.kind==="unit");
 
   // ---- setting a rally point for selected buildings ----
@@ -20684,11 +20776,14 @@ function tapAt(sx, sy){
 
            Filtered out of the crew rather than blocked afterwards, so that
            tapping with a mixed selection still sends everyone else. */
-        const founderOnly = [];
+        const founderOnly = [], specialistOnly = [];
         const crew = own.filter(u => {
           if(!(wet ? ((UNITS[u.type] && UNITS[u.type].fisher) || (isWorker(u) && bank))
                    : isWorker(u))) return false;
-          if(n.kind === "tradefind" && u.firstVillager){ founderOnly.push(u); return false; }
+          if(isSpecialFindNode(n)){
+            const why = whyNotSpecialFind(u, n);
+            if(why){ (u.firstVillager ? founderOnly : specialistOnly).push({ u, why }); return false; }
+          }
           /* AND A SHOAL IS THE SAME KIND OF THING. Playing one round makes
              you the fisherman for good, so the founder is filtered out of
              the crew here rather than blocked afterwards - tapping with a
@@ -20696,7 +20791,9 @@ function tapAt(sx, sy){
           if(wet && !mayFish(u)){ founderOnly.push(u); return false; }
           return true;
         });
-        if(!crew.length && founderOnly.length){
+        if(!crew.length && specialistOnly.length && !founderOnly.length){
+          hint(specialistOnly[0].why);                  // "Edda is already the Gardener."
+        } else if(!crew.length && founderOnly.length){
           hint(wet
             ? "Fishing is a villager's job. The one who founded this village has enough to do."
             : "The one who founded this village has enough to do. Send somebody else.");
@@ -22035,8 +22132,8 @@ function startPlacing(type, seasonalCrop){
      centre to be upgraded. Same belt-and-braces reasoning as above - the
      build menu already only offers these four, this catches the hotkey,
      the bot and the stray call. (WANDERING_AGE) */
-  if(!stoneAge(P_YOU) && WANDER_BUILD.indexOf(type) < 0){
-    hint("Not yet - a camp builds only what it lives on. Upgrade the town centre to begin the Stone Age.");
+  if(!stoneAge(P_YOU) && !campMayBuild(type, seasonalCrop)){
+    hint("Not yet - the Hearth Age builds only what a camp needs. Upgrade the town centre to begin the Stone Age.");
     return;
   }
   G.placing = { type };
@@ -22825,7 +22922,12 @@ function makeFieldWorker(cottage, kindTag){
        (idea_gardener_geologist_look_and_work) */
     clothes: kindTag==="gardener"  ? ["#5a7a3a", "#3f5628"]
            : kindTag==="geologist" ? ["#6a6055", "#4a423a"]
-           : kindTag==="herbalist" ? ["#6a5a7a", "#4a3f5a"]
+           /* THE HERBALIST IN MOSS GREEN (user, 10 Oct: "doesn't look too much
+              like a herbalist - a green uniform, moss and vines growing on
+              him, think Radagast the Brown"). The plum he used to wear was
+              nobody's idea of a man who lives among green things; the look
+              itself - hat, beard, moss, vine - is drawn in drawPerson (04e). */
+           : kindTag==="herbalist" ? ["#5d7b3c", "#3f5a2a"]
            /* Matching what they wore while they were still yours - the
               caretaker used to draw a random leisure outfit, so the person
               who spent days in your fields turned into a stranger the day
@@ -25096,6 +25198,30 @@ function trainedUnitSpot(b){
   return { x: b.x + Math.cos(a)*rr, y: b.y + Math.sin(a)*rr };
 }
 
+/* THE DOORSTEP OF THE TOWN CENTRE (user, 10 Oct: "when a new villager is made
+   it needs to come out of the door of the town center"). trainedUnitSpot
+   above is where they END UP - south, past the long table - and on an
+   ordinary day that is a good way out in front of the hall, so a new villager
+   simply appeared in the open and stood there. They now appear on the
+   doorstep, under the door the picture actually has, and walk on to that
+   spot only when there is something to walk round (the table). The door is
+   not in the middle of the first-age hall: the picture sits a little to the
+   right of centre, and its door foot is about four and a half pixels right of
+   the building's middle. Later halls have it central.
+
+   Just OUTSIDE the footprint, not on the door's own foot: the footprint is
+   blocked ground, and a unit made inside it would be a unit nobody can move.
+   Null when that spot is water or taken, and the caller falls back to the old
+   spot. */
+function trainedUnitDoor(b){
+  if(!b || b.type !== "town") return null;
+  const pl = G.players[b.p];
+  const art = (typeof TOWN_ART_ON !== "undefined" && TOWN_ART_ON) && pl && (pl.age|0) === 0 && !b.settleSite;
+  const x = b.x + (art ? 4.5 : 0), y = b.y + b.h*TILE/2 + 5;
+  if(isWater(x, y) || blocked(x, y, null, false)) return null;
+  return { x, y };
+}
+
 function tick(dt){
   if(!G.running || G.over) return;
   G.t += dt;
@@ -25254,7 +25380,7 @@ function tick(dt){
         }
         b.popWarn = false;
         b.qt = 0; b.queue.shift();
-        let sx, sy;
+        let sx, sy, outTo = null;
         if(UNITS[type].naval){
           sx=b.x; sy=b.y;
           let found=false;
@@ -25266,12 +25392,14 @@ function tick(dt){
             }
           }
         } else {
-          const spot = trainedUnitSpot(b);
-          sx = spot.x; sy = spot.y;
+          const spot = trainedUnitSpot(b), door = trainedUnitDoor(b);
+          sx = door ? door.x : spot.x; sy = door ? door.y : spot.y;
+          outTo = door ? spot : null;             // the doorstep first, then on past the table
         }
         const u = makeUnit(type, b.p, sx, sy);
         autoGroup(u);
         if(b.rally){ u.order="move"; u.tx=b.rally.x; u.ty=b.rally.y; }
+        else if(outTo && typeof longTableAt === "function" && longTableAt()){ u.order="move"; u.tx=outTo.x; u.ty=outTo.y; }
       }
     }
     // tower attack - its own bite, plus whatever it has been rebuilt into,
@@ -26788,7 +26916,10 @@ function updateUnit(u, dt){
         // back to whatever else is lying about: quietly switching everyone to
         // stone when the berries run out hides the problem, and the whole
         // point of the idle count is to tell you that people need work.
-        const n = nearestNode(u, u.carryKind);
+        let n = nearestNode(u, u.carryKind);
+        /* Out of berries and every field between crops: go and wait at the
+           nearest of your own fields (nearestFarmNode, 03d). */
+        if(!n && u.carryKind === RES.FOOD && u.p === P_YOU && typeof nearestFarmNode === "function") n = nearestFarmNode(u);
         if(n){ u.target = n; }
         else if(u.carry > 0){
           // hold the order and the spent node - the gather step below sees a
@@ -26986,6 +27117,18 @@ function updateUnit(u, dt){
          What was banked up in it is all in takeSeasonPile (05f). */
       if(n.kind==="millwheel" || n.kind==="wolfpup" || n.kind==="standingstone" ||
          n.kind==="tradefind" || n.kind==="pile"){
+        /* Who may lift it (whyNotSpecialFind, 05g): never the founder, and no
+           trade find for somebody who already is a Gardener or a Fisherman.
+           Checked again here because an order can have been given before the
+           rule, or by a group tap, or come out of a saved game. The thing is
+           still in G.nodes at this point, so it simply stays where it is. */
+        if(n.kind==="wolfpup" && typeof WOLF_PUP_ON !== "undefined" && !WOLF_PUP_ON){ u.order = null; u.target = null; G.nodes = G.nodes.filter(x=>x!==n); break; }   // an old order to a pup that is no longer a thing
+        const refusal = whyNotSpecialFind(u, n);
+        if(refusal){
+          u.order = null; u.target = null;
+          if(u.p===P_YOU) hint(refusal);
+          break;
+        }
         /* Whoever is on their way to the pup is remembered by id. If they do
            not make it, the pup goes with them and there is not another until
            next year - which is the whole reason it is worth sending somebody
@@ -28814,6 +28957,31 @@ function nearestNode(u, kind){
     }
     const d=Math.hypot(n.x-u.x,n.y-u.y);
     if(d<bd){bd=d;best=n;}
+  }
+  return best;
+}
+/* WHEN THE BERRIES ARE GONE, THE FARM (user, 10 Oct: "once the berries are
+   gone the villagers stop - they do not go to farms or other people's berries,
+   they stay within town range and stop").
+
+   nearestNode already hands a food gatherer the nearest food of any kind that
+   still has something in it, so a ripe field was always on offer. What it
+   cannot offer is a field that is between crops: its node has nothing in it
+   until the crop is ripe, so with every bush eaten and the fields all sown the
+   gatherer was handed nothing, and the idle count rose. A field is exactly
+   where somebody who gathers food belongs while that happens - the crew of an
+   empty field waits there to be set to work again (03c) - so this is the
+   nearest of YOUR OWN fields that is standing, ripe or not. Null if there are
+   none, and then they do stop, which is the honest answer to a village with no
+   food to pick. */
+function nearestFarmNode(u){
+  let best = null, bd = 1e9;
+  for(const n of G.nodes){
+    if(!n.farmOf || n.kind !== RES.FOOD) continue;
+    const f = n.farmOf;
+    if(!f || f.p !== u.p || !f.done || !(f.hp > 0)) continue;
+    const d = Math.hypot(n.x - u.x, n.y - u.y);
+    if(d < bd){ bd = d; best = n; }
   }
   return best;
 }
@@ -34814,6 +34982,7 @@ function draw(){
   drawWaterRocks(x0,y0,x1,y1);
   ORE_LIGHTS.length = 0;      // the iron veins re-add themselves as they draw (drawVeinArt)
   NIGHT_GLOWS.length = 0;     // and every light as it is drawn leaves its note for the bloom pass (05zd)
+  if(typeof WINDOW_SPILLS !== "undefined") WINDOW_SPILLS.length = 0;     // and every lit window and door its note for the light on the ground (05zq)
   drawPondFrost(x0,y0,x1,y1);
   drawFootprints(x0,y0,x1,y1);
   /* THE FIREFLY SWARM IS DRAWN AFTER THE DARKNESS, not here - see the
@@ -35452,7 +35621,7 @@ function draw(){
   for(const it of drawList){
     switch(it.kind){
       case 1: drawNode(it.e); break;
-      case 2: drawBuilding(it.e); break;
+      case 2: drawBuilding(it.e); if(typeof drawRoofRain === "function") drawRoofRain(it.e); break;      // wet roofs, and the rain splashing off them (05zp)
       case 28: drawFarmCrop(it.e); break;   // the tall crop, in its own place
       /* 30. COUNTED, not guessed - 29 was taken and smoke.js caught it on the
          first build, which is precisely what that check is there for. */
@@ -36031,7 +36200,7 @@ function draw(){
       const vary = Math.sin(b.seed*12.9898 + rank*78.233) * 0.5 + 0.5;
       // a tiny bit smaller across the board (21 Sep), now that flying
       // properly above their own shadows makes them easier to spot
-      const sc = (b.hawk ? 1.7 : b.gull ? 0.8 : 1) * (0.86 + vary*0.28) * 0.85;
+      const sc = (b.hawk ? (b.sp === "buzzard" ? 1.95 : b.sp === "kestrel" ? 1.5 : 1.7) : b.gull ? 0.8 : (b.sp === "bluetit" ? 0.8 : 1)) * (0.86 + vary*0.28) * 0.85;
       const tone = 0.78 + vary*0.20;
       /* THE BIRD NEVER ACTUALLY FLEW UP. `alt` (spawnBird, migration, the
          storm flush) was always meant to be real height - hawks above the
@@ -36055,7 +36224,8 @@ function draw(){
         ctx.save();
         ctx.translate(bx, fby);
         ctx.rotate(b.a);
-        const BODY = "rgba(74,56,38,.95)", WING = "rgba(96,74,50,.95)";
+        const hk = (b.sp && b.sp !== "hawk") ? birdTypeByKey(b.sp) : null;       // a kestrel or a buzzard in its own colours
+        const BODY = hk ? shade(hk.col, -0.12) : "rgba(74,56,38,.95)", WING = hk ? hk.col : "rgba(96,74,50,.95)";
         // wings: swept back, each a filled shape, rising and falling
         ctx.fillStyle = WING;
         for(const sgn of [-1, 1]){
@@ -36095,13 +36265,7 @@ function draw(){
         ctx.moveTo(bx+5*sc, fby-flap*3.0*sc); ctx.lineTo(bx+3.4*sc, fby-flap*2.0*sc);
         ctx.stroke();
       } else {
-        ctx.strokeStyle = "rgba(46,42,38,"+tone.toFixed(2)+")";
-        ctx.lineWidth = 1.5*sc; ctx.lineCap="round";
-        ctx.beginPath();
-        ctx.moveTo(bx-5*sc, fby-flap*3.2*sc);
-        ctx.quadraticCurveTo(bx-2*sc, fby+1.4*sc, bx, fby);
-        ctx.quadraticCurveTo(bx+2*sc, fby+1.4*sc, bx+5*sc, fby-flap*3.2*sc);
-        ctx.stroke();
+        drawFlockBird(b.sp, bx, fby, flap, sc, b.a, tone);      // 05zc: the finch as it always was, or one of the new kinds
       }
     }
   }
@@ -36149,6 +36313,7 @@ function draw(){
   // speech bubbles: tiny, wordless, deliberately unreadable marks
   ctx.save();
   ctx.scale(G.cam.z,G.cam.z); ctx.translate(-G.cam.x,-G.cam.y);
+  drawSleepFaces();       // the sleepers' faces on their buildings (05zo)
   const speakers = G.units.concat(elders().filter(el => el.state!=="inside"));
   for(const u of speakers){
     if(!u.say) continue;
@@ -36862,6 +37027,7 @@ function draw(){
        it: they came out as bright specks with the daylit world showing
        through them. A moth is lit BY the lamp; it does not light anything. */
     drawMoths(x0,y0,x1,y1);
+    if(typeof drawWindowSpills === "function") drawWindowSpills();   // the light a window or a door lays on the ground outside (05zq)
     drawNightGlows();     // the halo round every lit window and fire (05zd)
     drawWisp();          // and the cold flame with no lamp under it
     drawLooseBeast();    // and whatever got out of the pens, if anything has
@@ -42801,7 +42967,16 @@ function occluderRect(b, c){
    of wall is - and a frame with no walls up yet is not either. */
 function occludes(b){
   const bd = BLDG[b.type];
-  return !!(b.done && b.hp > 0 && bd && !bd.farm);
+  if(!bd || bd.farm || !(b.hp > 0)) return false;
+  if(b.done) return true;
+  /* THE RUINED HALL, AND A SITE WITH ITS WALLS UP (user, 10 Oct: "shadow from
+     the town centre at night and other buildings and trees and resources").
+     The town centre you start beside is a ruin with its old walls standing
+     (settleSite), and for the whole of the opening - which is where the first
+     night is spent, beside it, by the light of one torch - it threw nothing,
+     because only a FINISHED building did. A bare frame still does not, as
+     before; a site raised past three fifths does. */
+  return !!(b.settleSite || (b.prog || 0) >= 0.6);
 }
 
 /* ============================================================
@@ -42955,6 +43130,274 @@ function drawMoonTreeShadows(d, c){
   ctx.restore();
 }
 
+/* ---------- A BUILDING'S SHADOW BY LAMP- AND TORCHLIGHT IS THE BUILDING ----------
+   "They are odd wedges, they need to be silhouettes." A building threw the same
+   four-cornered wedge a rock does: the two corners that bound it as seen from
+   the light, run out to the edge of the pool. Nothing about it said house.
+
+   The sun already does better (buildingShadowPoly, 05zd): a building is a solid,
+   and a solid's shadow is the outline of ALL of it - the footprint, the eaves and
+   the ridge or apex, each thrown along the light - so a gabled house lays a squat
+   shape with a peak on the ground and a round tower a pillar with a point. This
+   is that, for a light that is a point and not a sun: the throw runs away from
+   THIS light (so every building's shadow points out from the flame, and fans a
+   little as they go round it), and a corner at height h lands h * LIT_THROW
+   further out. Done in the pool's own un-squashed space, like the wedges beside
+   it, so the pool's slant foreshortens it for free.
+
+   It starts at the FAR base of the building, not through the middle: the body is
+   drawn on top of the ground and the shadow only has to come out from behind it.
+   For the founder's torch the body is also cut out of the layer the shadows go on
+   (TFX_BODY_CUTS, torchLayerDown), as the trees are, so one that falls up the
+   screen goes behind the house rather than darkening its wall. Returns false for
+   anything it cannot make a shape of, and the caller keeps the wedge. */
+const LIT_THROW_FIRE = 0.95, LIT_THROW_LAMP = 0.95;
+
+/* ---------- ...AND BY THE FOUNDER'S TORCH, THE BUILDING'S OWN PICTURE ----------
+   "It's not the silhouette of the building." The outline above is a box with a
+   pitch, which from a low flame is a trapezoid, and a trapezoid is a wedge by
+   another name. The torch is the one light you walk round a village with, so
+   its shadow of a building is the building: the very picture it is drawn with
+   (the town centre's walls, roof and chimney; a ruin's broken posts), flattened
+   to one flat black and laid on the ground from the foot, away from the flame,
+   exactly as the sun lays a tree's (castSilhouette, 05zd).
+
+   Each building is drawn ONCE into a canvas of its own (drawBuilding itself, lent
+   the context the way a portrait is, withCanvas), turned black by drawing black
+   over it with source-in, and kept until it changes - done or not, how far up it
+   is, whose colour. After that a shadow is one drawImage under a shear. */
+/* A torch shadow is the NIGHT's own colour, the same as every other shadow on its
+   layer - not black, which was a darker hole than the dark it lay on. */
+function litTintFill(){ return "rgb(" + nightTintRGB() + ")"; }
+/* A flat sprite silhouette (sunSilhouette, 05zd: black) recoloured the night's
+   tint, kept per source picture and per tint. */
+const TINTED_SIL = new WeakMap();
+function tintedSilhouette(sil){
+  if(!sil || typeof document === "undefined") return null;
+  const tint = litTintFill();
+  let e = TINTED_SIL.get(sil);
+  if(e && e.tint === tint) return e.cv;
+  const cvs = (e && e.cv) || document.createElement("canvas");
+  cvs.width = sil.width; cvs.height = sil.height;
+  const g = cvs.getContext("2d");
+  if(!g) return null;
+  g.globalCompositeOperation = "source-over"; g.drawImage(sil, 0, 0);
+  g.globalCompositeOperation = "source-in"; g.fillStyle = tint; g.fillRect(0, 0, cvs.width, cvs.height);
+  g.globalCompositeOperation = "source-over";
+  TINTED_SIL.set(sil, { tint, cv: cvs });
+  return cvs;
+}
+let BSIL_BUSY = false;
+const BSIL = new Map();
+const BSIL_SCALE = 2;
+function buildingSilhouette(b){
+  if(typeof document === "undefined" || typeof withCanvas !== "function") return null;
+  const d = BLDG[b.type];
+  if(!d || d.farm || b.type === "wall") return null;
+  const fw = b.w * TILE, fdep = b.h * TILE;
+  const SH = d.shrink || 0.70, dep = fdep * SH;
+  const yb = b.ty * TILE + (fdep - dep) / 2 + dep;                    // the foot: where the wall meets the ground
+  const tint = litTintFill();
+  const key = [b.type, b.done ? 1 : 0, Math.round((b.prog || 0) * 8), b.settleSite ? 1 : 0, b.tier || b.lvl || 0, (clanShade(G.players[b.p], "bldg") || {}).col, tint].join("|");
+  let e = BSIL.get(b.id);
+  if(e && e.key === key) return e;
+  const padX = 30, up = (d.hgt || 24) + 70, down = 16, S = BSIL_SCALE;
+  const cw = Math.ceil((fw + padX * 2) * S), ch = Math.ceil((fdep + up + down) * S);
+  if(cw < 8 || ch < 8 || cw * ch > 4e6) return null;
+  const cvs = (e && e.cv) || document.createElement("canvas");
+  cvs.width = cw; cvs.height = ch;                                    // (re)sizing clears it
+  const g = cvs.getContext("2d");
+  if(!g) return null;
+  const ox = b.tx * TILE - padX, oy = b.ty * TILE - up;
+  g.setTransform(S, 0, 0, S, -ox * S, -oy * S);
+  BSIL_BUSY = true;
+  try { withCanvas(g, () => drawBuilding(b)); }
+  catch(err){ BSIL_BUSY = false; BSIL.delete(b.id); return null; }
+  BSIL_BUSY = false;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalAlpha = 1; g.globalCompositeOperation = "source-in";
+  g.fillStyle = tint; g.fillRect(0, 0, cw, ch);
+  g.globalCompositeOperation = "source-over";
+  e = { key, cv: cvs, ox, oy, S, cw, ch, foot: yb };
+  BSIL.set(b.id, e);
+  return e;
+}
+/* The same for a rock, an ore vein or a berry bush: drawNodeBody itself, once,
+   into a canvas of its own, in the night's tint, kept until the node changes
+   (a vein sheds rocks as it is worked, so how much is left is in the key). */
+const NSIL = new Map();
+function nodeSilhouette(n){
+  if(typeof document === "undefined" || typeof withCanvas !== "function" || typeof drawNodeBody !== "function") return null;
+  const S = BSIL_SCALE, hw = Math.max(56, (n.r || 12) * 3), up = 84, down = 18;
+  const tint = litTintFill();
+  const key = [n.kind, Math.round(((n.amt || 0) / (n.max || 1)) * 8), n.vein ? 1 : 0, tint].join("|");
+  let e = NSIL.get(n.id);
+  if(e && e.key === key) return e;
+  const cw = Math.ceil(hw * 2 * S), ch = Math.ceil((up + down) * S);
+  const cvs = (e && e.cv) || document.createElement("canvas");
+  cvs.width = cw; cvs.height = ch;
+  const g = cvs.getContext("2d");
+  if(!g) return null;
+  const ox = n.x - hw, oy = n.y - up;
+  g.setTransform(S, 0, 0, S, -ox * S, -oy * S);
+  BSIL_BUSY = true;
+  try { withCanvas(g, () => drawNodeBody(n)); }
+  catch(err){ BSIL_BUSY = false; NSIL.delete(n.id); return null; }
+  BSIL_BUSY = false;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalAlpha = 1; g.globalCompositeOperation = "source-in";
+  g.fillStyle = tint; g.fillRect(0, 0, cw, ch);
+  g.globalCompositeOperation = "source-over";
+  e = { key, cv: cvs, ox, oy, S, cw, ch };
+  NSIL.set(n.id, e);
+  return e;
+}
+/* THE TORCH'S SHADOW OF A TREE, A ROCK, A VEIN OR A BUSH: its own picture, fallen
+   over along the ground away from the flame, from its foot - the same as a
+   building's (torchBuildingSilhouette) but starting at a point. These threw the
+   same grey-blue wedge as everything else ("the weird shadows", 11 Oct): a
+   tree's shadow was a long flat triangle with nothing of a tree in it. A tree
+   uses the very sprite it is drawn with (treeSpriteOf); everything else is
+   drawn once into a canvas of its own (nodeSilhouette). Returns false when
+   there is no picture, and the caller keeps the wedge. */
+const LIT_THROW_TREE = 0.85, LIT_THROW_LOW = 1.1;
+const LIT_FAR_K = 1.7;       // how far past the rim of its light a fire's picture-shadows may run, as a multiple of the pool's radius
+/* The pictures can be switched off, and the shadows are the plain wedges again (the tests that
+   count wedges use it; nothing else needs to). */
+let LIT_PICTURES_ON = true;
+function litNodeShadow(nx, r, L, k, ox, oy, px, py, dist, R, c){
+  const n = r.node;
+  if(!LIT_PICTURES_ON || !n || typeof nx.drawImage !== "function" || typeof nx.transform !== "function") return false;
+  let cv = null, ix, iy, dw, dh;
+  const spr = (n.kind === RES.WOOD && typeof treeSpriteOf === "function") ? treeSpriteOf(n) : null;
+  const sil = spr ? sunSilhouette(spr.img) : null;
+  if(spr && sil){ cv = tintedSilhouette(sil); ix = spr.ix; iy = spr.iy; dw = spr.dw; dh = spr.dh; }
+  else {
+    const e = nodeSilhouette(n);
+    if(!e) return false;
+    cv = e.cv; ix = e.ox - n.x; iy = e.oy - n.y; dw = e.cw / e.S; dh = e.ch / e.S;
+  }
+  if(!cv) return false;
+  const z = c.z, ux = px / dist, uy = py / dist, T = (n.kind === RES.WOOD && spr) ? LIT_THROW_TREE : LIT_THROW_LOW;
+  const Ox = ox + px, Oy = oy + py;                                  // its foot, in the pool's own space
+  const reach = Math.max(8, -iy * 0.7) * z * T;                      // roughly how far the shadow runs (the picture's top is mostly empty)
+  const mid = Math.hypot(Ox + ux * reach * 0.5, Oy + uy * reach * 0.5);
+  const fade = Math.max(0, Math.min(1, (R - mid) / (R * 0.18)));
+  if(fade <= 0.02) return true;
+  nx.save();
+  nx.transform(uy * z, -ux * z, -ux * z * T, -uy * z * T, Ox, Oy);
+  nx.globalAlpha = fade;
+  nx.drawImage(cv, ix, iy, dw, dh);
+  nx.restore();
+  return true;
+}
+
+/* The torch's shadow of one building: its picture FALLEN OVER along the ground,
+   away from the flame. Done in the pool's own un-squashed space (where nx
+   already is), so the slant of the ground comes free.
+
+   A shear alone is not enough for a flame level with the wall: it flattens the
+   picture to a black strip, because the picture's height has nowhere to go but
+   sideways. So the picture is turned instead. Its HEIGHT is laid along the
+   ground away from the flame (u), and its WIDTH across it (v): the front of the
+   house becomes the profile of its shadow, which for a house about as deep as it
+   is wide is the right shape from any side. Its width stays its own, so it is still
+   the building's proportions, and the whole thing starts at the building's far
+   edge, not its middle.
+   u is the unit ground direction from the flame to the building; k un-squashes
+   the pool. Returns false when there is no picture to use. */
+function torchBuildingSilhouette(nx, b, L, k, ux, uy, c, R){
+  if(!LIT_PICTURES_ON || typeof nx.drawImage !== "function" || typeof nx.transform !== "function") return false;
+  const e = buildingSilhouette(b);
+  if(!e) return false;
+  const d = BLDG[b.type], z = c.z;
+  const SH = d.shrink || 0.70, SW = d.shrinkW || SH;
+  const w = b.w * TILE * SW, dep = b.h * TILE * SH;
+  const ctr = w2s(b.x, e.foot - dep / 2);                       // the middle of the footprint on the screen
+  const gx = ctr.x - L.x, gy = (ctr.y - L.y) * k;               // ...and in the pool's ground space
+  const half = Math.abs(ux) * w * z / 2 + Math.abs(uy) * dep * z * k / 2;   // how far its far edge is from the middle, along u
+  const ox = gx + ux * half, oy = gy + uy * half;
+  const vx = uy, vy = -ux;                                       // across the light
+  const sLat = 1;                                                // its own width: stretched to the footprint it came out a fat band, nothing like the house
+  const T = LIT_THROW_FIRE;
+  /* A fire's other shadows are solid out to 0.72 of the pool and gone at its
+     rim (litBuildingShadow's gradient, the wedges'). A picture has no gradient
+     in it, so the same fade is its opacity, taken at the middle of the shadow:
+     without it the far end of one was a crisp black crescent against ground that
+     is only dim, which is what the rim of the light looks like. */
+  const reach = ((BLDG[b.type].hgt || 24) + 8) * z * T;
+  const mid = Math.hypot(ox + ux * reach * 0.5, oy + uy * reach * 0.5);
+  const fade = Math.max(0, Math.min(1, (R - mid) / (R * 0.18)));
+  if(fade <= 0.02) return true;                                  // out of the light: nothing to draw, and nothing to fall back to
+  nx.save();
+  nx.transform(vx * z * sLat, vy * z * sLat, -ux * z * T, -uy * z * T, ox, oy);
+  nx.globalAlpha = fade;
+  nx.drawImage(e.cv, e.ox - b.x, e.oy - e.foot, e.cw / e.S, e.ch / e.S);
+  nx.restore();
+  return true;
+}
+const TFX_BODY_CUTS = [];
+function litHull(P){
+  P.sort((a, c) => a[0] - c[0] || a[1] - c[1]);
+  const cross = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]);
+  const lo = [];
+  for(const p of P){ while(lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+  const up = [];
+  for(let i = P.length - 1; i >= 0; i--){ const p = P[i]; while(up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+  lo.pop(); up.pop();
+  return lo.concat(up);
+}
+function litBuildingShadow(nx, r, L, k, ox, oy, px, py, dist, R, rgb, fire, c){
+  const d = BLDG[r.b.type];
+  if(!d || typeof buildingCorners !== "function") return false;
+  const z = c.z, Hh = r.H * z;
+  const ux = px / dist, uy = py / dist, throwK = fire ? LIT_THROW_FIRE : LIT_THROW_LAMP;
+  const own = fire && torchBuildingSilhouette(nx, r.b, L, k, ux, uy, c, R * LIT_FAR_K);
+  // the building as a solid, in screen pixels: its footprint, with heights already scaled by the zoom
+  const corners = buildingCorners(Object.assign({}, d, { hgt: (d.hgt || 8) * z }), r.x - r.hw, r.y - r.hh, r.hw * 2, r.hh * 2, Hh);
+  const P = [];
+  for(const q of corners){
+    const qx = q[0] - L.x - ox, qy = (q[1] - L.y) * k - oy, h = q[2];
+    if(h <= 0){
+      // only the half of the footprint away from the light: the near half is under the building itself
+      if((qx - px) * ux + (qy - py) * uy < -0.5) continue;
+      P.push([qx, qy]);
+    } else {
+      P.push([qx + ux * h * throwK, qy + uy * h * throwK]);
+    }
+  }
+  if(P.length < 3) return false;
+  const poly = litHull(P);
+  if(poly.length < 3 && !own) return false;
+  if(own){
+    // the building's own picture is down already; only its body still has to be cut out of the layer
+  } else if(fire){
+    const g = nx.createRadialGradient(ox, oy, 0, ox, oy, R);
+    g.addColorStop(0, "rgb(" + rgb + ")"); g.addColorStop(0.72, "rgb(" + rgb + ")"); g.addColorStop(1, "rgba(" + rgb + ",0)");
+    nx.fillStyle = g;
+  } else {
+    const g = nx.createRadialGradient(ox, oy, dist * 0.96, ox, oy, R);
+    g.addColorStop(0,    "rgba(" + rgb + "," + (NIGHT_MAX * OCCLUDE_STRENGTH).toFixed(3) + ")");
+    g.addColorStop(0.40, "rgba(" + rgb + "," + (NIGHT_MAX * OCCLUDE_STRENGTH * 0.78).toFixed(3) + ")");
+    g.addColorStop(1,    "rgba(" + rgb + ",0)");
+    nx.fillStyle = g;
+  }
+  if(!own){
+    nx.beginPath();
+    nx.moveTo(ox + poly[0][0], oy + poly[0][1]);
+    for(let i = 1; i < poly.length; i++) nx.lineTo(ox + poly[i][0], oy + poly[i][1]);
+    nx.closePath();
+    nx.fill();
+  }
+  if(fire){
+    // the body as it stands on the screen: the footprint and the same corners lifted straight up
+    const B = [];
+    for(const q of corners) B.push([q[0], q[1] - q[2]]);
+    TFX_BODY_CUTS.push(litHull(B));
+  }
+  return true;
+}
+
 function drawLightOcclusion(nx0, lamps, c){
   if(!lamps || !lamps.length) return;
   if(c.z < OCCLUDE_MIN_Z) return;
@@ -42964,8 +43407,18 @@ function drawLightOcclusion(nx0, lamps, c){
     if(!occludes(b)) continue;
     if(!exploredTo(P_YOU, b.x, b.y)) continue;
     const r = occluderRect(b, c);
-    if(r) solid.push(r);
+    if(r){
+      /* The building itself, and how tall it stands, so its shadow can be ITS
+         shape (litBuildingShadow, below) and not a wedge off the corners. A
+         wall, a field and anything flat has no height and keeps the wedge. A
+         site still going up throws a shadow as tall as it has got. */
+      r.b = b;
+      r.H = (typeof shadowHeightOfBuilding === "function" ? shadowHeightOfBuilding(b) : 0) *
+            ((b.done || b.settleSite) ? 1 : Math.max(0.5, Math.min(1, b.prog || 0)));
+      solid.push(r);
+    }
   }
+  TFX_BODY_CUTS.length = 0;
   /* TREES STOP LAMPLIGHT TOO. Only buildings did, so a lantern beside a tree
      lit the ground right through the trunk. A trunk is a small thing and a
      crown is leaky, so each throws a short, light wedge (TREE_OCCLUDE_K of a
@@ -42977,7 +43430,7 @@ function drawLightOcclusion(nx0, lamps, c){
     const sp = w2s(t.x, t.y);
     if(sp.x < -60 || sp.y < -60 || sp.x > VW + 60 || sp.y > VH + 60) continue;
     if(!exploredTo(P_YOU, t.x, t.y)) continue;
-    treeRects.push({ x: sp.x, y: sp.y, hw: 4.5 * c.z, hh: 2.6 * c.z, k: TREE_OCCLUDE_K, tree: true });
+    treeRects.push({ x: sp.x, y: sp.y, hw: 4.5 * c.z, hh: 2.6 * c.z, k: TREE_OCCLUDE_K, tree: true, node: t });
   }
   /* THE FOUNDER'S TORCH (05zi) is the one light that also stops at rocks and
      ore, and stops harder: it is a small flame held low in a wood, and the
@@ -42986,11 +43439,18 @@ function drawLightOcclusion(nx0, lamps, c){
   const rockRects = [];
   if(lamps.some(L => L.fire)){
     for(const t of G.nodes){
-      if(t.kind === RES.WOOD || t.kind === RES.FOOD || !(t.amt > 0)) continue;
+      if(t.kind === RES.WOOD || !(t.amt > 0)) continue;
+      /* BERRY BUSHES TOO (user, 10 Oct: "...and resources"). Food was left out
+         wholesale because a field is flat and a shoal is water; a wild bush is
+         neither - it is a knee-high shrub, and a torch next to one throws a
+         short, light shadow like any other low thing. A field's crop and a
+         shoal still throw nothing. */
+      const bush = t.kind === RES.FOOD;
+      if(bush && (t.farmOf || t.water)) continue;
       const sp = w2s(t.x, t.y);
       if(sp.x < -60 || sp.y < -60 || sp.x > VW + 60 || sp.y > VH + 60) continue;
       if(!exploredTo(P_YOU, t.x, t.y)) continue;
-      rockRects.push({ x: sp.x, y: sp.y, hw: 7 * c.z, hh: 3.6 * c.z, k: TREE_OCCLUDE_K });
+      rockRects.push({ x: sp.x, y: sp.y, hw: (bush ? 5 : 7) * c.z, hh: (bush ? 2.6 : 3.6) * c.z, k: TREE_OCCLUDE_K * (bush ? 0.8 : 1), node: t });
     }
   }
   if(!solid.length && !treeRects.length && !rockRects.length) return;
@@ -43027,7 +43487,11 @@ function drawLightOcclusion(nx0, lamps, c){
     nx.save();
     nx.translate(L.x, L.y);
     nx.scale(1, 1/k);
-    nx.beginPath(); nx.arc(0, 0, R, 0, 6.283); nx.clip();
+    /* A FIRE'S SHADOW RUNS ON PAST THE EDGE OF ITS LIGHT (user, 11 Oct, a house beside the torch: "there should be one on the
+       other side of the building away from the torch"). The far side of a building is by definition the side the torch
+       cannot light, so a clip at the pool's rim threw the whole of it away and the house had a shadow only where it was
+       lit. The clip for a fire is wider; its pictures fade out over the stretch beyond the rim (LIT_FAR_K). */
+    nx.beginPath(); nx.arc(0, 0, L.fire ? R * LIT_FAR_K : R, 0, 6.283); nx.clip();
     /* The soft edge. Set once per light rather than per wedge, and cleared
        again on the restore below with everything else. A canvas that does
        not know what `filter` is simply ignores the assignment and gets the
@@ -43079,6 +43543,8 @@ function drawLightOcclusion(nx0, lamps, c){
       if(dist - Math.max(r.hw, hh) > R) continue;   // out of this light entirely
       if(Math.abs(px) < r.hw && Math.abs(py) < hh) continue;
       if(dist < 4) continue;
+      if(r.b && r.H > 0 && litBuildingShadow(nx, r, L, k, ox, oy, px, py, dist, R, rgb, fire, c)){ drew = true; continue; }
+      if(fire && r.node && litNodeShadow(nx, r, L, k, ox, oy, px, py, dist, R * LIT_FAR_K, c)){ drew = true; continue; }
       const mid = Math.atan2(py, px);
       let a0 = 0, a1 = 0, c0 = null, c1 = null;
       for(const sx of [-1, 1]) for(const sy of [-1, 1]){
@@ -43346,7 +43812,7 @@ function drawFarmCrop(b){
 }
 
 function drawSelBox(b){
-  if(!G.sel.includes(b)) return;
+  if(BSIL_BUSY || !G.sel.includes(b)) return;      // not while a building is being drawn for its shadow (buildingSilhouette, 04c)
   const pl = G.players[b.p===undefined ? P_YOU : b.p];
   ctx.strokeStyle = pl ? pl.col : "#f0e6cc";
   ctx.lineWidth = 1.8;
@@ -43724,15 +44190,26 @@ function drawTownArt(b, x, y, w, dep, H, vis){
   ctx.beginPath(); ctx.ellipse(cx + dw*0.06, base - 1, dw*0.47, dep*0.16, 0, 0, 6.283); ctx.fill();
   const ix = cx - dw/2, iy = base - dh;
   ctx.drawImage(TOWN_ART, ix, iy, dw, dh);
-  // lit windows and the door once it is dark: the two windows and the door of the sprite
+  /* Lit windows and the door once it is dark. These used to be placed from
+     fractions that belonged to an earlier picture of the hall, so on the
+     present one the glow sat over the wall to the RIGHT of the real window
+     (and half off it) and a lit rectangle hung beside the door on bare
+     boards: after dark the first town centre appeared to have two windows and
+     two doors (user, 10 Oct). Measured off the sprite itself, in its own 230 x
+     247 pixels: the window panes are x 18 to 66, y 191 to 221, and the door's
+     upper panel x 116 to 136, y 197 to 213. */
   if((G.dark||0) > 0.15){
     const gl = Math.min(0.5, (G.dark||0)*0.6).toFixed(3);
     ctx.fillStyle = "rgba(255,206,110,"+gl+")";
-    ctx.fillRect(ix + dw*0.215, iy + dh*0.788, dw*0.15, dh*0.052);   // the window
-    ctx.fillRect(ix + dw*0.735, iy + dh*0.835, dw*0.075, dh*0.12);   // the door's glass
+    ctx.fillRect(ix + dw*0.078, iy + dh*0.773, dw*0.209, dh*0.121);   // the window, pane for pane
+    ctx.fillRect(ix + dw*0.504, iy + dh*0.798, dw*0.087, dh*0.065);   // the glow at the door's upper panel
     const tgA = Math.min(0.6, (G.dark||0)*0.8);
-    noteGlow(ix + dw*0.29, iy + dh*0.814, dw*0.16, tgA, "255,206,110");     // the halo of each, over the dark (05zd)
-    noteGlow(ix + dw*0.7725, iy + dh*0.895, dw*0.10, tgA * 0.8, "255,206,110");
+    noteGlow(ix + dw*0.183, iy + dh*0.835, dw*0.15, tgA, "255,206,110");     // the halo of each, over the dark (05zd)
+    noteGlow(ix + dw*0.548, iy + dh*0.83, dw*0.07, tgA * 0.6, "255,206,110");
+    /* ...and the light each lays on the ground outside (05zq): the window's, in two panes with the glazing
+       bar's seam through it, and the doorway's, wider and longer while somebody is at it. */
+    noteSpill(ix + dw*0.078, dw*0.209, base, tgA * 0.9, 24, false);
+    noteSpill(ix + dw*0.504, dw*0.087, base, tgA * (0.5 + 0.5*doorSwingAmt(b, ix + dw*0.5475, base)), 20 + 14*(b._doorT||0), true);
   }
   /* A DRIFT, NOT A WASH. snowOn brightens the sprite, which is invisible on
      yellow thatch - see the note over snowCapOn (04c). */
@@ -45025,6 +45502,7 @@ function drawBuilding(b){
         const wins = ta >= 1 ? [x+w*0.14, x+w*0.78] : [x+w*0.16];
         for(const wx of wins){
           if(lit > 0.02) noteGlow(wx + 2.5, y+dep-H*0.66 + 3.5, 12, 0.5*lit, "255,208,120");   // (05zd)
+          if(lit > 0.02) noteSpill(wx, 5, y+dep, 0.55*lit, 14, false);   // (05zq)
           ctx.fillRect(wx, y+dep-H*0.66, 5, 7);
           ctx.strokeStyle="rgba(50,40,28,.6)"; ctx.lineWidth=1;
           ctx.strokeRect(wx, y+dep-H*0.66, 5, 7);
@@ -45642,6 +46120,7 @@ function drawBuilding(b){
           ctx.fillStyle = gr;
           ctx.fillRect(wx0 - 9, wy0 - 8, 23, 22);
           noteGlow(wx0 + 2.5, wy0 + 3, 11, 0.55 * lit, "255,208,120");     // and its halo, over the dark (05zd)
+          noteSpill(wx0, 5, y+dep, 0.6 * lit, 15, false);                      // and the patch of light it lays outside (05zq)
         }
       }
       // chimney with a wisp of smoke - side, height and drift vary per house
@@ -46760,6 +47239,22 @@ function drawSelRing(e){
   ctx.beginPath(); ctx.ellipse(e.x, e.y+e.r*0.45, r, r*0.5, 0, 0, 6.283); ctx.stroke();
 }
 
+/* How far, and which way, to draw somebody so that they touch the wall of the
+   building they are working on. See drawUnit. Returns {x:0,y:0} for anything
+   that has no wall to speak of (a field, a wall segment, a thing already close). */
+function builderNudge(u){
+  const b = u.target, bd = b && BLDG[b.type];
+  if(!bd || bd.farm || b.type === "wall") return { x:0, y:0 };
+  const shrink = bd.shrink || 0.70, shrinkW = bd.shrinkW || shrink;
+  const halfW = b.w*TILE*shrinkW/2, halfD = b.h*TILE*shrink/2;
+  const dx = b.x - u.x, dy = b.y - u.y, dist = Math.hypot(dx, dy);
+  if(dist < 1) return { x:0, y:0 };
+  const nx = dx/dist, ny = dy/dist;
+  const wall = Math.min(halfW/Math.max(Math.abs(nx), 1e-6), halfD/Math.max(Math.abs(ny), 1e-6));   // from the middle to the drawn wall, along this line
+  const gap = dist - wall - 5;                       // five pixels is about the width of a person's body
+  const k = Math.max(0, Math.min(16, gap));
+  return { x: nx*k, y: ny*k };
+}
 function drawUnit(u){
   drawSelRing(u);
   const d=UNITS[u.type], pl=G.players[u.p];
@@ -46793,6 +47288,19 @@ function drawUnit(u){
     const k = Math.max(0, Math.min(1, 1 - Math.max(0, u.rowT)/dur));
     x = u.rowFrom.x + (u.rowTo.x-u.rowFrom.x)*k;
     y = u.rowFrom.y + (u.rowTo.y-u.rowFrom.y)*k;
+  }
+
+  /* A BUILDER STANDS AT THE WALL (user, 10 Oct: "the villager needs to be
+     closer to buildings when building them, like touching the buildings").
+     They stop where the footprint ends, which is blocked ground - and the
+     building is drawn smaller than its footprint (SHRINK, drawBuilding), so
+     the person with the hammer was ten or fifteen pixels short of the wall they
+     were hammering. They cannot walk further in, so they are DRAWN closer: the
+     picture slides toward the wall by the size of the gap and stops just short
+     of it. Cosmetic only - where they are, what they can reach and what they
+     collide with are all unchanged. */
+  if(!d.naval && u.order === "build" && (u.working||0) > 0 && u.target && u.target.w){
+    const nd = builderNudge(u); x += nd.x; y += nd.y;
   }
 
   // ground shadow - faded down with darkness, otherwise this fixed shadow
@@ -51071,7 +51579,7 @@ const FACIAL_HAIR = [
    than a roll of the dice, and the whole point is that seeing a white
    beard tells you who it is. */
 function facialHairOf(u, look){
-  if(u && u.shepherd) return "full";
+  if(u && (u.shepherd || u.herbalist)) return "full";       // an identity, like the shepherd's: a long beard grown wild
   if(!u || !look || look.female) return "none";
   const r = villagerRoll(u.id || 0, 11.37);
   if(look.beard) return r < 0.5 ? "full" : "short";
@@ -51890,15 +52398,31 @@ function drawPerson(u, pl, yOff){
     ctx.translate(0, -H*0.40);
     ctx.rotate((u.face<0 ? -1 : 1) * -1.45);
   }
-  else if(reach) ctx.rotate(0.07 + rCyc*0.05);
+  /* A LEAN INTO THE WORK, ACROSS THE SCREEN OR TOWARD IT (user, 10 Oct:
+     "sometimes it looks like villagers are slanted, standing on a diagonal,
+     when chopping or mining"). Every lean below is a rotation about the feet,
+     which tips the figure sideways on the screen - right when they are side on
+     (they lean at the tree), but when they face the camera or face away the
+     tree is straight ahead or straight behind them and a sideways tip is just
+     somebody standing crooked. Facing up or down the screen the same lean is
+     a BOW instead: they drop a little and the body gets slightly shorter, which
+     is what bending toward or away from you looks like. */
+  const faceUpDown = (u.dir === "up" || u.dir === "down");
+  const leanBody = (a) => {
+    if(!faceUpDown){ ctx.rotate(a); return; }
+    const k = Math.min(0.3, Math.abs(a));
+    ctx.translate(0, k*H*0.20); ctx.scale(1, 1 - k*0.22);
+  };
+  if(snowFall > 0 || u.lying){ /* already laid over above */ }
+  else if(reach) leanBody(0.07 + rCyc*0.05);
   /* The whole body works the axe, not just the arms: bent into the timber
      at the bottom of the stroke and straightening as it comes up - the
      opposite way round to the arms, which is why it reads as effort. Then
      a small check on impact, gone within a tenth of a stroke, so the blow
      lands against something rather than passing through it. */
-  else if(chopping) ctx.rotate(mining ? 0.16 - chopA*0.11 - chopHit*0.08
-                                      : 0.21 - chopA*0.15 - chopHit*0.05);
-  else if(work) ctx.rotate(0.14 + wCyc*0.09);
+  else if(chopping) leanBody(mining ? 0.16 - chopA*0.11 - chopHit*0.08
+                                    : 0.21 - chopA*0.15 - chopHit*0.05);
+  else if(work) leanBody(0.14 + wCyc*0.09);
   else if(reallyIdle) ctx.rotate(idleSway + nod);
   // layered on top of whatever else is going on, not exclusive with it - a
   // fighter at death's door still trembles mid-swing, not only standing still
@@ -52177,6 +52701,7 @@ function drawPerson(u, pl, yOff){
       ctx.fillRect(-tw*0.5, shldY+H*0.08, tw, H*0.30);
     }
   }
+  if(u.herbalist) drawHerbalistGrowth(tw, shldY, hipY, H, backView);
   /* ---- and the plain clothes get some construction on them ----
      A smock was a filled shape with one darker side and one lighter, and
      at any zoom past about three that is a bib rather than a garment. Three
@@ -52902,7 +53427,7 @@ function drawPerson(u, pl, yOff){
      along behind actually appears - out past the shoulder, throwing its
      light forward - rather than flat against the middle of the back. */
   let torchGrip = null;
-  if(backView && (G.dark||0) > 0.18 && G.cam.z > 0.75 && carriesTorch(u)){
+  if(backView && (G.dark||0) > 0.18 && G.cam.z > 0.75 && carriesTorch(u) && !torchPlanted(u)){
     /* ---- AND HELD OUT IN FRONT, NOT OFF TO ONE SIDE ----
        Asked for 16 Sep: "make sure the villager is holding the torch in
        front of himself when he walks north."
@@ -53381,7 +53906,8 @@ function drawPerson(u, pl, yOff){
      figure and pulls the eye off everything else he is doing; a little of
      the jaw through it settles it into the face. */
   const SHEPHERD_BEARD = "rgba(239,234,224,0.80)";
-  const beardCol = (u.shepherd ? SHEPHERD_BEARD : hairCol);
+  /* The herbalist's is the grey-green of a beard that has been in the leaves a long time (Radagast the Brown, not Gandalf the Grey). */
+  const beardCol = (u.shepherd ? SHEPHERD_BEARD : u.herbalist ? "rgba(140,134,98,0.92)" : hairCol);
   /* ---- THE BACK OF THE HEAD ----
      Laid down BEFORE the styles below rather than after them. Every style
      here is a fringe or a crop drawn in this same colour, so painting the
@@ -54102,6 +54628,9 @@ function drawPerson(u, pl, yOff){
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = "rgba(140,136,120,.40)"; ctx.lineWidth = 0.5;
     ctx.stroke();
+  } else if(u.herbalist){
+    drawHerbalistHat(headR, headY);
+    if(!backView) drawHerbalistBeardTuft(headR, headY);
   } else if(u.chef){
     /* The baker's tall white hat. Its own flag rather than a `job`, because
        the baker is not a villager carrying out an order - he is the one
@@ -54470,7 +54999,28 @@ function drawPerson(u, pl, yOff){
      see and the light punched out of the darkness can never disagree. They
      already had: a torch blown out by weather (torchOut) went dark but went
      on being drawn, and a boat with a fighting class drew one it never lit. */
-  if((G.dark||0) > 0.18 && G.cam.z > 0.75 && carriesTorch(u)){
+  if((G.dark||0) > 0.18 && G.cam.z > 0.75 && carriesTorch(u) && torchPlanted(u)){
+    /* STOOD IN THE GROUND BESIDE HIM while he picks (torchPlanted, 05b): a few
+       stones round the foot of it, the shaft, and the same flame. On the side
+       he is not facing, so it is out of the way of his hands. */
+    const lit2 = Math.min(1, (G.dark-0.18)/0.3), px = (u.face < 0 ? 1 : -1) * tw*1.75, py = H*0.03;
+    ctx.fillStyle = "rgba(0,0,0,.28)";
+    ctx.beginPath(); ctx.ellipse(px, py, H*0.10, H*0.035, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#8a847a";
+    for(const [ox, oy, rr] of [[-0.06, 0, 0.032], [0.05, 0.004, 0.028], [0, 0.012, 0.026]]){
+      ctx.beginPath(); ctx.ellipse(px + H*ox, py + H*oy, H*rr, H*rr*0.72, 0, 0, 6.283); ctx.fill();
+    }
+    ctx.strokeStyle = "#5b4527"; ctx.lineWidth = Math.max(1.2, H*0.045); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(px, py - H*0.01); ctx.lineTo(px, py - H*0.34); ctx.stroke();
+    if(torchIsFancy(u)) drawTorchFlame(px, py - H*0.37, H, u, lit2);
+    else {
+      const fk = 0.78 + 0.22*Math.sin(G.t*7 + u.id*2.3);
+      ctx.globalAlpha = lit2; ctx.fillStyle = "rgba(255,150,50,.55)";
+      ctx.beginPath(); ctx.arc(px, py - H*0.37, H*0.115*fk, 0, 6.283); ctx.fill();
+      ctx.fillStyle = "#ff9a2e"; ctx.beginPath(); ctx.ellipse(px, py - H*0.37, H*0.045, H*0.09*fk, 0, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  } else if((G.dark||0) > 0.18 && G.cam.z > 0.75 && carriesTorch(u)){
     const lit2 = Math.min(1, (G.dark-0.18)/0.3);
     /* ---- HELD IN THE HAND, WHICH IT WAS NOT ----
        The torch sat at a fixed point on the off side - -tw*1.05, a shade
@@ -55138,6 +55688,104 @@ const GARDENER_PROPS = ["bucket", "can", "seeds"];
 
    Held UPRIGHT and planted, not carried across the body: a crook is a thing
    you lean on while you watch, which is most of what a shepherd does. */
+/* THE HERBALIST (user, 10 Oct): "a green uniform, moss and vines growing on
+   him, think Radagast the Brown from Lord of the Rings". His smock is moss
+   green (makeFieldWorker, 03b); this is the rest. Drawn at the size the figure
+   is played at, so each thing is a few big shapes rather than detail: a floppy,
+   slumped hat, much too big for him, with moss growing on it and a toadstool at
+   the brim; two soft clumps of moss on the shoulders; and one vine that comes
+   up from the hip, winds across the body and over a shoulder, with leaves on
+   it and two small flowers. None of it is symmetrical and none of it is small
+   and pale in the middle of the chest - that reads as a face (the lesson of
+   the apron). */
+function drawHerbalistHat(headR, headY){
+  const brimY = headY - headR*0.36;
+  // the brim, drooping, a little wider than the head
+  ctx.fillStyle = "#5e4f33";
+  ctx.beginPath(); ctx.ellipse(0, brimY, headR*1.38, headR*0.34, 0, 0, 6.283); ctx.fill();
+  // the crown: a tall soft cone that has given up halfway and folded over to one side
+  ctx.fillStyle = "#6f5d3b";
+  ctx.beginPath();
+  ctx.moveTo(-headR*0.98, brimY);
+  ctx.quadraticCurveTo(-headR*0.55, headY-headR*1.55, headR*0.62, headY-headR*2.05);
+  ctx.quadraticCurveTo(headR*1.55, headY-headR*2.05, headR*1.45, headY-headR*1.45);       // the slumped tip
+  ctx.quadraticCurveTo(headR*0.95, headY-headR*1.45, headR*0.98, brimY);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(30,24,12,.22)";                                            // the shaded side
+  ctx.beginPath();
+  ctx.moveTo(-headR*0.98, brimY);
+  ctx.quadraticCurveTo(-headR*0.55, headY-headR*1.55, headR*0.30, headY-headR*1.85);
+  ctx.quadraticCurveTo(-headR*0.15, headY-headR*1.0, headR*0.10, brimY);
+  ctx.closePath(); ctx.fill();
+  // moss growing on it, in patches rather than a coat
+  ctx.fillStyle = "#4f7d32";
+  for(const [mx, my, mr] of [[-0.42, -0.62, 0.30], [0.10, -1.20, 0.26], [0.72, -1.55, 0.22], [-0.05, -0.46, 0.18]]){
+    ctx.beginPath(); ctx.ellipse(headR*mx, headY + headR*my, headR*mr, headR*mr*0.7, 0.3, 0, 6.283); ctx.fill();
+  }
+  ctx.fillStyle = "#7da84a";
+  ctx.beginPath(); ctx.ellipse(-headR*0.38, headY-headR*0.70, headR*0.12, headR*0.09, 0, 0, 6.283); ctx.fill();
+  // a toadstool at the brim, red cap, pale stalk
+  const tx = headR*0.80, ty = brimY - headR*0.06;
+  ctx.fillStyle = "#e6dcc0"; ctx.fillRect(tx-headR*0.05, ty-headR*0.20, headR*0.10, headR*0.22);
+  ctx.fillStyle = "#c4442e";
+  ctx.beginPath(); ctx.ellipse(tx, ty-headR*0.22, headR*0.20, headR*0.13, 0, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = "rgba(255,246,226,.9)";
+  ctx.beginPath(); ctx.arc(tx-headR*0.07, ty-headR*0.27, headR*0.034, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(tx+headR*0.08, ty-headR*0.25, headR*0.03, 0, 6.283); ctx.fill();
+  // a sprig of leaf at the slumped tip
+  ctx.fillStyle = "#5f9a3a";
+  ctx.beginPath(); ctx.ellipse(headR*1.5, headY-headR*1.40, headR*0.18, headR*0.08, 0.7, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(headR*1.36, headY-headR*1.30, headR*0.15, headR*0.07, -0.4, 0, 6.283); ctx.fill();
+}
+/* The beard past the chin: the head-clipped one is only a shadow along the jaw
+   at this size, so the long part hangs below it, a ragged wedge with a leaf
+   caught in it. */
+function drawHerbalistBeardTuft(headR, headY){
+  ctx.fillStyle = "rgba(150,144,104,0.95)";
+  ctx.beginPath();
+  ctx.moveTo(-headR*0.62, headY + headR*0.66);
+  ctx.quadraticCurveTo(-headR*0.74, headY + headR*1.3, -headR*0.12, headY + headR*1.85);
+  ctx.lineTo(headR*0.08, headY + headR*1.5);
+  ctx.lineTo(headR*0.30, headY + headR*1.78);
+  ctx.quadraticCurveTo(headR*0.80, headY + headR*1.25, headR*0.62, headY + headR*0.66);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(96,90,60,.5)"; ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(-headR*0.1, headY + headR*0.9); ctx.lineTo(-headR*0.06, headY + headR*1.6);
+  ctx.moveTo(headR*0.2, headY + headR*0.9); ctx.lineTo(headR*0.16, headY + headR*1.5); ctx.stroke();
+  ctx.fillStyle = "#5f9a3a";
+  ctx.beginPath(); ctx.ellipse(-headR*0.30, headY + headR*1.25, headR*0.14, headR*0.07, 0.6, 0, 6.283); ctx.fill();
+}
+function drawHerbalistGrowth(tw, shldY, hipY, H, backView){
+  // moss on the shoulders: soft, uneven, a darker clump under a paler
+  for(const side of [-1, 1]){
+    const mx = side*tw*0.74, my = shldY + H*0.015;
+    ctx.fillStyle = "#4a7430";
+    ctx.beginPath(); ctx.ellipse(mx, my, tw*0.46, H*0.052, side*0.25, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#6c9a42";
+    ctx.beginPath(); ctx.ellipse(mx - side*tw*0.1, my - H*0.012, tw*0.26, H*0.03, side*0.25, 0, 6.283); ctx.fill();
+  }
+  // the vine: up from the right hip, across the body, over the left shoulder
+  const x0 = tw*0.78, y0 = hipY + H*0.02, x1 = -tw*0.60, y1 = shldY + H*0.06;
+  const bx = tw*0.05, by = (y0 + y1)/2 + H*0.05;
+  ctx.strokeStyle = "#2f4b22"; ctx.lineWidth = Math.max(0.7, H*0.026); ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(bx, by, x1, y1); ctx.stroke();
+  ctx.strokeStyle = "#4a7a30"; ctx.lineWidth = Math.max(0.4, H*0.012);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(bx, by, x1, y1); ctx.stroke();
+  // leaves along it, alternating sides
+  for(let i = 1; i <= 5; i++){
+    const t = i/6, it = 1 - t;
+    const px = it*it*x0 + 2*it*t*bx + t*t*x1, py = it*it*y0 + 2*it*t*by + t*t*y1;
+    const side = (i % 2) ? 1 : -1;
+    ctx.fillStyle = (i % 2) ? "#5f9a3a" : "#7bb24a";
+    ctx.beginPath(); ctx.ellipse(px + side*H*0.04, py + side*H*0.015, H*0.058, H*0.026, side*0.9, 0, 6.283); ctx.fill();
+  }
+  // two small flowers, one pale and one pink, where the vine turns
+  for(const [t, col] of [[0.34, "#f4efe0"], [0.74, "#e79bb0"]]){
+    const it = 1 - t, px = it*it*x0 + 2*it*t*bx + t*t*x1, py = it*it*y0 + 2*it*t*by + t*t*y1;
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py - H*0.012, H*0.026, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#e8c24a"; ctx.beginPath(); ctx.arc(px, py - H*0.012, H*0.011, 0, 6.283); ctx.fill();
+  }
+}
 function drawCrook(hx, hy, H){
   const top = hy - H*0.58, foot = hy + H*0.30;
   ctx.strokeStyle = "#7a5a34";
@@ -64863,6 +65511,9 @@ function drawLeisureVillager(o){
     beekeeper: o.kindTag === "beekeeper",
     /* The cap, the fleece collar and the crook (drawPerson / drawCrook, 04e). */
     shepherd: o.kindTag === "shepherd",
+    /* And the herbalist: the floppy mossy hat, the grey-green beard, moss on
+       the shoulders and a vine round him (drawPerson, 04e). */
+    herbalist: o.kindTag === "herbalist",
     /* And the weaver, with a bolt over the arm on the way out (05o). */
     weaver: o.kindTag === "weaver",
     /* And the miller, with a sack on the shoulder coming back (05p). */
@@ -65706,7 +66357,8 @@ function drawPondFrost(x0, y0, x1, y1){
    from a snowdrift onto a path changes character where the ground does. */
 const FOOTPRINT_MAX  = 420;      // a soft cap so a long match doesn't grow this forever
 const FOOTPRINT_STEP = 7;        // pixels walked between one print and the next
-const FOOT_LIFE = { snow:80, sand:34, mud:70, rut:110 };
+/* Snow was eighty seconds, which left a long trail of grey ovals across a whole village (11 Oct: "fade a bit quicker"). */
+const FOOT_LIFE = { snow:40, sand:34, mud:70, rut:110 };
 const WET_RISE = 1/22, WET_FALL = 1/170;    // seconds for the ground to soak through, and to dry out
 
 /* How wet the ground is, 0..1. Rain soaks it over about twenty seconds; it dries
@@ -75530,6 +76182,23 @@ function carriesTorch(u){
   return u.cls && u.cls !== "civ";
 }
 
+/* PUT DOWN WHILE HE PICKS BERRIES (user, 10 Oct: "make the villager put down
+   the torch when he is gathering berries"). You cannot pick with a torch in
+   your fist, and for the whole of a night's picking the founder stood at the
+   bush with it held up like somebody waiting to be photographed. While he is
+   actually picking, the torch is stood in the ground beside him, still alight,
+   and goes back into his hand the moment he stops. Only berries: the felling
+   axe and the pick go in the hand a torch would have been in, but the founder
+   at those is a different, bigger question.
+
+   `u.working` is the work phase every gather sets and counts down, so this
+   needs no state of its own and cannot get stuck down. */
+function torchPlanted(u){
+  if(!u || u.indoors || !carriesTorch(u)) return false;
+  if(u.order !== "gather" || !u.target || u.target.kind !== RES.FOOD || u.target.farmOf) return false;
+  return (u.working || 0) > 0;
+}
+
 /* ------------------------------------------------------------
    THE BOAT THAT GOES OUT AT NIGHT  (idea: dusk, dark and dawn)
    ------------------------------------------------------------
@@ -76569,6 +77238,7 @@ function sendStragglersToBed(dt){
     if(fightingABeast(u)) continue;                  // mid-fight; bed once it is over
     if(onNightShift(u)) continue;                    // a rota, not an oversight
     if(u.carryTrade) continue;                       // carrying a find home; let them finish
+    if(typeof burningThorns === "function" && burningThorns(u)) continue;   // sent at a thorn bush: out on purpose (05zn)
     /* ---- NIGHT WORK THAT ONLY EXISTS AT NIGHT ----
 
        Moonstone is the whole of this. A vein is there after dark and gone by
@@ -76876,6 +77546,7 @@ function nightWorkStill(u){
   if(u.awakeAtNight) return false;              // woken on purpose - the exception
   if(onNightShift(u) && u.order === "gather") return false;
   if(u.carryTrade) return false;                // carrying a find home; let them finish
+  if(typeof burningThorns === "function" && burningThorns(u)) return false;   // sent at a thorn bush: out on purpose (05zn)
   /* ---- NIGHT WORK THAT ONLY EXISTS AT NIGHT ----
      The same exemption sendStragglersToBed carries, and it has to be here
      too: there are TWO sweeps running every tick and an exemption in one of
@@ -81575,9 +82246,38 @@ const PUP_CLUES = [
    one already crying out in the woods should still be able to finish what it
    started, rather than finding the thing it was walking towards has stopped
    meaning anything. */
-function pupReplacedByQuest(){
-  return (typeof NIGHT_QUESTS_ON !== "undefined" && NIGHT_QUESTS_ON)
-      && (typeof DIFFICULTY === "undefined" || DIFFICULTY === "peaceful");
+/* ---- AND THE PUP IS GONE, IN EVERY MODE (user, 10 Oct) ----
+   "The wolf pup still came to the village, but we have that night quest now,
+   we don't need the wolf pup any more." On 7 Oct the pup was kept for Easy,
+   Medium and Hard because the night quest is peaceful-only and the Kennel
+   needs SOME way in. It is not kept now: nothing cries in the woods, no
+   clues are told, and no pup is ever put on the map.
+
+   What stays true is "one route to a Kennel in every mode, never none"
+   (tests/pup-or-quest.js). Peaceful has the hound in the hollow. Every other
+   mode, and peaceful with the night quests switched off, simply has the
+   Kennel from the first day (retirePup, below): it is a building to raise
+   once the village can afford it, not a thing to earn twice.
+
+   THE MACHINERY IS LEFT IN, DORMANT, behind WOLF_PUP_ON: taking a pup, its
+   drawing, its slipping off and coming back. A saved game with one out in the
+   woods is cleaned up by retirePup rather than finished, and the switch is
+   one word if the pup is ever wanted back. */
+let WOLF_PUP_ON = false;
+function pupReplacedByQuest(){ return !WOLF_PUP_ON; }
+/* Run when a match starts and when a saved one is loaded. Takes any pup off the
+   map (and anybody walking to it off their errand) and, wherever the night
+   quest is not the way to a Kennel, hands the Kennel over. */
+function retirePup(){
+  if(!G || WOLF_PUP_ON) return false;
+  const had = G.nodes.some(n => n.kind === "wolfpup");
+  if(had){
+    for(const u of G.units) if(u.target && u.target.kind === "wolfpup"){ u.order = null; u.target = null; }
+    G.nodes = G.nodes.filter(n => n.kind !== "wolfpup");
+  }
+  const questIsTheWay = (typeof NIGHT_QUESTS_ON !== "undefined" && NIGHT_QUESTS_ON) && DIFFICULTY === "peaceful";
+  if(!questIsTheWay && G.disc && !G.disc.wolfPup){ G.disc.wolfPup = true; return true; }
+  return had;
 }
 
 function tryPupClue(){
@@ -83471,6 +84171,86 @@ function trySpecialistFind(){
   return true;
 }
 
+/* WHAT THE CAMP MAY PUT UP BEFORE THE STONE AGE (the player's gate, 03b).
+   The eight of CAMP_BUILD, and every one-off a particular villager can raise:
+   the seasonal farm for the crop they carry, a trade's own hall for whoever
+   carried its find home, the fisherman's and the bug catcher's houses, the
+   hermit's cottage, the wildlings' den and the elder's cottage (user, 10 Oct:
+   "let the villager build the special crop farm before upgrading the town
+   centre - actually let the player build any specialist building"). Each is
+   still only OFFERED to the villager who earned it (the build menu, 07); this
+   is only the question of whether the camp stage stands in the way. */
+const ONE_OFF_BUILDINGS = ["specialfarm", "wildlingsden", "hermithouse", "fisherhouse", "bughouse", "eldercottage", "vineyard"];
+function specialistBuilding(type){
+  if(ONE_OFF_BUILDINGS.indexOf(type) >= 0) return true;
+  for(const t of TRADE_FINDS) if(t.bldg === type) return true;
+  for(const k in SPECIALIST_WORK) if(SPECIALIST_WORK[k].bldg === type) return true;
+  return false;
+}
+/* Whether the villager who is selected is the one this one-off belongs to -
+   the same questions the build menu asks before it shows the button (07), so
+   the gate and the button cannot disagree. */
+function oneOffAllowed(type, crop){
+  const sel = (G.sel || []).filter(e => e.p === P_YOU && e.kind === "unit" && e.type === "villager");
+  if(sel.length !== 1) return false;
+  const u = sel[0];
+  switch(type){
+    case "specialfarm":  return !!(crop && u.seasonalCrop);
+    case "wildlingsden": return !!u.wildlingTouched;
+    case "hermithouse":  return !!u.hermitTouched;
+    case "fisherhouse":  return !!u.fisherman;
+    case "bughouse":     return !!u.bugCatcher && (typeof mayBuildBugHouse !== "function" || mayBuildBugHouse(u));
+    case "eldercottage": return !!u.elderling;
+    case "vineyard":     return false;                      // wants a Winery, which is the Stone Age's
+    default:             return typeof mayBuildTrade === "function" && mayBuildTrade(u, type);
+  }
+}
+function campMayBuild(type, crop){
+  return CAMP_BUILD.indexOf(type) >= 0 || (specialistBuilding(type) && oneOffAllowed(type, crop));
+}
+
+/* THE SPECIAL THINGS LYING ABOUT, AND WHO MAY LIFT THEM (user, 10 Oct).
+   "Don't let the founder pick up any of the special items", and "don't let
+   villagers who are already specialist names, like X the Gardener, pick up
+   other specialist items - maybe a hint, X is already a Y, let another
+   villager pick this up."
+
+   THE FOUNDER takes none of them. Until now only the trade finds were kept
+   from them (and one of those, the mushroom, was allowed on purpose, as the
+   find that belonged to the whole village); the mill wheel, the pup and the
+   standing stone had no rule at all, so a group order that happened to
+   include the founder could walk them out to a thing that is for somebody
+   else to fetch. Now every one of the four refuses them, at the tap, and
+   again when they arrive (an order given before this rule, a saved game).
+
+   A SPECIALIST takes no trade find. Lifting a find is what makes a villager
+   somebody, and somebody who already is the Gardener, the Fisherman, the Bug
+   Catcher or the Bird Keeper cannot be a second thing: the find would be
+   carried home and the title written over the first. The three village-wide
+   finds (wheel, pup, stone) make nobody anything, so a specialist may fetch
+   those like anyone. */
+const SPECIAL_FIND_KINDS = ["tradefind", "millwheel", "wolfpup", "standingstone"];
+function isSpecialFindNode(n){ return !!n && SPECIAL_FIND_KINDS.indexOf(n.kind) >= 0; }
+/* "the Gardener", or null for somebody who is not a specialist. A title from
+   a deed ("the Brave") is a name, not a trade, and does not count. */
+function specialistRole(u){
+  if(!u || !(u.tradeFound || u.fisherman || u.bugCatcher || u.birdKeeper)) return null;
+  if(u.epithet) return u.epithet;
+  const t = u.tradeFound && (SPECIALIST_WORK[u.tradeFound] || tradeFindByKey(u.tradeFound));
+  return (t && t.epithet) || "a specialist";
+}
+/* Why this villager may not lift this thing, in the words the player sees -
+   or null if they may. */
+function whyNotSpecialFind(u, n){
+  if(!isSpecialFindNode(n) || !u) return null;
+  if(u.firstVillager) return "The one who founded this village has enough to do. Send somebody else.";
+  if(n.kind === "tradefind"){
+    const role = specialistRole(u);
+    if(role) return (u.nightName || "They") + " is already " + role + ". Send somebody else for this.";
+  }
+  return null;
+}
+
 /* PICKED UP, not yet brought home. The ask was that a villager finds the
    thing, gathers it, and carries it BACK TO TOWN - so lifting it is only
    half the errand. What they are carrying rides on the villager, and the
@@ -83480,12 +84260,13 @@ function trySpecialistFind(){
 function takeSpecialistFind(u, n){
   const t = tradeFindByKey(n.trade);
   if(!t || !u) return false;
+  if(specialistRole(u)) return false;       // already somebody (see specialistRole)
   /* Never the founder. The tap in 03a already keeps them out of the crew,
      so this is the belt to that pair of braces - anything else that ever
      routes a unit onto a tradefind (a group order, a queued order given
      before this rule existed, a saved game mid-walk) has to hit the same
      wall, or the founder is quietly spent on a trade. */
-  if(u.firstVillager && !t.village) return false;
+  if(u.firstVillager) return false;
   u.carryTrade = n.trade;
   if(u.p===P_YOU){
     tellAndNote(t.found + " " + (u.nightName || "Somebody") +
@@ -91612,9 +92393,9 @@ const QUEST_HINT_MAX = 5;   // "maybe just 5 at a time" - the riddle list's own 
 
 /* ---------- HOW MUCH HAS EVER BEEN BROUGHT IN ----------
    The first few quests are "gather wood", "gather stone" and so on, and
-   they CANNOT be a check on what is in the stores. A village now starts
-   with forty-five stone (START_STONE, 02a) so it can raise its first Mine,
-   and a quest reading `res.stone >= 25` would tick itself off before the
+   they CANNOT be a check on what is in the stores. A village used to start
+   with forty-five stone (START_STONE, 02a, now nought) so it could raise its
+   first Mine, and a quest reading `res.stone >= 25` would tick itself off before the
    player had touched a rock. Spending also moves the stores the wrong way:
    gather thirty wood, spend it on the repair, and a stores check un-ticks a
    quest that was honestly earned.
@@ -95137,6 +95918,7 @@ const BIRD_LOSE       = 560;     // and further than this, it is gone
 const BIRD_GAZE_GAP   = [16, 36];  // idle: seconds between one look at the sky and the next
 const BIRD_GAZE_TIME  = 3.4;
 const NIGHT_FLIER_MAX = 4;
+const MOONWING_GAP_DAYS = 7;   // at least this many days between one Moonwing and the next: about one a week
 
 const BIRD_TYPES = [
   /* ---- the ones the village already had ---- */
@@ -95160,8 +95942,54 @@ const BIRD_TYPES = [
   { num:16, key:"bat",      name:"Dusk Bat",       when:"night", shape:"bat",    col:"#3a3446", col2:"#8a7fa0", note:"A whole scattering of them, passing through without any obvious interest in the village." },
   { num:17, key:"pipistrelle", name:"Pipistrelle", when:"night", shape:"bat",    col:"#4a4038", col2:"#9a8a76", note:"No bigger than a thumb, and it works the same square yard of air round a chimney all evening." },
   { num:18, key:"nightjar", name:"Nightjar",       when:"night", shape:"nightjar", col:"#7a6c58", col2:"#e8e0cc", note:"Long-winged and silent, and mottled like bark; it takes moths off the hay field at dusk." },
-  { num:19, key:"moonwing", name:"Moonwing",       when:"night", moon:true, shape:"moon", col:"#9fd6f0", col2:"#eaf8ff", note:"Pale as a moonstone and lit from inside it. Nobody has ever seen one come down." }
+  { num:19, key:"moonwing", name:"Moonwing",       when:"night", moon:true, shape:"moon", col:"#9fd6f0", col2:"#eaf8ff", note:"Pale as a moonstone and lit from inside it. Nobody has ever seen one come down." },
+  /* ---- MORE KINDS, NOT MORE BIRDS (user, 10 Oct: "don't increase the frequency of
+     birds, just make more variations and more types of birds") ----
+     Seven new names, every one of them something that turns up INSTEAD of one of
+     the old ones: a flock of finches is sometimes a flock of goldfinches, a hawk is
+     sometimes a kestrel. The number of birds in the sky is exactly what it was
+     (spawnBird in 02d is called as often as ever; only what it picks changed). */
+  { num:20, key:"goldfinch",  name:"Goldfinch",     when:"day",   shape:"finch",  col:"#e0b52f", col2:"#2c2a30", note:"A charm of them, rattling about the thistle heads in a flurry of gold and black, as if somebody had spilled a coin purse." },
+  { num:21, key:"greenfinch", name:"Greenfinch",    when:"day",   shape:"finch",  col:"#7c9a3c", col2:"#d9d27a", note:"Heavier than the others and much less sure about the others. Wheezes." },
+  { num:22, key:"swallow",    name:"Barn Swallow",  when:"day",   season:"warm", shape:"swallow", col:"#27385a", col2:"#eadfc4", note:"Back from wherever it goes, and straight to the same beam it had last year, as if it had only stepped out." },
+  { num:23, key:"starling",   name:"Starling",      when:"day",   season:"cold", shape:"finch",  col:"#2d2b36", col2:"#9a8fb6", note:"Black until the light catches it, and then every colour at once. They turn all together, and nobody has ever seen who decides." },
+  { num:24, key:"bluetit",    name:"Blue Tit",      when:"day",   shape:"finch",  col:"#5d88c9", col2:"#f0d24a", note:"Tiny, quarrelsome, and upside down more often than not." },
+  { num:25, key:"kestrel",    name:"Kestrel",       when:"day",   shape:"raptor", col:"#a8622d", col2:"#e7cf9a", note:"Hangs in the air over one patch of grass, perfectly still, which is the hardest thing a bird can do and it makes it look like nothing." },
+  { num:26, key:"buzzard",    name:"Common Buzzard",when:"day",   shape:"raptor", col:"#6d5a46", col2:"#e6dcc2", note:"Mewing in wide, slow circles, high up and in no hurry. It has all day, and it knows it." }
 ];
+
+/* WHICH KIND A FLOCK IS. Own dice and not Math.random: a new roll in the match
+   stream would reshuffle every seeded test in the suite (the same reason the
+   night fliers and the sky above keep theirs). Each is a pure function of the
+   match's seed and how many have been asked for, so the same seed still gets the
+   same sky. */
+const FLOCK_KINDS = [
+  { key:"finch",      w:36 },
+  { key:"goldfinch",  w:15 },
+  { key:"greenfinch", w:10 },
+  { key:"swallow",    w:16, season:["spring", "summer"] },
+  { key:"starling",   w:16, season:["autumn", "winter"] },
+  { key:"bluetit",    w:10 }
+];
+const HAWK_KINDS = [ { key:"hawk", w:50 }, { key:"kestrel", w:30 }, { key:"buzzard", w:20 } ];
+function skyDice(){
+  G.skySeq = (G.skySeq || 0) + 1;
+  /* An integer hash and not the sine trick the night fliers use: that one is
+     fine for a few rolls a night and visibly lumpy over a few thousand, which
+     is what a share of a hundred flocks needs to be right about. */
+  let x = (Math.imul(G.skySeq, 0x9E3779B1) ^ Math.imul((G.seed || 1) | 0, 0x85EBCA6B)) >>> 0;
+  x ^= x >>> 16; x = Math.imul(x, 0x7feb352d) >>> 0; x ^= x >>> 15; x = Math.imul(x, 0x846ca68b) >>> 0; x ^= x >>> 16;
+  return (x >>> 0) / 4294967296;
+}
+function pickFromKinds(list){
+  const ok = list.filter(k => !k.season || k.season.indexOf(G.season) >= 0);
+  let tot = 0; for(const k of ok) tot += k.w;
+  let r = skyDice() * tot;
+  for(const k of ok){ r -= k.w; if(r <= 0) return k.key; }
+  return ok[0].key;
+}
+function pickFlockKind(){ return pickFromKinds(FLOCK_KINDS); }
+function pickHawkKind(){ return pickFromKinds(HAWK_KINDS); }
 function birdTypeByKey(k){ for(const b of BIRD_TYPES) if(b.key === k) return b; return null; }
 
 /* ---------- who the bird keeper is ---------- */
@@ -95196,7 +96024,7 @@ function skyBirds(){
     out.push({ ref, sid: ref.sid, key, gx, gy, x: gx, y: gy - (alt || 0) });
   };
   for(const b of (G.birds || [])){
-    const key = b.hawk ? "hawk" : b.gull ? "gull" : b.migrant ? "geese" : "finch";
+    const key = b.sp || (b.hawk ? "hawk" : b.gull ? "gull" : b.migrant ? "geese" : "finch");
     add(b, key, b.x, b.y, b.alt);
   }
   for(const c of (G.crows || [])) add(c, "crow", c.x, c.y, 0);
@@ -95413,7 +96241,16 @@ function updateNightFliers(dt){
   if(!town) return;
   const roll = nightFlierRand();
   const seed = nightFlierRand() * 6.283;
-  if(roll < 0.12 && !G.nightFliers.some(f => f.kind === "moonwing")){
+  /* ONE EVERY FEW NIGHTS, NOT ONE EVERY NIGHT (user, 10 Oct: "too many
+     moonwings"). The roll alone was 12% at each of the three or four spawn
+     moments a night, which made one on about a third of nights - and each
+     stays up for seventy seconds - so the sky that was meant to be "now and
+     then" had one in it most weeks of play. It is now also held back until
+     a week has passed since the last (G.moonwingDay). */
+  const today = G.dayNo || 0;
+  if(roll < 0.12 && today - (G.moonwingDay === undefined ? -99 : G.moonwingDay) >= MOONWING_GAP_DAYS &&
+     !G.nightFliers.some(f => f.kind === "moonwing")){
+    G.moonwingDay = today;
     // the rare one: in from far off, slow and high, glowing
     const a = nightFlierRand() * 6.283;
     G.nightFliers.push({ kind: "moonwing", t: 0, life: 70, seed, alt: 46,
@@ -95589,6 +96426,16 @@ function drawBirdPortrait(g, t, w, h, opts){
       g.fillStyle = C1; g.beginPath(); g.moveTo(-9, -1); g.lineTo(-17, hen ? -9 : -3); g.lineTo(-10, 3); g.closePath(); g.fill(); ln(); g.stroke();
       g.strokeStyle = sil ? C1 : "#9a6a3a"; g.lineWidth = 1; g.beginPath(); g.moveTo(-1, hen ? 8 : 6); g.lineTo(-1, 13); g.moveTo(3, hen ? 8 : 6); g.lineTo(3, 13); g.stroke();
       break; }
+    case "swallow": {
+      // swept back and forked: the shape against a summer sky
+      for(const sg of [-1, 1]){ g.fillStyle = shade(C1, 0.06); g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(-4, sg*9, 8, sg*16); g.quadraticCurveTo(10, sg*7, 6, 0); g.closePath(); g.fill(); ln(); g.stroke(); }
+      g.fillStyle = C1; body(8, 3.2, 0, 0);
+      g.fillStyle = sil ? C1 : C2; g.beginPath(); g.ellipse(1, 2, 5, 1.8, 0, 0, 6.283); g.fill();
+      g.fillStyle = C1; g.beginPath(); g.arc(8.4, -0.6, 2.8, 0, 6.283); g.fill(); ln(); g.stroke();
+      g.fillStyle = sil ? C1 : "#b84a34"; g.beginPath(); g.arc(9.4, 0.4, 1.3, 0, 6.283); g.fill();     // the red throat
+      beak(10.6, -0.8, 2.8, "#2a221a"); eye(9, -1.4);
+      g.fillStyle = C1; g.beginPath(); g.moveTo(-7, 0); g.lineTo(-19, -3.6); g.lineTo(-12, 0); g.lineTo(-19, 3.6); g.closePath(); g.fill(); ln(); g.stroke();   // the forked tail
+      break; }
     case "raptor": {
       wing(12, shade(C1, -0.1)); g.fillStyle = C1; body(11, 5, 0, 0);
       g.fillStyle = C1; g.beginPath(); g.arc(11, -2, 4, 0, 6.283); g.fill(); ln(); g.stroke();
@@ -95663,6 +96510,49 @@ function drawBirdPortrait(g, t, w, h, opts){
       g.fillStyle = C1; body(8, 6, 0, 0);
   }
   g.restore();
+}
+
+
+/* ---------- the flock, one bird of it, in the kind it is (04c calls this) ----------
+   Small enough that colour is nearly the whole of the difference, so each kind is
+   its own colour first and its own shape second: the same swept chevron for the
+   finches and the tit, a longer, narrower pair of wings and a forked tail for a
+   swallow. `flap` is -1..1, `sc` the bird's own size. */
+function drawFlockBird(kind, bx, fby, flap, sc, a, tone){
+  const bt = kind && kind !== "finch" ? birdTypeByKey(kind) : null;
+  if(!bt){                                                   // the meadow finch, exactly as it always was
+    ctx.strokeStyle = "rgba(46,42,38," + tone.toFixed(2) + ")";
+    ctx.lineWidth = 1.5*sc; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(bx-5*sc, fby-flap*3.2*sc);
+    ctx.quadraticCurveTo(bx-2*sc, fby+1.4*sc, bx, fby);
+    ctx.quadraticCurveTo(bx+2*sc, fby+1.4*sc, bx+5*sc, fby-flap*3.2*sc);
+    ctx.stroke();
+    return;
+  }
+  ctx.lineCap = "round";
+  if(kind === "swallow"){
+    ctx.strokeStyle = bt.col; ctx.lineWidth = 1.3*sc;
+    ctx.beginPath();
+    ctx.moveTo(bx-7*sc, fby-flap*2.4*sc);
+    ctx.quadraticCurveTo(bx-3*sc, fby+0.8*sc, bx, fby);
+    ctx.quadraticCurveTo(bx+3*sc, fby+0.8*sc, bx+7*sc, fby-flap*2.4*sc);
+    ctx.stroke();
+    ctx.lineWidth = 0.9*sc;                                   // the forked tail, trailing the way it is going
+    ctx.beginPath();
+    ctx.moveTo(bx, fby); ctx.lineTo(bx-Math.cos(a)*4.6*sc - Math.sin(a)*1.8*sc, fby-Math.sin(a)*4.6*sc + Math.cos(a)*1.8*sc);
+    ctx.moveTo(bx, fby); ctx.lineTo(bx-Math.cos(a)*4.6*sc + Math.sin(a)*1.8*sc, fby-Math.sin(a)*4.6*sc - Math.cos(a)*1.8*sc);
+    ctx.stroke();
+    ctx.fillStyle = bt.col2; ctx.beginPath(); ctx.arc(bx, fby+0.5*sc, 1.1*sc, 0, 6.283); ctx.fill();
+    return;
+  }
+  ctx.strokeStyle = bt.col; ctx.lineWidth = 1.6*sc;
+  ctx.beginPath();
+  ctx.moveTo(bx-5*sc, fby-flap*3.2*sc);
+  ctx.quadraticCurveTo(bx-2*sc, fby+1.4*sc, bx, fby);
+  ctx.quadraticCurveTo(bx+2*sc, fby+1.4*sc, bx+5*sc, fby-flap*3.2*sc);
+  ctx.stroke();
+  ctx.fillStyle = bt.col2; ctx.beginPath(); ctx.arc(bx, fby+0.4*sc, 1.15*sc, 0, 6.283); ctx.fill();     // the breast, or the wing bar, as a dot of its second colour
 }
 
 /* ============================================================
@@ -95871,7 +96761,7 @@ function castSilhouetteFast(g, sil, S, Tx, Ty, proj, fx, fy, ix, iy, dw, dh){
    false when there is no sun, and the caller keeps the shadow it always had. */
 function sunCastRock(sil, footX, footY, dw, dh, alpha, footFrac){
   const sun = sunState();
-  if(!SUN_SHADOWS_ON || sun.daylight <= 0.05 || sun.len <= 0 || !sil) return false;
+  if(!SUN_SHADOWS_ON || sun.daylight <= 0.05 || sun.len <= 0 || !sil || !sunShadowStrong()) return false;
   const dull = Math.max(0.12, 1 - 0.85 * Math.min(1, G.weatherAmt || 0));
   ctx.save();
   ctx.globalAlpha = alpha * sun.daylight * dull * 1.15;
@@ -96287,6 +97177,14 @@ function drawSunShadows(){
   const dull = 1 - 0.85 * Math.min(1, G.weatherAmt || 0) - ((G.cloudShade) ? 0.06 : 0);
   const a = SHADOW_ALPHA * sun.daylight * Math.max(0, dull);
   if(a < 0.012) return 0;
+  /* ONE SHADOW AT A TIME (user, 11 Oct: "see how the building now has two shadows?").
+     Everything that draws its own contact shadow - the building's oval, a person's, a
+     bush's - steps aside only while sunShadowStrong() says the sun is casting the real
+     one, and that goes false in a snowfall or a heavy overcast (dull under 0.45). This
+     layer used to carry on down to a twelfth of that, so in a light snow a house had
+     the sun's long grey shadow AND its own oval, side by side. They now share one
+     test: this layer draws exactly when the others stand down. */
+  if(!sunShadowStrong()) return 0;
   const gx = sunLayer();
   if(!gx) return 0;
   const c = G.cam, z = c.z;
@@ -97099,7 +97997,10 @@ function drawFogReveals(){
    over do not reflect.
    ============================================================ */
 let REFLECT_ON = true;
-const REFLECT_MAX = 44, REFLECT_ALPHA = 0.30, REFLECT_BAND = 3;
+/* REFLECT_ALPHA was 0.30; 0.38 from 11 Oct ("make sure all of the water reflections work - you can see buildings or
+   people on the edge of the water"): they were all being drawn, but a house or a villager on the bank left a smudge
+   that was easy to take for nothing at all. */
+const REFLECT_MAX = 44, REFLECT_ALPHA = 0.38, REFLECT_BAND = 3;
 
 /* The picture of a tree as it is drawn now, and where it sits relative to the foot. */
 function treeSpriteOf(t){
@@ -97829,6 +98730,17 @@ function torchLayerDown(g, target, c){
       const sil = sunSilhouette(spr.img); if(!sil) continue;
       g.drawImage(sil, sp.x + spr.ix * z, sp.y + spr.iy * z, spr.dw * z, spr.dh * z);
       cut++;
+    }
+  }
+  /* AND THE BUILDINGS, by their bodies (litBuildingShadow, 04c): a shadow that
+     falls behind a house goes behind it. */
+  if(typeof TFX_BODY_CUTS !== "undefined"){
+    g.fillStyle = "#000";
+    for(const poly of TFX_BODY_CUTS){
+      if(!poly || poly.length < 3) continue;
+      g.beginPath(); g.moveTo(poly[0][0], poly[0][1]);
+      for(let i = 1; i < poly.length; i++) g.lineTo(poly[i][0], poly[i][1]);
+      g.closePath(); g.fill(); cut++;
     }
   }
   g.restore();
@@ -100674,6 +101586,12 @@ const THORN_BURN_TIME  = 2.4;    // seconds from catching to gone
 const THORN_SPREAD     = 46;     // px/sec the fire runs along a patch
 const THORN_NIGHT_DARK = 0.45;   // how dark it must be for the founder's torch to do it
 const THORN_REACH      = 22;     // how close the founder stands to set one alight
+/* ...and how close he can actually GET. A bush blocks the whole tile it stands
+   in (thornGrid), so on a diagonal approach he is stopped at the tile's corner:
+   half a tile's diagonal plus his own body, about thirty pixels from the
+   bush's middle - past the 26 that THORN_REACH + the bush's radius allows, so
+   he stood in front of it for ever and nothing caught. */
+const THORN_ARRIVE     = THORN_REACH + 14;
 
 /* Only after the hound. The user's own gate: thorns arrive in the world as a
    consequence of the night quest rather than as scenery that was always
@@ -101022,7 +101940,17 @@ function orderThornBurn(u, t){
   const sx = t.x + Math.cos(a)*(t.r + 12), sy = t.y + Math.sin(a)*(t.r + 12);
   giveOrder(u, { order:"move", target:null, site:null, tx:sx, ty:sy });
   u.burnThorn = t.id;
+  u.burnThornAt = G.t || 0;
   return true;
+}
+/* Out burning thorns is out ON PURPOSE, and the bedtime sweeps (05b) have to
+   know it: the founder is sent at one after dark - the only hour the torch is
+   any use - which is exactly when the sweeps send every straggler home, and the
+   order was being taken off him on the very next frame ("the founder cannot
+   burn thorns", open from 8 Oct). A minute and a half, not for ever, so a
+   thorn he cannot reach does not keep him out all night. */
+function burningThorns(u){
+  return !!(u && u.burnThorn && (G.t || 0) - (u.burnThornAt || 0) < 90);
 }
 
 /* Called from stepThorns. A handful of units at most ever carry burnThorn,
@@ -101034,7 +101962,7 @@ function stepThornOrders(){
     const t = (G.thorns||[]).find(x => x.id === u.burnThorn && !x.gone);
     if(!t){ u.burnThorn = 0; continue; }           // somebody else got there first
     const d = Math.hypot(t.x-u.x, t.y-u.y);
-    if(founderMayBurn(u) && d <= t.r + THORN_REACH){
+    if(founderMayBurn(u) && d <= t.r + THORN_ARRIVE){
       if(igniteThorn(t, u.x, u.y)){
         u.burnThorn = 0; u.order = null; u.target = null;
         if(u.p===P_YOU) hint((u.nightName||"The founder")+" sets the thorns alight.");
@@ -101050,7 +101978,7 @@ function stepThornOrders(){
     }
     /* Arrived, and still cannot. Said once rather than every frame, and the
        order is let go so they are not stood there for ever. */
-    if(d <= t.r + THORN_REACH && !u.moving){
+    if(d <= t.r + THORN_ARRIVE && !u.moving){
       if(u.p===P_YOU && !u.thornToldT){
         u.thornToldT = 1;
         hint(u.firstVillager
@@ -101060,6 +101988,379 @@ function stepThornOrders(){
       u.burnThorn = 0; u.order = null;
     }
   }
+}
+
+/* ============================================================
+   THE SLEEPERS' FACES, ON THE BUILDING (user, 10 Oct)
+   ============================================================
+   "As soon as the villagers enter a house or townhouse or anything to sleep I
+   need to see their faces on the building so I can wake them up if I want to."
+
+   Once somebody is indoors they are not drawn at all, so a village that has
+   gone to bed is a row of empty-looking roofs and nobody can tell who is in
+   which, or reach one of them without opening the building and finding them in
+   a list. Each sleeper now has a small round face on the front of their
+   building - skin and hair as they are, eyes shut, a little Z - and tapping
+   one selects that villager. They stay asleep: the way to rouse them is the
+   way it has always been, giving them an order (giveOrder -> stepOutToWork,
+   03a), which costs a night's rest and says so. A tap is not a wake-up.
+
+   ONLY YOURS (nobody can see inside an Ashkin house) and only the people who
+   are really abed: indoors, with a home, and not standing garrison in a tower.
+
+   The layout is worked out in one place (sleepFaceLayout), used by the drawing
+   and by the tap, so the face you see is the face you hit. */
+/* OFF, 11 Oct: "remove the faces that are on the outside of the building". The
+   machinery is left in place, dormant, in case a better way to reach a sleeper
+   is wanted - nothing is drawn and a tap on a roof is an ordinary tap. */
+let SLEEP_FACES_ON = false;
+const SLEEP_FACE_R = 5.4;          // world pixels
+const SLEEP_FACE_MAX = 6;          // faces on one building before it says "+2"
+function sleepFaceLayout(){
+  const out = [];
+  if(!SLEEP_FACES_ON || !G || !G.units) return out;
+  const byHome = new Map();
+  for(const u of G.units){
+    if(u.p !== P_YOU || !u.indoors || u.hp <= 0 || !u.home || u.garrisonedIn || u.kind !== "unit") continue;
+    if(!byHome.has(u.home)) byHome.set(u.home, []);
+    byHome.get(u.home).push(u);
+  }
+  for(const [b, list] of byHome){
+    if(!b || !b.done || b.hp <= 0 || G.bldgs.indexOf(b) < 0) continue;
+    const n = Math.min(list.length, SLEEP_FACE_MAX), step = Math.min(SLEEP_FACE_R*3.0, (b.w*TILE*0.9) / Math.max(1, n));
+    const y = b.y + b.h*TILE*0.30;
+    list.sort((a, c) => a.id - c.id);
+    for(let i = 0; i < n; i++){
+      out.push({ x: b.x + (i - (n-1)/2)*step, y, r: SLEEP_FACE_R, u: list[i], b, more: (i === n-1 && list.length > n) ? list.length - n : 0 });
+    }
+  }
+  return out;
+}
+/* Which face, if any, is at this world point - the tap's half. Generous: a face
+   is five pixels across at normal zoom and a finger is not. */
+function sleepFaceAt(wx, wy){
+  const tol = Math.max(SLEEP_FACE_R + 3, 13/Math.max(0.5, G.cam.z));
+  let best = null, bd = Infinity;
+  for(const f of sleepFaceLayout()){
+    const d = Math.hypot(f.x - wx, f.y - wy);
+    if(d < tol && d < bd){ bd = d; best = f; }
+  }
+  return best;
+}
+function drawSleepFaces(){
+  const faces = sleepFaceLayout();
+  if(!faces.length) return;
+  const z = G.cam.z;
+  for(const f of faces){
+    const sp = w2s(f.x, f.y);
+    if(sp.x < -20 || sp.y < -20 || sp.x > VW + 20 || sp.y > VH + 20) continue;
+    if(!visibleTo(P_YOU, f.b.x, f.b.y)) continue;
+    const u = f.u, look = VILLAGER_LOOKS[(u.look||0) % VILLAGER_LOOKS.length], r = f.r;
+    const sel = G.sel && G.sel.indexOf(u) >= 0;
+    ctx.save();
+    ctx.translate(f.x, f.y);
+    // a soft disc so the face stands off a dark wall, and a ring round the one that is picked
+    ctx.fillStyle = "rgba(20,16,12,.55)";
+    ctx.beginPath(); ctx.arc(0, 0, r + 1.6, 0, 6.283); ctx.fill();
+    if(sel){ ctx.strokeStyle = "#ffe08a"; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(0, 0, r + 2.2, 0, 6.283); ctx.stroke(); }
+    ctx.fillStyle = SKINS[(u.skin||0) % SKINS.length];
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.283); ctx.fill();
+    // hair over the top, by the look they were drawn with
+    ctx.fillStyle = u.oddHair || look.hair;
+    ctx.beginPath(); ctx.arc(0, -r*0.12, r*1.02, Math.PI*1.08, Math.PI*1.92); ctx.closePath(); ctx.fill();
+    if(look.female){ ctx.fillRect(-r*1.02, -r*0.2, r*0.34, r*1.1); ctx.fillRect(r*0.68, -r*0.2, r*0.34, r*1.1); }
+    // eyes shut: two short curves, and a mouth that is just a mark
+    ctx.strokeStyle = "rgba(30,22,16,.85)"; ctx.lineWidth = 0.7; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(-r*0.36, r*0.10, r*0.2, 0.15, Math.PI - 0.15); ctx.stroke();
+    ctx.beginPath(); ctx.arc( r*0.36, r*0.10, r*0.2, 0.15, Math.PI - 0.15); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-r*0.14, r*0.52); ctx.lineTo(r*0.14, r*0.52); ctx.stroke();
+    // the Z, drifting up and fading, on its own beat for each of them
+    const ph = ((G.t*0.45 + (u.id||0)*0.37) % 1);
+    ctx.globalAlpha = Math.sin(ph*Math.PI)*0.9;
+    ctx.fillStyle = "#e8e4f4"; ctx.font = "bold " + (r*1.15).toFixed(1) + "px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("z", r*0.6, -r*0.6 - ph*r*1.4);
+    ctx.globalAlpha = 1;
+    if(f.more){
+      ctx.fillStyle = "rgba(20,16,12,.8)"; ctx.beginPath(); ctx.arc(r*1.9, r*0.2, r*0.8, 0, 6.283); ctx.fill();
+      ctx.fillStyle = "#f4efe0"; ctx.font = "bold " + (r*0.95).toFixed(1) + "px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("+" + f.more, r*1.9, r*0.55);
+    }
+    ctx.restore();
+  }
+}
+/* The tap. Called from tapAt before anything else on the map, so a face on a
+   building is not swallowed by the building. Returns true if it took the tap. */
+function tapSleepFace(w){
+  const f = sleepFaceAt(w.x, w.y);
+  if(!f) return false;
+  G.sel = [f.u]; if(typeof resetModes === "function") resetModes();
+  hint((f.u.nightName || "A villager") + " is asleep. Give them an order to wake them - it costs them some of the night's rest.");
+  fxPing(f.x, f.y);
+  refreshUI();
+  return true;
+}
+
+/* ============================================================
+   RAIN ON THE ROOFS (12 Oct)
+   ============================================================
+   Asked for as the first of two ("1 and 2") when the user was asked what would make the
+   world feel more real: "raindrop splashes and wet roofs". Rain already lands on the
+   GROUND (drawRainSplashes, 04c) and the ground already darkens (drawWetGround, 05zf);
+   a roof stayed bone dry in a downpour.
+
+   And the one instruction that decides how it is done: "the rain splashes off roofs,
+   they'll have to use the angle of the roof slightly though otherwise it will look
+   like there's an invisible shield above the roof". A splash drawn as a flat ring at
+   some height above a house is exactly that shield. So nothing here floats:
+
+     * every splash is picked from a point that really IS roof - the building is drawn
+       once into a canvas of its own and the pixels above the wall line are the roof,
+       so a splash can only land where there is thatch under it;
+     * a splash is a ring lying IN the roof's own plane: a front slope is tilted toward
+       the viewer, so it is squashed far less than a ring on flat ground (0.55 against
+       the ground's 0.32), and a crown of droplets is thrown UP off the surface and a
+       little DOWNHILL, the way water leaves a slope - not straight up;
+     * which way is downhill depends on which side of the ridge the splash is on;
+     * the water that does not splash runs: short bright streaks sliding down the pitch
+       toward the eave;
+     * and at the eave it leaves the roof and FALLS, past the wall to the ground, where
+       it makes a small ground ring of its own.
+
+   The roof is also darker and a little glossy once it is wet (a multiply wash and a
+   soft sheen, both through the same roof mask), and stays so while the ground is wet,
+   drying with it.
+
+   Stateless: positions and phases are hashed from the building's id, nothing is saved.
+   The one cost is a one-off per building (drawn into a canvas, read back once) and then
+   a handful of canvas calls a roof while it rains.
+   ============================================================ */
+let ROOF_RAIN_ON = true;
+const ROOF_MASKS = new Map();
+const ROOF_SQUASH = 0.55;                // a ring in a roof's slope; the ground's is 0.32
+const ROOF_SPLASH_CYCLE = 0.62;          // seconds for one splash to land and fade
+const ROOF_SPLASHES_MAX = 9, ROOF_DRIPS_MAX = 4, ROOF_STREAKS_MAX = 5;
+
+function rainNow(){
+  const w = G.weather;
+  if(!w || !(G.weatherAmt > 0.1)) return 0;
+  return (w.key === "downpour" || w.key === "squall") ? Math.min(1, G.weatherAmt) : 0;
+}
+function roofHash(id, k){ const v = Math.sin(id * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); }
+
+/* The roof of a building as pixels: drawBuilding itself, once, into a canvas of its own;
+   everything above the top of the wall is roof (and its chimney and flag). Kept until
+   the building changes. Returns null where there is nothing to be rained on. */
+function roofMaskOf(b){
+  if(typeof document === "undefined" || typeof withCanvas !== "function" || typeof drawBuilding !== "function") return null;
+  const d = BLDG[b.type];
+  if(!d || d.farm || b.type === "wall" || d.roof === "none") return null;
+  const key = [b.type, b.done ? 1 : 0, b.settleSite ? 1 : 0, b.tier || b.lvl || 0].join("|");
+  let e = ROOF_MASKS.get(b.id);
+  if(e && e.key === key) return e;
+  if(e && e.bad) return null;
+  const fw = b.w * TILE, fdep = b.h * TILE, SH = d.shrink || 0.70, dep = fdep * SH;
+  const base = b.ty * TILE + (fdep - dep) / 2 + dep, wallH = d.hgt || 24;
+  const S = 2, padX = 30, up = wallH + 70, down = 4;
+  const cw = Math.ceil((fw + padX * 2) * S), ch = Math.ceil((fdep + up + down) * S);
+  if(cw < 8 || ch < 8 || cw * ch > 4e6) return null;
+  const cvs = document.createElement("canvas"); cvs.width = cw; cvs.height = ch;
+  const g = cvs.getContext("2d");
+  if(!g || typeof g.getImageData !== "function") return null;
+  const ox = b.tx * TILE - padX, oy = b.ty * TILE - up;
+  g.setTransform(S, 0, 0, S, -ox * S, -oy * S);
+  BSIL_BUSY = true;
+  try { withCanvas(g, () => drawBuilding(b)); }
+  catch(err){ BSIL_BUSY = false; ROOF_MASKS.set(b.id, { key, bad: true }); return null; }
+  BSIL_BUSY = false;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  const wallRow = Math.max(1, Math.min(ch, Math.floor((base - wallH - oy) * S)));
+  g.clearRect(0, wallRow, cw, ch - wallRow);                         // only the roof rows are left
+  let data;
+  try { data = g.getImageData(0, 0, cw, wallRow).data; } catch(err){ ROOF_MASKS.set(b.id, { key, bad: true }); return null; }
+  const pts = [];
+  let ridgeRow = wallRow, eaveL = 1e9, eaveR = -1e9;
+  for(let row = 0; row < wallRow; row += 3){
+    for(let col = 0; col < cw; col += 3){
+      if(data[(row * cw + col) * 4 + 3] > 200){
+        pts.push(col / S + ox, row / S + oy);
+        if(row < ridgeRow) ridgeRow = row;
+      }
+    }
+  }
+  for(let row = Math.max(0, wallRow - 8); row < wallRow; row++){       // how wide the roof is where it meets the wall: the eave
+    for(let col = 0; col < cw; col++){
+      if(data[(row * cw + col) * 4 + 3] > 200){ if(col < eaveL) eaveL = col; if(col > eaveR) eaveR = col; }
+    }
+  }
+  if(pts.length < 12 || eaveR < eaveL){ ROOF_MASKS.set(b.id, { key, bad: true }); return null; }
+  // the wash: the roof, flat, in a cool wet grey-blue
+  const wash = document.createElement("canvas"); wash.width = cw; wash.height = ch;
+  const wg = wash.getContext("2d");
+  wg.drawImage(cvs, 0, 0); wg.globalCompositeOperation = "source-in"; wg.fillStyle = "rgb(112,128,156)"; wg.fillRect(0, 0, cw, ch);
+  // the sheen: the same roof with a pale gloss that is strongest up near the ridge and gone at the eave
+  const sheen = document.createElement("canvas"); sheen.width = cw; sheen.height = ch;
+  const sg = sheen.getContext("2d");
+  sg.drawImage(cvs, 0, 0); sg.globalCompositeOperation = "source-in";
+  const gr = sg.createLinearGradient(0, ridgeRow, 0, wallRow);
+  gr.addColorStop(0, "rgba(214,228,244,0.95)"); gr.addColorStop(0.55, "rgba(190,208,230,0.45)"); gr.addColorStop(1, "rgba(190,208,230,0.08)");
+  sg.fillStyle = gr; sg.fillRect(0, 0, cw, ch);
+  e = {
+    key, wash, sheen, pts, S, cw, ch, ox, oy, base,
+    ridgeY: ridgeRow / S + oy,                                      // the roof's highest line, in world pixels
+    wallTopY: wallRow / S + oy,                                     // where the roof meets the wall: the eave
+    eaveX0: eaveL / S + ox, eaveX1: eaveR / S + ox
+  };
+  ROOF_MASKS.set(b.id, e);
+  return e;
+}
+
+function drawRoofRain(b){
+  if(!ROOF_RAIN_ON || !b.done || !G.terrain || !G.cam || G.cam.z < 0.9) return;
+  if((G.snow || 0) > 0.5) return;
+  const rain = rainNow(), wet = Math.max(G.groundWet || 0, rain);
+  if(wet < 0.06) return;
+  if(b.x < G.cam.x - 80 || b.y < G.cam.y - 90 || b.x > G.cam.x + VW / G.cam.z + 80 || b.y > G.cam.y + VH / G.cam.z + 120) return;
+  if(!exploredTo(P_YOU, b.x, b.y)) return;
+  const e = roofMaskOf(b);
+  if(!e) return;
+  const t = G.t || 0, id = (b.id | 0) + 1;
+  ctx.save();
+  // wet: darker and cooler, and a gloss on the pitch
+  const dw = e.cw / e.S, dh = e.ch / e.S;
+  ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = 0.34 * Math.min(1, wet);
+  ctx.drawImage(e.wash, e.ox, e.oy, dw, dh);
+  ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = 0.20 * Math.min(1, wet);
+  ctx.drawImage(e.sheen, e.ox, e.oy, dw, dh);
+  ctx.globalCompositeOperation = "source-over";
+  if(rain < 0.12){ ctx.restore(); return; }
+
+  const n = e.pts.length / 2, ridge = e.ridgeY;
+  /* SPLASHES, ON THE ROOF AND FOLLOWING ITS SLOPE. Each is a ring in the roof's plane
+     (squashed ROOF_SQUASH, not the ground's) and a crown of droplets thrown up off the
+     surface and a little downhill - downhill being toward the eave, which is down the
+     screen on the near slope and up it on the far side of the ridge. */
+  const nSp = Math.max(2, Math.round(ROOF_SPLASHES_MAX * rain));
+  for(let i = 0; i < nSp; i++){
+    const ph = ((t / ROOF_SPLASH_CYCLE) + roofHash(id, i * 3 + 1)) % 1;
+    const cyc = Math.floor(t / ROOF_SPLASH_CYCLE + roofHash(id, i * 3 + 1));       // a new spot each time round
+    const k = Math.floor(roofHash(id + cyc * 7, i * 5 + 2) * n) * 2;
+    const px = e.pts[k], py = e.pts[k + 1];
+    const down = py < ridge + (e.wallTopY - ridge) * 0.12 ? -1 : 1;                 // which way the water runs from here
+    const q = ph, fade = (1 - q) * (1 - q), rr = 0.6 + q * 3.6;
+    ctx.globalAlpha = 0.62 * fade * Math.min(1, rain + 0.2);
+    ctx.strokeStyle = "rgb(232,242,252)"; ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.ellipse(px, py, rr, rr * ROOF_SQUASH, 0, 0, 6.283); ctx.stroke();
+    if(q < 0.55){                                                                    // the crown: up off the surface, drifting downhill
+      const f = q / 0.55, lift = Math.sin(f * 3.14159) * 3.2;
+      ctx.fillStyle = "rgb(240,248,255)";
+      for(let c = -1; c <= 1; c++){
+        const cx = px + c * (0.9 + f * 1.4), cy = py - lift * (c === 0 ? 1.2 : 0.8) + down * f * 2.2;
+        ctx.fillRect(cx - 0.4, cy - 0.4, 0.9, 0.9);
+      }
+    }
+  }
+  /* RUNOFF: short bright streaks sliding down the pitch, each on its own lane, from
+     where it starts to the eave (or the ridge, on the far slope), then starting again. */
+  const nSt = Math.max(1, Math.round(ROOF_STREAKS_MAX * rain));
+  ctx.lineWidth = 0.8; ctx.strokeStyle = "rgb(214,232,248)";
+  for(let i = 0; i < nSt; i++){
+    const ph = ((t / 1.5) + roofHash(id, 40 + i)) % 1;
+    const k = Math.floor(roofHash(id, 50 + i) * n) * 2;
+    const px = e.pts[k], py0 = e.pts[k + 1], down = py0 < ridge + (e.wallTopY - ridge) * 0.12 ? -1 : 1;
+    const run = Math.min(Math.abs((down > 0 ? e.wallTopY : ridge) - py0), 9);       // never off the end of the roof
+    if(run < 2) continue;
+    const y = py0 + down * run * ph;
+    ctx.globalAlpha = 0.42 * Math.sin(ph * 3.14159) * Math.min(1, rain + 0.2);
+    ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px, y + down * Math.min(3, run * 0.35)); ctx.stroke();
+  }
+  /* DRIPS: from the eave the water leaves the roof and falls past the wall to the
+     ground (a drop that speeds up as it falls), where it lands as a small ring of its
+     own - on the ground, so squashed like the ground's. */
+  const nDr = Math.max(1, Math.round(ROOF_DRIPS_MAX * rain));
+  const fall = Math.max(6, e.base - e.wallTopY), CYC = 0.95;
+  for(let i = 0; i < nDr; i++){
+    const ph = ((t / CYC) + roofHash(id, 70 + i)) % 1;
+    const x = e.eaveX0 + 3 + roofHash(id, 80 + i) * Math.max(4, e.eaveX1 - e.eaveX0 - 6);
+    const fallPart = 0.62;
+    if(ph < fallPart){
+      const f = ph / fallPart, y = e.wallTopY + fall * f * f;
+      ctx.globalAlpha = 0.7 * Math.min(1, rain + 0.25);
+      ctx.strokeStyle = "rgb(214,232,248)"; ctx.lineWidth = 0.9;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 2.2 + f * 2); ctx.stroke();
+    } else {
+      const f = (ph - fallPart) / (1 - fallPart), rr = 0.5 + f * 2.6;
+      ctx.globalAlpha = 0.5 * (1 - f) * Math.min(1, rain + 0.25);
+      ctx.strokeStyle = "rgb(226,238,250)"; ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.ellipse(x, e.base + 0.6, rr, rr * 0.32, 0, 0, 6.283); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+/* ============================================================
+   LIGHT SPILLING OUT OF WINDOWS AND DOORS (12 Oct)
+   ============================================================
+   Asked for as the second of two ("1 and 2"). A lit window already had its own
+   little bloom (noteGlow, 05zd) and every house a warm pool round it, but the window
+   itself stayed a bright rectangle on the wall: the light did not GO anywhere. A
+   window is a hole in a wall with a lamp behind it, and what it does to the ground
+   outside is lay a soft patch of light down in front of it - a little wider at the far
+   end than the glass, brightest at the foot of the wall, gone a body-length out. The
+   mullion leaves a thin dark seam through it. A door that is standing open lays a
+   longer, wider wedge, straight out of the doorway.
+
+   Done the way the halos are: each lit window or door leaves a NOTE as it is drawn
+   (where its foot is, how wide, how bright, how far it reaches), and the notes are laid
+   down in one pass after the night has gone over the world, additively. Nothing is kept
+   on the buildings and nothing is saved; capped so a burning town cannot run away with
+   the frame. Two cheap quads and one gradient a window.
+   ============================================================ */
+let WINDOW_SPILL_ON = true;
+const WINDOW_SPILLS = [], WINDOW_SPILL_MAX = 90;
+const SPILL_COL = "255,206,120";
+
+/* x, w: where the glass (or the doorway) is, along the wall; groundY: where the wall
+   meets the ground; a: how bright (0..~0.6, already scaled by how lit it is); reach:
+   how far it lays out, in world pixels; door: true for a doorway (wider, no seam). */
+function noteSpill(x, w, groundY, a, reach, door){
+  if(!WINDOW_SPILL_ON || WINDOW_SPILLS.length >= WINDOW_SPILL_MAX * 5 || !(a > 0.03)) return;
+  WINDOW_SPILLS.push(x, w, groundY, a, door ? -reach : reach);
+}
+
+function drawWindowSpills(){
+  const n = WINDOW_SPILLS.length / 5;
+  if(!n){ return 0; }
+  if(!WINDOW_SPILL_ON || (G.dark || 0) < 0.12){ WINDOW_SPILLS.length = 0; return 0; }
+  const strength = Math.min(1, ((G.dark || 0) - 0.12) / 0.4);       // comes up with the dusk, like the halos
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for(let i = 0; i < WINDOW_SPILLS.length; i += 5){
+    const x = WINDOW_SPILLS[i], w = WINDOW_SPILLS[i + 1], gy = WINDOW_SPILLS[i + 2], a0 = WINDOW_SPILLS[i + 3];
+    let reach = WINDOW_SPILLS[i + 4]; const door = reach < 0; reach = Math.abs(reach);
+    const a = Math.min(0.5, a0 * strength * (door ? 0.9 : 0.62));
+    if(a < 0.02) continue;
+    const spread = reach * (door ? 0.5 : 0.24);                       // how much wider than the glass it is at the far end
+    const g = ctx.createLinearGradient(0, gy, 0, gy + reach);
+    g.addColorStop(0, "rgba(" + SPILL_COL + "," + a.toFixed(3) + ")");
+    g.addColorStop(0.45, "rgba(" + SPILL_COL + "," + (a * 0.42).toFixed(3) + ")");
+    g.addColorStop(1, "rgba(" + SPILL_COL + ",0)");
+    ctx.fillStyle = g;
+    const x0 = x - w * 0.1, x1 = x + w * 1.1;
+    ctx.beginPath();
+    if(door || w < 4){
+      ctx.moveTo(x0, gy); ctx.lineTo(x1, gy); ctx.lineTo(x1 + spread, gy + reach); ctx.lineTo(x0 - spread, gy + reach);
+    } else {
+      // two panes' worth of light with the glazing bar's shadow between them
+      const mid = x + w / 2, seam = Math.max(0.6, w * 0.035);
+      ctx.moveTo(x0, gy); ctx.lineTo(mid - seam, gy); ctx.lineTo(mid - seam + spread * 0.35, gy + reach); ctx.lineTo(x0 - spread, gy + reach);
+      ctx.moveTo(mid + seam, gy); ctx.lineTo(x1, gy); ctx.lineTo(x1 + spread, gy + reach); ctx.lineTo(mid + seam - spread * 0.35, gy + reach);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+  WINDOW_SPILLS.length = 0;
+  return n;
 }
 
 /* ============================================================
@@ -102778,6 +104079,7 @@ function loadGame(){
   G.diff = DIFF[DIFFICULTY] || DIFF.medium;
   G.projectiles = []; G.fx = []; G.lightning = null;
   G.running = false; G.over = false;
+  retirePup();     // a village saved with a pup out in the woods: it is taken in, and the Kennel is a building like any other (05g)
 
   // the ground's bitmaps are baked from the terrain rather than saved
   bakeTerrainArt(G.terrain);
@@ -105467,6 +106769,150 @@ function refreshUI(){
       return;
     }
 
+    /* THE ONE-OFF BUTTONS, offered in the camp as well as in the Stone Age
+       (user, 10 Oct: "let the villager build the special crop farm before
+       upgrading the town centre - actually let the player build any
+       specialist building"). They are not categories and are not the same for
+       everybody - each is offered to the one villager who earned it - so they
+       were never part of the age's own list, and the camp's short list simply
+       returned before it got to them. The same function now serves both. */
+    const oneOffBuilds = () => {
+    // One-off, single-villager unlocks sit above the categories themselves,
+    // not filed inside one - each is offered exactly once, to the one
+    // villager who earned it, and gone the moment it's used, so it should
+    // never be a tap deeper than the ordinary build buttons.
+    // The seasonal farm is not in BUILD_ORDER on purpose - it is not a thing
+    // you can choose to build, it is a thing one particular villager can do
+    // because of what they are carrying. So it only appears with exactly one
+    // villager selected, and only if that one has the crop: with several
+    // selected there would be no telling whose crop was being planted.
+    // (pack 10, feature 38)
+    if(vills.length===1 && vills[0].seasonalCrop){
+      const carrier = vills[0], sd = BLDG.specialfarm, crop = SEASONAL_CROPS[carrier.seasonalCrop];
+      // it has to be planted at home, so the button says so rather than
+      // simply not being there - otherwise there is nothing telling you why
+      const nearTown = G.bldgs.some(b=>b.p===P_YOU && b.type==="town" &&
+        Math.hypot(b.x-carrier.x, b.y-carrier.y) < 260);
+      addBtn("🌱 " + cap(crop.name),
+             nearTown ? "plant the "+crop.name : "bring them back to town first",
+             nearTown && canAfford(pl, sd.cost),
+             ()=>startPlacing("specialfarm", carrier.seasonalCrop),
+             nearTown ? "Every unit gains "+crop.stat+" for as long as it stands."
+                      : "Bring them back to town first.",
+             true);   // always shown lit - the whole point of it
+    }
+    // Same idea as the seasonal farm above: not a thing anyone can choose to
+    // build, a thing this one particular villager can, because of where the
+    // fox took them. (idea_discovery_events)
+    if(vills.length===1 && vills[0].wildlingTouched){
+      const wd = BLDG.wildlingsden;
+      addBtn("🐾 "+wd.name, costStr(wd.cost), canAfford(pl, wd.cost),
+             ()=>startPlacing("wildlingsden"),
+             BLDG_ABOUT.wildlingsden, true);
+    }
+    // same pattern again for the villager who shared the hermit's fire
+    // (idea_discovery_events, #5)
+    if(vills.length===1 && vills[0].hermitTouched){
+      const hh = BLDG.hermithouse;
+      addBtn("🏚️ "+hh.name, costStr(hh.cost), canAfford(pl, hh.cost),
+             ()=>startPlacing("hermithouse"),
+             BLDG_ABOUT.hermithouse, true);
+    }
+    /* Same pattern again - but this one is the FISHERMAN'S, and only
+       theirs. Anyone can be sent to a shoal; only the villager who took
+       it up for good and has a catch to show for it may put the house
+       up. It is their house, so it is their job.
+
+       Unlike the other three, this one used to appear ONLY once the
+       catch count was already met - so a player who missed the single
+       one-time hint fired at the fifth catch (03e) had no way to ever
+       learn the button existed, or how close they were. Shown now the
+       moment the fisherman alone is selected, named and greyed with the
+       catches still owed - the same "goal to work toward" idiom the
+       Manor uses for its own not-yet-buildable self (see the comment
+       block just below this one) - so selecting them is always enough
+       to find it, not just selecting them at exactly the right catch. */
+    /* Whoever brought a trade's find home may raise its building, and
+       nobody else - the same shape the Fisherman's House has. One of
+       each, ever; mayBuildTrade refuses once one stands. */
+    /* A village-wide find (the mushroom) is offered to ANY villager you
+       have selected, not only to whoever carried it home - the herbalist
+       is whoever raises the hut. Checked before the personal claim below
+       so the founder, who may fetch that one, is still refused the
+       building itself (mayBuildTrade). */
+    if(vills.length===1 && G.tradeOpen && typeof mayBuildTrade === "function"){
+      for(const bk in G.tradeOpen){
+        if(!G.tradeOpen[bk] || !BLDG[bk]) continue;
+        if(!mayBuildTrade(vills[0], bk)) continue;
+        const td = BLDG[bk];
+        addBtn("🌿 "+td.name, costStr(td.cost), canAfford(pl, td.cost),
+               ()=>startPlacing(bk), null, true);
+      }
+    }
+    if(vills.length===1 && vills[0].tradeFound &&
+       typeof mayBuildTrade === "function"){
+      /* The find table OR the earned trades - the gardener and the
+         geologist are not in TRADE_FINDS any more, so looking only there
+         left the person who had earned it with no way to raise their own
+         cottage. (SPECIALIST_WORK, 05g) */
+      const tf = tradeFindByKey(vills[0].tradeFound) ||
+                 (typeof SPECIALIST_WORK !== "undefined"
+                   ? SPECIALIST_WORK[vills[0].tradeFound] : null);
+      if(tf && tf.bldg && mayBuildTrade(vills[0], tf.bldg)){
+        const td = BLDG[tf.bldg];
+        /* No lock message: addBtn shows that INSTEAD of the subtitle when
+           one is given, and on a build button the cost is the thing you
+           need to see. Tapping it short-handed says "Not enough
+           resources." on its own. */
+        addBtn("🌿 "+td.name, costStr(td.cost), canAfford(pl, td.cost),
+               ()=>startPlacing(tf.bldg), null, true);
+      }
+    }
+    /* THE VINEYARD, once a Winery stands. A field like the farm and offered
+       beside it to anybody you have selected - the winemaker is the one who
+       tends it, but a villager sets the posts. Hidden until there is a
+       Winery to press what it grows (an unpressed vineyard is just a farm
+       with a trellis on it), and as many as you like after that. (05zb) */
+    if(vills.length>=1 && G.bldgs.some(b=>b.p===P_YOU && b.type==="winery" && b.done)){
+      const vd = BLDG.vineyard;
+      addBtn("\u{1F347} "+vd.name, costStr(vd.cost), canAfford(pl, vd.cost),
+             ()=>startPlacing("vineyard"), BLDG_ABOUT.vineyard, true);
+    }
+    /* The bug catcher's own house, theirs alone and only ever one -
+       the Fisherman's House's twin in every respect, including wanting
+       a few kinds in the book first so it belongs to somebody who has
+       actually been out doing it. (mayBuildBugHouse, 05k) */
+    if(vills.length===1 && vills[0].bugCatcher &&
+       typeof mayBuildBugHouse === "function" && mayBuildBugHouse(vills[0])){
+      const bh = BLDG.bughouse;
+      addBtn("\u{1F50D} "+bh.name, costStr(bh.cost), canAfford(pl, bh.cost),
+             ()=>startPlacing("bughouse"), null, true);
+    }
+    if(vills.length===1 && vills[0].fisherman &&
+       !G.bldgs.some(b=>b.p===P_YOU && b.type==="fisherhouse")){
+      const fh = BLDG.fisherhouse;
+      const caught = vills[0].fishCaught||0;
+      const ready = caught >= FISHERMAN_HOUSE_CATCHES;
+      addBtn("🎣 "+fh.name, costStr(fh.cost), ready && canAfford(pl, fh.cost),
+             ()=>startPlacing("fisherhouse"),
+             ready ? BLDG_ABOUT.fisherhouse
+                   : FISHERMAN_HOUSE_CATCHES+" catches lands the house - "+caught+" so far.",
+             true);
+    }
+    /* THE ELDER'S COTTAGE, and only for the one who earned it. The same
+       shape as the two above: not in any category, offered only while the
+       villager who mended the hut out in the woods is the one selected.
+       Once it is up the path is finished and the button is gone with it. */
+    if(vills.length===1 && vills[0].elderling &&
+       !G.bldgs.some(b=>b.p===P_YOU && b.type==="eldercottage")){
+      const ec = BLDG.eldercottage;
+      addBtn("\u{1F56F} "+ec.name, costStr(ec.cost), canAfford(pl, ec.cost),
+             ()=>startPlacing("eldercottage"),
+             "They mended the old hut in the woods. Give them a cottage here and they will stay.",
+             true);
+    }
+    };
+
     /* ---- the camp's own short list ----
        Settled but not yet in the Stone Age: four buildings, and five category
        tabs of which three would be empty is a worse way to show four things
@@ -105474,13 +106920,14 @@ function refreshUI(){
        goes away for good once the centre is upgraded. (WANDERING_AGE) */
     if(!pl.stoneAge){
       addBtn("\u2190 Back", "cancel", true, ()=>{ G.uiMode="main"; G.placing=null; refreshUI(); });
-      for(const t of WANDER_BUILD){
+      for(const t of CAMP_BUILD){
         const d=BLDG[t];
         addBtn(d.name, costStr(d.cost), canAfford(pl,d.cost), ()=>startPlacing(t),
                null, G.placing&&G.placing.type===t);
       }
+      oneOffBuilds();
       addBtn("? ? ?", "Upgrade the town centre", false, null,
-             "A camp builds only what it lives on. Upgrade the town centre for "+
+             "The Hearth Age builds what a camp needs. Upgrade the town centre for "+
              costStr(AGE_COST[0])+" to begin the "+AGES[0]+" and open the rest.");
       return;
     }
@@ -105488,140 +106935,7 @@ function refreshUI(){
     // ---- the category picker: always the first thing Build shows ----
     if(!G.buildCat){
       addBtn("← Back", "cancel", true, ()=>{ G.uiMode="main"; G.placing=null; refreshUI(); });
-      // One-off, single-villager unlocks sit above the categories themselves,
-      // not filed inside one - each is offered exactly once, to the one
-      // villager who earned it, and gone the moment it's used, so it should
-      // never be a tap deeper than the ordinary build buttons.
-      // The seasonal farm is not in BUILD_ORDER on purpose - it is not a thing
-      // you can choose to build, it is a thing one particular villager can do
-      // because of what they are carrying. So it only appears with exactly one
-      // villager selected, and only if that one has the crop: with several
-      // selected there would be no telling whose crop was being planted.
-      // (pack 10, feature 38)
-      if(vills.length===1 && vills[0].seasonalCrop){
-        const carrier = vills[0], sd = BLDG.specialfarm, crop = SEASONAL_CROPS[carrier.seasonalCrop];
-        // it has to be planted at home, so the button says so rather than
-        // simply not being there - otherwise there is nothing telling you why
-        const nearTown = G.bldgs.some(b=>b.p===P_YOU && b.type==="town" &&
-          Math.hypot(b.x-carrier.x, b.y-carrier.y) < 260);
-        addBtn("🌱 " + cap(crop.name),
-               nearTown ? "plant the "+crop.name : "bring them back to town first",
-               nearTown && canAfford(pl, sd.cost),
-               ()=>startPlacing("specialfarm", carrier.seasonalCrop),
-               nearTown ? "Every unit gains "+crop.stat+" for as long as it stands."
-                        : "Bring them back to town first.",
-               true);   // always shown lit - the whole point of it
-      }
-      // Same idea as the seasonal farm above: not a thing anyone can choose to
-      // build, a thing this one particular villager can, because of where the
-      // fox took them. (idea_discovery_events)
-      if(vills.length===1 && vills[0].wildlingTouched){
-        const wd = BLDG.wildlingsden;
-        addBtn("🐾 "+wd.name, costStr(wd.cost), canAfford(pl, wd.cost),
-               ()=>startPlacing("wildlingsden"),
-               BLDG_ABOUT.wildlingsden, true);
-      }
-      // same pattern again for the villager who shared the hermit's fire
-      // (idea_discovery_events, #5)
-      if(vills.length===1 && vills[0].hermitTouched){
-        const hh = BLDG.hermithouse;
-        addBtn("🏚️ "+hh.name, costStr(hh.cost), canAfford(pl, hh.cost),
-               ()=>startPlacing("hermithouse"),
-               BLDG_ABOUT.hermithouse, true);
-      }
-      /* Same pattern again - but this one is the FISHERMAN'S, and only
-         theirs. Anyone can be sent to a shoal; only the villager who took
-         it up for good and has a catch to show for it may put the house
-         up. It is their house, so it is their job.
-
-         Unlike the other three, this one used to appear ONLY once the
-         catch count was already met - so a player who missed the single
-         one-time hint fired at the fifth catch (03e) had no way to ever
-         learn the button existed, or how close they were. Shown now the
-         moment the fisherman alone is selected, named and greyed with the
-         catches still owed - the same "goal to work toward" idiom the
-         Manor uses for its own not-yet-buildable self (see the comment
-         block just below this one) - so selecting them is always enough
-         to find it, not just selecting them at exactly the right catch. */
-      /* Whoever brought a trade's find home may raise its building, and
-         nobody else - the same shape the Fisherman's House has. One of
-         each, ever; mayBuildTrade refuses once one stands. */
-      /* A village-wide find (the mushroom) is offered to ANY villager you
-         have selected, not only to whoever carried it home - the herbalist
-         is whoever raises the hut. Checked before the personal claim below
-         so the founder, who may fetch that one, is still refused the
-         building itself (mayBuildTrade). */
-      if(vills.length===1 && G.tradeOpen && typeof mayBuildTrade === "function"){
-        for(const bk in G.tradeOpen){
-          if(!G.tradeOpen[bk] || !BLDG[bk]) continue;
-          if(!mayBuildTrade(vills[0], bk)) continue;
-          const td = BLDG[bk];
-          addBtn("🌿 "+td.name, costStr(td.cost), canAfford(pl, td.cost),
-                 ()=>startPlacing(bk), null, true);
-        }
-      }
-      if(vills.length===1 && vills[0].tradeFound &&
-         typeof mayBuildTrade === "function"){
-        /* The find table OR the earned trades - the gardener and the
-           geologist are not in TRADE_FINDS any more, so looking only there
-           left the person who had earned it with no way to raise their own
-           cottage. (SPECIALIST_WORK, 05g) */
-        const tf = tradeFindByKey(vills[0].tradeFound) ||
-                   (typeof SPECIALIST_WORK !== "undefined"
-                     ? SPECIALIST_WORK[vills[0].tradeFound] : null);
-        if(tf && tf.bldg && mayBuildTrade(vills[0], tf.bldg)){
-          const td = BLDG[tf.bldg];
-          /* No lock message: addBtn shows that INSTEAD of the subtitle when
-             one is given, and on a build button the cost is the thing you
-             need to see. Tapping it short-handed says "Not enough
-             resources." on its own. */
-          addBtn("🌿 "+td.name, costStr(td.cost), canAfford(pl, td.cost),
-                 ()=>startPlacing(tf.bldg), null, true);
-        }
-      }
-      /* THE VINEYARD, once a Winery stands. A field like the farm and offered
-         beside it to anybody you have selected - the winemaker is the one who
-         tends it, but a villager sets the posts. Hidden until there is a
-         Winery to press what it grows (an unpressed vineyard is just a farm
-         with a trellis on it), and as many as you like after that. (05zb) */
-      if(vills.length>=1 && G.bldgs.some(b=>b.p===P_YOU && b.type==="winery" && b.done)){
-        const vd = BLDG.vineyard;
-        addBtn("\u{1F347} "+vd.name, costStr(vd.cost), canAfford(pl, vd.cost),
-               ()=>startPlacing("vineyard"), BLDG_ABOUT.vineyard, true);
-      }
-      /* The bug catcher's own house, theirs alone and only ever one -
-         the Fisherman's House's twin in every respect, including wanting
-         a few kinds in the book first so it belongs to somebody who has
-         actually been out doing it. (mayBuildBugHouse, 05k) */
-      if(vills.length===1 && vills[0].bugCatcher &&
-         typeof mayBuildBugHouse === "function" && mayBuildBugHouse(vills[0])){
-        const bh = BLDG.bughouse;
-        addBtn("\u{1F50D} "+bh.name, costStr(bh.cost), canAfford(pl, bh.cost),
-               ()=>startPlacing("bughouse"), null, true);
-      }
-      if(vills.length===1 && vills[0].fisherman &&
-         !G.bldgs.some(b=>b.p===P_YOU && b.type==="fisherhouse")){
-        const fh = BLDG.fisherhouse;
-        const caught = vills[0].fishCaught||0;
-        const ready = caught >= FISHERMAN_HOUSE_CATCHES;
-        addBtn("🎣 "+fh.name, costStr(fh.cost), ready && canAfford(pl, fh.cost),
-               ()=>startPlacing("fisherhouse"),
-               ready ? BLDG_ABOUT.fisherhouse
-                     : FISHERMAN_HOUSE_CATCHES+" catches lands the house - "+caught+" so far.",
-               true);
-      }
-      /* THE ELDER'S COTTAGE, and only for the one who earned it. The same
-         shape as the two above: not in any category, offered only while the
-         villager who mended the hut out in the woods is the one selected.
-         Once it is up the path is finished and the button is gone with it. */
-      if(vills.length===1 && vills[0].elderling &&
-         !G.bldgs.some(b=>b.p===P_YOU && b.type==="eldercottage")){
-        const ec = BLDG.eldercottage;
-        addBtn("\u{1F56F} "+ec.name, costStr(ec.cost), canAfford(pl, ec.cost),
-               ()=>startPlacing("eldercottage"),
-               "They mended the old hut in the woods. Give them a cottage here and they will stay.",
-               true);
-      }
+      oneOffBuilds();
       for(const cat of BUILD_CATEGORIES){
         addBtn(cat.label, "choose a building", true, ()=>{
           G.buildCat = cat.key; refreshUI();
@@ -107628,7 +108942,10 @@ function frame(ts){
       tickForest(dt);
     } else if(G && G.running){
       cameraKeys(dt);
-      tick(dt * nightFastForward(dt));
+      /* The painter test (below) can run the village faster so a whole picture can be
+         watched in a minute. Whole ordinary steps, repeated - never one big step. */
+      const ff = nightFastForward(dt), reps = (PAINTER_WATCH && DEBUG_SPEED > 1) ? Math.min(30, DEBUG_SPEED|0) : 1;
+      for(let rp = 0; rp < reps; rp++) tick(dt * ff);
       // the founder's walk home after a night quest (05zm), on the village's
       // own clock: it is one villager walking, not a scene the game stops for
       if(G.nightReturn && typeof stepNightReturn === "function") stepNightReturn(dt);
@@ -108091,7 +109408,7 @@ function refreshBirdBook(){
     const e = log[b.key];
     const meta = e ? "seen "+e.count
                : b.moon ? "Moonstone" : b.season==="passage" ? "Spring and autumn"
-               : b.season==="warm" ? "Spring and summer" : b.season ? cap(b.season)
+               : b.season==="warm" ? "Spring and summer" : b.season==="cold" ? "Autumn and winter" : b.season ? cap(b.season)
                : b.where==="water" ? "At the water" : b.where==="farm" ? "On the farm"
                : b.when==="night" ? "Night" : "Any time";
     return "<div class='fishcard"+(e?"":" uncaught")+"'>"+
@@ -108757,6 +110074,126 @@ function startNightQuestTest(){
   if(!beginNightQuest("hound")) hint("The forest could not be opened.");
 }
 $("mm_nightquest").addEventListener("click", startNightQuestTest);
+
+/* THE PAINTER TEST SCENARIO. Asked for 11 Oct: "run a simulation with the painter
+   so I can watch them get up in the morning, go paint etc - I want to see the
+   journey of the painting."
+
+   A real village with a real Artist's Retreat, three cottages for the painting
+   to be given to and a few neighbours, the clock set to the small hours of a
+   painting day, and the camera following the painter. Nothing in it is faked:
+   the painter is made the way a find is (promoteToTrade, 05g), and every step
+   after that is the ordinary updateArtist (05t) - the only extras are a speed
+   dial (so a day takes ten seconds instead of two and a half minutes) and a
+   caption saying what the painter is doing and how far the picture has got. */
+let PAINTER_WATCH = null, DEBUG_SPEED = 1;
+function painterStageText(o){
+  if(!o) return "";
+  const th = (G.dayT || 0) / DAY_LEN, st = o.state;
+  const who = (to) => !to ? "somebody" : (to.nightName || (to.w !== undefined && BLDG[to.type] ? "the " + BLDG[to.type].name.toLowerCase() + " household" : "a neighbour"));
+  if(o.indoors || st === "indoors") return (G.phase === "night" || th >= 0.56 || th < 0.1) ? "Asleep indoors" : "Indoors";
+  if(st === "idle") return (th >= 0.9 || th < 0.1) ? "Up at first light, getting ready" : (o.gaveToday ? "Between jobs" : "Deciding what to do next");
+  if(st === "toeasel") return "Carrying the easel and board out to the painting spot";
+  if(st === "painting"){
+    const pct = Math.round(100 * Math.min(1, o.paintT || 0));
+    return "Painting " + ((o.subject || {}).name ? "\u201c" + o.subject.name + "\u201d" : "") + " - " + pct + "% (the board faces away until it is done)";
+  }
+  if(st === "revealing") return "Steps back and turns the finished picture round to show the village";
+  if(st === "showing") return "Carrying the painting to " + who(o.showTo);
+  if(st === "sheltering") return "Rain: taking the board indoors, keeping what is done";
+  if(st === "turnin") return "Heading in for the night";
+  return st;
+}
+function stopPainterTest(){
+  if(!PAINTER_WATCH) return;
+  clearInterval(PAINTER_WATCH.timer);
+  if(PAINTER_WATCH.el && PAINTER_WATCH.el.parentNode) PAINTER_WATCH.el.parentNode.removeChild(PAINTER_WATCH.el);
+  PAINTER_WATCH = null; DEBUG_SPEED = 1;
+}
+function startPainterTest(){
+  stopPainterTest();
+  setDifficulty("peaceful");
+  newGame(); resize();
+  G.running = true; G.over = false; G.fog[0].fill(2);
+  const pl = G.players[P_YOU];
+  const hall = G.bldgs.find(b => b.p===P_YOU && b.type==="town");
+  if(hall){ hall.prog=1; hall.done=true; hall.hp=hall.maxhp; hall.settleSite=false; hall.paid=true; }
+  pl.settled = true; pl.stoneAge = true;
+  for(const k in pl.res) pl.res[k] = 999;
+  G.season = "summer"; G.weather = null;
+
+  const room = (w, h, type, r0, r1) => {
+    for(let r=r0; r<=r1; r++) for(let a=0; a<24; a++){
+      const tx = hall.tx + Math.round(Math.cos(a/24*6.283)*r), ty = hall.ty + Math.round(Math.sin(a/24*6.283)*r);
+      if(aiCanPlace(tx,ty,w,h,type) && aiCanPlace(tx,ty+1,1,1,type)) return { tx, ty };
+    }
+    return null;
+  };
+  const rs = room(1, 1, "artist", 4, 9);
+  if(!rs){ hint("No good spot for this on the current map - try again, it deals a fresh one."); return; }
+  const retreat = makeBuilding("artist", P_YOU, rs.tx, rs.ty, true);
+  retreat.done = true; retreat.hp = retreat.maxhp; retreat.prog = 1;
+  for(let i=0; i<3; i++){
+    const hs = room(BLDG.house.w, BLDG.house.h, "house", 3, 11);
+    if(hs){ const h = makeBuilding("house", P_YOU, hs.tx, hs.ty, true); h.done = true; h.hp = h.maxhp; h.prog = 1; }
+  }
+  for(let i=0; i<5; i++) makeUnit("villager", P_YOU, hall.x + 20 + i*10, hall.y + 50);
+  // the real promotion: somebody takes up the brush, and the Retreat gets its own painter
+  const v = makeUnit("villager", P_YOU, retreat.x, retreat.y + 24);
+  v.everWorked = true;
+  promoteToTrade(v, retreat);
+  G.artists = []; updateArtist(0.1);
+  const o = (G.artists || [])[0];
+  if(!o){ hint("The painter could not be set up on this map."); return; }
+  o.indoors = true;                                  // the first thing to watch is them getting up
+  o.nightName = o.nightName || retreat.tradeName || "The painter";
+
+  G.seasonT = 0; G.dayT = 0.80 * DAY_LEN; G.phase = "night";
+  G.cam.z = 2.6; G.cam.x = retreat.x - VW/G.cam.z/2; G.cam.y = retreat.y - VH/G.cam.z/2; clampCam();
+  $("startscreen").classList.add("hide");
+
+  const el = document.createElement("div");
+  el.style.cssText = "position:fixed;left:50%;top:58px;transform:translateX(-50%);z-index:60;background:rgba(24,18,12,0.88);color:#f1e6cf;border:1px solid #8a7248;border-radius:8px;padding:8px 12px;font:13px/1.4 system-ui,sans-serif;max-width:min(92vw,520px);text-align:center";
+  el.innerHTML = '<div class="pw_title" style="font-weight:600"></div><div class="pw_sub" style="opacity:.8;font-size:12px"></div>' +
+    '<div style="margin-top:6px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap">' +
+    '<button data-sp="1">1&times;</button><button data-sp="6">6&times;</button><button data-sp="20">20&times;</button>' +
+    '<button data-act="follow">Following</button><button data-act="close">Close</button></div>';
+    // (a stand-in page in the tests has no real elements to find, so both lookups are forgiving)
+  const q = sel => (el.querySelector && el.querySelector(sel)) || {};
+  const qa = sel => (el.querySelectorAll && Array.from(el.querySelectorAll(sel) || [])) || [];
+for(const b of qa("button")) b.style.cssText = "background:#3a2e1f;color:#f1e6cf;border:1px solid #8a7248;border-radius:6px;padding:4px 10px;font:inherit;cursor:pointer";
+  document.body.appendChild(el);
+  const W = PAINTER_WATCH = { o, el, follow: true, retreat, timer: 0 };
+  DEBUG_SPEED = 6;
+  const refresh = () => {
+    for(const b of qa("button[data-sp]")) b.style.background = (+b.dataset.sp === DEBUG_SPEED) ? "#6b5430" : "#3a2e1f";
+    q("[data-act=follow]").textContent = W.follow ? "Following" : "Follow";
+  };
+  el.addEventListener("click", ev => {
+    const b = ev.target.closest("button"); if(!b) return;
+    if(b.dataset.sp){ DEBUG_SPEED = +b.dataset.sp; }
+    else if(b.dataset.act === "follow"){ W.follow = !W.follow; }
+    else if(b.dataset.act === "close"){ stopPainterTest(); return; }
+    refresh();
+  });
+  // dragging the map yourself lets go of the camera
+  cv.addEventListener("pointerdown", () => { if(PAINTER_WATCH){ PAINTER_WATCH.follow = false; refresh(); } });
+  W.timer = setInterval(() => {
+    if(!PAINTER_WATCH || !G || !G.artists || !G.artists.includes(o)){ stopPainterTest(); return; }
+    const th = (G.dayT || 0) / DAY_LEN;
+    const kind = paintingDay() ? "a painting day" : "the season's rest day";
+    q(".pw_title").textContent = (o.nightName || "The painter") + ": " + painterStageText(o);
+    q(".pw_sub").textContent = "Day " + (G.dayNo || 1) + " - " + (G.phase || "") + " (" + Math.round(th * 100) + "% through the day) - " + kind +
+      (o.hasPainting ? " - a finished picture is waiting to be given away" : "");
+    if(W.follow){
+      const tx = o.x - VW/G.cam.z/2, ty = o.y - VH/G.cam.z/2 - 20;
+      G.cam.x += (tx - G.cam.x) * 0.25; G.cam.y += (ty - G.cam.y) * 0.25; clampCam();
+    }
+  }, 50);
+  refresh();
+  hint((o.nightName || "The painter") + " is asleep in the Retreat. Watch them get up and start the day - the dial lets you hurry it along.");
+}
+$("mm_paintertest").addEventListener("click", startPainterTest);
 
 /* The X, top right: leave the menu and get on with the game underneath.
    Unlike Begin, this one can be closing a menu opened over a match already
