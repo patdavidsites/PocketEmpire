@@ -1277,6 +1277,7 @@
      the reader. .mback goes back to the root page. */
   .mpage.hide{display:none;}
   .mlist{display:flex;flex-direction:column;gap:7px;margin:16px 0 4px;}
+  .mrow[hidden]{ display:none !important; }
   .mrow{display:block;width:100%;text-align:left;background:none;
     border:1px solid var(--line);border-radius:3px;color:var(--parch);
     font-family:inherit;font-size:14px;padding:12px 14px;cursor:pointer;
@@ -1975,13 +1976,13 @@
                for 7 Oct: "add a button to the settings drop down that is test
                night quest, so it'll be in the game but it won't occur
                naturally until I test the performance". -->
-          <button class="mrow" id="mm_nightquest">Test night quest
+          <button class="mrow" id="mm_nightquest" hidden>Test night quest
             <span class="msub">Walk into the night forest now - the village waits where it is</span></button>
-          <button class="mrow" id="mm_nightquest4">Test night quest 4: the blade
+          <button class="mrow" id="mm_nightquest4" hidden>Test night quest 4: the blade
             <span class="msub">Three passages (shield, roll, torch), a chest with a sword, then the ghosts, the fog and a Troll</span></button>
-          <button class="mrow" id="mm_nightquest3">Test night quest 3: the mirror shield
+          <button class="mrow" id="mm_nightquest3" hidden>Test night quest 3: the mirror shield
             <span class="msub">A short walk to a chest with a shield in it. Put it on and the ghosts begin: torch, roll, and throw their embers back</span></button>
-          <button class="mrow" id="mm_nightquest2">Test night quest 2: the thornwood
+          <button class="mrow" id="mm_nightquest2" hidden>Test night quest 2: the thornwood
             <span class="msub">A short walk, thorns, three ghosts throwing embers - and a roll to dodge them. A chest with a cape at the end</span></button>
         </div>
       </div>
@@ -2000,10 +2001,24 @@
         <summary>Patch 23.4</summary>
         <div class="sec">A long list, smallest first</div>
         <ul>
+          <li><strong>Villagers walk round each other.</strong> Two people on the same line used to walk straight through one another and be shoved apart, like billiard balls. Now a villager on the move looks a few strides ahead and, if somebody is in the way, bends their heading round them and carries on: away from the person if they are to one side, and to their own right if they are dead ahead, so two meeting head-on both go right and pass, a body&rsquo;s width apart (measured: they used to pass within half a pixel). It is a nudge on the way to the same place, not a new route, so walls and doors still win; it stops in the last stride of a walk so a queue at a door still closes up; and it never walks round the person you are walking to.</li>
+          <li><strong>Every trade keeps something by its door.</strong> On the side of the door the seasonal pot is not on: a basket of loaves (and the baker&rsquo;s peel) at the bakery, flour sacks at the mill, a barrel and a stool with a mug at the tavern, candles on a little table at the chandlery, coloured hanks on a rail at the weaver&rsquo;s, a dressmaker&rsquo;s dummy at the seamstress&rsquo;s, an easel at the painter&rsquo;s, a stack of baskets, a seed feeder with a bird at the bird watcher&rsquo;s, a barrel and a crate of grapes at the winery, buckets of flowers at the florist&rsquo;s, planks and a hammer at the builder&rsquo;s, a crook and a hay bale at the shepherd&rsquo;s, a watering can and pots at the gardener&rsquo;s, a pile of rocks and a pick at the geologist&rsquo;s, drying herbs at the herbalist&rsquo;s, a stool and a staff at the elder&rsquo;s, a ring of stones and a little fire at the wildlings&rsquo; den, a rain barrel at the hermit&rsquo;s, a jar of glowing bugs and a net at the bug catcher&rsquo;s, fish drying on a rack at the fisherman&rsquo;s, a barrow and a spade at the caretaker&rsquo;s, a barrel of arrows at the fletcher&rsquo;s. A street of cottages now says who lives where without a tap.</li>
           <li><strong>The founder wears what the night errands win.</strong> Put the cape on in the forest&rsquo;s bag and the founder wears it in the village too: teal, behind the shoulders from the front, trailing from the side and hanging down the back from behind, with a gold clasp at the throat. The sword rides sheathed across the back (the hilt over one shoulder), and the shield is slung there when the sword is not &mdash; the free hand holds one or the other. Take them off in the bag and they are gone. Only the founder, and only what you have found.</li>
           <li><strong>A hundred birds in the bird book.</strong> Seventy-four new ones, all variations on what the village already had, none of them added to the sky: a flock of finches is now sometimes chaffinches, siskins, bullfinches, fieldfares, redwings, great tits, wood pigeons, rooks, jackdaws or magpies (and the odd woodpecker, cuckoo or kingfisher on its own); a lone hawk can be a merlin, a hobby, a peregrine, a red kite, a harrier, a goshawk or an osprey; the gulls that come in off the water are sometimes black-headed gulls, kittiwakes, terns, cormorants, gannets, oystercatchers, teal, wigeon or a heron; the geese in spring and autumn can be pink-footed, barnacle, brent, white-fronted, whooper or Bewick&rsquo;s swans, cranes or golden plovers; the small bird on a roof ridge can be a robin, a wren, a dunnock or a blackbird; and after dark there are three more bats, a woodcock, a barn owl and a short-eared owl. The finch is still the commonest by a long way, and the rarest are one in a hundred and some, so the book is a long collection. Where the village already had the art, it is that art, tweaked: the ducks on the pond are the pond&rsquo;s own duck and drake recoloured into teal, wigeon, pochard, tufted ducks and shovelers (half of them are still mallards), and the yard&rsquo;s white hen and its rooster, which were always there, have pages of their own. And no more birds come: every one of these turns up instead of one of the old ones, from the same spawns, as often as ever. Each is drawn in the sky in its own colours and size, and in the book with a portrait of its own (a cap, a collar, a long tail, a long bill).</li>
           <li><strong>The bird book is on shelves.</strong> A hundred cards were too many for one list, so they sit by kind of bird: finches and buntings, larks and wagtails, swifts and swallows, thrushes and garden birds, tits, pigeons, crows, birds of prey, gulls and the shore, wildfowl, passing through, the farm, owls, after dark, and the Moonstone one. Tapping the Bird Watcher&rsquo;s Hut also shows the last few in the book, and how many of the hundred you have. The line under each card now says which seasons the bird is about.</li>
           <li><strong>Birds sit on sheep.</strong> Now and then a house sparrow, starling, pied wagtail, jackdaw, robin or meadow pipit (and a yellow wagtail in summer) lands on a sheep&rsquo;s back, pecks the wool, and goes when somebody comes near or the sheep is petted. The bird keeper can Gather one like any bird in the sky, and it goes in the book. Never on a lamb, never in the dark or in foul weather, never more than two in the village.</li>
+          <li><strong>Benches, lanterns, flower beds, hedges, fences, a picnic blanket and a statue.</strong> They come into the village the same way the paths do &mdash; one at a time, over the days, never as a reward &mdash; and live in the same place, <em>Build &rarr; Paths &amp; decorations</em>: a bench first (about day eleven, with a couple of houses up), then lanterns, flower beds, hedges, cobbles, the picnic blanket, fences and finally a statue, each with a line from the village when it arrives. Pick one and tap a tile and it goes down at once, and you can tap the next; a hedge or a fence tapped in line with the last fills the stretch between, and the corners are posts that join up on their own. A <strong>bench</strong> (8 wood) seats two. A <strong>lantern</strong> (4 wood, 3 stone) is a post with a lamp that is lit from dusk and lights the ground round it. A <strong>flower bed</strong> (3 wood) is dug and edged in stones and is in the colours of the season &mdash; snowdrops and holly in winter. <strong>Hedges</strong> and <strong>fences</strong> (3 wood a tile) are walls to anybody walking, like the thing they are; <strong>the statue</strong> (30 stone) is a figure on a plinth with a bird on its hand, and blocks too. A <strong>picnic blanket</strong> (2 wood) is spread flat. They are not allowed on water, on a building or its yard, in a field, among the trees, on the ground the Long Table goes on, in front of a door (the ones that block), or where you have not been. <em>Take away</em> puts one back and gives half the cost. And they are <strong>used</strong>: the people already out on their afternoons will sit two to a bench, stand a while by a lantern as the light goes, or sit on the blanket in the sun &mdash; three to one, never in the snow.</li>
+          <li><strong>Paths you can lay, and a village that asks for things over time.</strong> A new item, <em>Paths &amp; decorations</em>, turns up in the Build menu once the village has come to want the first thing in it &mdash; and that happens on its own, one thing a morning at most, never all at once and never for a reward. A few days in, with a couple of houses up, the village starts to say it wants <strong>gravel</strong> on the way between its doors; later it wants cobbles. Pick a path, tap where it starts and where it ends: the way between is found by the same route-finder the villagers walk by, so it goes round the buildings and the water, and it is shown in green with its cost before you commit. <strong>Lay it</strong> pays for it (a stone a tile for gravel, two for cobbles; cobbles go over gravel, never the other way) and the next stretch starts where this one stopped. <em>Pick up a path</em> takes a few tiles away again. Anybody of yours walking on a path goes a little faster &mdash; a tenth on gravel, a sixth on cobbles &mdash; and where they are already finding their way round something they take a path in preference when it is nearly as short. Somebody walking straight across open ground does not turn aside to find one. Paths are drawn as a soft-edged ribbon, with grit on the gravel and stones on the cobbles, and they are saved with the village. (The rest of what is in the list comes later: benches, lanterns, flower beds and the like.)</li>
+          <li><strong>The tracks your villagers wear into the ground now survive a save.</strong> They never were saved: the list of what to leave out of a save had them down as scratch work, so every village that was saved and loaded again came back with bare ground where its paths had been. They are written down now (only the tiles that have anything on them, a few dozen numbers rather than the whole map), and a village saved before this simply starts wearing them in again.</li>
+          <li><strong>Worn paths grow over faster.</strong> The tracks your villagers wear into the ground (earth, then gravel, then cobbles with each age) were fading so slowly that a fully worn one took about two and a half seasons to disappear once nobody used it. They now grow over in about nine days &mdash; a little over a season &mdash; so a track you stop walking is gone by the next, and one still walked every day keeps itself up.</li>
+          <li><strong>The harvest market.</strong> On the third day of every autumn, two striped stalls are out in the square in front of the hall, one on either side of where the Harvest Home table will stand: crates of pumpkins at one, a basket of red apples at the other. The village says so at first light, and until dusk the people out on their afternoons choose the stalls as the place to call &mdash; seven in ten of those going somewhere go there. They walk over, stand in front of the stalls looking, and now and then somebody comes home with an apple and hands it round. It gives nothing and costs nothing; it is just the square being busy. (There was already a Trading Post market every fifth day; that is unchanged.)</li>
+          <li><strong>Heaps of leaves, and snowmen.</strong> In autumn about one house in two has a heap of fallen leaves in its yard, small in the first days and a proper mound by the end. On an autumn afternoon a child will sometimes walk out to it, take a run, jump in with both arms up and lie there in a burst of leaves, then get up and go again &mdash; two or three times. The heap is squashed flat where they landed and fluffs back up over the next half minute. In winter, once the ground is properly white, a child will sometimes build a snowman on the other side of the door &mdash; a ball, then two, then a head, with a red scarf, two coals, a carrot and, for about half of them, a top hat. It takes about eighteen seconds and then it is simply there, one to a house and no more than four in the village. It stays for days. It slumps when it thaws &mdash; rain in the winter, or the snow going when spring comes &mdash; down to a puddle with the scarf, the carrot and the coals lying in it, and a minute later those are gone too.</li>
+          <li><strong>A gift on the doorstep.</strong> Once you have shared a few errands with somebody they may leave you something in the night: a loaf in a checked cloth, a small bunch of flowers tied with string (not in winter), or a little carved wooden bird. It is there at first light on the step of the house you sleep in &mdash; the hall, until there is another &mdash; and the village tells you who it was from. A friend does it about one morning in twelve, a close friend about one in five, and never twice within three days, so it stays a small surprise. Walk past the door and you take it in; if you never do, it is gone by the next morning.</li>
+          <li><strong>Fireflies in jars.</strong> On some summer evenings &mdash; about two in five, house by house, and never in the wet &mdash; a child comes out as the light goes with a small glass jar held up in one hand and three fireflies blinking in it, each in its own time. They wander the yard with it, stop to look into it, and stay out later than any other child in the village: called in just after dark, never the small hours. The jar gives off a little soft green-yellow light of its own that swells with whichever of them is lit. No more than two are out at once, and spring, autumn and winter have none.</li>
+          <li><strong>Hens go to roost in a line at dusk.</strong> They used to vanish the moment dusk began, wherever they stood. Now the dusk is their walk home: the hen nearest the door leads and every other one heads for the spot just behind the hen in front, so the yard strings out into single file across the grass and each goes in at the door as she reaches it.</li>
+          <li><strong>A dog has its person.</strong> Each village dog picks one villager as its favourite, from its own id and the week, so it is the same person for six days and then perhaps somebody else. The dog trots to them first, from further off than it would go for anybody, so the ball is dropped at the same pair of feet day after day. If they are indoors, across the village, or have only just made a fuss of it, it makes do with whoever is near, as before. And asking a dog for a game while it is already inviting someone else hands that game to you, ball and all, instead of cancelling it.</li>
+          <li><strong>The weather leaves a mark on people.</strong> In the cold &mdash; winter, a hard late autumn, a chilly night or dawn &mdash; a little white puff of breath leaves a villager&rsquo;s mouth now and then. Out in the rain their hair darkens and shines, their shoulders go a shade darker and a drip lets go from the chin, and it takes about half a minute to dry once they are in (not for anyone under an umbrella). And on the first few frosty mornings of winter, anyone standing about outside shivers a fraction of a pixel; not while walking or working, which is how they keep warm. None of it rolls a die: it is read off the weather and the villager&rsquo;s own id.</li>
+          <li><strong>The night errands are hidden for a while.</strong> The red <em>!</em> no longer offers them and the four Test night quest buttons under Settings are gone, because the forest felt like a second game laid over this one. Nothing was removed: the forest, all four errands, the roll, the shield, the sword, the Troll and the cape are all still in the game, switched off. The Kennel goes back to its old way in: the pup crying in the woods, the clues, and a villager finding it.</li>
           <li><strong>The new night errands start from Settings only, for now.</strong> The thornwood, the mirror shield and the blade are all in, and each has its own button under Settings, Test scenarios; the red <em>!</em> still offers only the hound until a switch in the code is flipped, and then they follow it in order.</li>
           <li><strong>The blade&rsquo;s final glade is bigger.</strong> The ring of trees is 225 across instead of 158, with forty trees round it and the ghosts hung further out, so there is room to roll round the Troll.</li>
           <li><strong>A fourth night errand: The Blade in the Glade.</strong> After the mirror shield. Three passages (north, right, north) with a ghost at the end of each throwing volleys of three embers and a thorn hedge or two to burn: the shield throws the embers back, the roll goes through them, and the torch burns the thorns. At the end of the last, a chest holds a <strong>sword</strong>. It goes in the free hand, so it takes the shield&rsquo;s place (swap back from the bag any time), and the moment you hold it the trees close and it all comes at once: four ghosts, then three banks of the black fog with two more ghosts behind them, then a <strong>Troll</strong> &mdash; the goblin warlord&rsquo;s big one &mdash; who plods at you, raises his club (a red ring on the ground shows where it will land) and slams. A roll goes through the slam, a guard takes most of it, and what lands throws you back, dazes you for a moment and chills the torch hard. While he is recovering from a swing, your hits count half as much again; a poke staggers him mid-swing; and an ember thrown back with the shield hurts him most. At half his strength he roars and the fog comes back. The sword is the sandbox&rsquo;s: tap to cut, press again before a stroke ends to chain four (chop, across, back, poke), and the poke hits twice as hard. Settings, Test scenarios, <em>Test night quest 4</em>.</li>
@@ -6486,7 +6501,10 @@ function tellStory(e){
    mark it and after twelve minutes exactly one tile had a track on it. */
 const PATH_MAX     = 90;     // traffic at which a track is fully worn
 const PATH_SHOW    = 12;     // and where it first starts to show
-const PATH_FADE    = 0.004;  // how fast an unused track grows over
+/* 14 Oct (cosy list, "unused ones grow back over a season"): was 0.004, which measured as 90 -> 80 in two days on an 84x84 map, so a fully worn
+   track took about eighteen days - two and a half seasons - to disappear once nobody used it. Doubled: a track nobody walks any more is gone in about
+   nine days (a season is seven), while one still walked every day keeps itself up. */
+const PATH_FADE    = 0.008;  // how fast an unused track grows over
 const PATH_LOOKS = [
   { name:"trodden earth", col:[122, 98, 66],  edge:0.55 },
   { name:"gravel",        col:[142,134,118],  edge:0.72 },
@@ -6570,6 +6588,7 @@ function updateHomeLife(dt){
   // one line a day when they are called in, so reset it as the day turns over
   if((G.dayF||0) < CHILD_OUT_FROM) G.childrenCalledDay = false;
   if(!G.homeLife) G.homeLife = [];
+  if(typeof updateJarKids === "function") updateJarKids();      // a summer evening's child with a jar of fireflies (05zzg)
   G.homeLifeCd = (G.homeLifeCd||0) - dt;
 
   // one wanders out now and then, if there is a house to come out of
@@ -6681,7 +6700,8 @@ function updateHomeLife(dt){
        seconds of no progress forces it same as a stalled leg elsewhere. */
     /* And in before everyone else. A moon town's children are exempt: they
        are a night thing by definition, and the whole point of them. */
-    const childCurfew = o.kind==="child" && !o.moon && (G.dayF||0) >= CHILD_IN_AT;
+    const jarOut = typeof jarKeepsOut === "function" && jarKeepsOut(o);     // a jar of fireflies is out later than any other child (05zzg)
+    const childCurfew = o.kind==="child" && !o.moon && !jarOut && (G.dayF||0) >= CHILD_IN_AT;
     if(childCurfew && !o.leaving && !G.childrenCalledDay) {
       G.childrenCalledDay = true;
       hint("Doors open down the row - the children are called in.");
@@ -6691,7 +6711,7 @@ function updateHomeLife(dt){
        darkness despawn or they would appear and immediately turn back
        indoors, same instant every time. Their own `t` (7-12s) still ends
        them. */
-    const darkDespawn = (G.dark||0) > 0.35 && o.kind!=="parent";
+    const darkDespawn = (G.dark||0) > 0.35 && o.kind!=="parent" && !jarOut;
     if(!o.leaving && (o.t<=0 || darkDespawn || childCurfew || weatherKeepsYouIn())){
       o.leaving = true; o.leaveT = 0;
       o.ball = null; o.patT = 0; o.patted = 0; o.wait = 0;
@@ -6794,6 +6814,10 @@ function updateHomeLife(dt){
           o.t = 0;                     // and it is gone for the night
         }
       }
+    } else
+    if(o.kind === "child" && !o.ball && ((typeof kidLeafPlay === "function" && kidLeafPlay(o, dt)) ||
+                                         (typeof kidSnowBuild === "function" && kidSnowBuild(o, dt)))){
+      // jumping in a heap of leaves, or building a snowman (05zzi): it has the child this frame, and the shared walk below still moves them
     } else
     if(o.patT > 0 || o.patted > 0){
       o.moving = false;               // hold still for the pat
@@ -15921,7 +15945,7 @@ function defaultGameState(){
     tradeSeasonNo: -1, tradeDay: -1, tradeDone: false,
     // the fishing minigame's own state while a round is up (03e) - null
     // the rest of the time, so most of a match never touches this at all
-    fishGame: null, bugGame: null, bugPeek: null, fishCatch: null, animalLook: null, flowerLook: null, bugLook: null, birdLook: null, birdFresh: null, snowballs: [], snowReplies: [], sheepBirds: [], bonds: {}, petted: {}, fireHue: null, speechSeasonNo: -1, foundedT: null, birthday: null, birthdayDone: -1, lines: [], lineCount: 0, lineNextStart: 0, lineLastKind: "", lineLastOutfit: -1, errand: null, errandCount: 0, errandN: 0, errandLastAsker: null, errandTold: false, bugQuota: null, bugTopUpT: 5, bugChurnT: 14,
+    fishGame: null, bugGame: null, bugPeek: null, fishCatch: null, animalLook: null, flowerLook: null, bugLook: null, birdLook: null, birdFresh: null, snowballs: [], snowReplies: [], sheepBirds: [], doorGift: null, giftDay: -99, snowmen: [], roads: null, villageDecor: [], cosyUnlocked: {}, roadTool: null, decorTool: null, bonds: {}, petted: {}, fireHue: null, speechSeasonNo: -1, foundedT: null, birthday: null, birthdayDone: -1, lines: [], lineCount: 0, lineNextStart: 0, lineLastKind: "", lineLastOutfit: -1, errand: null, errandCount: 0, errandN: 0, errandLastAsker: null, errandTold: false, bugQuota: null, bugTopUpT: 5, bugChurnT: 14,
     /* The glowing night pool (03e): where it is this season, which season
        that was chosen for, and nothing else - the node itself lives in
        G.nodes like any other and is found by its own flag. */
@@ -20919,6 +20943,9 @@ function tapAt(sx, sy){
   if(G.autoUnit && (G.sel.length!==1 || G.sel[0]!==G.autoUnit || G.autoUnit.hp<=0)){
     G.autoUnit = null;
   }
+
+  // a path tool or a decoration in hand (Build -> Paths & decorations, 05zzk): it takes the tap
+  if((G.roadTool || G.decorTool) && typeof cosyTap === "function" && cosyTap(w)) return;
 
   // placing a building? first tap picks the spot, then confirm with the tick
   if(G.placing){
@@ -26432,6 +26459,9 @@ function tick(dt){
   updateSquirrels(dt);
   updateRoofBirds(dt);
   updateSheepBirds(dt);   // and the odd one on a sheep's back (05zzb)
+  if(typeof updateDecor === "function") updateDecor();                 // the hedge, fence and statue grid, after a load (05zzl)
+  if(typeof updateLeafAndSnow === "function") updateLeafAndSnow(dt);   // heaps of leaves to jump in, snowmen to build and to melt (05zzi)
+  if(typeof updateDoorGifts === "function") updateDoorGifts();   // the founder taking in what was left on the step (05zzh)
   updateWind(dt);
   updateGusts(dt);      // and the gusts that cross the country on it
   updateRises(dt);      // a fish taking a fly at dusk
@@ -26871,6 +26901,7 @@ function updateUnit(u, dt){
             * floristGiftMult(u)                        // and somebody was given flowers (05v)
             * speechMult(u, "spd")                      // the elder spoke of swiftness (05zz)
             * founderCapeMult(u)                        // the cape from the thornwood chest, if it is on (05zj)
+            * roadSpeedMult(u)                          // and a laid path underfoot (05zzk)
             * GLOBAL_SPEED_SCALE
             * (d.naval ? 1 : FOOT_SPEED_TRIM)           // people walk; ships are unchanged
             * (1 - (1-WINTER_SPEED)*G.snow)
@@ -28578,6 +28609,9 @@ function rebuildNav(){
   // thorns are walls too, so a path goes round them rather than into them
   const tg = G.thornGrid;
   if(tg) for(let i=0;i<n;i++) if(tg[i]===1) L[i] = 1;
+  // and so are hedges, fences and statues (05zzl)
+  const dgr = G.decorGrid;
+  if(dgr) for(let i=0;i<n;i++) if(dgr[i]===1) L[i] = 1;
   G.navDirty = false;
 }
 
@@ -28728,7 +28762,7 @@ function findPath(wx, wy, gx, gy, naval, self){
       if(dx&&dy && (navBlocked(cx+dx,cy,naval) || navBlocked(cx,cy+dy,naval))) continue;
       const ni=ny*MAPW+nx;
       if(closed[ni]) continue;
-      const step = (dx&&dy) ? Math.SQRT2 : 1;
+      const step = ((dx&&dy) ? Math.SQRT2 : 1) * (naval ? 1 : roadStepFactor(ni));     // a laid path is the shorter way (05zzk)
       /* A boat pays a toll for shallow water rather than being barred from
          it: a dock, a shoal and a landing beach are all up against the shore
          by definition, and a one-tile strait is sometimes the only way
@@ -28800,6 +28834,75 @@ const NET_GAIN   = 12;
    so the second is refused - the two took it in turns and the villager
    flickered between them. Measured at 1.3 turns a second even after the
    settle-timer itself was fixed. In a fight, combat owns the facing. */
+/* ============================================================
+   WALKING ROUND EACH OTHER  (14 Oct; saved since 2 Oct: "let's make it so villagers learn to walk around each other not just walk into each other
+   pushing them away")
+   ============================================================
+   Before this two villagers on the same line walked straight through one another and separate() (below) shoved them apart: billiard balls, not
+   people. Now somebody walking looks a short way ahead and, if another person is standing or walking in their way, bends their heading to one side
+   of them and carries on: a STEERING nudge on the way to the same place, not a different route, so nothing here touches the path, the goal or the
+   stuck checks.
+
+     WHO     villagers, walking, and only round other people (a unit that is not water-bound), never round the one they are walking to, and not
+             in the last stride of a walk, so a queue at a door or a crowd at a fire still closes up
+     HOW     a person in the way, a stride or so ahead and within about a body-width of the line, turns the heading away from them: toward the
+             side they are NOT on and, when they are dead ahead, to the RIGHT of the walker, which is what two people meeting head-on do: both go
+             to their own right and pass. The turn is bigger the closer they are and eased in and out, never snapped
+     SIDE    kept for most of a second once chosen, so a pair do not both dither to and fro in the middle of the road
+     DICE    none: the whole thing is a function of where people are. Math.random is the match's seeded stream and this runs for every walker on every
+             tick
+   AVOID_ON turns it off. It is not a pathfinder: a wall still wins (the steer scan in moveToward still runs after this), and the shove in
+   separate() is still there for the crush it cannot prevent.
+   ============================================================ */
+let AVOID_ON = true;
+const AVOID_LOOK = 42;        // how far ahead somebody is noticed (a body is about twelve across)
+const AVOID_LATERAL = 17;     // and how far off the line they may be and still be in the way
+const AVOID_LAST_STRIDE = 30; // not within this of where they are going
+const AVOID_TURN = 1.2;       // the most the heading is bent, in radians (about seventy degrees)
+let avoidGrid = null, avoidGridStamp = -1;
+function avoidGridNow(){
+  const stamp = G.t + ":" + G.units.length;
+  if(avoidGrid && avoidGridStamp === stamp) return avoidGrid;
+  const grid = new Map(), cell = 32;
+  for(const o of G.units){
+    if(o.hp <= 0 || o.indoors || o.lying) continue;
+    const od = UNITS[o.type]; if(!od || od.naval) continue;
+    const k = Math.floor(o.x/cell) + "," + Math.floor(o.y/cell);
+    let a = grid.get(k); if(!a){ a = []; grid.set(k, a); }
+    a.push(o);
+  }
+  avoidGrid = grid; avoidGridStamp = stamp;
+  return grid;
+}
+/* The bend, in radians, to add to u's heading `ang` this tick. Pure apart from the u.avoid* fields it keeps. */
+function avoidSteer(u, ang, dist0, dt){
+  if(!AVOID_ON || u.type !== "villager" || dist0 < AVOID_LAST_STRIDE || (u.stuckT||0) > 0.8){ u.avoidK = (u.avoidK||0) * Math.max(0, 1 - dt*6); return u.avoidK || 0; }
+  const hx = Math.cos(ang), hy = Math.sin(ang), grid = avoidGridNow(), cell = 32;
+  const cx0 = Math.floor((u.x + hx*AVOID_LOOK*0.5)/cell), cy0 = Math.floor((u.y + hy*AVOID_LOOK*0.5)/cell);
+  let best = null, bf = 1e9;
+  for(let gx = cx0-1; gx <= cx0+1; gx++) for(let gy = cy0-1; gy <= cy0+1; gy++){
+    const arr = grid.get(gx + "," + gy); if(!arr) continue;
+    for(const o of arr){
+      if(o === u || o === u.target || o === u.chatWith || o === u.followTarget) continue;
+      const rx = o.x - u.x, ry = o.y - u.y, f = rx*hx + ry*hy;
+      if(f <= 0 || f > AVOID_LOOK + (o.r||6)) continue;
+      const l = hx*ry - hy*rx;                             // + when they are to the walker's right on the screen (y points down)
+      if(Math.abs(l) > AVOID_LATERAL) continue;
+      if(f < bf){ bf = f; best = { o, l, f }; }
+    }
+  }
+  let want = 0;
+  if(best){
+    if(u.avoidT > 0 && u.avoidSide) want = u.avoidSide;
+    else { want = Math.abs(best.l) > 2 ? (best.l > 0 ? -1 : 1) : 1; u.avoidSide = want; u.avoidT = 0.8; }      // away from them; dead ahead: to the right (clockwise)
+    want *= AVOID_TURN * (1 - 0.55 * Math.min(1, best.f / (AVOID_LOOK + 6)));
+  } else { u.avoidT = Math.max(0, (u.avoidT||0) - dt); if(u.avoidT <= 0) u.avoidSide = 0; }
+  if(best) u.avoidT = Math.max(u.avoidT||0, 0.35);
+  u.avoidT = Math.max(0, (u.avoidT||0) - dt);
+  u.avoidK = (u.avoidK||0) + (want - (u.avoidK||0)) * Math.min(1, dt * 7);                                // eased in, and eased out
+  return u.avoidK;
+}
+
 function moveToward(u, tx, ty, spd, dt, stop, keepFacing){
   const dist0 = Math.hypot(tx-u.x, ty-u.y);
   if(dist0 <= stop){ u.moving=false; u.stuckT=0; u.path=null; return true; }
@@ -28873,7 +28976,7 @@ function moveToward(u, tx, ty, spd, dt, stop, keepFacing){
 
   const dx = aimX-u.x, dy = aimY-u.y;
   const d = Math.hypot(dx,dy) || 0.001;
-  const baseAng = Math.atan2(dy,dx);
+  const baseAng = Math.atan2(dy,dx) + avoidSteer(u, Math.atan2(dy,dx), dist0, dt);       // bent a little round whoever is in the way (above)
   const desperate = (u.stuckT||0) > 1.2;
 
   // Right at a corner, whichever steer angle clears the wall first can flip
@@ -29033,6 +29136,12 @@ function blocked(wx, wy, self, naval, rad){
   if(tg){
     const ttx = Math.floor(wx/TILE), tty = Math.floor(wy/TILE);
     if(ttx>=0 && tty>=0 && ttx<MAPW && tty<MAPH && tg[tty*MAPW+ttx] === 1) return true;
+  }
+  /* AND A HEDGE, A FENCE OR A STATUE, the same way (decorGrid, 05zzl): one read of one array. */
+  const dg = G.decorGrid;
+  if(dg){
+    const dtx = Math.floor(wx/TILE), dty = Math.floor(wy/TILE);
+    if(dtx>=0 && dty>=0 && dtx<MAPW && dty<MAPH && dg[dty*MAPW+dtx] === 1) return true;
   }
   return false;
 }
@@ -35600,6 +35709,9 @@ function draw(){
     }
     ctx.globalAlpha = 1;
   }
+  // the paths the village has laid, over the worn ones and under everything that stands (05zzk)
+  if(typeof drawRoads === "function" && G.roads && c.z > 0.55) drawRoads(x0, y0, x1, y1);
+  if(typeof drawDecorGround === "function" && G.villageDecor && G.villageDecor.length) drawDecorGround(x0, y0, x1, y1);      // picnic blankets and flower beds, flat on the ground (05zzl)
 
   /* Mist lies on the ground, under everything that stands on it. */
   drawGroundMist();
@@ -35619,6 +35731,12 @@ function draw(){
   }
   /* Thorns, sorted by their own foot like everything else with height, so a
      villager walking past in front of one is in front of it (05zn). */
+  for(const d of (G.villageDecor||[])){                    // benches, lanterns, hedges, fences, statues (05zzl)
+    if(typeof DECOR_KINDS === "undefined" || !DECOR_KINDS[d.kind] || DECOR_KINDS[d.kind].flat) continue;
+    if(d.x<c.x-40||d.y<c.y-40||d.x>c.x+VW/c.z+40||d.y>c.y+VH/c.z+40) continue;
+    if(!exploredTo(P_YOU,d.x,d.y)) continue;
+    drawList.push({ e:d, y:d.y + (d.kind==="hedge"||d.kind==="fence" ? 6 : 4), kind:32 });
+  }
   for(const t of (G.thorns||[])){
     if(t.gone) continue;
     if(t.x<c.x-40||t.y<c.y-40||t.x>c.x+VW/c.z+40||t.y>c.y+VH/c.z+40) continue;
@@ -36061,6 +36179,7 @@ function draw(){
          first build, which is precisely what that check is there for. */
       case 30: drawOneEasel(it.e); break;   // the painter's easel, at its own foot
       case 31: drawThorn(it.e); break;      // a thorn bush, in the way (05zn)
+      case 32: drawDecorOne(it.e); break;   // a bench, a lantern, a hedge, a fence or a statue (05zzl)
       case 3: drawUnit(it.e); drawGrassAtFeet(it.e); break;
       case 4: drawCritter(it.e); break;
       case 5: drawElder(); break;
@@ -36115,6 +36234,8 @@ function draw(){
 
   for(const p of G.players) drawVillageBonfire(p);
 
+  if(typeof drawRoadGhost === "function") drawRoadGhost();            // the stretch of path being planned (05zzk)
+  if(typeof drawDecorGhost === "function") drawDecorGhost();          // and the decoration about to be put down (05zzl)
   // placement ghost
   if(G.placing){
     const d=BLDG[G.placing.type];
@@ -37117,6 +37238,21 @@ function draw(){
         nx.fillStyle = g; nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
         nx.restore();
       }
+      /* THE VILLAGE'S LANTERNS (05zzl): a small warm pool each, lit from dusk. */
+      for(const d of (G.villageDecor||[])){
+        if(d.kind !== "lantern" || !exploredTo(P_YOU, d.x, d.y)) continue;
+        const f = 0.93 + 0.07*Math.sin(G.t*4.1 + d.id*1.7);
+        const rad = LANTERN_RADIUS * f;
+        const sp = w2s(d.x, d.y - 8);
+        const rx = rad*c.z, ry = rad*0.72*c.z;
+        if(sp.x < -rx || sp.y < -ry || sp.x > VW+rx || sp.y > VH+ry) continue;
+        lamps.push({x:sp.x, y:sp.y, rx, ry, col:"255,205,140"});
+        nx.save(); nx.translate(sp.x, sp.y); nx.scale(1, ry/rx);
+        const g = nx.createRadialGradient(0,0,rx*0.05, 0,0,rx);
+        glowGradient(g, 0.9*lit, 0.16, 2.3, "0,0,0");
+        nx.fillStyle = g; nx.beginPath(); nx.arc(0,0,rx,0,6.283); nx.fill();
+        nx.restore();
+      }
       if(G.vigil && exploredTo(P_YOU, G.vigil.x, G.vigil.y)){
         const f = 0.92 + 0.08*Math.sin(G.t*1.4);
         const rad = BRAZIER_RADIUS * 0.55 * f;
@@ -37461,6 +37597,8 @@ function draw(){
     ctx.scale(G.cam.z,G.cam.z); ctx.translate(-G.cam.x,-G.cam.y);
     drawNightBugs(x0,y0,x1,y1,true);
     drawFireflies(x0,y0,x1,y1);       // the swarm - see the note where it used to be
+    if(typeof drawJarGlows === "function") drawJarGlows(x0,y0,x1,y1);   // and a child's jar of them (05zzg)
+    if(typeof drawLanternGlow === "function") drawLanternGlow(x0,y0,x1,y1);   // and the lamp on a lantern post (05zzl)
     /* Moths at the lamp. Drawn HERE - onto the main canvas, after the night
        layer has gone down - and not up among the lamp pools, which is where
        this first went. That section is running destination-out, so every moth
@@ -44428,6 +44566,7 @@ let HEN_EGG_BOX_ON = false;
 function drawVillageDressing(b){
   if(!b.done || b.hp <= 0) return;
   const fw = b.w*TILE, front = b.y + b.h*TILE/2;
+  if(typeof drawHarvestMarket === "function") drawHarvestMarket(b);       // the autumn market's two stalls in the square (05zzj)
   if(b.type === "tradingpost" && typeof isMarketDay === "function" && isMarketDay() && (G.dark||0) < 0.6){
     ctx.globalAlpha = 1 - (G.dark||0)*0.5;
     dressSprite(DRESS_ART.stallY, b.x - fw/2 - 13, front - 1, 30, false, true);
@@ -52965,7 +53104,7 @@ function drawPerson(u, pl, yOff){
      instead. */
   const hunch = coughPhase(u);
   ctx.translate((reach ? reachLean*(u.face<0 ? -1 : 1)*(0.5+0.5*rCyc) : 0) + idleLean
-                  + hunch*H*0.030,
+                  + hunch*H*0.030 + (typeof shiverX === "function" ? shiverX(u, H) : 0),       // the first frosty mornings (05zzf)
                 yOff - bob - idleBreath + work*H*0.05 + kneel*H*0.17 + hunch*H*0.045
                   /* the head dips into each pick and comes up again, as the Modern Farm
                      farmer's harvest does (26 Sep) - on the same beat as the lean */
@@ -55974,6 +56113,9 @@ function drawPerson(u, pl, yOff){
 
   /* THE WEDDING CLOTHES go on last, over everything the villager is wearing (drawWeddingOutfit, 05zt). */
   if(u.outfit && isVill && typeof drawWeddingOutfit === "function") drawWeddingOutfit(u, H, tw, shldY, hipY, headY, headR, backView, look, skin);
+
+  /* WET HAIR, BREATH IN THE COLD (drawWeatherOnPerson, 05zzf): the weather's mark on a person, over everything they wear. */
+  if(isVill && typeof drawWeatherOnPerson === "function") drawWeatherOnPerson(u, H, tw, shldY, headY, headR, backView);
 
   /* AN UMBRELLA OR A LEAF OVER THE HEAD, for the few who have one in the rain (drawRainOverhead, 05zx). */
   if(isVill && typeof drawRainOverhead === "function") drawRainOverhead(u, H, tw, headY, headR, backView);
@@ -63913,6 +64055,7 @@ function drawMoonKid(o){
 }
 
 function drawHomeLife(o){
+  if(o.kind === "child" && o.home && typeof drawLeafBursts === "function") drawLeafBursts(o.home.id);   // leaves in the air over the heap they jumped in (05zzi)
   // the ball belongs to the child, and is drawn in world space whether it
   // is in the air, on the grass, or in the animal's mouth
   if(o.ball && o.ball.state!=="indoors"){
@@ -63972,6 +64115,8 @@ function drawHomeLife(o){
     if(!o.moving) ctx.rotate(Math.sin(G.t*0.7 + (o.seed||0))*0.05);
     const skin = SKINS[o.skin % SKINS.length];
     const swing = o.moving ? Math.sin(o.walk)*1.6 : 0;
+    if(o.air > 0) ctx.translate(0, -o.air);                                   // in the air, mid-jump into a heap of leaves (05zzi)
+    if(o.lie){ ctx.translate(0, -3); ctx.rotate(-1.3); ctx.translate(0, 3); }  // and lying back in it
     ctx.strokeStyle = "#4a3a26"; ctx.lineWidth = 1.4; ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(-0.8, -3); ctx.lineTo(-0.8 + swing*0.5, 0);
@@ -63983,7 +64128,11 @@ function drawHomeLife(o){
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = shade(o.shirt,-0.3); ctx.lineWidth = 1.2;
     ctx.beginPath();
-    if(o.patT > 0){
+    if(o.air > 0.4 || o.lie){
+      // both arms up: the jump, and the flump
+      ctx.moveTo(-2.0, -7.6); ctx.lineTo(-3.4, -11.6);
+      ctx.moveTo( 2.0, -7.6); ctx.lineTo( 3.4, -11.6);
+    } else if(o.patT > 0){
       // one arm reaches down and rocks - patting the animal beside them
       const pat = Math.sin(G.t*7)*1.1;
       ctx.moveTo(-2.0, -7.6); ctx.lineTo(-3.2, -5.4);
@@ -64000,6 +64149,7 @@ function drawHomeLife(o){
     // no eye. A single dot on a head this small read as a wink or a squint
     // rather than a face, and two at this size is a smudge - the hair and
     // the turn of the head carry it.
+    if(o.jar && typeof drawJarInHand === "function") drawJarInHand(o);     // fireflies in a jar (05zzg)
     ctx.restore();
   } else {
     // a cat sits low with a curled tail; a dog stands taller and wags
@@ -65142,10 +65292,13 @@ function leisureOptionsFor(house){
      just makes the street outside it look like one too. */
   const marketToday = typeof isMarketDay==="function" && isMarketDay();
   const tradingPost = marketToday ? elsewhere.find(b=>b.type==="tradingpost") : null;
-  const visit = (tradingPost && Math.random()<0.7) ? tradingPost
+  const harvestStall = (typeof harvestStallTarget === "function") ? harvestStallTarget(house) : null;    // the autumn market's stalls in the square (05zzj)
+  const visit = (harvestStall && Math.random() < HARVEST_MARKET_PULL) ? harvestStall
+              : (tradingPost && Math.random()<0.7) ? tradingPost
               : elsewhere.length ? elsewhere[(Math.random()*elsewhere.length)|0] : null;
   if(visit) opts.push("visit");
   if(tradingPost) opts.push("visit");   // a second chance at heading out, market day only
+  if(harvestStall) opts.push("visit");  // and the same on the harvest market's
 
   /* Things to do that need nothing but a bit of room, and the ones the
      season itself offers. A village where the same five things happen all
@@ -65158,7 +65311,17 @@ function leisureOptionsFor(house){
   if(G.season==="spring" || G.season==="summer") opts.push("flowers");
   if((G.puddles||[]).length) opts.push("puddle");
 
-  return { opts, farm, waterSpot, tree, visit };
+  /* THE VILLAGE'S OWN BENCHES, LANTERNS AND BLANKETS (05zzl), when there are any: somewhere to sit, somewhere to stand at dusk, somewhere to eat in the
+     sun. Each only at the hours that suit it, and only while one has a place free. */
+  const decor = {};
+  if(typeof decorSpotFor === "function" && DECOR_ON && (G.villageDecor||[]).length){
+    const f = G.dayF || 0, dry = !weatherKeepsYouIn();
+    if(dry && f > 0.30 && f < 0.56){ decor.bench = decorSpotFor("bench", house); if(decor.bench) opts.push("bench"); }
+    if(dry && f >= 0.48 && f < 0.64){ decor.lantern = decorSpotFor("lantern", house); if(decor.lantern) opts.push("lantern", "lantern"); }
+    if(dry && G.season !== "winter" && f > 0.36 && f < 0.54){ decor.picnic = decorSpotFor("picnic", house); if(decor.picnic) opts.push("picnic"); }
+  }
+
+  return { opts, farm, waterSpot, tree, visit, decor };
 }
 
 /* Somebody worth doing it TO. Half of these only mean anything with another
@@ -65186,9 +65349,9 @@ function nearestCompany(x, y, range, notThis){
    so a villager who decides to go on somewhere else picks from exactly the
    same list they started from rather than a second, drifting copy of it. */
 function pickLeisureErrand(house){
-  const { opts, farm, waterSpot, tree, visit } = leisureOptionsFor(house);
+  const { opts, farm, waterSpot, tree, visit, decor } = leisureOptionsFor(house);
   const activity = opts[(Math.random()*opts.length)|0];
-  const visited = activity==="visit" ? visit : null;
+  let visited = activity==="visit" ? visit : null;
   let dest = null;
   if(activity==="farm") dest = { x: farm.x + (Math.random()-0.5)*20, y: farm.y + farm.h*TILE/2 + 14 };
   else if(activity==="water") dest = waterSpot;
@@ -65196,6 +65359,10 @@ function pickLeisureErrand(house){
   else if(activity==="visit") dest = { x: visit.x + (Math.random()-0.5)*22,
                                        y: visit.y + visit.h*TILE/2 + 12 };
   else if(activity==="leaves") dest = { x: tree.x + (Math.random()-0.5)*24, y: tree.y + 16 };
+  else if((activity==="bench" || activity==="lantern" || activity==="picnic") && decor && decor[activity]){
+    dest = { x: decor[activity].x, y: decor[activity].y };       // the seat, the foot of the post, a place on the blanket (05zzl)
+    visited = decor[activity].decor;
+  }
   else if(activity==="puddle"){
     const p = G.puddles[(Math.random()*G.puddles.length)|0];
     if(p) dest = { x:p.x, y:p.y };
@@ -65595,6 +65762,10 @@ const MIDDAY_LINES = [
 const LEAF_COLS = ["#c9973f","#c07a35","#a86a30","#9d5f2c","#b9a747"];
 function leisureDoing(o, dt){
   const A = o.activity;
+  // at the harvest market's stalls: they stand facing them, browsing (05zzj)
+  if(A==="visit" && o.visited && o.visited.market){ const st = o.visited; o.face = st.x < o.x ? -1 : 1; return; }
+  // at a lantern (05zzl): they stand a while looking up at it
+  if(A==="lantern" && o.visited){ o.face = o.visited.x < o.x ? -1 : 1; return; }
 
   if(A==="yoyo"){ o.yoyoT = (o.yoyoT||0) + dt; return; }
 
@@ -65874,10 +66045,14 @@ function updateLeisureVillagers(dt){
              again. (idea: villagers' little lives, brainstorm item 2) */
           if(o.regular && o.activity==="visit" && o.visited && Math.random() < 0.30){
             const bd = BLDG[o.visited.type];
+            if(o.visited.market){
+              tellAndNote(o.name+" came back from the harvest market with an apple, and handed it round.", "plain");
+            } else {
             const gift = bd && bd.bakery ? "a loaf still warm from the oven"
                        : bd && bd.beehive ? "a jar of honey"
                        : "something wrapped in a cloth, not saying what";
             tellAndNote(o.name+" called at the "+(bd?bd.name:"neighbour's")+" and came home with "+gift+".", "plain");
+            }
           }
           o.state = "home"; o.legT = 0;
           o.dest = { x: o.home.x + (Math.random()-0.5)*10, y: o.home.y + o.home.h*TILE/2 + 6 };
@@ -66059,7 +66234,7 @@ function gardenerHandFlags(kindTag, id, laden, painting){
 }
 
 function drawLeisureVillager(o){
-  const sitting = o.state==="there" && (o.activity==="tree" || o.activity==="guitar");
+  const sitting = o.state==="there" && (o.activity==="tree" || o.activity==="guitar" || o.activity==="bench" || o.activity==="picnic");
   const pl = G.players[P_YOU];
   const r = UNITS.villager.r, H = r*2.35;
 
@@ -66083,6 +66258,12 @@ function drawLeisureVillager(o){
     armA = 1.05;                           // strumming hand across the body
   } else if(o.activity==="sing" && there){
     armA = 1.5 + Math.sin(G.t*1.6 + o.seed)*0.25;    // one hand up, keeping time
+  } else if(sitting && o.activity==="bench"){
+    armA = 0.45 + Math.sin(G.t*0.6 + (o.seed||0))*0.08;     // hands in the lap, just resting
+  } else if(sitting && o.activity==="picnic"){
+    armA = 1.25 + Math.sin(G.t*2.1 + (o.seed||0))*0.2;      // something to the mouth, and down again
+  } else if(o.activity==="lantern" && there){
+    armA = 0.25;                           // arms at the sides, face turned up
   } else if(sitting){
     armA = 1.15;                           // the book held up to read, at the chest
   } else if(typeof builderPointing === "function" && builderPointing(o)){
@@ -74204,7 +74385,7 @@ function updateChickens(dt){
   if(!G.chickens) G.chickens = [];
   const home = chickenHome();
   // no town centre, nobody keeping hens, or after dark: they are not about
-  if(!home || !keepsHens(P_YOU) || G.phase==="night" || G.phase==="dusk"){
+  if(!home || !keepsHens(P_YOU) || G.phase==="night"){
     if(G.chickens.length) G.chickens.length = 0;
     return;
   }
@@ -74214,13 +74395,29 @@ function updateChickens(dt){
      from. A bird that reaches it is put away; one still crossing the yard
      keeps walking, wet, which is the whole point of watching it happen. */
   const door = { x: home.x, y: home.y + home.h*TILE/2 + 6 };
-  const foul = foulWeather();
+  /* AT DUSK THEY GO IN, IN A LINE (14 Oct, "hens go back to roost at dusk in a line"). They used to be deleted the moment dusk began, wherever they stood.
+     Now the dusk is the walk home: the one nearest the door leads, and each of the others heads for a spot just behind the bird in front, so the yard
+     strings out into single file across the grass and each hen disappears at the door as she reaches it. Night still clears whoever is left (above). */
+  const duskRoost = G.phase === "dusk";
+  const foul = foulWeather() || duskRoost;
   if(foul){
+    const byDoor = G.chickens.slice().sort((a, b) => Math.hypot(a.x-door.x, a.y-door.y) - Math.hypot(b.x-door.x, b.y-door.y));
+    for(let k=0;k<byDoor.length;k++){
+      const c = byDoor[k];
+      if(duskRoost && !foulWeather()){
+        if(k === 0){ c.tx = door.x; c.ty = door.y; }
+        else {
+          const p = byDoor[k-1], lx = p.x-door.x, ly = p.y-door.y, ll = Math.hypot(lx, ly) || 1;
+          c.tx = p.x + lx/ll*7; c.ty = p.y + ly/ll*5;                  // a hen's length behind the one in front
+        }
+      } else {
+        c.tx = door.x + (Math.random()-0.5)*8;
+        c.ty = door.y;
+      }
+      c.trip = null; c.doing = null; c.peck = 0; c.wait = 0;
+    }
     for(let i=G.chickens.length-1;i>=0;i--){
       const c = G.chickens[i];
-      c.tx = door.x + (Math.random()-0.5)*8;
-      c.ty = door.y;
-      c.trip = null; c.doing = null; c.peck = 0;
       if(Math.hypot(c.x-door.x, c.y-door.y) < CHICKEN_SHELTER_AT) G.chickens.splice(i,1);
     }
   }
@@ -78892,6 +79089,9 @@ function quietDay(){
    out of doors and can actually be seen to react to whatever it is. */
 function somethingHappensToday(){
   G.dayNo = (G.dayNo||0) + 1;
+  if(typeof leaveDoorGift === "function") leaveDoorGift();      // a friend may have left something on the founder's step in the night (05zzh)
+  if(typeof updateCosyUnlocks === "function") updateCosyUnlocks();             // and the next thing the village has come to want, if it is due (05zzk)
+  if(typeof announceHarvestMarket === "function") announceHarvestMarket();   // and on the third day of autumn the harvest market is out (05zzj)
   /* THE VILLAGE EATS FIRST, before anything else the day brings. Ahead of
      the settlingIn() return below on purpose: the opening is quiet in what
      it SAYS, not in what it does, and the first two mornings are exactly
@@ -83038,7 +83238,11 @@ const PUP_CLUES = [
    drawing, its slipping off and coming back. A saved game with one out in the
    woods is cleaned up by retirePup rather than finished, and the switch is
    one word if the pup is ever wanted back. */
-let WOLF_PUP_ON = false;
+/* BACK ON, 14 Oct (user: "let's go back to finding a puppy in the forest and narrative clues to build a kennel"), now that the night errands are hidden
+   (NIGHT_QUESTS_ON false, 05zj). The pup cries in the woods again, the clues are told, a villager can go and find it, and the Kennel is built after it - the
+   route it had before the hound in the hollow replaced it. With this on, retirePup (below) does nothing: the Kennel is no longer handed over at the start. If the
+   night errands come back, switch this OFF again (they are the Kennel's route in Peaceful; the two are never both the way). */
+let WOLF_PUP_ON = true;
 function pupReplacedByQuest(){ return !WOLF_PUP_ON; }
 /* Run when a match starts and when a saved one is loaded. Takes any pup off the
    map (and anybody walking to it off their errand) and, wherever the night
@@ -85944,7 +86148,29 @@ function dogPickSpot(d){
 /* Anybody of ours stood close enough to make a fuss of. Only somebody who is
    NOT walking - a dog will not get much out of somebody marching past - and
    only somebody who has not been round this dog very recently. */
+/* A DOG HAS ITS PERSON (14 Oct, "the dog fetches to the same person each day"). One villager of ours is each dog's favourite, picked from the dog's own id and
+   the week (six days), so it is the same person all week and then, quite possibly, somebody else: the dog goes to them first, from further off than
+   it would trot for anybody - once a day - and so the ball is dropped at the same pair of feet day after day. Still a fuss, a cooldown and a game like any
+   other, and no more often. No dice: a hash of two numbers. */
+const DOG_FAV_DAYS = 6;
+const DOG_FAV_REACH = DOG_PAT_R * 6;
+function dogFavourite(d){
+  if(!d || typeof G === "undefined" || !G) return null;
+  const folk = G.units.filter(u => u.p === d.p && u.hp > 0 && u.type === "villager").sort((a, b) => a.id - b.id);
+  if(!folk.length) return null;
+  const week = Math.floor((G.dayNo || 0) / DOG_FAV_DAYS);
+  const x = Math.sin((d.id || 1) * 12.9898 + week * 78.233) * 43758.5453;
+  return folk[Math.floor((x - Math.floor(x)) * folk.length) % folk.length];
+}
 function dogFindFriend(d){
+  /* THEIR PERSON, over whoever is nearer, when they are within the usual reach; and from further off (DOG_FAV_REACH) ONCE A DAY, so the dog goes looking for them
+     about once a day without every idle moment being spent on one person: how OFTEN a dog makes a fuss of anybody is as it was. */
+  const fav = dogFavourite(d);
+  if(fav && !fav.indoors && !fav.lying && !((fav.dogPatCd||0) > 0)){
+    const fd = Math.hypot(fav.x-d.x, fav.y-d.y);
+    if(fd < DOG_PAT_R*3) return fav;
+    if(fd < DOG_FAV_REACH && d.favDay !== (G.dayNo||0)){ d.favDay = G.dayNo||0; return fav; }
+  }
   let best=null, bd=DOG_PAT_R*3;
   for(const u of G.units){
     if(u.p!==d.p || u.hp<=0) continue;
@@ -87317,6 +87543,17 @@ function dogPlayArrive(u, d){
     // each little dog has its own voice already - Gumby woofs, Floyd yips
     d.say = (d === G.floyd) ? "Yip!" : "Woof!";
     d.sayT = DOG_PAT_TIME + 0.4;
+  } else if(d.state === "prance" || d.state === "throwing"){
+    /* Already inviting somebody to a game (its own idea, a moment ago - a dog is more likely
+       to be at somebody's feet now that it has a favourite): the ball is down and the game
+       is on, and starting the pat again would go looking for a ball it no longer has. So the
+       game is simply handed to whoever asked: the ball moves to their feet and the invitation
+       starts over. (Mid-throw it just carries on.) */
+    d.moving = false;
+    if(d.state === "prance"){
+      d.target = u; d.stateT = DOG_PRANCE_TIME; d.danceAt = null; d.danceT = 0;
+      d.ballAt = { x: u.x + (Math.random()-0.5)*8, y: u.y + 5 + Math.random()*4 };
+    }
   } else {
     d.state = "pat"; d.patT = DOG_PAT_TIME; d.target = u; d.moving = false;
     /* A dog with a ball, asked to play, ALWAYS plays. The ambient version
@@ -100224,7 +100461,12 @@ function drawFounderShadow(u){
    Kennel in peaceful, because the crying-pup discovery it replaces is gated
    off wherever this is on (pupReplacedByQuest, 05g). The two move together;
    turning this back off hands the pup back rather than losing kennels. */
-let NIGHT_QUESTS_ON = true;
+/* OFF AGAIN, 14 Oct, FOR A WHILE (user: "i think for a while let's hide the night quests, the problem is it feels like two different games"). Everything
+   is still here - the forest, all four errands, the roll, the shield, the sword, the Troll, the cape, the founder's gear - and none of it is
+   reachable: no red "!", no offer, and the four Settings buttons are hidden (_head.html, `hidden`). The Kennel is back to the crying pup in the woods
+   and its clues (WOLF_PUP_ON, 05g, on again). To bring the errands back: turn this on, turn WOLF_PUP_ON off (the two are never both the route to
+   a Kennel), and remove `hidden` from the four buttons under Settings, Test scenarios. */
+let NIGHT_QUESTS_ON = false;
 
 /* THE NEW ERRANDS ARE SETTINGS-ONLY FOR NOW (user, 14 Oct: "make all of these quests in the settings for now, I'll test them"). The thornwood, the mirror
    shield and the blade are all built and all start from Settings, Test scenarios; none of them is offered by the red "!" until this is true. Flip it and they
@@ -106826,7 +107068,10 @@ function doorstepPropOf(b){
   return ({ spring:"tulips", summer:"geraniums", autumn:"pumpkins", winter:"wreath" })[G.season] || null;
 }
 function drawDoorstepProps(b, x, y, w, dep, H, cx, doorW){
+  if(typeof drawLeafPile === "function") drawLeafPile(b);          // a heap of leaves in the yard in autumn (05zzi)
+  if(typeof drawSnowmenFor === "function") drawSnowmenFor(b);      // and a snowman in the winter one
   if(!DOORSTEP_PROPS_ON) return;
+  if(typeof drawDoorGift === "function") drawDoorGift(b, x, y, w, dep, H, cx, doorW);                  // and a friend's gift on the step, when there is one (05zzh)
   if(typeof drawTradeDoorProp === "function") drawTradeDoorProp(b, x, y, w, dep, H, cx, doorW);      // what the trade keeps out, on the other side of the door (05zze)
   const kind = doorstepPropOf(b);
   if(!kind) return;
@@ -107725,6 +107970,1423 @@ function drawTradeDoorProp(b, x, y, w, dep, H, cx, doorW){
       break; }
   }
   ctx.restore();
+}
+
+/* ============================================================
+   THE WEATHER LEAVES A MARK ON PEOPLE  (14 Oct, from the cosy list)
+   ============================================================
+   "Weather leaves a mark on people. Wet hair after rain and breath in the cold, plus shivering on the first frosty morning." Three small things on
+   a villager, each read off the weather and the clock and drawn by drawPerson (04e) at the end of the figure:
+
+     BREATH   in the cold - winter, a hard late autumn, any dark or dawn hour that is chilly - a little white puff leaves the mouth now and then, a
+              slow bloom that drifts up and forward and fades. Nothing in warm weather; from behind there is nothing to see
+     WET      out in the rain a person's hair darkens and shines and the shoulders go a shade darker, a drip lets go from the chin every second or so;
+              and it lasts after they have got in out of it, drying over about half a minute. Not for anyone holding an umbrella (05zx)
+     SHIVER   the first frosty mornings of winter, anyone standing about outside quivers a half-pixel at a time. Not while walking or working: the
+              body is warming itself, which is exactly why a person idle in the cold is the one who shakes
+
+   FROM THE UNIT'S OWN ID AND THE CLOCK, never a die: it is the same every frame, it costs the seeded stream nothing, and a crowd does not breathe in
+   unison. The one thing kept on a unit is `_wetSeen` (when it was last rained on), a draw-side field in the way `_puff` is. WEATHER_MARKS_ON turns all
+   three off.
+   ============================================================ */
+let WEATHER_MARKS_ON = true;
+const BREATH_AT = 0.45;            // how cold it has to be for breath to show
+const WET_DRY_SECS = 30;           // how long wet lasts after the rain stops (or they get in)
+
+/* How cold it feels, 0..1: winter is cold, a late autumn is cool, a night or a dawn is colder than the day round it. Pure, so it can be tested. */
+function coldFeel(){
+  if(typeof G === "undefined" || !G) return 0;
+  const base = ({ winter: 0.95, autumn: 0.35, spring: 0.22, summer: 0 })[G.season] || 0;
+  let c = base;
+  if(G.season === "autumn" && (G.seasonT || 0) > SEASON_LEN * 0.55) c += 0.22;                // the back end of autumn
+  if(G.season === "spring" && (G.seasonT || 0) < SEASON_LEN * 0.30) c += 0.2;                  // the front end of spring
+  if(base > 0) c += 0.22 * Math.min(1, G.dark || 0);                                           // nights are colder than days
+  c += 0.18 * Math.min(1, G.snow || 0);
+  return Math.max(0, Math.min(1, c));
+}
+/* The first frosty mornings: the first few days of winter, before the middle of the day. 0 outside them, up to 1 on the very first. */
+function frostMorning(){
+  if(typeof G === "undefined" || !G || G.season !== "winter") return 0;
+  const days = (G.seasonT || 0) / DAY_LEN;
+  const f = G.dayF === undefined ? 0.5 : G.dayF;
+  if(days > 4 || f > 0.42) return 0;
+  return Math.max(0, 1 - days / 4) * (1 - Math.max(0, f - 0.30) / 0.12);
+}
+/* A person's shake, in local pixels: only idle, only outdoors, only in the frost. */
+function shiverX(u, H){
+  if(!WEATHER_MARKS_ON || !u || u.type !== "villager" || u.indoors || u.lying || u.sit || u.moving || (u.working || 0) > 0 || (u.atkAnim || 0) > 0) return 0;
+  const fm = frostMorning(); if(fm <= 0.05) return 0;
+  const id = u.id || 1, pace = 22 + (id % 5), amp = H * 0.014 * fm;
+  return Math.sin(G.t * pace + id * 1.7) * amp;
+}
+/* Has this person been rained on, and how recently: 1 out in it, down to 0 over WET_DRY_SECS. */
+function wetOf(u){
+  if(!WEATHER_MARKS_ON || !u || u.type !== "villager") return 0;
+  const rain = (typeof rainStrength === "function") ? rainStrength() : 0;
+  const gear = (typeof rainGearOf === "function") ? rainGearOf(u) : null;
+  const outIn = rain > 0.12 && !u.indoors && !(gear && (gear.umbrella || gear.leaf));
+  if(outIn) u._wetSeen = G.t;
+  if(u._wetSeen === undefined) return u.soaked ? 0.8 : 0;
+  const k = 1 - (G.t - u._wetSeen) / WET_DRY_SECS;
+  return Math.max(u.soaked ? 0.8 : 0, Math.max(0, Math.min(1, k)));
+}
+function drawWeatherOnPerson(u, H, tw, shldY, headY, headR, backView){
+  if(!WEATHER_MARKS_ON || !u || u.type !== "villager" || u.indoors || u.lying) return;
+  const id = u.id || 1;
+  // wet: a dark, shining cap of hair, darker shoulders, and a drip from the chin
+  const wet = wetOf(u);
+  if(wet > 0.05){
+    ctx.save();
+    ctx.globalAlpha = 0.34 * wet; ctx.fillStyle = "#1e3048";
+    ctx.beginPath(); ctx.arc(0, headY - headR*0.12, headR*1.03, Math.PI, 6.283); ctx.fill();                                   // the hair, darkened
+    ctx.globalAlpha = 0.5 * wet; ctx.fillStyle = "#cfe2f4"; ctx.beginPath(); ctx.ellipse(-headR*0.32, headY - headR*0.78, headR*0.34, headR*0.11, -0.4, 0, 6.283); ctx.fill();    // a sheen on it
+    ctx.globalAlpha = 0.22 * wet; ctx.fillStyle = "#1e3048"; ctx.fillRect(-tw*0.9, shldY, tw*1.8, H*0.12);                       // the shoulders
+    if(!backView){
+      const ph = ((G.t * 0.9 + id * 0.37) % 1);                                                                                // a drip, once a second or so
+      ctx.globalAlpha = 0.8 * wet * (1 - ph); ctx.fillStyle = "#a8d0ee";
+      ctx.beginPath(); ctx.ellipse(headR*0.1, headY + headR*(0.95 + ph*1.3), headR*0.07, headR*0.11, 0, 0, 6.283); ctx.fill();
+    }
+    ctx.restore();
+  }
+  // breath: the cold, and a slow bloom from the mouth
+  const cold = coldFeel();
+  if(cold >= BREATH_AT && !backView){
+    const per = 3.3 + (id % 7) * 0.22, ph = ((G.t / per) + (id * 0.173)) % 1;
+    if(ph < 0.3){
+      const k = ph / 0.3, side = u.dir === "side";
+      const mx = side ? headR*1.05 : 0, my = headY + headR*(side ? 0.42 : 0.55);
+      ctx.save(); ctx.fillStyle = "#eef4fb";
+      for(let i = 0; i < 3; i++){
+        const kk = Math.max(0, k - i*0.12);
+        ctx.globalAlpha = 0.5 * (1 - kk) * Math.min(1, (cold - 0.35) * 2.2);
+        ctx.beginPath(); ctx.arc(mx + (side ? kk*headR*1.6 : 0) + i*0.2, my - kk*headR*0.7 - i*0.5, headR*(0.14 + 0.16*kk + i*0.04), 0, 6.283); ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+}
+
+/* ============================================================
+   FIREFLIES IN JARS  (14 Oct, from the cosy list)
+   ============================================================
+   "Children carry glowing jars on warm summer nights." On some summer evenings a child from one house or another comes out as the light goes, with a
+   glass jar in one hand and a few fireflies blinking in it, wanders the yard and the lane with it held up, and is called in a little after dark - later
+   than any other child ever is. It is the same child the doorsteps already have (homeLife, 01b), with `jar: true` on it, so it walks, waits and goes
+   home by the code that is there; only its hours and its hand are different.
+
+     WHEN   summer only, and only on an evening that is dry. A household's evening is decided from its house id and the day number - about two evenings
+            in five - and the moment within the dusk it steps out is too, so a row of houses does not empty at once. A couple's house only has a child
+            once it has had one (05zt); at most two jars are out at a time.
+     HOURS  out from a little into dusk (JAR_OUT_FROM), and in at JAR_IN_AT, which is just after night has fallen (NIGHT_AT 0.68): the ordinary
+            curfew (CHILD_IN_AT) and the darkness despawn are both waived for a child with a jar. Rain, snow or a gale still send them in.
+     LIGHT  the jar's glass and its three motes are drawn with the child (drawHomeLife); the halo is drawn AFTER the night layer goes down (drawJarGlows,
+            from the group in 04c that carries the fireflies and the window spill), or the darkness would keep a fifth of it.
+
+   NO DICE: every choice here is a hash of two numbers, so the seeded match stream is not spent on it. JARS_ON turns the whole thing off.
+   ============================================================ */
+let JARS_ON = true;
+const JAR_OUT_FROM  = 0.54;    // the earliest a jar-carrier steps out (the ordinary children are called in at 0.56)
+const JAR_OUT_SPAN  = 0.07;    // and the household's own moment is somewhere in this much of the day after it
+const JAR_IN_AT     = 0.76;    // in by here: a little way into the night, never the small hours
+const JAR_EVENING   = 0.42;    // the share of summer evenings a given household has a jar out
+const JAR_MAX       = 2;
+
+/* 0..1 from two whole numbers, the same every time. */
+function jarHash(a, b){
+  const x = Math.sin((a|0) * 12.9898 + (b|0) * 78.233 + 4.1) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+/* Is this household's child out with a jar on this day, and when in the day does it step out? Pure, so it can be tested. */
+function jarEveningFor(h, dayNo){
+  if(!h) return null;
+  if(jarHash(h.id, dayNo) >= JAR_EVENING) return null;
+  return { at: JAR_OUT_FROM + jarHash(h.id + 7, dayNo) * JAR_OUT_SPAN };
+}
+
+function jarKidsOut(){ let n = 0; for(const o of G.homeLife || []) if(o.jar) n++; return n; }
+
+function updateJarKids(){
+  if(!JARS_ON || G.season !== "summer" || !G.homeLife) return;
+  const f = G.dayF || 0;
+  if(f < JAR_OUT_FROM || f >= JAR_OUT_FROM + JAR_OUT_SPAN + 0.02) return;
+  if(weatherKeepsYouIn() || (G.weatherAmt || 0) > 0.05) return;
+  const dayNo = G.dayNo || 0;
+  for(const h of G.bldgs){
+    if(h.p !== P_YOU || h.type !== "house" || !h.done || h.hp <= 0) continue;
+    if(h.jarDay === dayNo) continue;                          // this household has had its evening already
+    const ev = jarEveningFor(h, dayNo);
+    if(!ev) { h.jarDay = dayNo; continue; }
+    if(f < ev.at) continue;                                   // not yet: it steps out at its own moment
+    h.jarDay = dayNo;
+    if(h.coupleLine && !(h.coupleKids > 0)) continue;         // a couple's house has a child only once it has had one
+    if(jarKidsOut() >= JAR_MAX || G.homeLife.length >= HOME_LIFE_MAX) continue;
+    if(G.homeLife.some(o => o.home === h)) continue;          // one household at a time, as ever
+    const bx = h.x + (jarHash(h.id + 3, dayNo) - 0.5) * 16;
+    const by = h.y + h.h * TILE / 2 + 8;
+    if(blocked(bx, by, null, false)) continue;
+    const fam = homeFamily(h);
+    G.homeLife.push({
+      kind: "child", home: h, jar: true,
+      x: bx, y: by, tx: bx, ty: by,
+      t: 90,                                                  // JAR_IN_AT ends it long before this
+      face: jarHash(h.id + 5, dayNo) < 0.5 ? -1 : 1, walk: 0, wait: 0,
+      id: G.nextId++, col: null, skin: fam.skin, shirt: fam.shirt,
+      seed: jarHash(h.id + 9, dayNo) * 6.283
+    });
+  }
+}
+
+/* Has this child its jar out after the others are in? updateHomeLife (01b) asks. */
+function jarKeepsOut(o){ return !!(o && o.jar) && (G.dayF || 0) < JAR_IN_AT; }
+
+/* Where the jar is, in world pixels: in the hand on the facing side, a little higher when the child is standing and holding it up to look. */
+function jarWorldPos(o){
+  const standing = !o.moving;
+  const bob = o.moving ? Math.abs(Math.sin(o.walk)) * 1.1 : 0;
+  return { x: o.x + (o.face < 0 ? -1 : 1) * 4.2 * 0.82, y: o.y - bob - (standing ? 6.6 : 5.4) * 0.82 };
+}
+
+/* How bright the three motes are together, 0..1, blinking out of step. */
+function jarMotes(o, t){
+  const ph = (o.seed || 0);
+  const m = [0, 1, 2].map(i => Math.max(0, Math.sin(t * (1.5 + i * 0.37) + ph + i * 2.1)));
+  return m;
+}
+
+/* The jar itself, in the child's own local frame (the one drawHomeLife has scaled by 0.82 and flipped to face): glass, lid, and the motes. */
+function drawJarInHand(o){
+  const up = o.moving ? 0 : -1.2;                  // standing, they lift it to look
+  const jx = 4.2, jy = -5.4 + up;
+  ctx.save();
+  ctx.translate(jx, jy);
+  // the glass: pale, a little blue, with an edge so it shows on grass by day
+  ctx.fillStyle = "rgba(205,228,232,.55)";
+  ctx.strokeStyle = "rgba(96,122,128,.9)"; ctx.lineWidth = 0.55;
+  ctx.beginPath();
+  ctx.moveTo(-1.5, -2.4); ctx.lineTo(1.5, -2.4); ctx.lineTo(1.7, 1.2); ctx.lineTo(-1.7, 1.2);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // the lid
+  ctx.fillStyle = "#8a6a43";
+  ctx.fillRect(-1.6, -3.2, 3.2, 1.0);
+  // the motes: warm green-yellow, each blinking in its own time
+  const dk = Math.min(1, (G.dark || 0) * 2.2);
+  const m = jarMotes(o, G.t || 0);
+  const spots = [[-0.6, -0.9], [0.7, -0.1], [-0.2, 0.7]];
+  for(let i = 0; i < 3; i++){
+    const a = 0.25 + 0.75 * m[i];
+    ctx.fillStyle = "rgba(228,255,140," + (a * (0.55 + 0.45 * dk)).toFixed(2) + ")";
+    ctx.beginPath(); ctx.arc(spots[i][0], spots[i][1], 0.55, 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* The light they give off, laid on after the night has gone down. One soft halo that swells with whichever motes are lit, and the motes again, bright. */
+function drawJarGlows(x0, y0, x1, y1){
+  if(!JARS_ON || !G.homeLife || !G.homeLife.length) return;
+  const dk = Math.min(1, (G.dark || 0) * 2.2);
+  if(dk < 0.04) return;
+  const px0 = x0 * TILE, py0 = y0 * TILE, px1 = x1 * TILE, py1 = y1 * TILE;
+  for(const o of G.homeLife){
+    if(!o.jar || o.x < px0 || o.x > px1 || o.y < py0 || o.y > py1) continue;
+    if(!visibleTo(P_YOU, o.x, o.y)) continue;
+    const p = jarWorldPos(o);
+    const m = jarMotes(o, G.t || 0);
+    const lit = (m[0] + m[1] + m[2]) / 3;
+    const r = 17 + 8 * lit;
+    const g = ctx.createRadialGradient(p.x, p.y, 0.5, p.x, p.y, r);
+    g.addColorStop(0, "rgba(226,255,140," + (0.62 * dk * (0.45 + 0.55 * lit)).toFixed(3) + ")");
+    g.addColorStop(1, "rgba(226,255,140,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.283); ctx.fill();
+    const spots = [[-0.5, -0.8], [0.6, -0.1], [-0.2, 0.6]];
+    for(let i = 0; i < 3; i++){
+      if(m[i] < 0.15) continue;
+      ctx.fillStyle = "rgba(245,255,190," + (0.95 * dk * m[i]).toFixed(2) + ")";
+      ctx.beginPath(); ctx.arc(p.x + spots[i][0] * (o.face < 0 ? -1 : 1), p.y + spots[i][1], 0.7, 0, 6.283); ctx.fill();
+    }
+  }
+}
+
+/* ============================================================
+   A GIFT LEFT ON THE DOORSTEP  (14 Oct, from the cosy list)
+   ============================================================
+   "A befriended villager leaves a loaf, a flower or a carved bird outside the founder's door, with a hint next morning." Nobody sees it done: it is
+   there at first light, on the step of whatever house the founder sleeps in (the hall, until there is one), and the village says who it was from.
+
+     WHO     somebody the founder has shared errands with (G.bonds, 05y: BOND_FRIENDS or more). One is picked each morning from a hash of the day and
+             the founder, and then they either have left something or have not: a friend about one morning in twelve, a close one about one in five.
+             At least GIFT_GAP_DAYS between one gift and the next, so it stays a small pleasure and never a routine.
+     WHAT    a loaf on a cloth, a little bunch of flowers tied with string (not in winter, when there are none), or a carved wooden bird.
+     HOW     the gift sits on the doorstep (drawDoorGift, called from drawDoorstepProps in 05zy) and the founder takes it in when they next pass by;
+             if they never do, it is taken in quietly at the next first light. One at a time.
+
+   NO DICE: hashes of the day number and the ids, so the seeded stream is not spent and a given morning is the same every time it is asked.
+   DOOR_GIFTS_ON turns it off. The state is G.doorGift {home, kind, from, day} and G.giftDay, both started in newGame (02b); an old save has neither,
+   and every read here tolerates that.
+   ============================================================ */
+let DOOR_GIFTS_ON = true;
+const GIFT_GAP_DAYS     = 3;
+const GIFT_CHANCE_FRIEND = 0.08;
+const GIFT_CHANCE_CLOSE  = 0.20;
+const GIFT_TAKE_R       = 18;     // how near the founder has to come to take it in
+const GIFT_KINDS = ["loaf", "flowers", "bird"];
+
+function giftHash(a, b){
+  const x = Math.sin((a|0) * 12.9898 + (b|0) * 78.233 + 9.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+function giftFounder(){
+  return G.units.find(u => u.p === P_YOU && u.firstVillager && u.hp > 0) || null;
+}
+/* Friends of the founder, in a fixed order. */
+function giftFriends(f){
+  if(!f || typeof bondBetween !== "function") return [];
+  return G.units.filter(v => v !== f && v.p === P_YOU && v.type === "villager" && v.hp > 0 && bondBetween(f, v) >= BOND_FRIENDS)
+                .sort((a, b) => a.id - b.id);
+}
+/* The house the founder sleeps in, or the hall. */
+function giftHome(f){
+  if(f && f.home && f.home.hp > 0 && G.bldgs.includes(f.home) && f.home.done) return f.home;
+  return G.bldgs.find(b => b.p === P_YOU && b.type === "town" && b.done && b.hp > 0) || null;
+}
+function giftDoor(b){ return { x: b.x, y: b.y + b.h * TILE / 2 + 8 }; }
+
+/* What, if anything, a given morning brings: { from, kind } or null. Pure apart from reading the village, so it can be tested. */
+function doorGiftFor(dayNo){
+  const f = giftFounder(); if(!f) return null;
+  if(dayNo - (G.giftDay === undefined ? -99 : G.giftDay) < GIFT_GAP_DAYS) return null;
+  const friends = giftFriends(f); if(!friends.length) return null;
+  const v = friends[Math.floor(giftHash(dayNo, f.id) * friends.length) % friends.length];
+  const close = bondBetween(f, v) >= BOND_CLOSE;
+  if(giftHash(dayNo + 31, v.id) >= (close ? GIFT_CHANCE_CLOSE : GIFT_CHANCE_FRIEND)) return null;
+  const winter = G.season === "winter";
+  const pool = winter ? ["loaf", "bird"] : GIFT_KINDS;
+  const kind = pool[Math.floor(giftHash(dayNo + 67, v.id) * pool.length) % pool.length];
+  return { from: v, kind };
+}
+
+function giftHintText(kind, name){
+  if(kind === "loaf")    return "A loaf of bread in a cloth has been left on your doorstep. " + (name ? "It is from " + name + "." : "Nobody saw who left it.");
+  if(kind === "flowers") return "A small bunch of flowers, tied with string, has been left on your doorstep. " + (name ? "They are from " + name + "." : "Nobody saw who left them.");
+  return "Somebody has left a small carved bird on your doorstep. " + (name ? "It turns out to be " + name + "'s work." : "Nobody saw who left it.");
+}
+
+/* First light: whatever was there is taken in, and a new one may be left. Called from somethingHappensToday (05d), after the day number turns. */
+function leaveDoorGift(){
+  if(!DOOR_GIFTS_ON) return false;
+  G.doorGift = null;
+  const day = G.dayNo || 0;
+  const g = doorGiftFor(day);
+  if(!g) return false;
+  const f = giftFounder(), home = giftHome(f);
+  if(!home) return false;
+  G.doorGift = { home: home.id, kind: g.kind, from: g.from.id, day };
+  G.giftDay = day;
+  const name = g.from.nightName || (typeof villagerName === "function" ? villagerName(g.from) : null) || null;
+  hint(giftHintText(g.kind, name));
+  return true;
+}
+
+/* Every frame: the founder passing the door takes it in. */
+function updateDoorGifts(){
+  const g = G.doorGift;
+  if(!g) return;
+  const home = G.bldgs.find(b => b.id === g.home && b.hp > 0);
+  if(!home){ G.doorGift = null; return; }
+  const f = giftFounder();
+  if(!f || f.indoors) return;
+  const d = giftDoor(home);
+  if(Math.hypot(f.x - d.x, f.y - d.y) < GIFT_TAKE_R) G.doorGift = null;
+}
+
+/* Drawn by the building, standing on the step: x/y/w/dep/H/cx/doorW are the frame drawDoorstepProps (05zy) was given. */
+function drawDoorGift(b, x, y, w, dep, H, cx, doorW){
+  const g = G.doorGift;
+  if(!g || g.home !== b.id) return;
+  const ground = y + dep + 1.6, px = cx;
+  const ell = (x0, y0, rx, ry, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.ellipse(x0, y0, rx, ry, 0, 0, 6.283); ctx.fill(); };
+  ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ell(px, ground + 0.3, 4.2, 1.2, "rgba(0,0,0,.18)");
+  if(g.kind === "loaf"){
+    // a checked cloth with a round loaf on it, three cuts across the crust
+    ctx.fillStyle = "#c8564a"; ctx.beginPath(); ctx.moveTo(px - 4, ground - 0.6); ctx.lineTo(px + 4, ground - 0.6); ctx.lineTo(px + 3.2, ground + 0.9); ctx.lineTo(px - 3.2, ground + 0.9); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#f1e4d0"; ctx.fillRect(px - 2.6, ground - 0.5, 1.1, 1.2); ctx.fillRect(px + 0.2, ground - 0.5, 1.1, 1.2);
+    ell(px, ground - 2.2, 3.1, 2, "#c98f4e"); ell(px - 0.6, ground - 2.9, 1.7, 0.9, "#dca966");
+    ctx.strokeStyle = "rgba(110,66,28,.75)"; ctx.lineWidth = 0.4;
+    for(const dx of [-1.4, 0, 1.4]){ ctx.beginPath(); ctx.moveTo(px + dx - 0.4, ground - 3.2); ctx.lineTo(px + dx + 0.4, ground - 1.8); ctx.stroke(); }
+  } else if(g.kind === "flowers"){
+    // a few stems laid across the step with a twist of string, the heads towards the viewer's left
+    ctx.strokeStyle = "#4f7a3a"; ctx.lineWidth = 0.7;
+    for(let i = 0; i < 4; i++){ ctx.beginPath(); ctx.moveTo(px + 3.4, ground - 0.2 + (i - 1.5) * 0.35); ctx.lineTo(px - 2.6, ground - 1.2 + (i - 1.5) * 0.9); ctx.stroke(); }
+    const cols = ["#e0605a", "#f0d860", "#e9a0b8", "#f4f0e6"];
+    for(let i = 0; i < 4; i++) ell(px - 2.8 + (i % 2) * 0.9 - i * 0.2, ground - 1.4 + (i - 1.5) * 0.9, 1.15, 1.05, cols[i]);
+    ctx.strokeStyle = "#a8603c"; ctx.lineWidth = 0.6; ctx.beginPath(); ctx.moveTo(px + 0.6, ground - 1.6); ctx.lineTo(px + 0.6, ground + 0.5); ctx.stroke();
+  } else {
+    // a little carved bird on the flat of the step: pale wood, a round body, a small beak and a notched tail
+    ctx.strokeStyle = "#6a4a2a"; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(px - 0.8, ground - 1.2); ctx.lineTo(px - 0.8, ground + 0.2); ctx.moveTo(px + 0.8, ground - 1.2); ctx.lineTo(px + 0.8, ground + 0.2); ctx.stroke();
+    ell(px, ground - 2.1, 2.7, 1.9, "#c9a06a");
+    ctx.fillStyle = "#c9a06a"; ctx.beginPath(); ctx.arc(px - 2.2, ground - 3.5, 1.35, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#8a5e32"; ctx.beginPath(); ctx.moveTo(px - 3.4, ground - 3.6); ctx.lineTo(px - 4.8, ground - 3.1); ctx.lineTo(px - 3.4, ground - 3.0); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(px + 2.4, ground - 2.6); ctx.lineTo(px + 4.6, ground - 3.4); ctx.lineTo(px + 4.2, ground - 1.6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#4a3320"; ctx.fillRect(px - 2.6, ground - 3.8, 0.6, 0.6);
+    ctx.strokeStyle = "rgba(110,76,40,.8)"; ctx.lineWidth = 0.4; ctx.beginPath(); ctx.moveTo(px - 1, ground - 2.8); ctx.quadraticCurveTo(px + 0.4, ground - 1.4, px + 2, ground - 2.2); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ============================================================
+   LEAF PILES AND SNOWMEN  (14 Oct, from the cosy list)
+   ============================================================
+   "Children jump in leaf piles in autumn and build a snowman in winter; it stays days, then slumps in a thaw." Both are the child who already comes
+   out onto the doorstep (homeLife, 01b) doing one more thing with the yard, so neither needs a new person.
+
+   LEAF PILES  in autumn about one house in two has a heap of fallen leaves in its yard, on one side of the door, which grows as the season goes on
+               (small in the first days, a proper mound by the end). A child out in the afternoon sometimes walks to it, takes a run, jumps in with both
+               arms up, lies there a moment in a burst of leaves, gets up, and goes again - two or three times. The heap is flattened where they landed
+               and fluffs back up over the next half-minute. The heap itself is scenery and costs nothing: the same every frame, from the house's id and the
+               day. The leaves flying are a short-lived draw-side list (LEAF_FX), not saved.
+   SNOWMEN     in winter, once the ground is properly white, a child sometimes walks to a spot on the other side of the door and builds one: a ball,
+               then two, then the head, with a scarf, two coals and a carrot (and, for about half of them, a hat). About eighteen seconds of work, and then
+               it is THERE, a thing in the village (G.snowmen). It stays for days. It slumps when it thaws - rain in the winter, or the snow going
+               in spring - down to a puddle with the scarf, the carrot and the coals lying in it, and those are gone a minute later. At most one to a
+               house and four in the village.
+
+   NO DICE in what decides things (a hash of ids and the clock); only the existing yard wander still uses Math.random, as it always did. LEAFPLAY_ON
+   and SNOWMEN_ON turn each off. G.snowmen starts in newGame (02b); an old save has none, and nothing here minds.
+   ============================================================ */
+let LEAFPLAY_ON = true;
+let SNOWMEN_ON = true;
+const LEAF_JUMP_T   = 0.62;     // the arc of one jump
+const LEAF_LIE_T    = 1.05;     // lying in it
+const LEAF_FLAT_T   = 26;       // seconds for a flattened heap to fluff back up
+const SNOW_BUILD_T  = 18;       // how long the work takes
+const SNOW_MELT_T   = 14;       // how long the slump takes
+const SNOW_REMAINS_T = 60;      // how long the carrot and scarf lie in the puddle
+const SNOWMEN_MAX   = 4;
+const SNOW_NEEDED   = 0.6;      // how white the ground has to be
+
+function playHash(a, b){
+  const x = Math.sin((a|0) * 12.9898 + (b|0) * 78.233 + 2.3) * 43758.5453;
+  return x - Math.floor(x);
+}
+/* Two yard spots either side of the door, a little out and a little down. k=1 is the heap, k=2 the snowman, and it is the other side from the heap. */
+function yardSpotOf(h, k){
+  const side = (playHash(h.id, 40) < 0.5 ? -1 : 1) * (k === 1 ? 1 : -1);
+  return { x: h.x + side * (26 + playHash(h.id, 41 + k) * 8), y: h.y + h.h * TILE / 2 + 14 + playHash(h.id, 43 + k) * 5, side };
+}
+
+/* ---------------- leaf piles ---------------- */
+/* The heap this house has this autumn, or null. size 0.3..1 grows over the season. Pure. */
+function leafPileOf(h){
+  if(!LEAFPLAY_ON || !h || h.type !== "house" || !h.done || h.hp <= 0 || G.season !== "autumn") return null;
+  if(playHash(h.id, 50) >= 0.5) return null;
+  const p = yardSpotOf(h, 1);
+  const frac = Math.max(0, Math.min(1, (G.seasonT || 0) / (SEASON_DAYS * DAY_LEN)));
+  if(frac < 0.08) return null;                                     // the first morning or two there is nothing yet
+  if(blocked(p.x, p.y, null, false) || isWater(p.x, p.y)) return null;
+  return { x: p.x, y: p.y, size: 0.3 + 0.7 * Math.min(1, frac * 1.6), side: p.side, h };
+}
+
+let LEAF_FX = { bursts: [], flat: {}, last: 0 };
+function leafFxReset(){ LEAF_FX = { bursts: [], flat: {}, last: G.t || 0 }; }
+const PILE_COLS = ["#c8641e", "#e0a02c", "#a8421c", "#d8b040", "#b8522a"];
+
+function leafBurst(h, x, y){
+  if(!LEAF_FX) leafFxReset();
+  LEAF_FX.flat[h.id] = G.t;
+  const k = (G.t * 7) | 0;
+  for(let i = 0; i < 13; i++){
+    const a = playHash(h.id + i, k) * 6.283, v = 14 + playHash(h.id + i, k + 1) * 22;
+    LEAF_FX.bursts.push({ x, y: y - 3, vx: Math.cos(a) * v * 0.7, vy: -(16 + playHash(h.id + i, k + 2) * 26), t: 0, life: 0.9 + playHash(h.id + i, k + 3) * 0.7,
+                          col: PILE_COLS[i % PILE_COLS.length], rot: playHash(h.id + i, k + 4) * 6.283, h: h.id });
+  }
+}
+
+/* The child's own play with a heap. Returns true while it has hold of the child this frame (so the yard wander does not also choose a spot). */
+function kidLeafPlay(o, dt){
+  if(!LEAFPLAY_ON) return false;
+  const pile = o.leaf ? leafPileOf(o.home) : null;
+  if(o.leaf){
+    if(!pile || o.leaving || o.jar || weatherKeepsYouIn()){ o.leaf = null; o.air = 0; o.lie = false; return false; }
+  } else {
+    if(o.kind !== "child" || o.leaving || o.jar || o.moon || o.snow || (o.wait || 0) > 0 || G.season !== "autumn") return false;
+    if((G.dayF || 0) < 0.42) return false;                         // the afternoon
+    const p = leafPileOf(o.home);
+    if(!p || p.size < 0.45) return false;
+    if(playHash(o.id, (G.t / 4) | 0) >= 0.16) return false;      // looked at every four seconds, started about one time in six
+    o.leaf = { st: "go", n: 0, want: 2 + ((playHash(o.id, 9) * 2) | 0), t: 0, from: p.side };
+    return true;
+  }
+  const L = o.leaf, P = pile;
+  if(L.st === "go"){
+    // run up from the outer side, a little way back from the heap
+    const sx = P.x + P.side * 17, sy = P.y + 3;
+    o.tx = sx; o.ty = sy; o.wait = 0.2;
+    if(Math.hypot(sx - o.x, sy - o.y) < 3.5){ L.st = "jump"; L.t = 0; L.sx = o.x; L.sy = o.y; o.face = P.x < o.x ? -1 : 1; }
+    return true;
+  }
+  if(L.st === "jump"){
+    L.t += dt; const k = Math.min(1, L.t / LEAF_JUMP_T);
+    o.x = L.sx + (P.x - L.sx) * k; o.y = L.sy + (P.y - L.sy) * k; o.tx = o.x; o.ty = o.y;
+    o.air = Math.sin(k * Math.PI) * 9; o.moving = false; o.wait = 0.2;
+    if(k >= 1){ L.st = "lie"; L.t = 0; o.air = 0; o.lie = true; leafBurst(o.home, P.x, P.y); }
+    return true;
+  }
+  if(L.st === "lie"){
+    L.t += dt; o.tx = o.x; o.ty = o.y; o.moving = false; o.wait = 0.2;
+    if(L.t >= LEAF_LIE_T){
+      o.lie = false; L.n++;
+      if(L.n >= L.want){ o.leaf = null; o.wait = 4 + playHash(o.id, 12) * 6; }
+      else { L.st = "go"; L.from = -L.from; }
+    }
+    return true;
+  }
+  o.leaf = null; return false;
+}
+
+function updateLeafFx(dt){
+  if(!LEAF_FX) leafFxReset();
+  if(G.t < LEAF_FX.last) leafFxReset();                            // a new match: the old yard's leaves are not in it
+  LEAF_FX.last = G.t;
+  const b = LEAF_FX.bursts;
+  for(let i = b.length - 1; i >= 0; i--){
+    const p = b[i]; p.t += dt;
+    if(p.t >= p.life){ b.splice(i, 1); continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 70 * dt; p.vx *= 0.98; p.rot += dt * 5;
+  }
+}
+
+/* Drawn with the house (drawDoorstepProps, 05zy): its heap, if it has one, and the leaves in the air over it. */
+function drawLeafPile(b){
+  const pile = leafPileOf(b);
+  if(!pile) return;
+  const since = LEAF_FX && LEAF_FX.flat[b.id] !== undefined ? G.t - LEAF_FX.flat[b.id] : 999;
+  const flat = since < LEAF_FLAT_T ? 1 - Math.min(1, since / LEAF_FLAT_T) : 0;       // 1 just flattened, 0 fluffed back
+  const s = pile.size * (1 - 0.42 * flat);
+  ctx.save();
+  ctx.translate(pile.x, pile.y);
+  ctx.fillStyle = "rgba(0,0,0,.16)"; ctx.beginPath(); ctx.ellipse(0, 1, 9 * s + 1, 2.8 * s + 0.6, 0, 0, 6.283); ctx.fill();
+  const blobs = 7;
+  for(let i = 0; i < blobs; i++){
+    const a = playHash(b.id, 60 + i) * 6.283, r = playHash(b.id, 70 + i) * 6.5 * s;
+    const bx = Math.cos(a) * r, by = Math.sin(a) * r * 0.45 - 1.5 * s * (1 - 0.3 * flat);
+    ctx.fillStyle = PILE_COLS[i % PILE_COLS.length];
+    ctx.beginPath(); ctx.ellipse(bx, by, (3.4 + playHash(b.id, 80 + i) * 1.6) * s + 0.6, (2 + playHash(b.id, 90 + i)) * s * (1 - 0.3 * flat) + 0.4, 0, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = "rgba(84,38,14,.5)"; ctx.lineWidth = 0.5; ctx.stroke();       // an edge: the grass in autumn is nearly the same colour
+  }
+  // a few scattered leaves round the foot of it, and a couple on the top
+  for(let i = 0; i < 6; i++){
+    const a = playHash(b.id, 100 + i) * 6.283, r = (7 + playHash(b.id, 110 + i) * 6) * (0.6 + 0.4 * pile.size);
+    ctx.fillStyle = PILE_COLS[(i + 2) % PILE_COLS.length];
+    ctx.beginPath(); ctx.ellipse(Math.cos(a) * r, Math.sin(a) * r * 0.4 + 1, 1.2, 0.7, a, 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+}
+/* The leaves in the air, drawn with the child (drawHomeLife) so they are in front of the heap. */
+function drawLeafBursts(houseId){
+  if(!LEAF_FX || !LEAF_FX.bursts.length) return;
+  for(const p of LEAF_FX.bursts){
+    if(p.h !== houseId) continue;
+    const a = Math.max(0, 1 - p.t / p.life);
+    ctx.save(); ctx.globalAlpha = Math.min(1, a * 1.6); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.fillStyle = p.col; ctx.beginPath(); ctx.ellipse(0, 0, 1.5, 0.85, 0, 0, 6.283); ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* ---------------- snowmen ---------------- */
+function snowmenOf(){ return G.snowmen || []; }
+function snowmanOfHouse(h){ return snowmenOf().find(s => s.home === h.id) || null; }
+/* Is it thawing? Rain on the winter ground, or the snow going: pure. */
+function thawNow(){
+  if(G.season !== "winter") return (G.snow || 0) < 0.85;          // the first warm days after winter's end
+  const w = G.weather && G.weather.key;
+  return (w === "showers" || w === "downpour" || w === "squall") && (G.weatherAmt || 0) > 0.2;
+}
+
+function kidSnowBuild(o, dt){
+  if(!SNOWMEN_ON) return false;
+  if(o.snow){
+    const s = snowmenOf().find(x => x.id === o.snow.id);
+    if(!s || o.leaving || s.melt > 0 || weatherKeepsYouIn()){ o.snow = null; o.patT = 0; return false; }
+    o.tx = o.x; o.ty = o.y;
+    if(Math.hypot(s.x - o.x, s.y - o.y) > 22){ o.tx = s.x + o.snow.side * 8; o.ty = s.y + 3; return true; }     // walk to it first
+    o.moving = false; o.wait = 0.2; o.patT = 0.4; o.face = s.x < o.x ? -1 : 1;                                     // and work: the pat pose is the arm going up and down
+    s.prog = Math.min(1, s.prog + dt / SNOW_BUILD_T); s.builder = o.id;
+    if(s.prog >= 1){ o.snow = null; o.patT = 0; o.wait = 5 + playHash(o.id, 14) * 8; }
+    return true;
+  }
+  if(o.kind !== "child" || o.leaving || o.jar || o.moon || o.leaf || (o.wait || 0) > 0 || G.season !== "winter") return false;
+  if((G.dayF || 0) < 0.42 || (G.snow || 0) < SNOW_NEEDED || thawNow()) return false;
+  if(snowmenOf().length >= SNOWMEN_MAX || snowmanOfHouse(o.home)) return false;
+  if(playHash(o.id, (G.t / 4) | 0) >= 0.14) return false;
+  const p = yardSpotOf(o.home, 2);
+  if(blocked(p.x, p.y, null, false) || isWater(p.x, p.y)) return false;
+  if(!G.snowmen) G.snowmen = [];
+  const s = { id: G.nextId++, home: o.home.id, x: p.x, y: p.y, prog: 0, melt: 0, born: G.t, hat: playHash(o.home.id, 120) < 0.5, gone: -1, builder: o.id };
+  G.snowmen.push(s);
+  o.snow = { id: s.id, side: p.side };
+  return true;
+}
+
+function updateSnowmen(dt){
+  const list = G.snowmen; if(!list || !list.length) return;
+  const thaw = thawNow();
+  for(let i = list.length - 1; i >= 0; i--){
+    const s = list[i];
+    if(s.gone >= 0){ if(G.t - s.gone > SNOW_REMAINS_T) list.splice(i, 1); continue; }
+    if(!G.bldgs.some(b => b.id === s.home && b.hp > 0)){ list.splice(i, 1); continue; }
+    if(s.prog < 1 && !G.homeLife.some(o => o.snow && o.snow.id === s.id)) s.prog = Math.min(1, s.prog + dt / (SNOW_BUILD_T * 2.5));     // left unfinished at bedtime: it gets done
+    const old = (G.t - s.born) / DAY_LEN > 9;
+    if(s.prog >= 1 && (thaw || old) || s.melt > 0){
+      s.melt = Math.min(1, s.melt + dt / SNOW_MELT_T);
+      if(s.melt >= 1){ s.gone = G.t; }
+    }
+  }
+}
+
+/* One snowman, in world coordinates, front on. prog 0..1 builds it up ball by ball; melt 0..1 slumps it. */
+function drawSnowman(s){
+  const m = s.melt || 0;
+  ctx.save();
+  ctx.translate(s.x, s.y);
+  if(s.gone >= 0){
+    // the puddle, with what was left in it, fading out
+    const a = Math.max(0, 1 - (G.t - s.gone) / SNOW_REMAINS_T);
+    ctx.globalAlpha = Math.min(1, a * 2.2);
+    ctx.fillStyle = "rgba(168,196,220,.55)"; ctx.beginPath(); ctx.ellipse(0, 0.5, 7.5, 2.6, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "rgba(230,240,248,.7)"; ctx.beginPath(); ctx.ellipse(-2, 0, 3, 1.2, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#b8322e"; ctx.beginPath(); ctx.ellipse(1.2, 0.3, 3, 0.9, 0.2, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "#e0782a"; ctx.beginPath(); ctx.moveTo(-3.6, 0.8); ctx.lineTo(-1.6, 0.2); ctx.lineTo(-1.8, 1.1); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#26211e"; ctx.fillRect(3.4, -0.2, 0.8, 0.7); ctx.fillRect(4.8, 0.6, 0.8, 0.7);
+    ctx.restore(); return;
+  }
+  const squash = 1 - 0.5 * m;                        // how much of its height it has left
+  const r1 = 4.6, r2 = 3.5, r3 = 2.6;
+  const stage = s.prog < 0.34 ? 1 : s.prog < 0.67 ? 2 : 3;
+  const part = s.prog < 0.34 ? s.prog / 0.34 : s.prog < 0.67 ? (s.prog - 0.34) / 0.33 : (s.prog - 0.67) / 0.33;
+  // puddle grows as it slumps
+  if(m > 0){ ctx.fillStyle = "rgba(168,196,220," + (0.5 * m).toFixed(2) + ")"; ctx.beginPath(); ctx.ellipse(0, 0.6, 5 + 3.5 * m, 1.8 + 1.1 * m, 0, 0, 6.283); ctx.fill(); }
+  ctx.fillStyle = "rgba(0,0,0,.16)"; ctx.beginPath(); ctx.ellipse(0, 0.8, 5.4, 1.7, 0, 0, 6.283); ctx.fill();
+  const ball = (cy, r, k) => {
+    const rr = r * k;
+    ctx.fillStyle = "#f4f7fa"; ctx.beginPath(); ctx.ellipse(0, cy, rr * (1 + 0.25 * m), rr * squash, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "rgba(170,190,210,.55)"; ctx.beginPath(); ctx.ellipse(rr * 0.25, cy + rr * 0.2 * squash, rr * 0.8 * (1 + 0.25 * m), rr * 0.75 * squash, 0, 0.1, 3.0); ctx.fill();
+  };
+  const y1 = -r1 * 0.8 * squash;
+  ball(y1, r1, stage === 1 ? 0.45 + 0.55 * part : 1);
+  if(stage >= 2){
+    const y2 = y1 - (r1 * 0.75 + r2 * 0.7) * squash;
+    ball(y2, r2, stage === 2 ? 0.45 + 0.55 * part : 1);
+    // two stick arms, drooping as it goes
+    ctx.strokeStyle = "#5a3d22"; ctx.lineWidth = 0.7; ctx.lineCap = "round";
+    const dr = 2.2 * m;
+    ctx.beginPath(); ctx.moveTo(-r2 * 0.8, y2); ctx.lineTo(-r2 * 0.8 - 4.2, y2 - 2.4 + dr * 2); ctx.moveTo(r2 * 0.8, y2); ctx.lineTo(r2 * 0.8 + 4.2, y2 - 2.4 + dr * 2); ctx.stroke();
+    // buttons
+    ctx.fillStyle = "#2a2522"; for(let i = 0; i < 2; i++){ ctx.beginPath(); ctx.arc(0, y2 + (i - 0.2) * 1.6 * squash, 0.4, 0, 6.283); ctx.fill(); }
+    if(stage >= 3){
+      const y3 = y2 - (r2 * 0.7 + r3 * 0.7) * squash - 0.2 + 1.4 * m;       // the head sinks into the body as it melts
+      ball(y3, r3, 0.45 + 0.55 * part);
+      if(part > 0.55){
+        // scarf: a band at the neck with a tail on the front
+        ctx.fillStyle = "#b8322e"; ctx.fillRect(-r3 * 0.9, y3 + r3 * 0.55 * squash, r3 * 1.8, 1.1);
+        ctx.fillRect(r3 * 0.35, y3 + r3 * 0.55 * squash, 1.1, 2.6 - m);
+        // coals and a carrot
+        ctx.fillStyle = "#26211e"; ctx.beginPath(); ctx.arc(-0.95, y3 - 0.5 * squash, 0.42, 0, 6.283); ctx.arc(0.95, y3 - 0.5 * squash, 0.42, 0, 6.283); ctx.fill();
+        ctx.fillStyle = "#e0782a"; ctx.beginPath(); ctx.moveTo(-0.35, y3 + 0.35 * squash); ctx.lineTo(0.35, y3 + 0.35 * squash); ctx.lineTo(0.1 + 0.6 * m, y3 + 1.9 * squash); ctx.closePath(); ctx.fill();
+        if(s.hat && m < 0.7){
+          ctx.fillStyle = "#2b2622"; ctx.fillRect(-r3 * 0.9, y3 - r3 * squash - 0.2, r3 * 1.8, 0.8); ctx.fillRect(-r3 * 0.55, y3 - r3 * squash - 2.8, r3 * 1.1, 2.7);
+        }
+      }
+    }
+  }
+  ctx.restore();
+}
+/* Drawn with the house they belong to, behind whoever stands in front (drawDoorstepProps, 05zy). */
+function drawSnowmenFor(b){
+  const s = snowmanOfHouse(b);
+  if(s) drawSnowman(s);
+}
+
+function updateLeafAndSnow(dt){
+  updateLeafFx(dt);
+  updateSnowmen(dt);
+}
+
+/* ============================================================
+   THE HARVEST MARKET  (14 Oct, from the cosy list)
+   ============================================================
+   "A harvest market day: once a week in autumn a stall appears in the square, and villagers browse." Autumn is seven days long here, which is exactly
+   a week, so it is one day in each autumn - the third - with Harvest Home (the festival and its table, 05zza) still to come two days after.
+
+   WHAT   two stalls (the same cloth-topped stall the Trading Post puts out on its market days, DRESS_ART.stallY) in the square in front of the hall,
+          either side of where the festival table stands, with crates of pumpkins and a basket of apples in front of them. Out from first light, folded
+          away at nightfall. A line in the morning says so.
+   WHO    the people already out on their afternoons (the leisure walkers, 05) pick the stall as somewhere to call, much as they pick the Trading Post
+          on its market days: seven in ten of those choosing to call somewhere go to it. They walk over, stand in front of it facing the stalls for a
+          while, and a regular sometimes comes home with an apple. No new person, no economy: it gives nothing and costs nothing.
+   WHEN   harvestMarketOn(): autumn, day index HARVEST_MARKET_DAY of the season, with a hall built. HARVEST_MARKET_ON turns it off.
+
+   No dice anywhere in here: which stall a house calls at is the house's id.
+   ============================================================ */
+let HARVEST_MARKET_ON = true;
+const HARVEST_MARKET_DAY = 2;          // the third day of autumn; Harvest Home is the sixth
+const HARVEST_MARKET_PULL = 0.7;       // of those choosing somewhere to call, how many choose the stall
+
+function harvestHall(){ return G.bldgs.find(b => b.p === P_YOU && b.type === "town" && b.done && b.hp > 0) || null; }
+function harvestMarketOn(){
+  if(!HARVEST_MARKET_ON || G.season !== "autumn") return false;
+  if(Math.floor((G.seasonT || 0) / DAY_LEN) !== HARVEST_MARKET_DAY) return false;
+  return !!harvestHall();
+}
+/* Where the two stalls stand, in world pixels (their foot on the ground): either side of the table zone in front of the hall. */
+function harvestStalls(){
+  const hall = harvestHall(); if(!hall) return [];
+  const front = hall.y + hall.h * TILE / 2;
+  return [{ x: hall.x - 62, y: front + 40, flip: false }, { x: hall.x + 62, y: front + 40, flip: true }];
+}
+/* A place to call, for the leisure walkers - shaped like the building it stands in for (x, y, h, type), so the code that walks to one needs no change. */
+function harvestStallTarget(house){
+  if(!harvestMarketOn()) return null;
+  const st = harvestStalls(); if(!st.length) return null;
+  const s = st[((house && house.id) | 0) % st.length];
+  return { x: s.x, y: s.y + 2, h: 0, type: "harvestmarket", market: true };      // (a walker is sent twelve pixels below y: in front of it)
+}
+
+/* Drawn with the hall (drawVillageDressing, 04d): the stalls, and what is on them. */
+function drawHarvestMarket(b){
+  if(b.type !== "town" || !harvestMarketOn() || (G.dark || 0) >= 0.6) return;
+  const stalls = harvestStalls(); if(!stalls.length || b !== harvestHall()) return;
+  const dk = G.dark || 0;
+  ctx.save();
+  ctx.globalAlpha = 1 - dk * 0.5;
+  for(const s of stalls){
+    dressSprite(DRESS_ART.stallY, s.x, s.y, 30, s.flip, true);
+    // the goods set out in front: a crate and a pumpkin or two on one, a basket of apples on the other
+    const side = s.flip ? 1 : -1, gx = s.x + side * 12, gy = s.y + 6;
+    if(!s.flip){
+      ctx.fillStyle = "#8a5a32"; ctx.fillRect(gx - 5, gy - 4, 10, 4.5);
+      ctx.fillStyle = "#5e3d22"; ctx.fillRect(gx - 5, gy - 4, 10, 0.9); ctx.fillRect(gx - 5, gy - 0.4, 10, 0.9);
+      if(DRESS_ART.pumpkin) dressSprite(DRESS_ART.pumpkin, gx - 2, gy - 3, 7, false, false);
+      if(DRESS_ART.pumpkinS) dressSprite(DRESS_ART.pumpkinS, gx + 3, gy - 3, 5.5, true, false);
+    } else {
+      ctx.fillStyle = "#b07a42"; ctx.beginPath(); ctx.moveTo(gx - 5, gy - 5); ctx.lineTo(gx + 5, gy - 5); ctx.lineTo(gx + 4, gy); ctx.lineTo(gx - 4, gy); ctx.closePath(); ctx.fill();
+      const cols = ["#c8402e", "#d8553a", "#b83a28", "#d8b040"];
+      for(let i = 0; i < 5; i++){ ctx.fillStyle = cols[i % cols.length]; ctx.beginPath(); ctx.arc(gx - 3 + (i % 3) * 3, gy - 5.4 - (i > 2 ? 1.4 : 0) + (i % 3 ? 0 : 0.6), 1.5, 0, 6.283); ctx.fill(); }
+    }
+  }
+  ctx.restore();
+}
+
+/* First light of the market day: the village says so once. Called from somethingHappensToday (05d) after the day number turns. */
+function announceHarvestMarket(){
+  if(!harvestMarketOn()) return false;
+  hint("It is the harvest market. Two stalls are out in the square, and half the village will wander over to look.");
+  return true;
+}
+
+/* ============================================================
+   PAINTED PATHS, AND THE THINGS THAT COME INTO THE VILLAGE OVER TIME  (14 Oct, from the cosy list)
+   ============================================================
+   "Draw a cobble or gravel path between buildings. Villagers prefer the paths when they walk." And, for this and the decorations (05zzl): "just let
+   them come into the game naturally, over time."
+
+   THE MENU   Build -> "Paths & decorations", which is not there until the first thing in it has come into the village (below). Inside it: the path
+              tools, then whatever decorations have come.
+   UNLOCKS    COSY_UNLOCKS is a list of things, each with the day it may come and how many houses the village must have. At first light, if the next one
+              on the list is due, it arrives - ONE a morning at most, so an old village loaded from a save gets them one by one rather than all at
+              once - and the village says so. Nothing is a reward for anything and nothing is lost by not taking it up. G.cosyUnlocked remembers the
+              day each came, and is also what an old save lacks, so it simply starts the list from the beginning.
+   PATHS      pick gravel or cobbles, tap where it should start, tap where it should end: the way between is found by the same route-finder the
+              villagers use, so it goes round the buildings and the water the way they would; it is shown, with what it will cost, and a tap on "Lay it"
+              pays for it and lays it. The next stretch starts where the last stopped. A path is a tile wide. Gravel is a stone a tile, cobbles two, and
+              cobbles go over gravel but never the other way. "Pick up" takes a few tiles of it away again, for nothing back.
+   WALKING    anybody of yours on a laid path walks a little faster - gravel a tenth, cobbles a sixth - and the route-finder counts a path tile as shorter
+              than the same ground without one, so anybody who is already finding their way round a house or a pond goes by the path if it is nearly
+              as short. (Somebody walking straight across open ground to where they are going does not turn aside to find one: that is not how the walking
+              here is done, and the speed is the whole of the reason to lay one.)
+   DRAWN      under everything that stands: a soft-edged ribbon with grit or stones on it, from G.roads (a Uint8Array over the map, 1 gravel and 2 cobbles,
+              made when the first is laid and saved sparse with the worn tracks, 06b).
+
+   ROADS_ON turns the speed and the route-finder's preference off (the paths themselves stay); COSY_BUILD_ON turns the menu off.
+   ============================================================ */
+let COSY_BUILD_ON = true;
+let ROADS_ON = true;
+const ROAD_KINDS = {
+  gravel: { id: 1, name: "Gravel path",  perTile: 1, speed: 1.09, pull: 0.78, col: "#b4aa92", edge: "rgba(96,86,66,.38)" },
+  cobble: { id: 2, name: "Cobbled path", perTile: 2, speed: 1.16, pull: 0.62, col: "#8f8b83", edge: "rgba(52,48,42,.45)" }
+};
+const ROAD_MAX_TILES = 70;          // one stretch, so a stray tap across the map is not a hundred stone
+
+/* ---------------- what comes into the village, and when ---------------- */
+const COSY_UNLOCKS = [
+  { key: "gravel",    day:  7, houses: 2, what: "gravel paths",   line: "The same feet keep taking the same way between the doors, and somebody has started to say it wants gravel on it. Gravel paths can now be laid: Build, then Paths & decorations." },
+  { key: "bench",     day: 11, houses: 2, what: "benches",        line: "There is a villager sitting on an upturned crate in the evening sun, and two more standing near, waiting for it. Benches can now be built." },
+  { key: "lantern",   day: 15, houses: 3, what: "lanterns",       line: "It is a long way home in the dark with nothing to see by. Lanterns can now be set out along the way." },
+  { key: "flowerbed", day: 19, houses: 3, what: "flower beds",    line: "Somebody has put a few flowers in an old pot by the door, and everybody has noticed. Flower beds can now be dug." },
+  { key: "hedge",     day: 23, houses: 3, what: "hedges",         line: "A hedge, it turns out, is what the village has wanted round its yards all along. Hedges can now be planted." },
+  { key: "cobble",    day: 27, houses: 4, what: "cobbled paths",  line: "Gravel washes out in the wet, and the village has been saying so. Cobbled paths can now be laid." },
+  { key: "picnic",    day: 31, houses: 4, what: "picnic blankets", line: "There is talk of taking the dinner out onto the grass. Picnic blankets can now be spread." },
+  { key: "fence",     day: 35, houses: 4, what: "fences",         line: "The village has begun to want its yards marked off, neatly, with proper corners. Fences can now be put up." },
+  { key: "statue",    day: 40, houses: 5, what: "a statue",       line: "Somebody has been carving something in the evenings and will not say what. A statue can now be raised." }
+];
+let COSY_ALL_UNLOCKED = false;      // for tests and for looking at the lot
+function cosyUnlocked(key){ return COSY_ALL_UNLOCKED || !!(G.cosyUnlocked && G.cosyUnlocked[key]); }
+function cosyAnyUnlocked(){ return COSY_ALL_UNLOCKED || !!(G.cosyUnlocked && Object.keys(G.cosyUnlocked).length); }
+function cosyHouses(){ return G.bldgs.filter(b => b.p === P_YOU && b.type === "house" && b.done && b.hp > 0).length; }
+/* The next thing due, or null. Pure. */
+function cosyNextDue(){
+  const day = G.dayNo || 0, houses = cosyHouses();
+  for(const u of COSY_UNLOCKS){
+    if(cosyUnlocked(u.key)) continue;
+    return (day >= u.day && houses >= u.houses) ? u : null;       // in order: the first not yet come is the only one that can
+  }
+  return null;
+}
+/* First light. Called from somethingHappensToday (05d). One a morning, and the village says so. */
+function updateCosyUnlocks(){
+  if(!COSY_BUILD_ON || !G.units) return false;
+  if(!(G.players[P_YOU] && G.players[P_YOU].stoneAge)) return false;
+  const u = cosyNextDue();
+  if(!u) return false;
+  if(!G.cosyUnlocked) G.cosyUnlocked = {};
+  G.cosyUnlocked[u.key] = G.dayNo || 0;
+  tellAndNote(u.line, "good");
+  return true;
+}
+
+/* ---------------- the roads themselves ---------------- */
+function ensureRoads(){
+  if(!G.roads || G.roads.length !== MAPW * MAPH) G.roads = new Uint8Array(MAPW * MAPH);
+  return G.roads;
+}
+function roadAt(tx, ty){
+  if(!G.roads || tx < 0 || ty < 0 || tx >= MAPW || ty >= MAPH) return 0;
+  return G.roads[ty * MAPW + tx];
+}
+function roadAtWorld(x, y){ return roadAt(Math.floor(x / TILE), Math.floor(y / TILE)); }
+function roadKindOf(id){ return id === 2 ? ROAD_KINDS.cobble : id === 1 ? ROAD_KINDS.gravel : null; }
+/* The speed on a path, for anybody of ours on foot (03c's speed chain). */
+function roadSpeedMult(u){
+  if(!ROADS_ON || !G.roads || !u || u.p !== P_YOU) return 1;
+  const k = roadKindOf(roadAtWorld(u.x, u.y));
+  return k ? k.speed : 1;
+}
+/* How much a step onto this tile costs, as a share of the plain step - the route-finder's. */
+function roadStepFactor(ni){
+  if(!ROADS_ON || !G.roads) return 1;
+  const k = roadKindOf(G.roads[ni]);
+  return k ? k.pull : 1;
+}
+
+/* The tiles of a stretch from tile a to tile b, by the villagers' own route-finder; null when there is no way. */
+function roadRoute(a, b){
+  if(!a || !b) return null;
+  if(a.tx === b.tx && a.ty === b.ty) return [{ tx: a.tx, ty: a.ty }];
+  const p = findPath(a.tx * TILE + TILE / 2, a.ty * TILE + TILE / 2, b.tx * TILE + TILE / 2, b.ty * TILE + TILE / 2, false, null);
+  if(!p) return null;
+  const out = [{ tx: a.tx, ty: a.ty }];
+  for(const w of p){
+    const t = { tx: Math.floor(w.x / TILE), ty: Math.floor(w.y / TILE) };
+    const prev = out[out.length - 1];
+    if(t.tx === prev.tx && t.ty === prev.ty) continue;
+    // a diagonal step leaves the two tiles touching only at a corner: take one of the two between, so the path is joined up
+    if(t.tx !== prev.tx && t.ty !== prev.ty){
+      const c1 = { tx: t.tx, ty: prev.ty }, c2 = { tx: prev.tx, ty: t.ty };
+      out.push(!navBlocked(c1.tx, c1.ty, false) ? c1 : c2);
+    }
+    out.push(t);
+    if(out.length > ROAD_MAX_TILES * 2) return null;
+  }
+  return out;
+}
+/* What laying these would do: the tiles that change, and the stone it costs. Pure. */
+function roadPlanFor(tiles, kindKey){
+  const k = ROAD_KINDS[kindKey]; if(!k || !tiles) return null;
+  const change = [], seen = {};
+  for(const t of tiles){
+    const key = t.ty * MAPW + t.tx;
+    if(seen[key]) continue; seen[key] = true;
+    if(t.tx < 0 || t.ty < 0 || t.tx >= MAPW || t.ty >= MAPH) continue;
+    if(navBlocked(t.tx, t.ty, false)) continue;
+    if(roadAt(t.tx, t.ty) >= k.id) continue;                       // already this or better
+    change.push(t);
+  }
+  return { tiles: change, all: tiles, cost: { stone: change.length * k.perTile }, kind: kindKey };
+}
+function layRoadPlan(plan){
+  if(!plan || !plan.tiles.length) return false;
+  const pl = G.players[P_YOU];
+  if(!canAfford(pl, plan.cost)) return false;
+  pay(pl, plan.cost);
+  const r = ensureRoads(), k = ROAD_KINDS[plan.kind];
+  for(const t of plan.tiles) r[t.ty * MAPW + t.tx] = k.id;
+  return true;
+}
+function pickUpRoad(tx, ty){
+  if(!G.roads) return 0;
+  let n = 0;
+  for(let y = ty - 1; y <= ty + 1; y++) for(let x = tx - 1; x <= tx + 1; x++){
+    if(x < 0 || y < 0 || x >= MAPW || y >= MAPH) continue;
+    if(G.roads[y * MAPW + x]){ G.roads[y * MAPW + x] = 0; n++; }
+  }
+  return n;
+}
+
+/* ---------------- drawing ---------------- */
+let ROAD_DRAW_SEED = 0;
+function roadHash(a, b){
+  const x = Math.sin((a|0) * 12.9898 + (b|0) * 78.233 + 5.1) * 43758.5453;
+  return x - Math.floor(x);
+}
+/* The ribbon: a blob at every tile of one kind and a bridge to each neighbour of the same or a better kind, in one fill, so it reads as one soft path
+   rather than a row of squares. Then the grit or the stones, when close enough to see them. Called from draw (04c) under everything that stands. */
+function drawRoads(x0, y0, x1, y1){
+  if(!G.roads) return;
+  const T = TILE, R = T * 0.5;
+  for(const kk of ["gravel", "cobble"]){
+    const k = ROAD_KINDS[kk];
+    const here = (tx, ty) => roadAt(tx, ty) >= 1;
+    ctx.beginPath();
+    let any = false;
+    for(let ty = y0 - 1; ty < y1 + 1; ty++) for(let tx = x0 - 1; tx < x1 + 1; tx++){
+      if(roadAt(tx, ty) !== k.id) continue;
+      if(!exploredTo(P_YOU, tx * T + T / 2, ty * T + T / 2)) continue;
+      any = true;
+      const cx = tx * T + T / 2, cy = ty * T + T / 2;
+      ctx.moveTo(cx + R * 0.8, cy); ctx.arc(cx, cy, R * 0.8, 0, 6.283);
+      if(here(tx + 1, ty)) ctx.rect(cx, cy - R * 0.8, T, R * 1.6);
+      if(here(tx, ty + 1)) ctx.rect(cx - R * 0.8, cy, R * 1.6, T);
+    }
+    if(!any) continue;
+    ctx.save();
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = k.edge; ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.fillStyle = k.col; ctx.fill();
+    ctx.restore();
+  }
+  if(G.cam.z < 1.1) return;
+  // the grit, and the stones: confined to the ribbon (inside the blob radius) so nothing sticks out past its edge
+  for(let ty = y0; ty < y1; ty++) for(let tx = x0; tx < x1; tx++){
+    const id = roadAt(tx, ty); if(!id) continue;
+    if(!exploredTo(P_YOU, tx * T + T / 2, ty * T + T / 2)) continue;
+    const cx = tx * T + T / 2, cy = ty * T + T / 2;
+    if(id === 1){
+      for(let i = 0; i < 9; i++){
+        const a = roadHash(tx * 31 + i, ty * 17 + 3) * 6.283, d = Math.sqrt(roadHash(tx * 7 + i, ty * 13 + 9)) * R * 0.72;
+        ctx.fillStyle = roadHash(tx + i * 3, ty - i) < 0.5 ? "rgba(214,206,184,.9)" : "rgba(124,114,92,.75)";
+        ctx.beginPath(); ctx.arc(cx + Math.cos(a) * d, cy + Math.sin(a) * d, 0.7 + roadHash(tx * 5 + i, ty * 3) * 0.9, 0, 6.283); ctx.fill();
+      }
+    } else {
+      const cols = ["#a49f95", "#8a867e", "#b0aba0", "#7c7870"];
+      for(let sy = 0; sy < 4; sy++) for(let sx = 0; sx < 4; sx++){
+        const ox = (sx - 1.5) * T * 0.21 + (sy % 2 ? T * 0.1 : -T * 0.04), oy = (sy - 1.5) * T * 0.19;
+        if(Math.hypot(ox, oy) > R * 0.86) continue;
+        ctx.fillStyle = cols[Math.floor(roadHash(tx * 3 + sx, ty * 5 + sy) * 4)];
+        ctx.strokeStyle = "rgba(40,36,30,.5)"; ctx.lineWidth = 0.45;
+        ctx.beginPath(); ctx.ellipse(cx + ox, cy + oy, T * 0.095, T * 0.075, 0, 0, 6.283); ctx.fill(); ctx.stroke();
+      }
+    }
+  }
+}
+/* What the plan being made looks like: the stretch, green where it will be laid and grey where it is there already, and the start. */
+function drawRoadGhost(){
+  const t = G.roadTool; if(!t || G.uiMode !== "build" || G.buildCat !== "cosy") return;
+  const T = TILE;
+  if(t.a){
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 1.4; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.arc(t.a.tx * T + T / 2, t.a.ty * T + T / 2, T * 0.45, 0, 6.283); ctx.stroke();
+    ctx.restore();
+  }
+  if(t.plan){
+    ctx.save();
+    const ok = canAfford(G.players[P_YOU], t.plan.cost);
+    for(const p of t.plan.all){
+      const isNew = t.plan.tiles.some(c => c.tx === p.tx && c.ty === p.ty);
+      ctx.fillStyle = !isNew ? "rgba(200,200,200,.28)" : ok ? "rgba(120,220,120,.5)" : "rgba(230,110,100,.5)";
+      ctx.beginPath(); ctx.arc(p.tx * T + T / 2, p.ty * T + T / 2, T * 0.34, 0, 6.283); ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+/* ---------------- the menu and the taps (07, 03a) ---------------- */
+function cosyMenuAvailable(){ return COSY_BUILD_ON && cosyAnyUnlocked(); }
+function cosyToolsOpen(){ return !!(G.roadTool || G.decorTool) && G.uiMode === "build" && G.buildCat === "cosy"; }
+function cosyClearTools(){ G.roadTool = null; G.decorTool = null; }
+
+function setRoadTool(kind){
+  if(kind !== "erase" && !cosyUnlocked(kind)) return;
+  G.decorTool = null;
+  G.roadTool = { kind, a: null, plan: null };
+  hint(kind === "erase" ? "Tap a path to pick a few tiles of it up." : "Tap where the path should start.");
+  refreshUI();
+}
+/* A tap on the map while a path tool is in hand. Returns true if it took the tap. */
+function cosyRoadTap(w){
+  const t = G.roadTool; if(!t) return false;
+  const tx = Math.floor(w.x / TILE), ty = Math.floor(w.y / TILE);
+  if(t.kind === "erase"){
+    const n = pickUpRoad(tx, ty);
+    hint(n ? "Picked up." : "There is no path there.");
+    if(n) fxPing(w.x, w.y);
+    refreshUI();
+    return true;
+  }
+  if(tx < 0 || ty < 0 || tx >= MAPW || ty >= MAPH || navBlocked(tx, ty, false) || !exploredTo(P_YOU, tx * TILE + TILE / 2, ty * TILE + TILE / 2)){
+    hint("Not there.");
+    return true;
+  }
+  if(!t.a){ t.a = { tx, ty }; t.plan = null; hint("Now tap where it should end."); refreshUI(); return true; }
+  const route = roadRoute(t.a, { tx, ty });
+  if(!route){ hint("There is no way through to there."); return true; }
+  if(route.length > ROAD_MAX_TILES){ hint("That is a long way - lay it in shorter stretches."); return true; }
+  t.plan = roadPlanFor(route, t.kind);
+  t.end = { tx, ty };
+  if(!t.plan.tiles.length) hint("There is already a path all the way.");
+  else hint("Tap “Lay it” to put it down, or tap somewhere else to end it there instead.");
+  refreshUI();
+  return true;
+}
+function cosyLayRoad(){
+  const t = G.roadTool;
+  if(!t || !t.plan) return;
+  if(!layRoadPlan(t.plan)){ hint("There is not the stone for it."); return; }
+  const last = t.end || t.a;
+  fxPing(last.tx * TILE + TILE / 2, last.ty * TILE + TILE / 2);
+  hint(t.plan.tiles.length === 1 ? "A tile of path laid." : t.plan.tiles.length + " tiles of path laid.");
+  t.a = last; t.plan = null; t.end = null;
+  refreshUI();
+}
+
+/* The one tap hook: 03a's tapAt asks this first. */
+function cosyTap(w){
+  if(!(G.roadTool || G.decorTool)) return false;
+  if(!cosyToolsOpen()){ cosyClearTools(); return false; }         // the menu has been left: the tool goes with it
+  if(G.roadTool) return cosyRoadTap(w);
+  if(G.decorTool && typeof decorTap === "function") return decorTap(w);
+  return false;
+}
+
+/* The panel, in the build sub-menu (07). `addBtn(label, sub, enabled, fn, about, lit)`. */
+function cosyMenu(addBtn, pl){
+  const back = () => { cosyClearTools(); G.buildCat = null; refreshUI(); };
+  if(G.roadTool){
+    const t = G.roadTool, k = ROAD_KINDS[t.kind];
+    $("selname").textContent = t.kind === "erase" ? "Pick up a path" : k.name;
+    $("selsub").textContent = "Laying";
+    const cost = t.plan ? costStr(t.plan.cost) : (t.kind === "erase" ? "" : k.perTile + "S a tile");
+    $("selstats").innerHTML = (t.kind === "erase" ? "Tap a path: a few tiles of it come up."
+      : !t.a ? "Tap where it should start."
+      : !t.plan ? "Now tap where it should end."
+      : t.plan.tiles.length ? t.plan.tiles.length + " tiles to lay." : "It is all there already.") + (cost ? "<div class='inlinecost'>" + cost + "</div>" : "");
+    if(t.kind !== "erase"){
+      const can = !!(t.plan && t.plan.tiles.length && canAfford(pl, t.plan.cost));
+      addBtn("✓ Lay it", t.plan ? costStr(t.plan.cost) : "pick both ends", can, cosyLayRoad, null, can);
+      addBtn("Start again", "choose a new start", true, () => { t.a = null; t.plan = null; t.end = null; hint("Tap where the path should start."); refreshUI(); });
+    }
+    addBtn("✕ Done", "put the tool down", true, () => { G.roadTool = null; refreshUI(); });
+    return;
+  }
+  if(G.decorTool && typeof decorToolPanel === "function"){ decorToolPanel(addBtn, pl); return; }
+  addBtn("← Back", "cancel", true, back);
+  for(const kk of ["gravel", "cobble"]){
+    const k = ROAD_KINDS[kk];
+    if(!cosyUnlocked(kk)) continue;
+    addBtn(k.name, k.perTile + "S a tile", pl.res.stone >= k.perTile, () => setRoadTool(kk), null);
+  }
+  if(G.roads && G.roads.some(v => v)) addBtn("Pick up a path", "tap a path", true, () => setRoadTool("erase"));
+  if(typeof decorMenuButtons === "function") decorMenuButtons(addBtn, pl);
+}
+
+/* ============================================================
+   DECORATIONS  (14 Oct, from the cosy list)
+   ============================================================
+   "Benches, lanterns, flower beds, hedges, a statue, a picnic blanket, fence corners - just for looks and costing a little wood or stone. Villagers
+   would actually use them: sit on benches, stop at a lantern, picnic on the blanket." They come into the game one at a time over the days (COSY_UNLOCKS,
+   05zzk) and live under Build -> Paths & decorations.
+
+   WHAT   bench (8W) - a seat for two; lantern (4W 3S) - a post with a lamp that is lit from dusk and lights the ground round it; flower bed (3W) - dug
+          and edged, in the colours of the season; hedge (3W) and fence (3W) - one tile each, joining up with their neighbours so a line of them is a
+          hedge or a fence and the turn is a corner; picnic blanket (2W) - spread flat; statue (30S) - on a plinth, with a bird on its hand.
+   PLACE  pick one and tap a tile: it goes down at once and you may tap the next. A hedge or a fence tapped in line with the last one fills the
+          stretch between. Not on water, a building or its yard, a field, a tree or rock, another decoration, the hall's table ground, or where you
+          have not been; and the hedge, fence and statue (which are walls to anybody walking) not in front of a door. "Take away" puts one back, and
+          gives half the cost.
+   BLOCK  the hedge, fence and statue stop people walking through them, the way a wall does (G.decorGrid, read by blocked() in 03d and by the nav grid).
+          The bench, lantern, bed and blanket are walked over or round.
+   USE    the people already out on their afternoons (the leisure walkers, 05) now sometimes go and sit on a bench (two to a bench), stand a while by a
+          lantern at dusk, or sit on a blanket in the sun (three to a blanket). Nothing is gained by it and nothing is needed to make it happen.
+
+   G.villageDecor is a list of { id, kind, tx, ty, x, y } - ordinary entities, so a save carries them - and G.decorGrid is rebuilt from it. DECOR_ON turns the use
+   off (the things themselves stay). No dice anywhere here: looks come from a hash of the tile.
+   ============================================================ */
+let DECOR_ON = true;
+const DECOR_KINDS = {
+  bench:     { name: "Bench",          cost: { wood: 8 },            blocks: false, flat: false, about: "A seat for two. People out for the afternoon will sit on it." },
+  lantern:   { name: "Lantern",        cost: { wood: 4, stone: 3 },  blocks: false, flat: false, about: "A post with a lamp. It is lit from dusk, and people stop by it." },
+  flowerbed: { name: "Flower bed",     cost: { wood: 3 },            blocks: false, flat: true,  about: "Dug and edged, and in flower in the colours of the season." },
+  hedge:     { name: "Hedge",          cost: { wood: 3 },            blocks: true,  flat: false, join: true, about: "One tile of hedge. Tap in line with the last to fill the stretch between. It stops anybody walking through." },
+  fence:     { name: "Fence",          cost: { wood: 3 },            blocks: true,  flat: false, join: true, about: "One tile of fence, with a corner where it turns. Tap in line with the last to fill the stretch between." },
+  picnic:    { name: "Picnic blanket", cost: { wood: 2 },            blocks: false, flat: true,  about: "Spread flat on the grass. Up to three will sit on it in the sun." },
+  statue:    { name: "Statue",         cost: { stone: 30 },          blocks: true,  flat: false, about: "A figure on a plinth, with a bird on its hand." }
+};
+const DECOR_ORDER = ["bench", "lantern", "flowerbed", "hedge", "fence", "picnic", "statue"];
+const DECOR_NEAR = 15 * 34;           // how far from one of your buildings (pixels) a decoration may go
+const DECOR_RUN_MAX = 14;             // longest stretch of hedge or fence one tap fills
+const DECOR_USE_R = 330;              // how far from home a walker will go to a bench or a blanket
+const DECOR_SLOTS = { bench: 2, picnic: 3, lantern: 3 };
+const LANTERN_RADIUS = 58;
+
+function decorList(){ return G.villageDecor || []; }
+function decorAt(tx, ty){ for(const d of decorList()) if(d.tx === tx && d.ty === ty) return d; return null; }
+function decorHash(a, b){
+  const x = Math.sin((a|0) * 12.9898 + (b|0) * 78.233 + 6.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+function decorUnlockedKinds(){ return DECOR_ORDER.filter(k => cosyUnlocked(k)); }
+
+/* The grid blocked() and the nav grid read: 1 where a hedge, fence or statue stands. Rebuilt whenever one is added or taken, and after a load. */
+function rebuildDecorGrid(){
+  const n = MAPW * MAPH;
+  if(!G.decorGrid || G.decorGrid.length !== n) G.decorGrid = new Uint8Array(n); else G.decorGrid.fill(0);
+  for(const d of decorList()){
+    const k = DECOR_KINDS[d.kind];
+    if(k && k.blocks && d.tx >= 0 && d.ty >= 0 && d.tx < MAPW && d.ty < MAPH) G.decorGrid[d.ty * MAPW + d.tx] = 1;
+  }
+  G.navDirty = true;
+}
+function updateDecor(){
+  if(!G.villageDecor || !G.villageDecor.length){ if(G.decorGrid && G.decorGrid.some(v => v)) rebuildDecorGrid(); return; }
+  if(!G.decorGrid) rebuildDecorGrid();
+}
+
+/* Can this go on this tile? Returns "" if it can, else the reason (plain words). Pure. */
+function decorWhyNot(tx, ty, kind){
+  const k = DECOR_KINDS[kind]; if(!k) return "That is not a thing.";
+  if(tx < 0 || ty < 0 || tx >= MAPW || ty >= MAPH) return "Not there.";
+  const i = ty * MAPW + tx, cx = tx * TILE + TILE / 2, cy = ty * TILE + TILE / 2;
+  if(G.terrain[i] === 5) return "Not on the water.";
+  if(!exploredTo(P_YOU, cx, cy)) return "You have not been there.";
+  if(decorAt(tx, ty)) return "There is something there already.";
+  if(!G.navLand || G.navDirty) rebuildNav();
+  if(G.navLand[i] === 1) return "That ground is taken.";
+  for(const b of G.bldgs){
+    if(tx >= b.tx && tx < b.tx + b.w && ty >= b.ty && ty < b.ty + b.h) return "That ground is taken.";
+    const yr = (typeof yardRect === "function") ? yardRect(b) : null;
+    if(yr && tx >= yr.tx && tx < yr.tx + yr.w && ty >= yr.ty && ty < yr.ty + yr.h) return "That is somebody's yard.";
+    if(k.blocks && !(BLDG[b.type] && BLDG[b.type].farm) && b.type !== "wall" && ty === b.ty + b.h && tx >= b.tx && tx < b.tx + b.w) return "Not in front of a door.";
+  }
+  for(const n of G.nodes){ if(n.farmOf) continue; if(Math.hypot(n.x - cx, n.y - cy) < TILE * 0.8) return "There is something growing there."; }
+  const tz = (typeof tableZone === "function") ? tableZone() : null;
+  if(tz && Math.abs(cx - tz.x) < tz.hw + TILE / 2 && Math.abs(cy - tz.y) < tz.hh + TILE / 2) return "That is where the long table goes.";
+  let near = false;
+  for(const b of G.bldgs){ if(b.p === P_YOU && b.done && Math.hypot(b.x - cx, b.y - cy) < DECOR_NEAR) { near = true; break; } }
+  if(!near) return "Too far from the village.";
+  return "";
+}
+function decorCanPlace(tx, ty, kind){ return decorWhyNot(tx, ty, kind) === ""; }
+
+function placeDecor(kind, tx, ty){
+  const k = DECOR_KINDS[kind], pl = G.players[P_YOU];
+  if(!k || !cosyUnlocked(kind)) return null;
+  if(!decorCanPlace(tx, ty, kind)) return null;
+  if(!canAfford(pl, k.cost)) return null;
+  pay(pl, k.cost);
+  if(!G.villageDecor) G.villageDecor = [];
+  const d = { id: G.nextId++, kind, tx, ty, x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2, born: G.t };
+  G.villageDecor.push(d);
+  if(k.blocks) rebuildDecorGrid();
+  return d;
+}
+function removeDecor(d){
+  if(!d || !G.villageDecor) return false;
+  const i = G.villageDecor.indexOf(d); if(i < 0) return false;
+  G.villageDecor.splice(i, 1);
+  const k = DECOR_KINDS[d.kind], pl = G.players[P_YOU];
+  if(k) for(const r in k.cost) pl.res[r] = (pl.res[r] || 0) + Math.floor(k.cost[r] / 2);
+  if(k && k.blocks) rebuildDecorGrid();
+  return true;
+}
+
+/* Somewhere a walker can go and use one: { decor, x, y } for the nearest of this kind with a slot free, or null. */
+function decorSpotFor(kind, house){
+  if(!DECOR_ON || !house) return null;
+  const cap = DECOR_SLOTS[kind] || 1;
+  let best = null, bd = DECOR_USE_R;
+  for(const d of decorList()){
+    if(d.kind !== kind) continue;
+    const dist = Math.hypot(d.x - house.x, d.y - house.y);
+    if(dist >= bd) continue;
+    let used = 0; for(const o of G.leisure || []) if(o.visited === d && o.state !== "home") used++;
+    if(used >= cap) continue;
+    best = d; bd = dist;
+  }
+  if(!best) return null;
+  let used = 0; for(const o of G.leisure || []) if(o.visited === best && o.state !== "home") used++;
+  const slots = { bench: [[-4.5, 3], [4.5, 3]], picnic: [[-7, 2], [7, 2], [0, 6]], lantern: [[-11, 6], [11, 6], [0, 10]] }[kind] || [[0, 6]];
+  const s = slots[used % slots.length];
+  return { decor: best, x: best.x + s[0], y: best.y + s[1] };
+}
+
+/* ---------------- looks ---------------- */
+function seasonBloomCols(){
+  switch(G.season){
+    case "spring": return ["#f0a8c0", "#f4e062", "#ffffff", "#d890e8", "#f08a7a"];
+    case "summer": return ["#e0403a", "#f4d03a", "#ffffff", "#e87aa8", "#4a7ed8"];
+    case "autumn": return ["#c8601e", "#e8a82c", "#a8421c", "#d8c058", "#8a3a2a"];
+    default:       return ["#f4f7fa", "#e8eef4", "#c8464a", "#3f7a48", "#f4f7fa"];      // snowdrops and sprigs of holly
+  }
+}
+function hedgeLook(){
+  switch(G.season){
+    case "spring": return { top: "#7fc063", mid: "#5aa04a", low: "#3e7a38", dots: "#f4d6e0" };
+    case "autumn": return { top: "#b58a3a", mid: "#8a6a2e", low: "#5e4a22", dots: null };
+    case "winter": return { top: "#e8eef4", mid: "#3f6a44", low: "#2c4c34", dots: null };
+    default:       return { top: "#6fb25a", mid: "#4c9444", low: "#356a34", dots: null };
+  }
+}
+function decorSnowOn(){ return (G.snow || 0) > 0.35; }
+
+/* The flat ones (a blanket, a bed): drawn in the ground pass, under everyone. */
+function drawDecorGround(x0, y0, x1, y1){
+  for(const d of decorList()){
+    const k = DECOR_KINDS[d.kind]; if(!k || !k.flat) continue;
+    if(d.tx < x0 - 1 || d.tx > x1 + 1 || d.ty < y0 - 1 || d.ty > y1 + 1) continue;
+    if(!exploredTo(P_YOU, d.x, d.y)) continue;
+    if(d.kind === "picnic") drawPicnic(d); else drawFlowerBed(d);
+  }
+}
+function drawPicnic(d){
+  const h = decorHash(d.tx, d.ty), cols = [["#c8463e", "#f4ece0"], ["#3e68a8", "#f4ece0"], ["#d8a63a", "#f4ece0"]][Math.floor(h * 3)];
+  const x = d.x, y = d.y + 1, w = 25, hh = 17;
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,.16)"; ctx.fillRect(x - w / 2 + 1, y - hh / 2 + 1.5, w, hh);
+  ctx.translate(x, y); ctx.rotate((h - 0.5) * 0.18);
+  ctx.fillStyle = cols[0]; ctx.fillRect(-w / 2, -hh / 2, w, hh);
+  ctx.fillStyle = cols[1];
+  for(let i = 0; i < 5; i++) for(let j = 0; j < 4; j++) if((i + j) % 2) ctx.fillRect(-w / 2 + i * (w / 5), -hh / 2 + j * (hh / 4), w / 5, hh / 4);
+  ctx.strokeStyle = "rgba(60,40,30,.45)"; ctx.lineWidth = 0.6; ctx.strokeRect(-w / 2, -hh / 2, w, hh);
+  // a basket and a couple of apples on it, a loaf
+  ctx.fillStyle = "#b07a42"; ctx.beginPath(); ctx.ellipse(-4, -1, 3.6, 2.4, 0, 0, 6.283); ctx.fill();
+  ctx.strokeStyle = "#7a5230"; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.arc(-4, -2, 3, Math.PI, 0); ctx.stroke();
+  ctx.fillStyle = "#c8402e"; ctx.beginPath(); ctx.arc(4, 1, 1.3, 0, 6.283); ctx.arc(6, -1, 1.3, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#c98f4e"; ctx.beginPath(); ctx.ellipse(1, 3.4, 2.4, 1.3, 0.2, 0, 6.283); ctx.fill();
+  ctx.restore();
+}
+function drawFlowerBed(d){
+  const x = d.x, y = d.y + 2, h = decorHash(d.tx, d.ty);
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,.14)"; ctx.beginPath(); ctx.ellipse(x + 1, y + 2, 14, 7, 0, 0, 6.283); ctx.fill();
+  // the edging: a ring of small stones round dark soil
+  ctx.fillStyle = "#5a4330"; ctx.beginPath(); ctx.ellipse(x, y, 12.5, 6.8, 0, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#9a948a";
+  for(let i = 0; i < 14; i++){ const a = i / 14 * 6.283; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * 12.4, y + Math.sin(a) * 6.8, 2.1, 1.5, a, 0, 6.283); ctx.fill(); }
+  const cols = seasonBloomCols();
+  for(let i = 0; i < 9; i++){
+    const a = decorHash(d.tx * 7 + i, d.ty) * 6.283, r = Math.sqrt(decorHash(d.tx, d.ty * 5 + i)) * 8.2;
+    const bx = x + Math.cos(a) * r, by = y + Math.sin(a) * r * 0.52;
+    if(G.season === "winter" && decorSnowOn()){ ctx.fillStyle = "#eef3f8"; ctx.beginPath(); ctx.ellipse(bx, by, 2.6, 1.5, 0, 0, 6.283); ctx.fill(); if(i % 3 === 0){ ctx.fillStyle = cols[2]; ctx.beginPath(); ctx.arc(bx, by - 1, 0.8, 0, 6.283); ctx.fill(); } continue; }
+    ctx.strokeStyle = "#4f7a3a"; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(bx, by + 1); ctx.lineTo(bx, by - 2.2); ctx.stroke();
+    ctx.fillStyle = cols[(i + Math.floor(h * 5)) % cols.length]; ctx.beginPath(); ctx.arc(bx, by - 3, 1.5, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "rgba(255,240,170,.85)"; ctx.beginPath(); ctx.arc(bx, by - 3, 0.45, 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* The standing ones, in the depth-sorted pass (kind 33 in the draw list, 04c). */
+function drawDecorOne(d){
+  ctx.save();
+  ctx.translate(d.x, d.y);
+  switch(d.kind){
+    case "bench": drawBench(d); break;
+    case "lantern": drawLanternPost(d); break;
+    case "hedge": drawHedge(d); break;
+    case "fence": drawFence(d); break;
+    case "statue": drawStatue(d); break;
+  }
+  ctx.restore();
+}
+function drawBench(d){
+  const h = decorHash(d.tx, d.ty);
+  ctx.fillStyle = "rgba(0,0,0,.2)"; ctx.beginPath(); ctx.ellipse(0, 6, 13, 3.4, 0, 0, 6.283); ctx.fill();
+  const wood = h < 0.5 ? "#9a6a3c" : "#8a5f38", dk = "#5e3d22", lt = "#b98550";
+  // legs
+  ctx.fillStyle = dk; ctx.fillRect(-10.5, 0, 2.2, 6.2); ctx.fillRect(8.3, 0, 2.2, 6.2);
+  // seat
+  ctx.fillStyle = wood; ctx.fillRect(-12, -2, 24, 3.6);
+  ctx.fillStyle = lt; ctx.fillRect(-12, -2, 24, 1.1);
+  ctx.strokeStyle = "rgba(40,24,12,.55)"; ctx.lineWidth = 0.5; ctx.strokeRect(-12, -2, 24, 3.6);
+  // back: two rails on two posts
+  ctx.fillStyle = dk; ctx.fillRect(-10.5, -9.6, 2, 8); ctx.fillRect(8.5, -9.6, 2, 8);
+  ctx.fillStyle = wood; ctx.fillRect(-12, -9.2, 24, 2.3); ctx.fillRect(-12, -5.6, 24, 2.3);
+  ctx.fillStyle = lt; ctx.fillRect(-12, -9.2, 24, 0.8);
+  ctx.strokeStyle = "rgba(40,24,12,.5)"; ctx.strokeRect(-12, -9.2, 24, 2.3); ctx.strokeRect(-12, -5.6, 24, 2.3);
+  if(decorSnowOn()){ ctx.fillStyle = "#f4f7fa"; ctx.fillRect(-12, -10.2, 24, 1.4); ctx.fillRect(-12, -3, 24, 1.1); }
+}
+function lanternLit(){ return (G.dark || 0) > 0.12; }
+function drawLanternPost(d){
+  const lit = lanternLit();
+  ctx.fillStyle = "rgba(0,0,0,.2)"; ctx.beginPath(); ctx.ellipse(0, 2, 6.5, 2, 0, 0, 6.283); ctx.fill();
+  // post
+  ctx.fillStyle = "#3a332e"; ctx.fillRect(-1.1, -22, 2.2, 24);
+  ctx.fillStyle = "#4a423a"; ctx.fillRect(-2.6, 0, 5.2, 2.2);
+  // the lamp: a little glass box with a cap
+  const ly = -26;
+  ctx.fillStyle = "#2c2622"; ctx.beginPath(); ctx.moveTo(-4.6, ly - 2.4); ctx.lineTo(0, ly - 6.6); ctx.lineTo(4.6, ly - 2.4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = lit ? "rgba(255,214,130,.95)" : "rgba(214,228,232,.7)";
+  ctx.fillRect(-3.6, ly - 2.4, 7.2, 7);
+  ctx.strokeStyle = "#2c2622"; ctx.lineWidth = 0.8; ctx.strokeRect(-3.6, ly - 2.4, 7.2, 7);
+  ctx.beginPath(); ctx.moveTo(0, ly - 2.4); ctx.lineTo(0, ly + 4.6); ctx.stroke();
+  ctx.fillStyle = "#2c2622"; ctx.fillRect(-4.2, ly + 4.4, 8.4, 1.6);
+  if(lit){ ctx.fillStyle = "rgba(255,246,200,.95)"; ctx.beginPath(); ctx.ellipse(0, ly + 1, 1.4, 2.2 + Math.sin(G.t * 7 + d.id) * 0.35, 0, 0, 6.283); ctx.fill(); }
+  if(decorSnowOn()){ ctx.fillStyle = "#f4f7fa"; ctx.beginPath(); ctx.ellipse(0, ly - 5.8, 3.2, 1.2, 0, 0, 6.283); ctx.fill(); }
+}
+/* the glow, after the night has gone down (called with the other lights in 04c) is in the lamps loop; this is the soft halo over the lamp itself */
+function drawLanternGlow(x0, y0, x1, y1){
+  if(!lanternLit()) return;
+  const dk = Math.min(1, (G.dark || 0) * 2.2);
+  for(const d of decorList()){
+    if(d.kind !== "lantern") continue;
+    if(d.tx < x0 - 2 || d.tx > x1 + 2 || d.ty < y0 - 2 || d.ty > y1 + 2) continue;
+    if(!exploredTo(P_YOU, d.x, d.y)) continue;
+    const fl = 0.9 + 0.1 * Math.sin(G.t * 5.3 + d.id * 2.1);
+    const g = ctx.createRadialGradient(d.x, d.y - 25, 0.5, d.x, d.y - 25, 16);
+    g.addColorStop(0, "rgba(255,226,150," + (0.62 * dk * fl).toFixed(3) + ")");
+    g.addColorStop(1, "rgba(255,200,110,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(d.x, d.y - 25, 16, 0, 6.283); ctx.fill();
+  }
+}
+function drawHedge(d){
+  const L = hedgeLook(), h = decorHash(d.tx, d.ty);
+  const n = decorAt(d.tx, d.ty - 1), s = decorAt(d.tx, d.ty + 1), e = decorAt(d.tx + 1, d.ty), w = decorAt(d.tx - 1, d.ty);
+  const same = (o) => o && o.kind === "hedge";
+  ctx.fillStyle = "rgba(0,0,0,.18)"; ctx.beginPath(); ctx.ellipse(0, 6, 15, 4, 0, 0, 6.283); ctx.fill();
+  const T = TILE;
+  const blob = (ox, oy, r, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.ellipse(ox, oy, r, r * 0.86, 0, 0, 6.283); ctx.fill(); };
+  const body = (col, dy, grow) => {
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.ellipse(0, dy, 9.5 + grow, 8 + grow, 0, 0, 6.283); ctx.fill();
+    if(same(e)) ctx.fillRect(0, dy - 7.6 - grow, T, 15.2 + grow * 2);
+    if(same(w)) ctx.fillRect(-T, dy - 7.6 - grow, T, 15.2 + grow * 2);
+    if(same(s)) { ctx.beginPath(); ctx.ellipse(0, dy + T / 2, 8.6 + grow, T / 2 + 2, 0, 0, 6.283); ctx.fill(); }
+  };
+  body(L.low, 0, 0.6);
+  body(L.mid, -2.6, 0);
+  body(L.top, -6.2, -1.6);
+  for(let i = 0; i < 6; i++){ blob(-7 + decorHash(d.tx + i, d.ty) * 14, -9 + decorHash(d.tx, d.ty + i) * 9, 1.3, i % 2 ? L.mid : L.top); }
+  if(L.dots && h < 0.9) for(let i = 0; i < 5; i++){ ctx.fillStyle = L.dots; ctx.beginPath(); ctx.arc(-7 + decorHash(d.tx * 3 + i, d.ty) * 14, -10 + decorHash(d.tx, d.ty * 3 + i) * 9, 1, 0, 6.283); ctx.fill(); }
+  if(decorSnowOn() && G.season === "winter"){ ctx.fillStyle = "rgba(244,247,250,.85)"; ctx.beginPath(); ctx.ellipse(0, -9.6, 8, 2.8, 0, 0, 6.283); ctx.fill(); if(same(e)) ctx.fillRect(0, -11.6, T, 3.6); if(same(w)) ctx.fillRect(-T, -11.6, T, 3.6); }
+}
+function drawFence(d){
+  const same = (o) => o && o.kind === "fence";
+  const e = decorAt(d.tx + 1, d.ty), w = decorAt(d.tx - 1, d.ty), n = decorAt(d.tx, d.ty - 1), s = decorAt(d.tx, d.ty + 1);
+  const T = TILE, wood = "#b08a58", dk = "#6e4e2c";
+  ctx.fillStyle = "rgba(0,0,0,.16)"; ctx.beginPath(); ctx.ellipse(0, 5.4, 9, 2.6, 0, 0, 6.283); ctx.fill();
+  const rail = (x1, y1, x2, y2) => { ctx.strokeStyle = dk; ctx.lineWidth = 3.4; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.strokeStyle = wood; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+  // rails run to the neighbours on every side that has one (they are drawn to the neighbour's post, which draws its own)
+  for(const [on, dx, dy] of [[same(e), T, 0], [same(w), -T, 0], [same(s), 0, T], [same(n), 0, -T]]){
+    if(!on) continue;
+    for(const lv of [-2.4, -6.6]) rail(0, lv, dx / 2, lv + dy / 2);
+  }
+  // the post: taller and capped, so a corner reads as a corner
+  const corner = (same(e) || same(w)) && (same(n) || same(s));
+  const ph = corner ? 11.5 : 9.8;
+  ctx.fillStyle = dk; ctx.fillRect(-1.9, -ph, 3.8, ph + 5.2);
+  ctx.fillStyle = wood; ctx.fillRect(-1.2, -ph, 2.4, ph + 5.2);
+  ctx.fillStyle = dk; ctx.beginPath(); ctx.moveTo(-2.5, -ph); ctx.lineTo(0, -ph - 2.6); ctx.lineTo(2.5, -ph); ctx.closePath(); ctx.fill();
+  if(decorSnowOn()){ ctx.fillStyle = "#f4f7fa"; ctx.fillRect(-2.4, -ph - 1.4, 4.8, 1.8); for(const [on, dx] of [[same(e), T], [same(w), -T]]) if(on) ctx.fillRect(Math.min(0, dx / 2), -7.9, Math.abs(dx / 2), 1.4); }
+}
+function drawStatue(d){
+  const h = decorHash(d.tx, d.ty);
+  ctx.fillStyle = "rgba(0,0,0,.22)"; ctx.beginPath(); ctx.ellipse(0, 5.5, 12, 3.4, 0, 0, 6.283); ctx.fill();
+  const stone = "#aaa59b", dkS = "#7e7a72", ltS = "#c9c5bb";
+  // plinth, two courses
+  ctx.fillStyle = dkS; ctx.fillRect(-10, -1, 20, 7); ctx.fillStyle = stone; ctx.fillRect(-10, -1, 20, 5.2); ctx.fillStyle = ltS; ctx.fillRect(-10, -1, 20, 1.2);
+  ctx.fillStyle = dkS; ctx.fillRect(-7.6, -7.4, 15.2, 6.6); ctx.fillStyle = stone; ctx.fillRect(-7.6, -7.4, 15.2, 5.2); ctx.fillStyle = ltS; ctx.fillRect(-7.6, -7.4, 15.2, 1.1);
+  // the figure: a long robe, one arm raised with a small bird on the hand, a round head
+  ctx.fillStyle = stone;
+  ctx.beginPath(); ctx.moveTo(-4.6, -7.4); ctx.lineTo(-3, -22); ctx.lineTo(3, -22); ctx.lineTo(4.6, -7.4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = dkS; ctx.beginPath(); ctx.moveTo(1, -7.4); ctx.lineTo(3, -22); ctx.lineTo(4.6, -7.4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = stone; ctx.beginPath(); ctx.arc(0, -25, 3.3, 0, 6.283); ctx.fill();
+  ctx.fillStyle = ltS; ctx.beginPath(); ctx.arc(-0.8, -25.8, 1.4, 0, 6.283); ctx.fill();
+  ctx.strokeStyle = stone; ctx.lineWidth = 2.1; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(3, -20.5); ctx.lineTo(7.8, -25); ctx.stroke();
+  ctx.fillStyle = stone; ctx.beginPath(); ctx.ellipse(8.6, -27, 2.1, 1.5, -0.3, 0, 6.283); ctx.fill(); ctx.beginPath(); ctx.arc(10.2, -28.2, 1, 0, 6.283); ctx.fill();
+  ctx.strokeStyle = dkS; ctx.lineWidth = 0.5; ctx.strokeRect(-10, -1, 20, 7); ctx.strokeRect(-7.6, -7.4, 15.2, 6.6);
+  // moss on the shady side, thicker in the wet seasons
+  if(G.season !== "winter"){ ctx.fillStyle = "rgba(92,128,62,.55)"; ctx.beginPath(); ctx.ellipse(-6, 2.5, 3.4 + h * 2, 1.7, 0, 0, 6.283); ctx.fill(); ctx.beginPath(); ctx.ellipse(-3.5, -14, 1.6, 3.2, 0.2, 0, 6.283); ctx.fill(); }
+  if(decorSnowOn()){ ctx.fillStyle = "#f4f7fa"; ctx.beginPath(); ctx.ellipse(0, -28, 3.2, 1.1, 0, 0, 6.283); ctx.fill(); ctx.fillRect(-10, -2, 20, 1.6); ctx.fillRect(-7.6, -8.4, 15.2, 1.4); }
+}
+
+/* ---------------- the ghost, the taps and the panel ---------------- */
+function drawDecorGhost(){
+  const t = G.decorTool; if(!t || !cosyToolsOpen() || t.kind === "take") return;
+  const w = s2w(hover.x, hover.y), tx = Math.floor(w.x / TILE), ty = Math.floor(w.y / TILE);
+  const ok = decorCanPlace(tx, ty, t.kind) && canAfford(G.players[P_YOU], DECOR_KINDS[t.kind].cost);
+  const cx = tx * TILE + TILE / 2, cy = ty * TILE + TILE / 2;
+  ctx.save();
+  ctx.fillStyle = ok ? "rgba(120,220,120,.35)" : "rgba(230,110,100,.38)";
+  ctx.fillRect(tx * TILE, ty * TILE, TILE, TILE);
+  ctx.globalAlpha = ok ? 0.75 : 0.45;
+  const ghost = { id: 0, kind: t.kind, tx, ty, x: cx, y: cy };
+  if(DECOR_KINDS[t.kind].flat){ if(t.kind === "picnic") drawPicnic(ghost); else drawFlowerBed(ghost); }
+  else drawDecorOne(ghost);
+  ctx.restore();
+}
+function setDecorTool(kind){
+  if(kind !== "take" && !cosyUnlocked(kind)) return;
+  G.roadTool = null;
+  G.decorTool = { kind, last: null };
+  const k = DECOR_KINDS[kind];
+  hint(kind === "take" ? "Tap a decoration to take it away." : "Tap a tile to put " + (k ? k.name.toLowerCase() : "it") + " down.");
+  refreshUI();
+}
+/* A tap on the map with a decoration in hand. Returns true: it always takes the tap. */
+function decorTap(w){
+  const t = G.decorTool; if(!t) return false;
+  const tx = Math.floor(w.x / TILE), ty = Math.floor(w.y / TILE);
+  if(t.kind === "take"){
+    const d = decorAt(tx, ty);
+    if(d && removeDecor(d)){ hint("Taken away."); fxPing(d.x, d.y); } else hint("There is nothing there to take away.");
+    refreshUI(); return true;
+  }
+  const k = DECOR_KINDS[t.kind], pl = G.players[P_YOU];
+  // a hedge or a fence in line with the last one fills the stretch between
+  const tiles = [];
+  if(k.join && t.last && (t.last.tx === tx || t.last.ty === ty) && Math.abs(t.last.tx - tx) + Math.abs(t.last.ty - ty) > 1 && Math.abs(t.last.tx - tx) + Math.abs(t.last.ty - ty) <= DECOR_RUN_MAX){
+    const dx = Math.sign(tx - t.last.tx), dy = Math.sign(ty - t.last.ty);
+    for(let x = t.last.tx + dx, y = t.last.ty + dy; ; x += dx, y += dy){ tiles.push({ tx: x, ty: y }); if(x === tx && y === ty) break; }
+  } else tiles.push({ tx, ty });
+  let placed = 0, why = "";
+  for(const q of tiles){
+    const reason = decorWhyNot(q.tx, q.ty, t.kind);
+    if(reason){ why = why || reason; continue; }
+    if(!canAfford(pl, k.cost)){ why = why || "There is not the " + Object.keys(k.cost).join(" and ") + " for it."; break; }
+    if(placeDecor(t.kind, q.tx, q.ty)){ placed++; fxPing(q.tx * TILE + TILE / 2, q.ty * TILE + TILE / 2); }
+  }
+  if(placed){ t.last = { tx, ty }; hint(placed === 1 ? k.name + " put down." : placed + " pieces put down." + (why ? " The rest would not go." : "")); }
+  else hint(why || "Not there.");
+  refreshUI();
+  return true;
+}
+function decorMenuButtons(addBtn, pl){
+  for(const kind of decorUnlockedKinds()){
+    const k = DECOR_KINDS[kind];
+    addBtn(k.name, costStr(k.cost), canAfford(pl, k.cost), () => setDecorTool(kind), null);
+  }
+  if(decorList().length) addBtn("Take away", "half comes back", true, () => setDecorTool("take"), null);
+}
+function decorToolPanel(addBtn, pl){
+  const t = G.decorTool, k = DECOR_KINDS[t.kind];
+  $("selname").textContent = t.kind === "take" ? "Take away" : k.name;
+  $("selsub").textContent = "Placing";
+  $("selstats").innerHTML = (t.kind === "take" ? "Tap a decoration to take it away."
+    : k.join ? "Tap a tile. Tap in line with the last to fill the stretch between."
+    : "Tap a tile to put it down.") + (k ? "<div class='inlinecost'>" + costStr(k.cost) + "</div>" : "");
+  if(k) setAbout(k.about, costStr(k.cost));
+  addBtn("✕ Done", "put it down", true, () => { G.decorTool = null; refreshUI(); });
 }
 
 /* ============================================================
@@ -109152,6 +110814,8 @@ const SAVE_SKIP = new Set([
   "grassMats", "grassMatSeason", "waterBlobCv", "shallowBlobCv",
   // pathfinding scratch, rebuilt on first use
   "paths", "navLand", "aiRouteCache",
+  // painted paths are saved sparse beside the worn ones (saveSparsePack); the tool in hand is a UI state, not village data (05zzk)
+  "roads", "roadTool", "decorTool", "decorGrid",
   // mid-animation, one frame from irrelevant
   "projectiles", "fx", "lightning",
   // a reference to shared static config, not per-match data: the difficulty
@@ -109227,6 +110891,23 @@ function saveIsLive(v){
 
 let __saveDropped = [];
 
+/* TRACKS AND ROADS ARE SAVED SPARSE (14 Oct). G.paths - the tracks the village's feet wear into the ground - was on SAVE_SKIP under "pathfinding
+   scratch" and so was never written at all: every village that was saved and loaded came back with bare ground where its tracks had been, which is
+   the one thing a months-long village is for. It is a Float32Array over the whole map, almost all of it zero, so the generic typed-array save
+   (every entry, as a JSON number) would be fifty or sixty thousand digits for a handful of worn tiles. These write only the tiles that have anything
+   on them, as [index, value, index, value, ...], to a tenth. G.roads (the painted ones, 05zzk) goes the same way. */
+function saveSparsePack(a){
+  const out = [];
+  if(!a || !a.length) return out;
+  for(let i = 0; i < a.length; i++){ const v = a[i]; if(v >= 0.5) out.push(i, Math.round(v * 10) / 10); }
+  return out;
+}
+function saveSparseUnpack(list, n, C){
+  const a = new C(n);
+  if(Array.isArray(list)) for(let k = 0; k + 1 < list.length; k += 2){ const i = list[k]; if(i >= 0 && i < n) a[i] = list[k + 1]; }
+  return a;
+}
+
 /* value -> plain JSON data. Entities become {$ref:id}; typed arrays keep
    their kind so load can rebuild the right sort. */
 function saveFreeze(v, isEnt, path, depth){
@@ -109275,6 +110956,8 @@ function buildSave(){
     const f = saveFreeze(G[k], isEnt, "G." + k, 0);
     if(f !== undefined) state[k] = f;
   }
+  state.pathsSparse = saveSparsePack(G.paths);          // the worn tracks (G.paths is on SAVE_SKIP: it is a typed array the size of the map)
+  state.roadsSparse = saveSparsePack(G.roads);          // and the painted ones, when there are any (05zzk)
 
   const entOut = {};
   for(const [id, o] of ents){
@@ -109440,6 +111123,10 @@ function loadGame(){
      the alternative is a stale, truthy husk that passes its own lazy-init
      check and crashes the first real use instead of rebaking. */
   for(const k of SAVE_SKIP) delete G[k];
+  // the worn tracks and the painted roads come back from their sparse form (a save from before they were kept has neither: bare ground, as it was)
+  G.paths = saveSparseUnpack(G.pathsSparse, MAPW * MAPH, Float32Array); delete G.pathsSparse;
+  if(Array.isArray(G.roadsSparse) && G.roadsSparse.length) G.roads = saveSparseUnpack(G.roadsSparse, MAPW * MAPH, Uint8Array);
+  delete G.roadsSparse;
   G.diff = DIFF[DIFFICULTY] || DIFF.medium;
   G.projectiles = []; G.fx = []; G.lightning = null;
   G.running = false; G.over = false;
@@ -112628,8 +114315,13 @@ function refreshUI(){
           G.buildCat = cat.key; refreshUI();
         });
       }
+      // paths and decorations: only once the first has come into the village (05zzk)
+      if(typeof cosyMenuAvailable === "function" && cosyMenuAvailable()){
+        addBtn("Paths & decorations", "for looks", true, ()=>{ G.buildCat = "cosy"; refreshUI(); });
+      }
       return;
     }
+    if(G.buildCat === "cosy" && typeof cosyMenu === "function"){ cosyMenu(addBtn, pl); return; }
 
     // ---- inside one category: its own buildings, in the same scrolling
     //      row the old single flat list used ----
